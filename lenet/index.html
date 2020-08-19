@@ -1,0 +1,114 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>WebNN LeNet Example</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">   
+    <style>
+		.radioInit{
+			display: none;
+		}
+		.radioSelected{
+			display: inline-block;
+			width:30px;
+			height:30px;
+			border:2px solid lightskyblue;
+			border-radius:100%;
+			margin-right:8px;
+      position:relative;
+			vertical-align: middle;
+
+		}
+		.radioInit:checked + .radioSelected:after{
+			content:"";
+			display: inline-block;
+			width:22px;
+			height:22px;
+			background:lightskyblue;
+			border-radius:100%;
+			margin-top:2px;
+		}
+		.radioInit:checked + .radioSelected{
+			border:2px solid rgb(21, 133, 202);
+		}
+	  </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark" style="width:100%">
+      <span class="navbar-brand mb-0 h1">WebNN LeNet Example</span>
+    </nav>
+    <div class="container" id="container">
+      <div class="row" style="margin-top:20px;">
+        <div class="col">
+        </div>
+        <div class="col-4" align="center">
+          <canvas id="visual_canvas" width=280 height=280></canvas>
+        </div>
+        <div class="col-4" align="center">
+          <div class='row text-center tc' id='inferencetitle'>
+            <h5>Prediction Result:</h5>
+          </div>
+          <div class='row text-center' id='inferenceresult'>
+            <table class='table table-sm'>
+              <thead>
+                <tr>
+                  <th scope='col'>#</th>
+                  <th scope='col'>Label</th>
+                  <th scope='col'>Probability</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope='row'>1</th>
+                  <td id='label0'></td>
+                  <td id='prob0'></td>
+                </tr>
+                <tr>
+                  <th scope='row'>2</th>
+                  <td id='label1'></td>
+                  <td id='prob1'></td>
+                </tr>
+                <tr>
+                  <th scope='row'>3</th>
+                  <td id='label2'></td>
+                  <td id='prob2'></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="col">
+        </div>
+      </div>
+      <div class="row" style="margin-top:50px;">
+        <div class="col">
+        </div>
+        <div class="col-1">
+          <button type="button" class="btn btn-primary btn-lg" id="next">Next</button>
+        </div>
+        <div class="col-1">
+          <button type="button" class="btn btn-primary btn-lg" id="clear">Clear</button>
+        </div>
+        <div class="col-1">
+          <button type="button" class="btn btn-primary btn-lg" id="predict" disabled>Predict</button>
+        </div>
+        <div class="col-4"></div>
+        <div class="col">
+        </div>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <script src="https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js"></script>
+    <script src="node_modules/mnist/dist/mnist.js"></script>
+    <script src="pen.js"></script>
+    <script src="lenet.js"></script>
+    <script src="main.js"></script>
+    <script>
+      window.onload = function() {
+        main();
+      }
+    </script>
+  </body>
+</html>

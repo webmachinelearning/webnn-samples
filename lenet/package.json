@@ -1,0 +1,11 @@
+{
+  "name": "webnn-lenet-example",
+  "version": "0.0.1",
+  "description": "The LeNet-based handwritten digits classification example",
+  "main": "main.js",
+  "author": "ningxin.hu@intel.com",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "mnist": "^1.1.0"
+  }
+}
