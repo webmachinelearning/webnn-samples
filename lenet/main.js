@@ -1,3 +1,8 @@
+'use strict';
+
+import {Lenet} from './lenet.js';
+import {Pen} from './pen.js';
+
 const predictButton = document.getElementById('predict');
 const nextButton = document.getElementById('next');
 const clearButton = document.getElementById('clear');
@@ -13,15 +18,18 @@ function drawNextDigitFromMnist() {
   const n = Math.floor(Math.random() * 10);
   const digit = mnist[n].get();
   mnist.draw(digit, digitContext);
-  visualContext.drawImage(digitCanvas, 0, 0, visualCanvas.width, visualCanvas.height);
+  visualContext.drawImage(
+      digitCanvas, 0, 0, visualCanvas.width, visualCanvas.height);
 }
 
 function getInputFromCanvas() {
   digitContext.clearRect(0, 0, digitCanvas.width, digitCanvas.height);
-  digitContext.drawImage(visualCanvas, 0, 0, digitCanvas.width, digitCanvas.height);
-  const imageData = digitContext.getImageData(0, 0, digitCanvas.width, digitCanvas.height);
+  digitContext.drawImage(
+      visualCanvas, 0, 0, digitCanvas.width, digitCanvas.height);
+  const imageData =
+      digitContext.getImageData(0, 0, digitCanvas.width, digitCanvas.height);
   const input = new Float32Array(digitCanvas.width * digitCanvas.height);
-  for (var i = 0; i < input.length; i++) {
+  for (let i = 0; i < input.length; i++) {
     input[i] = imageData.data[i * 4];
   }
   return input;
@@ -29,43 +37,46 @@ function getInputFromCanvas() {
 
 function clearResult() {
   for (let i = 0; i < 3; ++i) {
-    let labelElement = document.getElementById(`label${i}`);
-    let probElement = document.getElementById(`prob${i}`);
+    const labelElement = document.getElementById(`label${i}`);
+    const probElement = document.getElementById(`prob${i}`);
     labelElement.innerHTML = '';
     probElement.innerHTML = '';
   }
 }
 
-async function main() {
+export async function main() {
   drawNextDigitFromMnist();
-  let pen = new Pen(visualCanvas);
+  const pen = new Pen(visualCanvas);
   const lenet = new Lenet('lenet.bin');
   try {
     let start = performance.now();
     await lenet.load();
-    console.log(`loading elapsed time: ${(performance.now() - start).toFixed(2)} ms`);
+    console.log(
+        `loading elapsed time: ${(performance.now() - start).toFixed(2)} ms`);
 
     start = performance.now();
     await lenet.compile();
-    console.log(`compilation elapsed time: ${(performance.now() - start).toFixed(2)} ms`);
+    console.log(`compilation elapsed time: ${
+      (performance.now() - start).toFixed(2)} ms`);
 
     predictButton.removeAttribute('disabled');
   } catch (error) {
     console.log(error);
     addWarning(error.message);
   }
-  predictButton.addEventListener('click', async function (e) {
+  predictButton.addEventListener('click', async function(e) {
     try {
       const input = getInputFromCanvas();
-      let start = performance.now();
+      const start = performance.now();
       const result = await lenet.predict(input);
-      console.log(`execution elapsed time: ${(performance.now() - start).toFixed(2)} ms`);
+      console.log(`execution elapsed time: ${
+        (performance.now() - start).toFixed(2)} ms`);
       console.log(`execution result: ${result}`);
       const classes = topK(result);
       classes.forEach((c, i) => {
         console.log(`\tlabel: ${c.label}, probability: ${c.prob}%`);
-        let labelElement = document.getElementById(`label${i}`);
-        let probElement = document.getElementById(`prob${i}`);
+        const labelElement = document.getElementById(`label${i}`);
+        const probElement = document.getElementById(`prob${i}`);
         labelElement.innerHTML = `${c.label}`;
         probElement.innerHTML = `${c.prob}%`;
       });
@@ -82,7 +93,7 @@ async function main() {
   clearButton.addEventListener('click', () => {
     pen.clear();
     clearResult();
-  })
+  });
 }
 
 function topK(probs, k = 3) {
@@ -96,10 +107,10 @@ function topK(probs, k = 3) {
 
   const classes = [];
   for (let i = 0; i < k; ++i) {
-    let c = {
+    const c = {
       label: sorted[i][1],
-      prob: (sorted[i][0] * 100).toFixed(2)
-    }
+      prob: (sorted[i][0] * 100).toFixed(2),
+    };
     classes.push(c);
   }
 
@@ -107,15 +118,10 @@ function topK(probs, k = 3) {
 }
 
 function addWarning(msg) {
-  let div = document.createElement('div');
+  const div = document.createElement('div');
   div.setAttribute('class', 'alert alert-warning alert-dismissible fade show');
   div.setAttribute('role', 'alert');
   div.innerHTML = msg;
-  let container = document.getElementById('container');
+  const container = document.getElementById('container');
   container.insertBefore(div, container.childNodes[0]);
 }
-
-function removeWarning() {
-  $('.alert').alert('close')
-}
-
