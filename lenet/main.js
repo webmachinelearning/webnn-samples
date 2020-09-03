@@ -3,6 +3,8 @@
 import {Lenet} from './lenet.js';
 import {Pen} from './pen.js';
 
+const compilationTimeElement = document.getElementById('compilationTime');
+const inferenceTimeElement = document.getElementById('inferenceTime');
 const predictButton = document.getElementById('predict');
 const nextButton = document.getElementById('next');
 const clearButton = document.getElementById('clear');
@@ -56,8 +58,10 @@ export async function main() {
 
     start = performance.now();
     await lenet.compile();
-    console.log(`compilation elapsed time: ${
-      (performance.now() - start).toFixed(2)} ms`);
+    const compilationTime = performance.now() - start;
+    console.log(`compilation elapsed time: ${compilationTime.toFixed(2)} ms`);
+    compilationTimeElement.innerHTML = 'Compilation Time: ' +
+        `<span class='text-primary'>${compilationTime.toFixed(2)}</span> ms`;
 
     predictButton.removeAttribute('disabled');
   } catch (error) {
@@ -69,8 +73,10 @@ export async function main() {
       const input = getInputFromCanvas();
       const start = performance.now();
       const result = await lenet.predict(input);
-      console.log(`execution elapsed time: ${
-        (performance.now() - start).toFixed(2)} ms`);
+      const inferenceTime = performance.now() - start.toFixed(2);
+      console.log(`execution elapsed time: ${inferenceTime.toFixed(2)} ms`);
+      inferenceTimeElement.innerHTML = 'Execution Time: ' +
+          `<span class='text-primary'>${inferenceTime.toFixed(2)}</span> ms`;
       console.log(`execution result: ${result}`);
       const classes = topK(result);
       classes.forEach((c, i) => {

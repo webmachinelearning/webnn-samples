@@ -75,8 +75,8 @@ export class Lenet {
     const reshape1Shape = [1, -1];
     const reshape1 = nn.reshape(pool2, reshape1Shape);
 
-    // skip the new shape
-    byteOffset += 2 * BigInt64Array.BYTES_PER_ELEMENT;
+    // skip the new shape, 2 int64 values
+    byteOffset += 2 * 8;
 
     const matmul1Shape = [500, 800];
     const matmul1Weights = nn.constant(
