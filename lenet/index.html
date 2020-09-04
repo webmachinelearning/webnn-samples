@@ -3,52 +3,24 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>WebNN LeNet Example</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">   
-    <style>
-		.radioInit{
-			display: none;
-		}
-		.radioSelected{
-			display: inline-block;
-			width:30px;
-			height:30px;
-			border:2px solid lightskyblue;
-			border-radius:100%;
-			margin-right:8px;
-      position:relative;
-			vertical-align: middle;
-
-		}
-		.radioInit:checked + .radioSelected:after{
-			content:"";
-			display: inline-block;
-			width:22px;
-			height:22px;
-			background:lightskyblue;
-			border-radius:100%;
-			margin-top:2px;
-		}
-		.radioInit:checked + .radioSelected{
-			border:2px solid rgb(21, 133, 202);
-		}
-	  </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
   </head>
   <body>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark" style="width:100%">
       <span class="navbar-brand mb-0 h1">WebNN LeNet Example</span>
     </nav>
     <div class="container" id="container">
-      <div class="row" style="margin-top:20px;">
-        <div class="col">
+      <div class="row" style="padding-top:5%;">
+        <div class="col-md">
         </div>
-        <div class="col-4" align="center">
+        <div class="col-md-5" align="center">
           <canvas id="visual_canvas" width=280 height=280></canvas>
         </div>
-        <div class="col-4" align="center">
-          <div class='row text-center tc' id='inferencetitle'>
+        <div class="col-md-4">
+          <div>
             <h5>Prediction Result:</h5>
           </div>
-          <div class='row text-center' id='inferenceresult'>
+          <div>
             <table class='table table-sm'>
               <thead>
                 <tr>
@@ -76,30 +48,26 @@
               </tbody>
             </table>
           </div>
-          <div class='row text-center tc' id='inferencetitle'>
+          <div>
             <div id='compilationTime'></div>
           </div>
-          <div class='row text-center tc' id='inferencetitle'>
+          <div>
             <div id='inferenceTime'></div>
           </div>
         </div>
-        <div class="col">
+        <div class="col-md">
         </div>
       </div>
-      <div class="row" style="margin-top:50px;">
-        <div class="col">
+      <div class="row" style="padding-top:5%;">
+        <div class="col-md">
         </div>
-        <div class="col-1">
+        <div class="col-md-5" align="center">
           <button type="button" class="btn btn-primary btn-lg" id="next">Next</button>
-        </div>
-        <div class="col-1">
           <button type="button" class="btn btn-primary btn-lg" id="clear">Clear</button>
-        </div>
-        <div class="col-1">
           <button type="button" class="btn btn-primary btn-lg" id="predict" disabled>Predict</button>
         </div>
-        <div class="col-4"></div>
-        <div class="col">
+        <div class="col-md-4"></div>
+        <div class="col-md">
         </div>
       </div>
     </div>
