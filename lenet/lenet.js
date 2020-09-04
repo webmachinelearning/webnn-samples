@@ -9,7 +9,7 @@ function sizeOfShape(shape) {
   });
 }
 
-export class Lenet {
+export class LeNet {
   constructor(url) {
     this.url_ = url;
     this.model_ = null;

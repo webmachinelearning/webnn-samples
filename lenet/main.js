@@ -1,6 +1,6 @@
 'use strict';
 
-import {Lenet} from './lenet.js';
+import {LeNet} from './lenet.js';
 import {Pen} from './pen.js';
 
 const compilationTimeElement = document.getElementById('compilationTime');
@@ -49,7 +49,7 @@ function clearResult() {
 export async function main() {
   drawNextDigitFromMnist();
   const pen = new Pen(visualCanvas);
-  const lenet = new Lenet('lenet.bin');
+  const lenet = new LeNet('lenet.bin');
   try {
     let start = performance.now();
     await lenet.load();
