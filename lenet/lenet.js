@@ -19,7 +19,8 @@ export class LeNet {
   async load() {
     const response = await fetch(this.url_);
     const arrayBuffer = await response.arrayBuffer();
-    if (arrayBuffer.byteLength !== 1724336) {
+    const WEIGHTS_FILE_SIZE = 1724336;
+    if (arrayBuffer.byteLength !== WEIGHTS_FILE_SIZE) {
       throw new Error('Incorrect weights file');
     }
 
