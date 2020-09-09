@@ -27,7 +27,14 @@ Install dependencies:
 > npm install
 ```
 
-Please download the [lenet.bin](https://github.com/openvinotoolkit/openvino/blob/2020/inference-engine/samples/ngraph_function_creation_sample/lenet.bin) before launch the example.
+Download the [lenet.bin](https://github.com/openvinotoolkit/openvino/blob/2020/inference-engine/samples/ngraph_function_creation_sample/lenet.bin) into this folder.
+
+Start the web server:
+```sh
+> npm start
+```
+
+Open the web browser and navigate to http://localhost:8080
 
 ### Usage
 Click the `Predict` button to predict the digit shown in the canvas.
@@ -36,5 +43,11 @@ Click the `Next` button to pick up another digit from MNIST dataset.
 
 Click the `Clear` button to clear the canvas and use mouse to draw a digit manually.
 
-### Screenshot
+### Screenshots
+Predict the MNIST digit
+
 ![screenshot](screenshot.png)
+
+Predict the mannually drawing digit
+
+![screenshot](screenshot_manual.png)
