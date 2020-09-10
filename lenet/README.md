@@ -1,7 +1,9 @@
 ## WebNN API LeNet Example
-The sample uses the LeNet classifications network as an example.
+This example showcases the [LeNet](http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf)-based handwritten digits classification by WebNN API.
 
-The nodes of the LeNet are listed in the following table.
+This example leverages the network topology of [the LeNet example of Caffe*](https://github.com/BVLC/caffe/tree/master/examples/mnist), the weights of [the LeNet example of OpenVINO*](https://github.com/openvinotoolkit/openvino/tree/2020/inference-engine/samples/ngraph_function_creation_sample) and the MNIST dataset of [mnist.js](https://github.com/cazala/mnist).
+
+The nodes of the LeNet used in this example are listed in the following table.
 
 | Name | WebNN op | Remarks |
 |------|----|---------|
@@ -27,7 +29,7 @@ Install dependencies:
 > npm install
 ```
 
-Download the [lenet.bin](https://github.com/openvinotoolkit/openvino/blob/2020/inference-engine/samples/ngraph_function_creation_sample/lenet.bin) into this folder.
+Download the weights file ([lenet.bin](https://github.com/openvinotoolkit/openvino/blob/2020/inference-engine/samples/ngraph_function_creation_sample/lenet.bin)) into the same folder.
 
 Start the web server:
 ```sh
