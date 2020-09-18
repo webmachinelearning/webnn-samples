@@ -3,24 +3,27 @@ This example showcases the [LeNet](http://yann.lecun.com/exdb/publis/pdf/lecun-0
 
 This example leverages the network topology of [the LeNet example of Caffe*](https://github.com/BVLC/caffe/tree/master/examples/mnist), the weights of [the LeNet example of OpenVINO*](https://github.com/openvinotoolkit/openvino/tree/2020/inference-engine/samples/ngraph_function_creation_sample) and the MNIST dataset of [mnist.js](https://github.com/cazala/mnist).
 
-The nodes of the LeNet used in this example are listed in the following table.
+The following diagram illustrates the network topology.
 
-| Name | WebNN op | Remarks |
+![topology](topology.png)
+
+The following table lists the corresponding WebNN op and parameters of each node.
+
+| Node Name | WebNN op | Parameters |
 |------|----|---------|
-| input | nn.input | input shape [1, 1, 28, 28] |
-| conv1 | nn.conv2d | kernel shape [20, 1, 5, 5], layout "nchw" |
-| add1 | nn.add | bias shape [1, 20, 1, 1] |
+| conv1 | nn.conv2d | innput shape [1, 1, 28, 28], conv1Filter shape [20, 1, 5, 5], layout "nchw" |
+| add1 | nn.add | add1Bias shape [1, 20, 1, 1] |
 | pool1 | nn.maxPool2d | window shape [2, 2], strides [2, 2] |
-| conv2 | nn.conv2d | kernel shape [50, 20, 5, 5], layout "nchw" |
-| add2 | nn.add | bias shape [1, 50, 1, 1] |
+| conv2 | nn.conv2d | conv2Filter shape [50, 20, 5, 5], layout "nchw" |
+| add2 | nn.add | add2Bias shape [1, 50, 1, 1] |
 | pool2 | nn.maxPool2d | window shape [2, 2], strides [2, 2] |
 | reshape1 | nn.reshape | new shape [1, -1] |
-| matmul1 | nn.matmul | kernel shape [500, 800], nn.transpose to shape [800, 500] |
-| add3 | nn.add | bias shape [1, 500] |
+| matmul1 | nn.matmul | matmul1Weights transposed shape [800, 500] |
+| add3 | nn.add | add3Bias shape [1, 500] |
 | relu | nn.relu | |
 | reshape2 | nn.reshape | new shape [1, -1] |
-| matmul2 | nn.matmul | kernel shape [10, 500], nn.transpose to shape [500, 10] |
-| add4 | nn.add | bias shape [1, 10] |
+| matmul2 | nn.matmul | matmul2Weights transposed shape [500, 10] |
+| add4 | nn.add | add4Bias shape [1, 10] |
 | softmax | nn.softmax | output shape [1, 10] |
 
 ### Setup
