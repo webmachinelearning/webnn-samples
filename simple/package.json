@@ -1,0 +1,17 @@
+{
+  "name": "webnn-simple-example",
+  "version": "0.0.1",
+  "description": "The simple example for WebNN API",
+  "main": "main.js",
+  "author": "ningxin.hu@intel.com",
+  "license": "Apache-2.0",
+  "scripts": {
+    "start": "http-server"
+  },
+  "devDependencies": {
+    "http-server": "^0.12.3"
+  },
+  "dependencies": {
+    "codemirror": "^5.57.0"
+  }
+}
