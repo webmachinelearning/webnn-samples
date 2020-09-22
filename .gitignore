@@ -1,8 +1,6 @@
 .vscode/
-node_modules/
 **/*.tflite
 **/*.onnx
-**/*.bin
 **/*.xml
 **/*.pb
 **/*.ark
