@@ -1,7 +1,7 @@
 {
-  "name": "webnn-simple-example",
+  "name": "webnn-code-example",
   "version": "0.0.1",
-  "description": "The simple example for WebNN API",
+  "description": "The code example for WebNN API",
   "main": "main.js",
   "author": "ningxin.hu@intel.com",
   "license": "Apache-2.0",
