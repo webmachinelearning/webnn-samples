@@ -1,6 +1,5 @@
-// The sample code is based on https://webmachinelearning.github.io/webnn/#examples
-
-export const sampleCode = `const nn = navigator.ml.getNeuralNetworkContext();
+export const simpleGraph = {name: 'simple graph', code:
+`const nn = navigator.ml.getNeuralNetworkContext();
 
 // The following code builds a graph as:
 // constant1 ---+
@@ -67,4 +66,4 @@ execution.setOutput('output', outputBuffer);
 await execution.startCompute();
 // The computed result is now in outputBuffer.
 console.log(outputBuffer);
-`;
+`};
