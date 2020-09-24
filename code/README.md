@@ -18,3 +18,5 @@ Open the web browser and navigate to http://localhost:8080
 Click the `Run` button to run the code in the code editor.
 
 Click the `Edit` button to edit the code in the code editor.
+
+Select different example from the `Examples` dropdown list.
