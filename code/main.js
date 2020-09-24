@@ -1,4 +1,3 @@
-import {executeCodeSnippet} from './code_snippet.js';
 import {samplesMap} from './samples_map.js';
 
 window.sizeOfShape = function(shape) {
