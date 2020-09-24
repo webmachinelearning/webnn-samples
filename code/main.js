@@ -1,14 +1,14 @@
 import {executeCodeSnippet} from './code_snippet.js';
 import {samplesMap} from './samples_map.js';
 
-window.sizeOfShape = function (shape) {
+window.sizeOfShape = function(shape) {
   return shape.reduce((a, b) => {
     return a * b;
   });
-}
+};
 
 export function main() {
-  const selectElement = document.getElementById('select');
+  const selectElement = document.getElementById('example-select');
   for (const sample of samplesMap) {
     const option = document.createElement('option');
     option.innerHTML = sample[0];
