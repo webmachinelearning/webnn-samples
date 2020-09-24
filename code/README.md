@@ -1,5 +1,5 @@
-## WebNN API Code Example
-This example showcases multiple code examples of WebNN API in an interactive code editor.
+## WebNN API Code Examples
+Run and edit multiple code examples of WebNN API in an interactive code editor.
 
 ### Setup
 Install dependencies:
