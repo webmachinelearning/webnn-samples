@@ -1,7 +1,7 @@
 {
-  "name": "webnn-code-examples",
+  "name": "webnn-code-editor",
   "version": "0.0.1",
-  "description": "The code examples for WebNN API",
+  "description": "The code editor for WebNN API",
   "main": "main.js",
   "author": "ningxin.hu@intel.com",
   "license": "Apache-2.0",

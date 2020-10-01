@@ -1,5 +1,5 @@
-## WebNN API Code Examples
-Run and edit multiple code examples of WebNN API in an interactive code editor.
+## WebNN API Code Editor
+Run and edit WebNN API examples in an interactive code editor.
 
 ### Setup
 Install dependencies:
@@ -19,4 +19,4 @@ Click the `Run` button to run the code in the code editor.
 
 Click the `Edit` button to edit the code in the code editor.
 
-Select different example from the `Examples` dropdown list.
+Select one of the existing examples from the `Examples` dropdown list.
