@@ -1,6 +1,7 @@
 # WebNN API Samples
 
-[Handwritten digits classification](https://webmachinelearning.github.io/webnn-samples/lenet/)
+* [WebNN code editor](https://webmachinelearning.github.io/webnn-samples/code/)
+* [Handwritten digits classification](https://webmachinelearning.github.io/webnn-samples/lenet/)
 
 ### Setup & Lint
 
