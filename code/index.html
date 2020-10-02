@@ -1,0 +1,67 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>WebNN Code Editor</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="./node_modules/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="./node_modules/codemirror/theme/railscasts.css">
+    <style>
+      .CodeMirror {
+        height: 65vh;
+        font-size: 16px;
+      }
+      #console-log {
+        word-break: break-all;
+        height: 10vh;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark" style="width:100%">
+      <span class="navbar-brand mb-0 h1">WebNN Code Editor</span>
+    </nav>
+    <div class="container" id="container">
+      <div class="row" style="padding-top:2%;">
+        <div class="col-md-12">
+          <div id="code-editor"></div>
+        </div>
+      </div>
+      <div class="row" style="padding-top:5px;">
+        <div class="col-md-4" align="left">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <label class="input-group-text" for="example-select">Examples</label>
+            </div>
+            <select class="custom-select" id="example-select">
+            </select>
+          </div>
+        </div>
+        <div class="col-md-8" align="right">
+          <button type="button" class="btn btn-primary btn-lg" id="edit">Edit</button>
+          <button type="button" class="btn btn-primary btn-lg" id="run">Run</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="font-weight-bold">Console log:</div>
+          <div id="console-log" class="text-wrap CodeMirror cm-s-railscasts" style="overflow: auto"></div>
+        </div>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <script src="./libs/codeSnippets.js"></script>
+    <script src="./node_modules/codemirror/lib/codemirror.js"></script>
+    <script src="./node_modules/codemirror/mode/javascript/javascript.js"></script>
+    <script src="./node_modules/codemirror/keymap/sublime.js"></script>
+    <script src="https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js"></script>
+    <script type="module">
+      import {main} from './main.js';
+      window.onload = function() {
+        main();
+      }
+    </script>
+  </body>
+</html>

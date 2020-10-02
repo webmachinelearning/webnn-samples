@@ -6,7 +6,8 @@ module.exports = {
   rules: {
     'semi': 'error',
     'indent': 'error',
-    'max-len': ['error', {'code': 80}],
+    'max-len':
+      ['error', {'code': 80, 'ignoreUrls': true, 'ignorePattern': '^import\\s.+\\sfrom\\s.+;$'}],
     'require-jsdoc': 'off',
   },
   extends: [
