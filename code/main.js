@@ -1,4 +1,4 @@
-import {samplesMap} from './samples_map.js';
+import {samplesRepo} from './samples_repo.js';
 
 window.sizeOfShape = function(shape) {
   return shape.reduce((a, b) => {
@@ -8,15 +8,14 @@ window.sizeOfShape = function(shape) {
 
 export function main() {
   const selectElement = document.getElementById('example-select');
-  for (const sample of samplesMap) {
+  for (const name of samplesRepo.names()) {
     const option = document.createElement('option');
-    option.innerHTML = sample[0];
+    option.innerHTML = name;
     selectElement.appendChild(option);
   }
   const codeEditorElement = document.getElementById('code-editor');
   // eslint-disable-next-line new-cap
   const codeEditor = CodeMirror(codeEditorElement, {
-    value: samplesMap.get(selectElement.value),
     theme: 'railscasts',
     mode: 'javascript',
     tabSize: 2,
@@ -40,7 +39,11 @@ export function main() {
   });
 
   selectElement.addEventListener('change', function() {
-    codeEditor.setOption('value', samplesMap.get(selectElement.value));
-    logElement.innerHTML = '';
+    samplesRepo.getCode(selectElement.value).then((code) => {
+      codeEditor.setOption('value', code);
+      logElement.innerHTML = '';
+    });
   });
+
+  selectElement.dispatchEvent(new Event('change'));
 }
