@@ -4,6 +4,7 @@ const samples = [
   'matmul.js',
   'dynamic_shape.js',
   'preallocated_outputs.js',
+  'optional_outputs.js',
 ];
 
 class SamplesRepository {
