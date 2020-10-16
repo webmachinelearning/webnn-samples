@@ -78,7 +78,7 @@ export async function main() {
       inferenceTimeElement.innerHTML = 'Execution Time: ' +
           `<span class='text-primary'>${inferenceTime.toFixed(2)}</span> ms`;
       console.log(`execution result: ${result}`);
-      const classes = topK(result);
+      const classes = topK(Array.from(result));
       classes.forEach((c, i) => {
         console.log(`\tlabel: ${c.label}, probability: ${c.prob}%`);
         const labelElement = document.getElementById(`label${i}`);
