@@ -20,3 +20,5 @@ Click the `Run` button to run the code in the code editor.
 Click the `Edit` button to edit the code in the code editor.
 
 Select one of the existing examples from the `Examples` dropdown list.
+
+Or set the example by appending the search parameter to the URL, e.g. "?example=matmul.js".

@@ -45,5 +45,11 @@ export function main() {
     });
   });
 
+  // Handle example earch parameter.
+  const searchParams = new URLSearchParams(location.search);
+  const exampleName = searchParams.get('example');
+  if (Array.from(samplesRepo.names()).includes(exampleName)) {
+    selectElement.value = exampleName;
+  }
   selectElement.dispatchEvent(new Event('change'));
 }
