@@ -5,6 +5,7 @@ const samples = [
   'dynamic_shape.js',
   'preallocated_outputs.js',
   'optional_outputs.js',
+  'mul_add.js',
 ];
 
 class SamplesRepository {
