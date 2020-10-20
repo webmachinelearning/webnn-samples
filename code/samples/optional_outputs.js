@@ -22,12 +22,12 @@ const inputs = {'a': {buffer: bufferA}};
 let outputs = await compiledModel.compute(inputs);
 console.log(`outputs include ${Object.keys(outputs)}`);
 
-// Compute d
+// Compute d.
 outputs = await compiledModel.compute(inputs, {d});
 console.log(`outputs include ${Object.keys(outputs)}`);
 console.log(`shape: [${outputs.d.dimensions}], values: ${outputs.d.buffer}`);
 
-// Compute e;
+// Compute e.
 outputs = await compiledModel.compute(inputs, {e});
 console.log(`outputs include ${Object.keys(outputs)}`);
 console.log(`shape: [${outputs.e.dimensions}], values: ${outputs.e.buffer}`);
