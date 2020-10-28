@@ -42,7 +42,7 @@ const intermediateOutput2 = builder.add(constant2, input2);
 const output = builder.mul(intermediateOutput1, intermediateOutput2);
 
 // Create the model by identifying the outputs.
-const model = builder.createModel({output});
+const model = builder.createModel({'output': output});
 
 // Compile the constructed model.
 const compilation = await model.compile({powerPreference: 'low-power'});
@@ -59,4 +59,5 @@ const inputs = {
 const outputs = await compilation.compute(inputs);
 
 // The computed result in the output operand’s buffer.
-console.log(outputs.output.buffer);
+console.log('Output shape: ' + outputs.output.dimensions);
+console.log('Output value: ' + outputs.output.buffer);
