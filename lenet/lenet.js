@@ -51,7 +51,8 @@ export class LeNet {
     const pool1WindowShape = [2, 2];
     const pool1Strides = [2, 2];
     const pool1 =
-        builder.maxPool2d(add1, pool1WindowShape, [0, 0, 0, 0], pool1Strides);
+        builder.maxPool2d(add1, {windowDimensions: pool1WindowShape,
+          strides: pool1Strides});
 
     const conv2FilterShape = [50, 20, 5, 5];
     const conv2Filter = builder.constant(
@@ -72,7 +73,8 @@ export class LeNet {
     const pool2WindowShape = [2, 2];
     const pool2Strides = [2, 2];
     const pool2 =
-        builder.maxPool2d(add2, pool2WindowShape, [0, 0, 0, 0], pool2Strides);
+        builder.maxPool2d(add2, {windowDimensions: pool2WindowShape,
+          strides: pool2Strides});
 
     const reshape1Shape = [1, -1];
     const reshape1 = builder.reshape(pool2, reshape1Shape);
