@@ -1,7 +1,8 @@
 module.exports = {
   globals: {
     'CodeMirror': 'readonly',
-    'executeCodeSnippet': 'readonly'
+    'executeCodeSnippet': 'readonly',
+    'sizeOfShape': 'readonly',
   },
-  ignorePatterns: ['codeSnippets.js']
-}
+  ignorePatterns: ['codeSnippets.js'],
+};

@@ -1,6 +1,6 @@
 {
   "name": "webnn-lenet-example",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "The LeNet-based handwritten digits classification example",
   "main": "main.js",
   "author": "ningxin.hu@intel.com",
