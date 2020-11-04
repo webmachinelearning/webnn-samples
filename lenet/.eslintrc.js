@@ -3,4 +3,4 @@ module.exports = {
     'BigInt64Array': 'readonly',
     'mnist': 'readonly',
   },
-}
+};

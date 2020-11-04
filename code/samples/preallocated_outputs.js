@@ -14,6 +14,7 @@ const model = builder.createModel({c});
 const compiledModel = await model.compile();
 const bufferA = new Float32Array(sizeOfShape(descA.dimensions)).fill(0.5);
 const inputs = {'a': {buffer: bufferA}};
-const outputs = await compiledModel.compute(inputs);
-console.log(`shape: [${outputs.c.dimensions}]`);
+// Pre-allocate output buffer for c.
+const outputs = {'c': {buffer: new Float32Array(sizeOfShape([3, 3]))}};
+await compiledModel.compute(inputs, outputs);
 console.log(`values: ${outputs.c.buffer}`);
