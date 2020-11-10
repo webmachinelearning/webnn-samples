@@ -10,12 +10,35 @@
       <span class="navbar-brand mb-0 h1">WebNN NSNet2 Example</span>
     </nav>
     <div class="container" id="container">
+      <div class="row" style="padding-top:5%;">
+        <div class="col-md">
+        </div>
+        <div class="col-md-8">
+          <form>
+            <div class="form-group">
+              <label for="fileInput">Choose an audio file for noise supression.</label>
+              <input type="file" class="form-control-file" id="fileInput" accept=".wav" disabled>
+            </div>
+          </form>
+        </div>
+        <div class="col-md">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md">
+        </div>
+        <div class="col-md-8">
+          <button type="button" class="btn btn-primary btn-lg" id="play" disabled>Play the processed audio</button>
+        </div>
+        <div class="col-md">
+        </div>
+      </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
     <script src="./dist/webnn-polyfill.js"></script>
-    <script src="./libs/numpy.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.7.0"> </script>
     <script type="module">
       import {main} from './main.js';
       window.onload = function() {

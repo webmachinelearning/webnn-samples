@@ -9,7 +9,7 @@ function sizeOfShape(shape) {
   });
 }
 
-export class NSNet {
+export class NSNet2 {
   constructor(url, batchSize, frames) {
     this.url_ = url;
     this.batchSize_ = batchSize;
