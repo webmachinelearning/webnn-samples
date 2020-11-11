@@ -2,7 +2,7 @@ import {NSNet2} from './nsnet2.js';
 import * as featurelib from './featurelib.js';
 
 export class Denoiser {
-  constructor(sampleRate = 16000, batchSize = 1, frames = 10) {
+  constructor(sampleRate = 16000, batchSize = 1, frames = 100) {
     this.cfg = {
       'winlen'   : 0.02,
       'hopfrac'  : 0.5,
@@ -37,53 +37,65 @@ export class Denoiser {
     return {modelLoadTime, modelCompileTime, spec2SigWarmupTime};
   }
 
-  async process(sigIn, callback) {
-    let start = performance.now();
-    const spec = featurelib.calcSpec(sigIn, this.cfg);
-    console.log(`calcuate spec time: ${performance.now() - start}`);
-    const specFrames = spec.shape[0];
-    for (let frame = 0; frame < specFrames; frame += this.frames) {
-      // Workaround tf.js WebGL backend for complex data.
-      const size = frame + this.frames <= specFrames ? this.frames : specFrames - frame;
+  async process(audioData, callback) {
+    const audioFrames = Math.floor(audioData.length / 160);
+    const audioTensor = tf.tensor1d(audioData);
+    const overlap = 5;
+    let start;
+    for (let frame = 0; frame < audioFrames; frame += this.frames - overlap * 2) {
+      const lastFrame = frame + this.frames + 1 > audioFrames;
+      const audioSize = 160 * (this.frames + 1);
+      let sigIn = audioTensor.slice([160 * frame], [lastFrame ? -1: audioSize]);
+      let endPadding = 0;
+      if (sigIn.shape[0] < audioSize) {
+        endPadding = audioSize - sigIn.shape[0];
+        sigIn = sigIn.pad([[0, endPadding]]);
+      }
+      start = performance.now();
+      const inputSpec = featurelib.calcSpec(sigIn, this.cfg);
+      console.log(`inputSpec shape ${inputSpec.shape}`);
+      console.log(`calcuate spec time: ${performance.now() - start}`);
       const inputFeature = tf.tidy(() => {
-        const inputSpec = tf.complex(tf.real(spec).slice([frame], [size]),
-                                    tf.imag(spec).slice([frame], [size]));
+        // Workaround tf.js WebGL backend for complex data.
         start = performance.now();
-        let inputFeature = featurelib.calcFeat(inputSpec, this.cfg);
-        inputSpec.dispose();
+        let feature = featurelib.calcFeat(inputSpec, this.cfg);
         console.log(`calcuate feature time: ${performance.now() - start}`);
-        if (size !== this.frames) {
-          inputFeature = inputFeature.pad([[0, this.frames - size], [0, 0]])
-        }
-        return inputFeature.expandDims(0);
+        return feature.expandDims(0);
       });
+      console.log(`inputFeature shape ${inputFeature.shape}`);
       const inputData = await inputFeature.data();
-      inputFeature.dispose();
       start = performance.now();
       const output = await this.nsnet.compute(inputData);
       console.log(`nsnet2 compute time: ${performance.now() - start}`);
-      const outSpec = tf.tidy(() => {
+      let outSpec = tf.tidy(() => {
         let out = tf.tensor(output.buffer, output.dimensions);
-        if (size !== this.frames) {
-          out = out.slice([0, 0], [-1, size]);
-        }
         let Gain = tf.transpose(out);
         Gain = tf.clipByValue(Gain, this.mingain, 1.0);
         // Workaround tf.js WebGL backend for complex data.
         const inputSpecTransposed = tf.complex(
-          tf.real(spec).slice([frame], [size]).transpose(),
-          tf.imag(spec).slice([frame], [size]).transpose());
+          tf.real(inputSpec).transpose(),
+          tf.imag(inputSpec).transpose());
         return tf.mul(inputSpecTransposed, Gain.squeeze());
       });
       start = performance.now();
-      const sigOut = featurelib.spec2sig(outSpec, this.cfg);
+      let sigOut = featurelib.spec2sig(outSpec, this.cfg);
+      if (frame === 0) {
+        sigOut = sigOut.slice([0], [sigOut.shape[0] - overlap * 160 - 160]);
+      } else if (lastFrame) {
+        sigOut = sigOut.slice([overlap * 160], [sigOut.shape[0] - endPadding - overlap * 160]);
+      } else {
+        sigOut = sigOut.slice([overlap * 160], [sigOut.shape[0] - 2 * overlap * 160 - 160]);
+      }
       const sigData = await sigOut.data();
+      console.log(`spec to signal time: ${performance.now() - start}`);
+      callback(sigData, this.frames, frame, audioFrames);
       outSpec.dispose();
       sigOut.dispose();
-      console.log(`spec to signal time: ${performance.now() - start}`);
-      callback(sigData, this.frames, frame, specFrames);
+      inputSpec.dispose();
+      inputFeature.dispose();
+      sigIn.dispose();
     }
-    spec.dispose();
+    audioTensor.dispose();
   }
 
   dispose() {

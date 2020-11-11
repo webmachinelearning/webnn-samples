@@ -47,7 +47,7 @@ fileInput.addEventListener('input', (event) => {
       const denoiseInfo = document.getElementById('denoise-info');
       denoiseInfo.innerHTML = 'Processing...'
       await denoiser.process(audioData, (data, size, start, frames) => {
-        console.log(`processed ${size} ${start}/${frames}`);
+        console.log(`processed ${data.length} ${denoisedAudioData.length} ${start}/${frames}`);
         denoisedAudioData = denoisedAudioData.concat(Array.from(data));
       });
       console.log('denoise is done.');

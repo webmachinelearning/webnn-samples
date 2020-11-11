@@ -43,7 +43,7 @@ export function calcSpec(y, params, channel) {
       N_fft = parseInt(parseFloat(params['winlen'])*fs);
     }
     const N_hop = parseInt(N_win * parseFloat(params["hopfrac"]));
-    const Y = tf.signal.stft(tf.tensor1d(y), N_win, N_hop, N_fft, hanningWindow);
+    const Y = tf.signal.stft(y, N_win, N_hop, N_fft, hanningWindow);
     return Y;
   });
 }
@@ -103,7 +103,12 @@ function istft(X, N_fft, win, N_hop) {
       x_win = tf.mul(win_M, tf.slice(x_win, [0], [N_win]));
       const idx1 = parseInt(nn*N_hop);
       const idx2 = parseInt(idx1+N_win);
-      x = x.slice([0], [idx1]).concat(x_win.add(x.slice([idx1], [N_win]))).concat(x.slice([idx2]));
+      if (nn === N_frames - 1) {
+        x = x.slice([0], [idx1]).concat(x_win.add(x.slice([idx1], [N_win])));
+      } else {
+        x = x.slice([0], [idx1]).concat(x_win.add(x.slice([idx1], [N_win]))).concat(x.slice([idx2]));
+      }
+      
     }
     
     if (M === 1) {
