@@ -1,122 +1,83 @@
 'use strict';
 
-import {NSNet2} from './nsnet2.js';
-import * as featurelib from './featurelib.js';
+import {Denoiser} from './denoiser.js';
+import {AudioPlayer} from './audio_player.js';
 
-class Denoiser {
-  constructor() {
-    this.cfg = {
-      'winlen'   : 0.02,
-      'hopfrac'  : 0.5,
-      'fs'       : 16000,
-      'mingain'  : -80,
-      'feattype' : 'LogPow'
-    };
-    this.batchSize = 1;
-    this.frames = 480;
-    this.nsnet = new NSNet2('./weights/', this.batchSize, this.frames);
-  }
-
-  async prepare() {
-    let start = performance.now();
-    await this.nsnet.load();
-    console.log(`nsnet2 load time: ${performance.now() - start}`);
-    start = performance.now();
-    await this.nsnet.compile();
-    console.log(`nsnet2 compile time: ${performance.now()- start}`);
-    start = performance.now();
-    const outSpec = tf.zeros([161, 1], 'complex64');
-    const sigOut = featurelib.spec2sig(outSpec, this.cfg);
-    await sigOut.data();
-    console.log(`spec to signal time: ${performance.now() - start}`);
-  }
-
-  async process(sigIn, callback) {
-    let start = performance.now();
-    const spec = featurelib.calcSpec(sigIn, this.cfg);
-    console.log(`calcuate spec time: ${performance.now() - start}`);
-    const specFrames = spec.shape[0];
-    for (let frame = 0; frame < specFrames; frame += this.frames) {
-      // Workaround tf.js WebGL backend for complex data.
-      const size = frame + this.frames <= specFrames ? this.frames : specFrames - frame;
-      const inputSpec = tf.complex(tf.real(spec).slice([frame], [size]),
-                                   tf.imag(spec).slice([frame], [size]));
-      start = performance.now();
-      let inputFeature = featurelib.calcFeat(inputSpec, this.cfg);
-      console.log(`calcuate feature time: ${performance.now() - start}`);
-      if (size !== this.frames) {
-        inputFeature = inputFeature.pad([[0, this.frames - size], [0, 0]])
-      }
-      inputFeature = inputFeature.expandDims(0);
-      start = performance.now();
-      const output = await this.nsnet.compute(await inputFeature.data());
-      console.log(`nsnet2 compute time: ${performance.now() - start}`);
-      let out = tf.tensor(output.buffer, output.dimensions);
-      if (size !== this.frames) {
-        out = out.slice([0, 0], [-1, size]);
-      }
-      let Gain = tf.transpose(out);
-      Gain = tf.clipByValue(Gain, this.cfg.mingain, 1.0);
-      // Workaround tf.js WebGL backend for complex data.
-      const inputSpecTransposed = tf.complex(
-        tf.real(spec).slice([frame], [size]).transpose(),
-        tf.imag(spec).slice([frame], [size]).transpose());
-      const outSpec = tf.mul(inputSpecTransposed, Gain.squeeze());
-      start = performance.now();
-      const sigOut = featurelib.spec2sig(outSpec, this.cfg);
-      const sigData = await sigOut.data();
-      console.log(`spec to signal time: ${performance.now() - start}`);
-      callback(sigData);
-    }
-  }
-}
-
-function playF32Audio(f32buffer, inSampleRate) { 
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)({sampleRate: inSampleRate});
-  const myArrayBuffer = audioCtx.createBuffer(1, f32buffer.length, inSampleRate);
-  
-  myArrayBuffer.copyToChannel(f32buffer, 0, 0);
-
-  const source = audioCtx.createBufferSource();
-  source.buffer = myArrayBuffer;
-  
-  source.connect(audioCtx.destination);
-  source.start();
-}
-
+const sampleRate = 16000;
 let denoiser;
+let audioData;
+let denoisedAudioData = [];
+const playDenoisedButton = document.getElementById('play-denoised');
+const playOriginalButton = document.getElementById('play-original');
+const denoisedAudioPlayer = new AudioPlayer(sampleRate, playDenoisedButton, 'the denoised audio');
+const originalAudioPlayer = new AudioPlayer(sampleRate, playOriginalButton, 'the original audio');
 
 export async function main() {
-  denoiser = new Denoiser();
-  await denoiser.prepare();
+  denoiser = new Denoiser(sampleRate);
+  const info = await denoiser.prepare();
+  const infoElement = document.getElementById('info');
+  infoElement.innerHTML = `NSNet2 configuration: batch_size=<span class='text-primary'>${denoiser.batchSize}</span>, ` + 
+        `frames=<span class='text-primary'>${denoiser.frames}</span> <br>` +
+        `Model load time: <span class='text-primary'>${info.modelLoadTime.toFixed(2)}</span> ms, ` +
+        `model compile time: <span class='text-primary'>${info.modelCompileTime.toFixed(2)}</span> ms, ` +
+        `spec2sig warmup time: <span class='text-primary'>${info.spec2SigWarmupTime.toFixed(2)}</span> ms.`;
   fileInput.removeAttribute('disabled');
 }
 
-let denoisedData = [];
-
-const fileInput = document.getElementById('fileInput');
+const fileInput = document.getElementById('file-input');
 fileInput.addEventListener('input', (event) => {
+  originalAudioPlayer.stop();
+  denoisedAudioPlayer.stop();
+  playOriginalButton.setAttribute('disabled', true);
+  fileInput.setAttribute('disabled', true);
   const input = event.target;
   const reader = new FileReader();
   reader.onload = async function() {
-    playButton.setAttribute('disabled', true);
+    playDenoisedButton.setAttribute('disabled', true);
     const arrayBuffer = reader.result;
     const audioContext = new AudioContext({sampleRate: denoiser.cfg.fs});
     let start = performance.now();
     const decoded = await audioContext.decodeAudioData(arrayBuffer);
     console.log(`decode time: ${performance.now() - start}`);
-    const sigIn = decoded.getChannelData(0);
-    denoisedData = [];
-    await denoiser.process(sigIn, (data) => {
-      denoisedData = denoisedData.concat(Array.from(data));
-    });
-    console.log('denoise is done.');
-    playButton.removeAttribute('disabled');
+    audioData = decoded.getChannelData(0);
+    playOriginalButton.removeAttribute('disabled');
+    originalAudioPlayer.play(new Float32Array(audioData));
+    denoisedAudioData = [];
+    setTimeout(async () => {
+      const denoiseInfo = document.getElementById('denoise-info');
+      denoiseInfo.innerHTML = 'Processing...'
+      await denoiser.process(audioData, (data, size, start, frames) => {
+        console.log(`processed ${size} ${start}/${frames}`);
+        denoisedAudioData = denoisedAudioData.concat(Array.from(data));
+      });
+      console.log('denoise is done.');
+      playDenoisedButton.removeAttribute('disabled');
+      fileInput.removeAttribute('disabled');
+    }, 0);
   };
   reader.readAsArrayBuffer(input.files[0]);
 });
 
-const playButton = document.getElementById('play');
-playButton.addEventListener('click', ()=> {
-  playF32Audio(new Float32Array(denoisedData), 16000);
-});
+playOriginalButton.onclick = () => {
+  if (playOriginalButton.state === 'Pause') {
+    originalAudioPlayer.pause();
+  } else if (playOriginalButton.state === 'Resume') {
+    denoisedAudioPlayer.pause();
+    originalAudioPlayer.resume();
+  } else if (playOriginalButton.state === 'Play') {
+    denoisedAudioPlayer.pause();
+    originalAudioPlayer.play(new Float32Array(audioData));
+  }
+};
+
+playDenoisedButton.onclick = () => {
+  if (playDenoisedButton.state === 'Pause') {
+    denoisedAudioPlayer.pause();
+  } else if (playDenoisedButton.state === 'Resume') {
+    originalAudioPlayer.pause();
+    denoisedAudioPlayer.resume();
+  } else if (playDenoisedButton.state === 'Play') {
+    originalAudioPlayer.pause();
+    denoisedAudioPlayer.play(new Float32Array(denoisedAudioData));
+  }
+};

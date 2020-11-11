@@ -10,25 +10,40 @@
       <span class="navbar-brand mb-0 h1">WebNN NSNet2 Example</span>
     </nav>
     <div class="container" id="container">
-      <div class="row" style="padding-top:5%;">
+      <div class="row align-items-center">
         <div class="col-md">
         </div>
         <div class="col-md-8">
-          <form>
-            <div class="form-group">
-              <label for="fileInput">Choose an audio file for noise supression.</label>
-              <input type="file" class="form-control-file" id="fileInput" accept=".wav" disabled>
-            </div>
-          </form>
+          <div id="info">Preparing NSNet2...</div>
         </div>
         <div class="col-md">
         </div>
       </div>
-      <div class="row">
+      <div class="row align-items-center"  style="padding-top:5%;">
         <div class="col-md">
         </div>
-        <div class="col-md-8">
-          <button type="button" class="btn btn-primary btn-lg" id="play" disabled>Play the processed audio</button>
+        <div class="col-md-4">
+          <form>
+            <div class="form-group">
+              <label for="fileInput" id="file-input-label">Choose an audio file for noise suppresion.</label>
+              <input type="file" class="form-control-file" id="file-input" accept=".wav, .opus" disabled>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-4">
+          <button type="button" class="btn btn-primary btn-lg" id="play-original" disabled>Play</button>
+        </div>
+        <div class="col-md">
+        </div>
+      </div>
+      <div class="row align-items-center">
+        <div class="col-md">
+        </div>
+        <div class="col-md-4">
+          <div id="denoise-info"></div>
+        </div>
+        <div class="col-md-4">
+          <button type="button" class="btn btn-primary btn-lg" id="play-denoised" disabled>Play</button>
         </div>
         <div class="col-md">
         </div>
