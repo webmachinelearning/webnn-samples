@@ -4,6 +4,8 @@ import {Denoiser} from './denoiser.js';
 import {AudioPlayer} from './audio_player.js';
 
 const sampleRate = 16000;
+const batchSize = 1;
+const frames = 50;
 let denoiser;
 let audioData;
 let denoisedAudioData = [];
@@ -13,17 +15,16 @@ const denoisedAudioPlayer = new AudioPlayer(sampleRate, playDenoisedButton, 'the
 const originalAudioPlayer = new AudioPlayer(sampleRate, playOriginalButton, 'the original audio');
 
 export async function main() {
-  denoiser = new Denoiser(sampleRate);
-  const info = await denoiser.prepare();
-  const infoElement = document.getElementById('info');
-  infoElement.innerHTML = `NSNet2 configuration: batch_size=<span class='text-primary'>${denoiser.batchSize}</span>, ` + 
-        `frames=<span class='text-primary'>${denoiser.frames}</span> <br>` +
-        `Model load time: <span class='text-primary'>${info.modelLoadTime.toFixed(2)}</span> ms, ` +
-        `model compile time: <span class='text-primary'>${info.modelCompileTime.toFixed(2)}</span> ms, ` +
-        `spec2sig warmup time: <span class='text-primary'>${info.spec2SigWarmupTime.toFixed(2)}</span> ms.`;
+  denoiser = new Denoiser(batchSize, frames, sampleRate);
+  denoiser.logger = document.getElementById('info');
+  denoiser.logger.innerHTML = `Creating NSNet2 with batch_size = ${batchSize} and frames = ${frames}.<br>`;
+  await denoiser.prepare();
+  denoiser.logger = document.getElementById('denoise-info');
+  fileInputLabel.innerHTML = 'NSNet2 is ready.<br>Choose an audio file for noise suppresion.';
   fileInput.removeAttribute('disabled');
 }
 
+const fileInputLabel = document.getElementById('file-input-label');
 const fileInput = document.getElementById('file-input');
 fileInput.addEventListener('input', (event) => {
   originalAudioPlayer.stop();
@@ -43,17 +44,12 @@ fileInput.addEventListener('input', (event) => {
     playOriginalButton.removeAttribute('disabled');
     originalAudioPlayer.play(new Float32Array(audioData));
     denoisedAudioData = [];
-    setTimeout(async () => {
-      const denoiseInfo = document.getElementById('denoise-info');
-      denoiseInfo.innerHTML = 'Processing...'
-      await denoiser.process(audioData, (data, size, start, frames) => {
-        console.log(`processed ${data.length} ${denoisedAudioData.length} ${start}/${frames}`);
-        denoisedAudioData = denoisedAudioData.concat(Array.from(data));
-      });
-      console.log('denoise is done.');
-      playDenoisedButton.removeAttribute('disabled');
-      fileInput.removeAttribute('disabled');
-    }, 0);
+    await denoiser.process(audioData, (data) => {
+      denoisedAudioData = denoisedAudioData.concat(Array.from(data));
+    });
+    console.log('denoise is done.');
+    playDenoisedButton.removeAttribute('disabled');
+    fileInput.removeAttribute('disabled');
   };
   reader.readAsArrayBuffer(input.files[0]);
 });

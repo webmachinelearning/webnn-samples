@@ -10,22 +10,22 @@
       <span class="navbar-brand mb-0 h1">WebNN NSNet2 Example</span>
     </nav>
     <div class="container" id="container">
-      <div class="row align-items-center">
+      <div class="row">
         <div class="col-md">
         </div>
         <div class="col-md-8">
-          <div id="info">Preparing NSNet2...</div>
+          <div id="info" style="height: 5em;"></div>
         </div>
         <div class="col-md">
         </div>
       </div>
-      <div class="row align-items-center"  style="padding-top:5%;">
+      <div class="row align-items-center" style="padding-top:5%;">
         <div class="col-md">
         </div>
         <div class="col-md-4">
           <form>
             <div class="form-group">
-              <label for="fileInput" id="file-input-label">Choose an audio file for noise suppresion.</label>
+              <label for="fileInput" id="file-input-label" style="height: 3em;"></label>
               <input type="file" class="form-control-file" id="file-input" accept=".wav, .opus" disabled>
             </div>
           </form>
@@ -36,7 +36,7 @@
         <div class="col-md">
         </div>
       </div>
-      <div class="row align-items-center">
+      <div class="row align-items-start">
         <div class="col-md">
         </div>
         <div class="col-md-4">
@@ -52,7 +52,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-    <script src="./dist/webnn-polyfill.js"></script>
+    <script src="https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.7.0"> </script>
     <script type="module">
       import {main} from './main.js';
