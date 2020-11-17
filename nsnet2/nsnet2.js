@@ -1,8 +1,6 @@
 
 'use strict';
 
-const nn = navigator.ml.getNeuralNetworkContext();
-
 function sizeOfShape(shape) {
   return shape.reduce((a, b) => {
     return a * b;
@@ -79,6 +77,7 @@ export class NSNet2 {
     offset += sizeOfShape(biasFcOut4Shape) * Float32Array.BYTES_PER_ELEMENT;
 
     // Create constants
+    const nn = navigator.ml.getNeuralNetworkContext();
     const builder = nn.createModelBuilder();
     const weight172 = builder.constant({type: 'float32', dimensions: weight172Shape}, weight172Data);
     const biasFcIn0 = builder.constant({type: 'float32', dimensions: biasFcIn0Shape}, biasFcIn0Data);

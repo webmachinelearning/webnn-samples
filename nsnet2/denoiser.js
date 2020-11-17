@@ -25,30 +25,42 @@ export class Denoiser {
   }
 
   async prepare() {
-    return new Promise(async (resolve) => {
-      this.log(' - Loading weights... ');
-      let start = performance.now();
-      await this.nsnet.load('./nsnet2.bin', this.batchSize, this.frames);
-      const modelLoadTime = performance.now() - start;
-      this.log(`done in <span class='text-primary'>${modelLoadTime.toFixed(2)}</span> ms.`, true);
-      this.log(' - Compiling... ');
+    return new Promise(async (resolve, reject) => {
+      try {
+        this.log(' - Loading weights... ');
+        const start = performance.now();
+        await this.nsnet.load('./nsnet2.bin', this.batchSize, this.frames);
+        const modelLoadTime = performance.now() - start;
+        this.log(`done in <span class='text-primary'>${modelLoadTime.toFixed(2)}</span> ms.`, true);
+        this.log(' - Compiling... ');
+      } catch (error) {
+        reject(error);
+      }
       setTimeout(async () => {
-        start = performance.now();
-        await this.nsnet.compile();
-        const modelCompileTime = performance.now() - start;
-        this.log(`done in <span class='text-primary'>${modelCompileTime.toFixed(2)}</span> ms.`, true);
-        this.log(' - Warming up spec2sig... ');
+        try {
+          const start = performance.now();
+          await this.nsnet.compile();
+          const modelCompileTime = performance.now() - start;
+          this.log(`done in <span class='text-primary'>${modelCompileTime.toFixed(2)}</span> ms.`, true);
+          this.log(' - Warming up spec2sig... ');
+        } catch (error) {
+          reject(error);
+        }
         setTimeout(async () => {
-          // warm up the spec2sig
-          start = performance.now();
-          const outSpec = tf.zeros([161, this.frames], 'complex64');
-          const sigOut = featurelib.spec2sig(outSpec, this.cfg);
-          const spec2SigWarmupTime = performance.now() - start;
-          this.log(`done in <span class='text-primary'>${spec2SigWarmupTime.toFixed(2)}</span> ms.`, true);
-          await sigOut.data();
-          outSpec.dispose();
-          sigOut.dispose();
-          resolve();
+          try {
+            // warm up the spec2sig
+            const start = performance.now();
+            const outSpec = tf.zeros([161, this.frames], 'complex64');
+            const sigOut = featurelib.spec2sig(outSpec, this.cfg);
+            const spec2SigWarmupTime = performance.now() - start;
+            this.log(`done in <span class='text-primary'>${spec2SigWarmupTime.toFixed(2)}</span> ms.`, true);
+            await sigOut.data();
+            outSpec.dispose();
+            sigOut.dispose();
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
         }, 0);
       }, 0);
     });
