@@ -5,7 +5,7 @@ import {AudioPlayer} from './audio_player.js';
 
 const sampleRate = 16000;
 const batchSize = 1;
-const frames = 50;
+const defaultFrames = 50;
 let denoiser;
 let audioData;
 let denoisedAudioData = [];
@@ -15,6 +15,13 @@ const denoisedAudioPlayer = new AudioPlayer(sampleRate, playDenoisedButton, 'the
 const originalAudioPlayer = new AudioPlayer(sampleRate, playOriginalButton, 'the original audio');
 
 export async function main() {
+  // Handle frames parameter.
+  const searchParams = new URLSearchParams(location.search);
+  frames = parseInt(searchParams.get('frames'));
+  if (!frames) {
+    // default
+    frames = defaultFrames;
+  }
   denoiser = new Denoiser(batchSize, frames, sampleRate);
   denoiser.logger = document.getElementById('info');
   denoiser.logger.innerHTML = `Creating NSNet2 with batch_size = ${batchSize} and frames = ${frames}.<br>`;

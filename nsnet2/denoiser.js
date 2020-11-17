@@ -12,13 +12,12 @@ export class Denoiser {
     };
     this.batchSize = batchSize;
     this.frames = frames;
-    this.nsnet = new NSNet2('./weights/', this.batchSize, this.frames);
+    this.nsnet = new NSNet2();
     this.mingain = 10**(this.cfg['mingain']/20);
     this.logger = null;
   }
 
   log(message, sep = false, append = true) {
-    console.log(message);
     if (this.logger) {
       this.logger.innerHTML = (append ? this.logger.innerHTML : '') + message
           + (sep ? '<br>' : '');
@@ -29,7 +28,7 @@ export class Denoiser {
     return new Promise(async (resolve) => {
       this.log(' - Loading weights... ');
       let start = performance.now();
-      await this.nsnet.load();
+      await this.nsnet.load('./nsnet2.bin', this.batchSize, this.frames);
       const modelLoadTime = performance.now() - start;
       this.log(`done in <span class='text-primary'>${modelLoadTime.toFixed(2)}</span> ms.`, true);
       this.log(' - Compiling... ');
