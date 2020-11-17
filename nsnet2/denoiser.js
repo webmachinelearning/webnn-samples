@@ -42,7 +42,7 @@ export class Denoiser {
           await this.nsnet.compile();
           const modelCompileTime = performance.now() - start;
           this.log(`done in <span class='text-primary'>${modelCompileTime.toFixed(2)}</span> ms.`, true);
-          this.log(' - Warming up spec2sig... ');
+          this.log(' - Warming up iSTFT... ');
         } catch (error) {
           reject(error);
         }
@@ -70,6 +70,7 @@ export class Denoiser {
     const sizePerFrame = 160;
     const audioFrames = Math.floor(audioData.length / sizePerFrame);
     const audioTensor = tf.tensor1d(audioData);
+    // overlap for two adjacent frames.
     const overlap = 5;
     const processStart = performance.now();
     for (let frame = 0; frame < audioFrames; frame += this.frames - overlap * 2) {
@@ -118,9 +119,9 @@ export class Denoiser {
       callback(sigData);
       const progress = (frame + sliceSize / sizePerFrame) / audioFrames;
       this.log(`Denoising...  (${lastFrame ? 100 : Math.ceil(progress * 100)}%)<br>` +
-          ` - Calculate features time: <span class='text-primary'>${calcFeatTime}</span> ms.<br>` +
+          ` - STFT compute time: <span class='text-primary'>${calcFeatTime}</span> ms.<br>` +
           ` - NSNet2 compute time: <span class='text-primary'>${computeTime}</span> ms.<br>` +
-          ` - spec2sig time: <span class='text-primary'>${spec2SigTime}</span> ms.`, true, false);
+          ` - iSTFT compute time: <span class='text-primary'>${spec2SigTime}</span> ms.`, true, false);
       outSpec.dispose();
       sigOut.dispose();
       inputSpec.dispose();

@@ -5,7 +5,8 @@ import {AudioPlayer} from './audio_player.js';
 
 const sampleRate = 16000;
 const batchSize = 1;
-const defaultFrames = 50;
+const minFrames = 30;
+const defaultFrames = 100;
 let denoiser;
 let audioData;
 let denoisedAudioData = [];
@@ -20,12 +21,13 @@ export async function main() {
     const searchParams = new URLSearchParams(location.search);
     frames = parseInt(searchParams.get('frames'));
     if (!frames) {
-      // default
       frames = defaultFrames;
+    } else if (frames < minFrames) {
+      frames = minFrames;
     }
     denoiser = new Denoiser(batchSize, frames, sampleRate);
     denoiser.logger = document.getElementById('info');
-    denoiser.logger.innerHTML = `Creating NSNet2 with batch_size = ${batchSize} and frames = ${frames}.<br>`;
+    denoiser.logger.innerHTML = `Creating NSNet2 with input shape [batch_size (${batchSize}) x frames (${frames}) x 161].<br>`;
     await denoiser.prepare();
     denoiser.logger = document.getElementById('denoise-info');
     fileInputLabel.innerHTML = 'NSNet2 is ready.<br>Choose an audio file for noise suppresion.';
