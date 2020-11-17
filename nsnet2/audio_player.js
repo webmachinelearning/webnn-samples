@@ -1,7 +1,8 @@
 export class AudioPlayer {
   constructor(sampleRate, button, label) {
     this.sampleRate = sampleRate;
-    this.audioCtx = new (window.AudioContext || window.webkitAudioContext)({sampleRate: this.sampleRate});
+    this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(
+        {sampleRate: this.sampleRate});
     this.source = null;
     this.button = button;
     this.label = label;
@@ -16,7 +17,8 @@ export class AudioPlayer {
   play(buffer) {
     this.source = this.audioCtx.createBufferSource();
     this.source.connect(this.audioCtx.destination);
-    const audioBuffer = this.audioCtx.createBuffer(1, buffer.length, this.sampleRate);
+    const audioBuffer = this.audioCtx.createBuffer(
+        1, buffer.length, this.sampleRate);
     audioBuffer.copyToChannel(buffer, 0, 0);
     this.source.buffer = audioBuffer;
     this.source.start();
@@ -24,7 +26,7 @@ export class AudioPlayer {
     const self = this;
     this.source.onended = () => {
       self.updateButton('Play');
-    }
+    };
     self.updateButton('Pause');
   }
 
@@ -33,19 +35,19 @@ export class AudioPlayer {
       try {
         this.audioCtx.suspend();
         this.updateButton('Resume');
-      } catch(e) {
+      } catch (e) {
         console.log(e);
       }
-    } 
+    }
   }
 
   resume() {
     try {
       this.audioCtx.resume();
       this.updateButton('Pause');
-    } catch(e) {
+    } catch (e) {
       console.log(e);
-    } 
+    }
   }
 
   stop() {
@@ -57,7 +59,7 @@ export class AudioPlayer {
         this.source = null;
         this.updateButton('Play');
       }
-    } catch(e) {
+    } catch (e) {
       console.log(e);
     }
   }
