@@ -47,9 +47,8 @@ export async function main() {
     denoiser.logger.innerHTML = `Creating NSNet2 with input shape ` +
         `[batch_size (${batchSize}) x frames (${frames}) x 161].<br>`;
     await denoiser.prepare();
+    denoiser.logger.innerHTML += 'NSNet2 is <b>ready</b>.';
     denoiser.logger = document.getElementById('denoise-info');
-    fileInputLabel.innerHTML = 'NSNet2 is ready.<br>' +
-        'Choose an audio file for noise suppresion.';
     fileInput.removeAttribute('disabled');
   } catch (error) {
     console.log(error);
@@ -57,18 +56,21 @@ export async function main() {
   }
 }
 
-const fileInputLabel = document.getElementById('file-input-label');
 const fileInput = document.getElementById('file-input');
 fileInput.addEventListener('input', (event) => {
+  originalAudio.pause();
+  denoisedAudio.pause();
+  originalAudio.src = '';
+  denoisedAudio.src = '';
+  denoiser.logger.innerHTML = '';
+  const input = event.target;
+  if (input.files.length == 0) {
+    return;
+  }
   try {
-    originalAudio.pause();
-    denoisedAudio.pause();
-    originalAudio.setAttribute('disabled', true);
     fileInput.setAttribute('disabled', true);
-    const input = event.target;
     const bufferReader = new FileReader();
     bufferReader.onload = async function(e) {
-      denoisedAudio.setAttribute('disabled', true);
       const arrayBuffer = e.target.result;
       const audioContext = new AudioContext({sampleRate});
       const start = performance.now();
@@ -79,9 +81,11 @@ fileInput.addEventListener('input', (event) => {
       await denoiser.process(audioData, (data) => {
         denoisedAudioData = denoisedAudioData.concat(Array.from(data));
       });
-      denoisedAudio.removeAttribute('disabled');
       fileInput.removeAttribute('disabled');
       // Send the denoised audio data for wav encoding.
+      recorderWorker.postMessage({
+        command: 'clear',
+      });
       recorderWorker.postMessage({
         command: 'record',
         buffer: [new Float32Array(denoisedAudioData)],
@@ -95,7 +99,6 @@ fileInput.addEventListener('input', (event) => {
     const fileReader = new FileReader();
     fileReader.onload = function(e) {
       originalAudio.src = e.target.result;
-      originalAudio.removeAttribute('disabled');
     };
     fileReader.readAsDataURL(input.files[0]);
   } catch (error) {
@@ -103,40 +106,6 @@ fileInput.addEventListener('input', (event) => {
     addWarning(error.message);
   }
 });
-
-// playOriginalButton.onclick = () => {
-//   try {
-//     if (playOriginalButton.state === 'Pause') {
-//       originalAudioPlayer.pause();
-//     } else if (playOriginalButton.state === 'Resume') {
-//       denoisedAudioPlayer.pause();
-//       originalAudioPlayer.resume();
-//     } else if (playOriginalButton.state === 'Play') {
-//       denoisedAudioPlayer.pause();
-//       originalAudioPlayer.play(new Float32Array(audioData));
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     addWarning(error.message);
-//   }
-// };
-
-// playDenoisedButton.onclick = () => {
-//   try {
-//     if (playDenoisedButton.state === 'Pause') {
-//       denoisedAudioPlayer.pause();
-//     } else if (playDenoisedButton.state === 'Resume') {
-//       originalAudioPlayer.pause();
-//       denoisedAudioPlayer.resume();
-//     } else if (playDenoisedButton.state === 'Play') {
-//       originalAudioPlayer.pause();
-//       denoisedAudioPlayer.play(new Float32Array(denoisedAudioData));
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     addWarning(error.message);
-//   }
-// };
 
 function addWarning(msg) {
   const div = document.createElement('div');

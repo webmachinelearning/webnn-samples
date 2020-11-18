@@ -14,38 +14,34 @@
         <div class="col-md">
         </div>
         <div class="col-md-8">
-          <div id="info" style="height: 8em;"></div>
+          <div id="info" style="min-height: 7em;"></div>
         </div>
         <div class="col-md">
         </div>
       </div>
-      <div class="row align-items-center">
+      <div class="row align-items-start" style="padding-top:2%;">
         <div class="col-md">
         </div>
-        <div class="col-md-4">
+        <div class="col-md-8">
           <form>
             <div class="form-group">
-              <label for="fileInput" id="file-input-label" style="height: 3em;"></label>
+              <label for="fileInput" id="file-input-label">Choose an audio file for noise suppresion.</label>
               <input type="file" class="form-control-file" id="file-input" accept=".wav, .opus" disabled>
             </div>
           </form>
-        </div>
-        <div class="col-md-4">
           <div for="original-audio">Original Audio</div>
-          <audio controls id="original-audio"></audio>
+          <audio controls id="original-audio" style="width: 80%;"></audio>
         </div>
         <div class="col-md">
         </div>
       </div>
-      <div class="row align-items-start" style="padding-top:5%;">
+      <div class="row align-items-start" style="padding-top:2%;">
         <div class="col-md">
         </div>
-        <div class="col-md-4">
-          <div id="denoise-info" style="height: 8em;"></div>
-        </div>
-        <div class="col-md-4">
+        <div class="col-md-8">
+          <div id="denoise-info" style="min-height: 8em;"></div>
           <div for="original-audio">Denoised Audio</div>
-          <audio controls id="denoised-audio"></audio>
+          <audio controls id="denoised-audio" style="width: 80%;"></audio>
         </div>
         <div class="col-md">
         </div>
