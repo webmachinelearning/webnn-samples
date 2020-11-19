@@ -101,28 +101,31 @@ function onNewFile() {
   audioName.innerHTML = '';
 }
 
+const AudioContext = window.AudioContext || window.webkitAudioContext || false;
+
 async function denoise(arrayBuffer) {
   const audioContext = new AudioContext({sampleRate});
   const start = performance.now();
-  const decoded = await audioContext.decodeAudioData(arrayBuffer);
-  console.log(`decode time: ${performance.now() - start}`);
-  audioData = decoded.getChannelData(0);
-  denoisedAudioData = [];
-  await denoiser.process(audioData, (data) => {
-    denoisedAudioData = denoisedAudioData.concat(Array.from(data));
-  });
+  audioContext.decodeAudioData(arrayBuffer, async (decoded) => {
+    console.log(`decode time: ${performance.now() - start}`);
+    audioData = decoded.getChannelData(0);
+    denoisedAudioData = [];
+    await denoiser.process(audioData, (data) => {
+      denoisedAudioData = denoisedAudioData.concat(Array.from(data));
+    });
 
-  // Send the denoised audio data for wav encoding.
-  recorderWorker.postMessage({
-    command: 'clear',
-  });
-  recorderWorker.postMessage({
-    command: 'record',
-    buffer: [new Float32Array(denoisedAudioData)],
-  });
-  recorderWorker.postMessage({
-    command: 'exportWAV',
-    type: 'audio/wav',
+    // Send the denoised audio data for wav encoding.
+    recorderWorker.postMessage({
+      command: 'clear',
+    });
+    recorderWorker.postMessage({
+      command: 'record',
+      buffer: [new Float32Array(denoisedAudioData)],
+    });
+    recorderWorker.postMessage({
+      command: 'exportWAV',
+      type: 'audio/wav',
+    });
   });
 }
 

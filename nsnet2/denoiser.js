@@ -76,7 +76,7 @@ export class Denoiser {
     const overlap = 5;
     const processStart = performance.now();
     let lastIteration = false;
-    for (let frame = 0; !lastIteration ; frame += this.frames - overlap * 2) {
+    for (let frame = 0; !lastIteration; frame += this.frames - overlap * 2) {
       lastIteration = frame + this.frames + 1 > audioFrames;
       const audioSize = sizePerFrame * (this.frames + 1);
       let endPadding = 0;
@@ -138,7 +138,8 @@ export class Denoiser {
       callback(sigData);
       const progress = (frame + sliceSize / sizePerFrame) / audioFrames;
       this.log(
-          `Denoising...  (${lastIteration?100:Math.ceil(progress * 100)}%)<br>` +
+          `Denoising...  ` +
+          `(${lastIteration ? 100 : Math.ceil(progress * 100)}%)<br>` +
           ` - STFT compute time: <span class='text-primary'>` +
           `${calcFeatTime}</span> ms.<br>` +
           ` - NSNet2 compute time: <span class='text-primary'>` +
