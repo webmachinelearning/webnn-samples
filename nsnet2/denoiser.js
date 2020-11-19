@@ -78,24 +78,32 @@ export class Denoiser {
     for (let frame = 0; frame < audioFrames; frame += this.frames - overlap*2) {
       const lastFrame = frame + this.frames + 1 > audioFrames;
       const audioSize = sizePerFrame * (this.frames + 1);
-      let sigIn = audioTensor.slice(
-          [sizePerFrame * frame], [lastFrame ? -1: audioSize]);
       let endPadding = 0;
-      if (sigIn.shape[0] < audioSize) {
-        endPadding = audioSize - sigIn.shape[0];
-        sigIn = sigIn.pad([[0, endPadding]]);
-      }
+      const sigIn = tf.tidy(() => {
+        let sigIn = audioTensor.slice(
+            [sizePerFrame * frame], [lastFrame ? -1: audioSize]);
+        if (sigIn.shape[0] < audioSize) {
+          endPadding = audioSize - sigIn.shape[0];
+          sigIn = sigIn.pad([[0, endPadding]]);
+        }
+        return sigIn;
+      });
       let start = performance.now();
       const inputSpec = featurelib.calcSpec(sigIn, this.cfg);
-      const inputFeature =
-          featurelib.calcFeat(inputSpec, this.cfg).expandDims(0);
+      sigIn.dispose();
+      const inputFeature = tf.tidy(() => {
+        return featurelib.calcFeat(inputSpec, this.cfg).expandDims(0);
+      });
       const inputData = await inputFeature.data();
+      inputFeature.dispose();
       const calcFeatTime = (performance.now() - start).toFixed(2);
       start = performance.now();
       const output = await this.nsnet.compute(inputData);
       const computeTime = (performance.now() - start).toFixed(2);
       start = performance.now();
-      const outSpec = tf.tidy(() => {
+      let sliceStart;
+      let sliceSize;
+      const sigOut = tf.tidy(() => {
         const out = tf.tensor(output.buffer, output.dimensions);
         let Gain = tf.transpose(out);
         Gain = tf.clipByValue(Gain, this.mingain, 1.0);
@@ -103,23 +111,24 @@ export class Denoiser {
         const inputSpecTransposed = tf.complex(
             tf.real(inputSpec).transpose(),
             tf.imag(inputSpec).transpose());
-        return tf.mul(inputSpecTransposed, Gain.squeeze());
+        const outSpec = tf.mul(inputSpecTransposed, Gain.squeeze());
+        const sigOut = featurelib.spec2sig(outSpec, this.cfg);
+        if (frame === 0) {
+          sliceStart = 0;
+          sliceSize = sigOut.shape[0] - overlap * sizePerFrame - sizePerFrame;
+        } else if (lastFrame) {
+          sliceStart = overlap * sizePerFrame;
+          sliceSize = sigOut.shape[0] - endPadding - overlap * sizePerFrame;
+        } else {
+          sliceStart = overlap * sizePerFrame;
+          sliceSize = sigOut.shape[0] - 2 * overlap * sizePerFrame -
+              sizePerFrame;
+        }
+        return sigOut.slice([sliceStart], [sliceSize]);
       });
-      let sigOut = featurelib.spec2sig(outSpec, this.cfg);
-      let sliceStart;
-      let sliceSize;
-      if (frame === 0) {
-        sliceStart = 0;
-        sliceSize = sigOut.shape[0] - overlap * sizePerFrame - sizePerFrame;
-      } else if (lastFrame) {
-        sliceStart = overlap * sizePerFrame;
-        sliceSize = sigOut.shape[0] - endPadding - overlap * sizePerFrame;
-      } else {
-        sliceStart = overlap * sizePerFrame;
-        sliceSize = sigOut.shape[0] - 2 * overlap * sizePerFrame - sizePerFrame;
-      }
-      sigOut = sigOut.slice([sliceStart], [sliceSize]);
+      inputSpec.dispose();
       const sigData = await sigOut.data();
+      sigOut.dispose();
       const spec2SigTime = (performance.now() - start).toFixed(2);
       callback(sigData);
       const progress = (frame + sliceSize / sizePerFrame) / audioFrames;
@@ -131,11 +140,6 @@ export class Denoiser {
           `${computeTime}</span> ms.<br>` +
           ` - iSTFT compute time: <span class='text-primary'>` +
           `${spec2SigTime}</span> ms.`, true, false);
-      outSpec.dispose();
-      sigOut.dispose();
-      inputSpec.dispose();
-      inputFeature.dispose();
-      sigIn.dispose();
     }
     audioTensor.dispose();
     const processTime = (performance.now() - processStart).toFixed(2);
