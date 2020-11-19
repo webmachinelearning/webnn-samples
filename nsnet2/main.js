@@ -32,6 +32,7 @@ for (const audio of sampleAudios) {
   const button = document.getElementById(audio.name);
   button.onclick = async () => {
     onNewFile();
+    fileInput.value = '';
     audioName.innerHTML = audio.url.substring(audio.url.lastIndexOf('/') + 1);
     chooseAudio.setAttribute('disabled', true);
     originalAudio.src = audio.url;
