@@ -154,7 +154,7 @@ export async function main() {
     denoiser = new Denoiser(batchSize, frames, sampleRate);
     denoiser.logger = document.getElementById('info');
     denoiser.logger.innerHTML = `Creating NSNet2 with input shape ` +
-        `[batch_size (${batchSize}) x frames (${frames}) x 161].<br>`;
+        `[${batchSize} (batch_size) x ${frames} (frames) x 161].<br>`;
     await denoiser.prepare();
     denoiser.logger.innerHTML += 'NSNet2 is <b>ready</b>.';
     denoiser.logger = document.getElementById('denoise-info');
