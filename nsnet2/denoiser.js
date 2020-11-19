@@ -75,13 +75,14 @@ export class Denoiser {
     // overlap for two adjacent frames.
     const overlap = 5;
     const processStart = performance.now();
-    for (let frame = 0; frame < audioFrames; frame += this.frames - overlap*2) {
-      const lastFrame = frame + this.frames + 1 > audioFrames;
+    let lastIteration = false;
+    for (let frame = 0; !lastIteration ; frame += this.frames - overlap * 2) {
+      lastIteration = frame + this.frames + 1 > audioFrames;
       const audioSize = sizePerFrame * (this.frames + 1);
       let endPadding = 0;
       const sigIn = tf.tidy(() => {
         let sigIn = audioTensor.slice(
-            [sizePerFrame * frame], [lastFrame ? -1: audioSize]);
+            [sizePerFrame * frame], [lastIteration ? -1: audioSize]);
         if (sigIn.shape[0] < audioSize) {
           endPadding = audioSize - sigIn.shape[0];
           sigIn = sigIn.pad([[0, endPadding]]);
@@ -115,8 +116,12 @@ export class Denoiser {
         const sigOut = featurelib.spec2sig(outSpec, this.cfg);
         if (frame === 0) {
           sliceStart = 0;
-          sliceSize = sigOut.shape[0] - overlap * sizePerFrame - sizePerFrame;
-        } else if (lastFrame) {
+          if (lastIteration) {
+            sliceSize = sigOut.shape[0] - endPadding;
+          } else {
+            sliceSize = sigOut.shape[0] - overlap * sizePerFrame - sizePerFrame;
+          }
+        } else if (lastIteration) {
           sliceStart = overlap * sizePerFrame;
           sliceSize = sigOut.shape[0] - endPadding - overlap * sizePerFrame;
         } else {
@@ -133,7 +138,7 @@ export class Denoiser {
       callback(sigData);
       const progress = (frame + sliceSize / sizePerFrame) / audioFrames;
       this.log(
-          `Denoising...  (${lastFrame?100:Math.ceil(progress * 100)}%)<br>` +
+          `Denoising...  (${lastIteration?100:Math.ceil(progress * 100)}%)<br>` +
           ` - STFT compute time: <span class='text-primary'>` +
           `${calcFeatTime}</span> ms.<br>` +
           ` - NSNet2 compute time: <span class='text-primary'>` +
