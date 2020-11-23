@@ -28,7 +28,7 @@ export class Denoiser {
     return new Promise((resolve, reject) => {
       this.log(' - Loading weights... ');
       const start = performance.now();
-      this.nsnet.load('./nsnet2.bin', this.batchSize, this.frames).then(() => {
+      this.nsnet.load('./weights/', this.batchSize, this.frames).then(() => {
         const modelLoadTime = performance.now() - start;
         this.log(`done in <span class='text-primary'>` +
             `${modelLoadTime.toFixed(2)}</span> ms.`, true);

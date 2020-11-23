@@ -9,134 +9,68 @@ function sizeOfShape(shape) {
 
 export class NSNet2 {
   constructor() {
+    this.baseUrl_ = './';
     this.model_ = null;
     this.compilation_ = null;
   }
 
-  async load(url, batchSize, frames) {
-    // Fetch and verify buffer
-    const response = await fetch(url);
+  async buildConstantByNpy(fileName) {
+    const dataTypeMap = new Map([
+      ['f2', {type: 'float16', array: Uint16Array}],
+      ['f4', {type: 'float32', array: Float32Array}],
+      ['f8', {type: 'float64', array: Float64Array}],
+      ['i1', {type: 'int8', array: Int8Array}],
+      ['i2', {type: 'int16', array: Int16Array}],
+      ['i4', {type: 'int32', array: Int32Array}],
+      ['i8', {type: 'int64', array: BigInt64Array}],
+      ['u1', {type: 'uint8', array: Uint8Array}],
+      ['u2', {type: 'uint16', array: Uint16Array}],
+      ['u4', {type: 'uint32', array: Uint32Array}],
+      ['u8', {type: 'uint64', array: BigUint64Array}],
+    ]);
+    const response = await fetch(this.baseUrl_ + fileName);
     const buffer = await response.arrayBuffer();
-    const WEIGHTS_FILE_SIZE = 10750244;
-    if (buffer.byteLength !== WEIGHTS_FILE_SIZE) {
-      throw new Error('Incorrect weights file');
+    const npArray = new numpy.Array(new Uint8Array(buffer));
+    if (!dataTypeMap.has(npArray.dataType)) {
+      throw new Error(`Data type ${npArray.dataType} is not supported.`);
     }
+    const dimensions = npArray.shape;
+    const type = dataTypeMap.get(npArray.dataType).type;
+    const TypedArrayConstructor = dataTypeMap.get(npArray.dataType).array;
+    const typedArray = new TypedArrayConstructor(sizeOfShape(dimensions));
+    const dataView = new DataView(npArray.data.buffer);
+    const littleEndian = npArray.byteOrder === '<';
+    for (let i = 0; i < sizeOfShape(dimensions); ++i) {
+      typedArray[i] = dataView[`get` + type[0].toUpperCase() + type.substr(1)](
+          i * TypedArrayConstructor.BYTES_PER_ELEMENT, littleEndian);
+    }
+    return this.builder.constant({type, dimensions}, typedArray);
+  }
 
-    // Constant shapes and sizes
-    const hiddenSize = 400;
-    const weight172Shape = [161, hiddenSize];
-    const biasFcIn0Shape = [hiddenSize];
-    const weight192Shape = [1, 3 * hiddenSize, hiddenSize];
-    const recurrentWeight193Shape = [1, 3 * hiddenSize, hiddenSize];
-    const bias194Shape = [1, 3 * hiddenSize];
-    const recurrentBias194Shape = [1, 3 * hiddenSize];
-    const weight212Shape = [1, 3 * hiddenSize, hiddenSize];
-    const recurrentWeight213Shape = [1, 3 * hiddenSize, hiddenSize];
-    const bias214Shape = [1, 3 * hiddenSize];
-    const recurrentBias214Shape = [1, 3 * hiddenSize];
-    const weight215Shape = [hiddenSize, 600];
-    const biasFcOut0Shape = [600];
-    const weight216Shape = [600, 600];
-    const biasFcOut2Shape = [600];
-    const weight217Shape = [600, 161];
-    const biasFcOut4Shape = [161];
-
-    // Load pre-trained constant data and initializers
-    let offset = 0;
-    const weight172Data = new Float32Array(
-        buffer, offset, sizeOfShape(weight172Shape));
-    offset += sizeOfShape(weight172Shape) * Float32Array.BYTES_PER_ELEMENT;
-    const biasFcIn0Data = new Float32Array(
-        buffer, offset, sizeOfShape(biasFcIn0Shape));
-    offset += sizeOfShape(biasFcIn0Shape) * Float32Array.BYTES_PER_ELEMENT;
-    const weight192Data = new Float32Array(
-        buffer, offset, sizeOfShape(weight192Shape));
-    offset += sizeOfShape(weight192Shape) * Float32Array.BYTES_PER_ELEMENT;
-    const recurrentWeight193Data = new Float32Array(
-        buffer, offset, sizeOfShape(recurrentWeight193Shape));
-    offset += sizeOfShape(recurrentWeight193Shape) *
-        Float32Array.BYTES_PER_ELEMENT;
-    const bias194Data = new Float32Array(
-        buffer, offset, sizeOfShape(bias194Shape));
-    offset += sizeOfShape(bias194Shape) * Float32Array.BYTES_PER_ELEMENT;
-    const recurrentBias194Data = new Float32Array(
-        buffer, offset, sizeOfShape(recurrentBias194Shape));
-    offset += sizeOfShape(recurrentBias194Shape) *
-        Float32Array.BYTES_PER_ELEMENT;
-    const weight212Data = new Float32Array(
-        buffer, offset, sizeOfShape(weight212Shape));
-    offset += sizeOfShape(weight212Shape) * Float32Array.BYTES_PER_ELEMENT;
-    const recurrentWeight213Data = new Float32Array(
-        buffer, offset, sizeOfShape(recurrentWeight213Shape));
-    offset += sizeOfShape(recurrentWeight213Shape) *
-        Float32Array.BYTES_PER_ELEMENT;
-    const bias214Data = new Float32Array(
-        buffer, offset, sizeOfShape(bias214Shape));
-    offset += sizeOfShape(bias214Shape) * Float32Array.BYTES_PER_ELEMENT;
-    const recurrentBias214Data = new Float32Array(
-        buffer, offset, sizeOfShape(recurrentBias214Shape));
-    offset += sizeOfShape(recurrentBias214Shape) *
-        Float32Array.BYTES_PER_ELEMENT;
-    const weight215Data = new Float32Array(
-        buffer, offset, sizeOfShape(weight215Shape));
-    offset += sizeOfShape(weight215Shape) * Float32Array.BYTES_PER_ELEMENT;
-    const biasFcOut0Data = new Float32Array(
-        buffer, offset, sizeOfShape(biasFcOut0Shape));
-    offset += sizeOfShape(biasFcOut0Shape) * Float32Array.BYTES_PER_ELEMENT;
-    const weight216Data = new Float32Array(
-        buffer, offset, sizeOfShape(weight216Shape));
-    offset += sizeOfShape(weight216Shape) * Float32Array.BYTES_PER_ELEMENT;
-    const biasFcOut2Data = new Float32Array(
-        buffer, offset, sizeOfShape(biasFcOut2Shape));
-    offset += sizeOfShape(biasFcOut2Shape) * Float32Array.BYTES_PER_ELEMENT;
-    const weight217Data = new Float32Array(
-        buffer, offset, sizeOfShape(weight217Shape));
-    offset += sizeOfShape(weight217Shape) * Float32Array.BYTES_PER_ELEMENT;
-    const biasFcOut4Data = new Float32Array(
-        buffer, offset, sizeOfShape(biasFcOut4Shape));
-    offset += sizeOfShape(biasFcOut4Shape) * Float32Array.BYTES_PER_ELEMENT;
-
-    // Create constants
+  async load(url, batchSize, frames) {
+    this.baseUrl_ = url;
     const nn = navigator.ml.getNeuralNetworkContext();
     const builder = nn.createModelBuilder();
-    const weight172 = builder.constant(
-        {type: 'float32', dimensions: weight172Shape}, weight172Data);
-    const biasFcIn0 = builder.constant(
-        {type: 'float32', dimensions: biasFcIn0Shape}, biasFcIn0Data);
-    const weight192 = builder.constant(
-        {type: 'float32', dimensions: weight192Shape}, weight192Data);
-    const recurrentWeight193 = builder.constant(
-        {type: 'float32', dimensions: recurrentWeight193Shape},
-        recurrentWeight193Data);
-    const bias194 = builder.constant(
-        {type: 'float32', dimensions: bias194Shape}, bias194Data);
-    const recurrentBias194 = builder.constant(
-        {type: 'float32', dimensions: recurrentBias194Shape},
-        recurrentBias194Data);
-    const weight212 = builder.constant(
-        {type: 'float32', dimensions: weight212Shape}, weight212Data);
-    const recurrentWeight213 = builder.constant(
-        {type: 'float32', dimensions: recurrentWeight213Shape},
-        recurrentWeight213Data);
-    const bias214 = builder.constant(
-        {type: 'float32', dimensions: bias214Shape}, bias214Data);
-    const recurrentBias214 = builder.constant(
-        {type: 'float32', dimensions: recurrentBias214Shape},
-        recurrentBias214Data);
-    const weight215 = builder.constant(
-        {type: 'float32', dimensions: weight215Shape}, weight215Data);
-    const biasFcOut0 = builder.constant(
-        {type: 'float32', dimensions: biasFcOut0Shape}, biasFcOut0Data);
-    const weight216 = builder.constant(
-        {type: 'float32', dimensions: weight216Shape}, weight216Data);
-    const biasFcOut2 = builder.constant(
-        {type: 'float32', dimensions: biasFcOut2Shape}, biasFcOut2Data);
-    const weight217 = builder.constant(
-        {type: 'float32', dimensions: weight217Shape}, weight217Data);
-    const biasFcOut4 = builder.constant(
-        {type: 'float32', dimensions: biasFcOut4Shape}, biasFcOut4Data);
+    this.builder = builder;
+
+    // Create constants
+    const weight172 = await this.buildConstantByNpy('172.npy');
+    const biasFcIn0 = await this.buildConstantByNpy('fc_in_0_bias.npy');
+    const weight192 = await this.buildConstantByNpy('192.npy');
+    const recurrentWeight193 = await this.buildConstantByNpy('193.npy');
+    const data194 = await this.buildConstantByNpy('194.npy');
+    const weight212 = await this.buildConstantByNpy('212.npy');
+    const recurrentWeight213 = await this.buildConstantByNpy('213.npy');
+    const data214 = await this.buildConstantByNpy('214.npy');
+    const weight215 = await this.buildConstantByNpy('215.npy');
+    const biasFcOut0 = await this.buildConstantByNpy('fc_out_0_bias.npy');
+    const weight216 = await this.buildConstantByNpy('216.npy');
+    const biasFcOut2 = await this.buildConstantByNpy('fc_out_2_bias.npy');
+    const weight217 = await this.buildConstantByNpy('217.npy');
+    const biasFcOut4 = await this.buildConstantByNpy('fc_out_4_bias.npy');
 
     // Build up the network
+    const hiddenSize = 400;
     const inputShape = [batchSize, frames, 161];
     const input = builder.input(
         'input', {type: 'float32', dimensions: inputShape});
@@ -144,10 +78,16 @@ export class NSNet2 {
     const add19 = builder.add(matmul18, biasFcIn0);
     const relu20 = builder.relu(add19);
     const transpose31 = builder.transpose(relu20, {permutation: [1, 0, 2]});
+    const bias194 = builder.slice(data194, [0], [3 * hiddenSize], {axes: [1]});
+    const recurrentBias194 = builder.slice(
+        data194, [3 * hiddenSize], [-1], {axes: [1]});
     const [, gru93] = builder.gru(
         transpose31, weight192, recurrentWeight193, frames, hiddenSize,
         {bias: bias194, recurrentBias: recurrentBias194, returnSequence: true});
     const squeeze95 = builder.squeeze(gru93, {axes: [1]});
+    const bias214 = builder.slice(data214, [0], [3 * hiddenSize], {axes: [1]});
+    const recurrentBias214 = builder.slice(
+        data214, [3 * hiddenSize], [-1], {axes: [1]});
     const [, gru156] = builder.gru(
         squeeze95, weight212, recurrentWeight213, frames, hiddenSize,
         {bias: bias214, recurrentBias: recurrentBias214, returnSequence: true});
