@@ -72,10 +72,14 @@ export class Denoiser {
     const sizePerFrame = 160;
     const audioFrames = Math.floor(audioData.length / sizePerFrame);
     const audioTensor = tf.tensor1d(audioData);
-    // overlap for two adjacent frames.
-    const overlap = 5;
+    // Set the overlap for two adjacent frames that avoids sound breaks.
+    const overlap = 1;
     const processStart = performance.now();
     let lastIteration = false;
+    let initialHiddenState92Buffer =
+        new Float32Array(1 * this.batchSize * this.nsnet.hiddenSize);
+    let initialHiddenState155Buffer =
+        new Float32Array(1 * this.batchSize * this.nsnet.hiddenSize);
     for (let frame = 0; !lastIteration; frame += this.frames - overlap * 2) {
       lastIteration = frame + this.frames + 1 > audioFrames;
       const audioSize = sizePerFrame * (this.frames + 1);
@@ -99,13 +103,16 @@ export class Denoiser {
       inputFeature.dispose();
       const calcFeatTime = (performance.now() - start).toFixed(2);
       start = performance.now();
-      const output = await this.nsnet.compute(inputData);
+      const outputs = await this.nsnet.compute(
+          inputData, initialHiddenState92Buffer, initialHiddenState155Buffer);
       const computeTime = (performance.now() - start).toFixed(2);
+      initialHiddenState92Buffer = outputs.gru94.buffer;
+      initialHiddenState155Buffer = outputs.gru157.buffer;
       start = performance.now();
       let sliceStart;
       let sliceSize;
       const sigOut = tf.tidy(() => {
-        const out = tf.tensor(output.buffer, output.dimensions);
+        const out = tf.tensor(outputs.output.buffer, outputs.output.dimensions);
         let Gain = tf.transpose(out);
         Gain = tf.clipByValue(Gain, this.mingain, 1.0);
         // Workaround tf.js WebGL backend for complex data.

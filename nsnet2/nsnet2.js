@@ -12,6 +12,7 @@ export class NSNet2 {
     this.baseUrl_ = './';
     this.model_ = null;
     this.compilation_ = null;
+    this.hiddenSize = 400;
   }
 
   async buildConstantByNpy(fileName) {
@@ -70,7 +71,7 @@ export class NSNet2 {
     const biasFcOut4 = await this.buildConstantByNpy('fc_out_4_bias.npy');
 
     // Build up the network
-    const hiddenSize = 400;
+    const hiddenSize = this.hiddenSize;
     const inputShape = [batchSize, frames, 161];
     const input = builder.input(
         'input', {type: 'float32', dimensions: inputShape});
@@ -81,16 +82,28 @@ export class NSNet2 {
     const bias194 = builder.slice(data194, [0], [3 * hiddenSize], {axes: [1]});
     const recurrentBias194 = builder.slice(
         data194, [3 * hiddenSize], [-1], {axes: [1]});
-    const [, gru93] = builder.gru(
+    const initialHiddenState92 = builder.input(
+        'initialHiddenState92',
+        {type: 'float32', dimensions: [1, batchSize, hiddenSize]});
+    const [gru94, gru93] = builder.gru(
         transpose31, weight192, recurrentWeight193, frames, hiddenSize,
-        {bias: bias194, recurrentBias: recurrentBias194, returnSequence: true});
+        {
+          bias: bias194, recurrentBias: recurrentBias194,
+          initialHiddenState: initialHiddenState92, returnSequence: true,
+        });
     const squeeze95 = builder.squeeze(gru93, {axes: [1]});
     const bias214 = builder.slice(data214, [0], [3 * hiddenSize], {axes: [1]});
     const recurrentBias214 = builder.slice(
         data214, [3 * hiddenSize], [-1], {axes: [1]});
-    const [, gru156] = builder.gru(
+    const initialHiddenState155 = builder.input(
+        'initialHiddenState155',
+        {type: 'float32', dimensions: [1, batchSize, hiddenSize]});
+    const [gru157, gru156] = builder.gru(
         squeeze95, weight212, recurrentWeight213, frames, hiddenSize,
-        {bias: bias214, recurrentBias: recurrentBias214, returnSequence: true});
+        {
+          bias: bias214, recurrentBias: recurrentBias214,
+          initialHiddenState: initialHiddenState155, returnSequence: true,
+        });
     const squeeze158 = builder.squeeze(gru156, {axes: [1]});
     const transpose159 = builder.transpose(
         squeeze158, {permutation: [1, 0, 2]});
@@ -103,17 +116,21 @@ export class NSNet2 {
     const matmul169 = builder.matmul(relu167, weight217);
     const add170 = builder.add(matmul169, biasFcOut4);
     const output = builder.sigmoid(add170);
-    this.model_ = builder.createModel({'output': output});
+    this.model_ = builder.createModel({output, gru94, gru157});
   }
 
   async compile(options) {
     this.compilation_ = await this.model_.compile(options);
   }
 
-  async compute(inputBuffer) {
-    const inputs = {input: {buffer: inputBuffer}};
-    const outputs = await this.compilation_.compute(inputs);
-    return outputs.output;
+  async compute(
+      inputBuffer, initialHiddenState92Buffer, initialHiddenState155Buffer) {
+    const inputs = {
+      input: {buffer: inputBuffer},
+      initialHiddenState92: {buffer: initialHiddenState92Buffer},
+      initialHiddenState155: {buffer: initialHiddenState155Buffer},
+    };
+    return await this.compilation_.compute(inputs);
   }
 
   dispose() {

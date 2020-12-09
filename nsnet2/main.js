@@ -4,8 +4,8 @@ import {Denoiser} from './denoiser.js';
 
 const sampleRate = 16000;
 const batchSize = 1;
-const minFrames = 30;
-const defaultFrames = 100;
+const minFrames = 5;
+const defaultFrames = 10;
 let denoiser;
 let audioData;
 let denoisedAudioData = [];
