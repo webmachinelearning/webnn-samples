@@ -5,6 +5,7 @@
 
 * [WebNN code editor](https://webmachinelearning.github.io/webnn-samples/code/)
 * [Handwritten digits classification](https://webmachinelearning.github.io/webnn-samples/lenet/)
+* [Noise suppression](https://webmachinelearning.github.io/webnn-samples/nsnet2/)
 
 ### Setup & Lint
 
