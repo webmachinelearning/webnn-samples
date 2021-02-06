@@ -83,8 +83,6 @@ Install dependencies:
 > npm install
 ```
 
-Download the weights file ([lenet.bin](https://github.com/openvinotoolkit/openvino/blob/2020/inference-engine/samples/ngraph_function_creation_sample/lenet.bin)) into the same folder.
-
 Start the web server:
 ```sh
 > npm start
