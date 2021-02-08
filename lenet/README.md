@@ -77,19 +77,6 @@ The following table lists the corresponding WebNN ops and parameters for each la
     </tbody>
 </table>
 
-### Setup
-Install dependencies:
-```sh
-> npm install
-```
-
-Start the web server:
-```sh
-> npm start
-```
-
-Open the web browser and navigate to http://localhost:8080
-
 ### Usage
 Click the `Predict` button to predict the digit shown in the canvas.
 
