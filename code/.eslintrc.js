@@ -4,5 +4,5 @@ module.exports = {
     'executeCodeSnippet': 'readonly',
     'sizeOfShape': 'readonly',
   },
-  ignorePatterns: ['codeSnippets.js'],
+  ignorePatterns: ['libs/'],
 };
