@@ -7,9 +7,11 @@
 * [Handwritten digits classification](https://webmachinelearning.github.io/webnn-samples/lenet/)
 * [Noise suppression](https://webmachinelearning.github.io/webnn-samples/nsnet2/)
 
-### Setup & Lint
+### Setup & Run
 
 ```sh
 > npm install
-> npm run lint
+> npm start
 ```
+
+Open the web browser and navigate to http://localhost:8080
