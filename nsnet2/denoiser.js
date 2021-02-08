@@ -159,8 +159,4 @@ export class Denoiser {
     this.log(`<b>Done.</b> Processed ${audioFrames} ` +
         `frames in <span class='text-primary'>${processTime}</span> ms.`, true);
   }
-
-  dispose() {
-    this.nsnet.dispose();
-  }
 }

@@ -77,21 +77,6 @@ The following table lists the corresponding WebNN ops and parameters for each la
     </tbody>
 </table>
 
-### Setup
-Install dependencies:
-```sh
-> npm install
-```
-
-Download the weights file ([lenet.bin](https://github.com/openvinotoolkit/openvino/blob/2020/inference-engine/samples/ngraph_function_creation_sample/lenet.bin)) into the same folder.
-
-Start the web server:
-```sh
-> npm start
-```
-
-Open the web browser and navigate to http://localhost:8080
-
 ### Usage
 Click the `Predict` button to predict the digit shown in the canvas.
 
