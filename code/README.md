@@ -1,18 +1,9 @@
 ## WebNN API Code Editor
 Run and edit WebNN API examples in an interactive code editor.
 
-### Setup
-Install dependencies:
-```sh
-> npm install
-```
+The JavaScript code editor is based on [CodeMirror](https://codemirror.net/).
 
-Start the web server:
-```sh
-> npm start
-```
-
-Open the web browser and navigate to http://localhost:8080
+The JavaScript code execution is based on [codeSnippets.js](https://github.com/tensorflow/tfjs-website/blob/master/themes/tfjs/source/js/codeSnippets.js) of [tfjs-website](https://github.com/tensorflow/tfjs-website).
 
 ### Usage
 Click the `Run` button to run the code in the code editor.
