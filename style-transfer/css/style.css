@@ -1,0 +1,295 @@
+@media (max-width: 768px) {
+
+  #inputCanvas,
+  #outputCanvas,
+  #camInCanvas,
+  #camOutCanvas {
+    max-width: 76vw !important;
+  }
+}
+
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.gallery-item {
+  flex: 1 0 3rem;
+  margin: 1rem;
+  box-shadow: 0.1rem 0.1rem 0.1rem rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.gallery-image {
+  display: block;
+  width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+  transition: transform 400ms ease-out;
+}
+
+.gallery-image:hover {
+  transform: scale(1.25);
+}
+
+.hl {
+  border: 2px solid rgba(25, 190, 225, 1.0);
+}
+
+.ir {
+  color: rgba(25, 190, 225, 1.0);
+  text-transform: lowercase;
+  min-width: 80px;
+  display: inline-block;
+  text-align: right;
+}
+
+.loading-page {
+  width: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-page .counter {
+  text-align: center;
+  width: 100%;
+}
+
+.loading-page .counter p {
+  margin-top: 0rem;
+  font-size: 1rem;
+}
+
+.loading-page .counter h1 {
+  color: rgba(25, 190, 225, 1.0);
+  font-size: 1.4rem;
+}
+
+@media (max-width: 768px) {
+  .loading-page .counter h1 {
+    font-size: 1.2rem;
+  }
+}
+
+.loading-page .counter hr {
+  background: rgba(25, 190, 225, 1.0);
+  border: none;
+  height: 1px;
+}
+
+.loading {
+  display: inline-block;
+  position: relative;
+  width: 59px;
+  height: 59px;
+  margin-top: 10px
+}
+
+.loading div {
+  position: absolute;
+  width: 19px;
+  height: 19px;
+  border-radius: 0%;
+  background: rgba(25, 190, 225, 1.0);
+  animation: loading 0.6s linear infinite;
+}
+
+.loading div:nth-child(1) {
+  top: 0px;
+  left: 0px;
+  animation-delay: 0s;
+}
+
+.loading div:nth-child(2) {
+  top: 0px;
+  left: 20px;
+  animation-delay: -0.4s;
+}
+
+.loading div:nth-child(3) {
+  top: 0px;
+  left: 40px;
+  animation-delay: -0.8s;
+}
+
+.loading div:nth-child(4) {
+  top: 20px;
+  left: 0px;
+  animation-delay: -0.4s;
+}
+
+.loading div:nth-child(5) {
+  top: 20px;
+  left: 20px;
+  animation-delay: -0.8s;
+}
+
+.loading div:nth-child(6) {
+  top: 20px;
+  left: 40px;
+  animation-delay: -1.2s;
+}
+
+.loading div:nth-child(7) {
+  top: 40px;
+  left: 0px;
+  animation-delay: -0.8s;
+}
+
+.loading div:nth-child(8) {
+  top: 40px;
+  left: 20px;
+  animation-delay: -1.2s;
+}
+
+.loading div:nth-child(9) {
+  top: 40px;
+  left: 40px;
+  animation-delay: -1.6s;
+}
+
+@keyframes loading {
+  0% {
+    opacity: 0.01;
+  }
+  25% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  75% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 0.99;
+  }
+}
+
+@media (min-width: 48em) {
+  .prog {
+    padding: 10px;
+    font-size: 13px;
+  }
+}
+
+.prog_list {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+@media (min-width: 48em) {
+  .prog_list {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.prog {
+  padding: 3px 5px;
+  text-align: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+@media (min-width: 48em) {
+  .prog {
+    padding: 10px;
+    flex-direction: column;
+    flex: 1;
+  }
+}
+
+.prog:after {
+  content: '';
+  display: block;
+  position: absolute;
+  z-index: 2;
+}
+
+@media (min-width: 48em) {
+  .prog:after {
+    width: calc(100% - 100px);
+    top: 28%;
+    left: calc(50% + 50px);
+    border-top: 1px dotted #E2DFDA;
+  }
+}
+
+.prog-done {
+  color: rgba(25, 190, 225, 1.0);
+}
+
+@media (min-width: 48em) {
+  .prog-done:after {
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-top-color: rgba(25, 190, 225, 1.0);
+  }
+}
+
+.prog-current {
+  color: rgba(25, 190, 225, 1.0);
+}
+
+.prog-current:last-of-type:after, .prog-current:only-of-type:after {
+  height: 30%;
+}
+
+.prog:last-of-type:after {
+  display: none;
+}
+
+.prog-pending {
+  color: #333;
+}
+
+.prog-pending:after {
+  height: 30%;
+}
+
+.prog_list_title {
+  margin: 1px 0 0;
+}
+
+@media (min-width: 48em) {
+  .prog_list_title {
+    margin: 0;
+  }
+}
+
+.prog_list_icon {
+  margin: 0 10px 0 0;
+  height: 2em;
+  width: 2em;
+}
+
+@media (min-width: 48em) {
+  .prog_list_icon {
+    margin: 0 0 15px;
+  }
+}
+
+.prog_list_icon path {
+  fill: currentColor;
+}
+
+.prog_list_icon ellipse,
+.prog_list_icon circle {
+  stroke: currentColor;
+}
+
+@media (max-width: 768px) {
+  .prog {
+    font-size: 13px;
+  }
+  .prog_list_title {
+    text-align: left;
+  }
+}
