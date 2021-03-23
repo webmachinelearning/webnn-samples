@@ -37,6 +37,11 @@ function getInputFromCanvas() {
   return input;
 }
 
+function getMedianValue(arr) {
+  return arr.length % 2 !== 0 ? arr[Math.floor(arr.length / 2)] :
+      (arr[arr.length / 2 - 1] + arr[arr.length / 2]) / 2;
+}
+
 function clearResult() {
   for (let i = 0; i < 3; ++i) {
     const labelElement = document.getElementById(`label${i}`);
@@ -70,14 +75,42 @@ export async function main() {
   }
   predictButton.addEventListener('click', async function(e) {
     try {
+      const params = new URLSearchParams(location.search);
+      const numRuns = params.get('numRuns');
+      const n = numRuns === null ? 1 : parseInt(numRuns);
+
+      if (n < 1) {
+        alert(`The value of param numRuns must be greater than or equal to 1.`);
+        return;
+      }
+
+      let start;
+      let result;
+      let inferenceTime;
+      const inferenceTimeArr = [];
       const input = getInputFromCanvas();
-      const start = performance.now();
-      const result = await lenet.predict(input);
-      const inferenceTime = performance.now() - start.toFixed(2);
-      console.log(`execution elapsed time: ${inferenceTime.toFixed(2)} ms`);
-      inferenceTimeElement.innerHTML = 'Execution Time: ' +
-          `<span class='text-primary'>${inferenceTime.toFixed(2)}</span> ms`;
-      console.log(`execution result: ${result}`);
+
+      for (let i = 0; i < n; i++) {
+        start = performance.now();
+        result = await lenet.predict(input);
+        inferenceTime = performance.now() - start;
+        console.log(`execution elapsed time: ${inferenceTime.toFixed(2)} ms`);
+        console.log(`execution result: ${result}`);
+        inferenceTimeArr.push(inferenceTime);
+      }
+
+      if (n === 1) {
+        inferenceTimeElement.innerHTML = 'Execution Time: ' +
+        `<span class='text-primary'>${inferenceTime.toFixed(2)}</span> ms`;
+      } else {
+        const medianInferenceTime = getMedianValue(inferenceTimeArr);
+        console.log(`median execution elapsed time: ` +
+            `${medianInferenceTime.toFixed(2)} ms`);
+        inferenceTimeElement.innerHTML = `Median Execution Time(${n} runs): ` +
+            `<span class='text-primary'>${medianInferenceTime.toFixed(2)}` +
+            '</span> ms';
+      }
+
       const classes = topK(Array.from(result));
       classes.forEach((c, i) => {
         console.log(`\tlabel: ${c.label}, probability: ${c.prob}%`);
