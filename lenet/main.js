@@ -37,9 +37,10 @@ function getInputFromCanvas() {
   return input;
 }
 
-function getMedianValue(arr) {
-  return arr.length % 2 !== 0 ? arr[Math.floor(arr.length / 2)] :
-      (arr[arr.length / 2 - 1] + arr[arr.length / 2]) / 2;
+function getMedianValue(array) {
+  array = array.sort((a, b) => a - b);
+  return array.length % 2 !== 0 ? array[Math.floor(array.length / 2)] :
+      (array[array.length / 2 - 1] + array[array.length / 2]) / 2;
 }
 
 function clearResult() {
@@ -87,7 +88,7 @@ export async function main() {
       let start;
       let result;
       let inferenceTime;
-      const inferenceTimeArr = [];
+      const inferenceTimeArray = [];
       const input = getInputFromCanvas();
 
       for (let i = 0; i < n; i++) {
@@ -96,14 +97,14 @@ export async function main() {
         inferenceTime = performance.now() - start;
         console.log(`execution elapsed time: ${inferenceTime.toFixed(2)} ms`);
         console.log(`execution result: ${result}`);
-        inferenceTimeArr.push(inferenceTime);
+        inferenceTimeArray.push(inferenceTime);
       }
 
       if (n === 1) {
         inferenceTimeElement.innerHTML = 'Execution Time: ' +
         `<span class='text-primary'>${inferenceTime.toFixed(2)}</span> ms`;
       } else {
-        const medianInferenceTime = getMedianValue(inferenceTimeArr);
+        const medianInferenceTime = getMedianValue(inferenceTimeArray);
         console.log(`median execution elapsed time: ` +
             `${medianInferenceTime.toFixed(2)} ms`);
         inferenceTimeElement.innerHTML = `Median Execution Time(${n} runs): ` +
