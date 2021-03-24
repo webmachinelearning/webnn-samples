@@ -1,6 +1,7 @@
 'use strict';
 
-import { TransferStyle } from './transferStyle.js';
+import {TransferStyle} from './transferStyle.js';
+import {showProgressComponent, readyShowResultComponents} from './ui.js';
 
 const maxWidth = 380;
 const maxHeight = 380;
@@ -29,23 +30,23 @@ $('#img').click(async () => {
 });
 
 // Click trigger to do inference with switched <img> element
-$("#gallery .gallery-image").click(async e => {
+$('#gallery .gallery-image').click(async (e) => {
   modelId = $(e.target).attr('id');
-  let modelName = $('#modelId').attr('title');
+  const modelName = $('#modelId').attr('title');
   $('.badge').html(modelName);
-  $("#gallery .gallery-item").removeClass('hl');
+  $('#gallery .gallery-item').removeClass('hl');
   $(e.target).parent().addClass('hl');
   await main();
 });
 
-$("#gallery .gallery-image").hover(e => {
+$('#gallery .gallery-image').hover((e) => {
   const id = $(e.target).attr('id');
-  let modelName = $('#' + id).attr('title');
+  const modelName = $('#' + id).attr('title');
   $('.badge').html(modelName);
 });
 
-$('#imageFile').change(e => {
-  let files = e.target.files;
+$('#imageFile').change((e) => {
+  const files = e.target.files;
   if (files.length > 0) {
     $('#feedElement').on('load', async () => {
       await main();
@@ -63,10 +64,10 @@ $('#cam').click(async () => {
 
 async function getMediaStream() {
   // Support 'user' facing mode at present
-  let constraints = { audio: false, video: { facingMode: 'user' } };
+  const constraints = {audio: false, video: {facingMode: 'user'}};
   const stream = await navigator.mediaDevices.getUserMedia(constraints);
   return stream;
-};
+}
 
 /**
  * This method is used to render live camera tab.
@@ -84,14 +85,15 @@ async function renderCamStream() {
 
 function drawInput(srcElement, canvasId) {
   const inputCanvas = document.getElementById(canvasId);
-  const resizeRatio = Math.max(Math.max(srcElement.width / maxWidth, srcElement.height / maxHeight), 1);
+  const resizeRatio = Math.max(
+      Math.max(srcElement.width / maxWidth, srcElement.height / maxHeight), 1);
   const scaledWidth = Math.floor(srcElement.width / resizeRatio);
   const scaledHeight = Math.floor(srcElement.height / resizeRatio);
   inputCanvas.height = scaledHeight;
   inputCanvas.width = scaledWidth;
   const ctx = inputCanvas.getContext('2d');
   ctx.drawImage(srcElement, 0, 0, scaledWidth, scaledHeight);
-};
+}
 
 async function drawOutput(outputs, inCanvasId, outCanvasId) {
   const outputTensor = outputs.output.buffer;
@@ -104,10 +106,10 @@ async function drawOutput(outputs, inCanvasId, outCanvasId) {
   const a = 255;
 
   for (let i = 0; i < height * width; ++i) {
-    let j = i * 4;
-    let r = outputTensor[i] * mean[0] + offset[0];
-    let g = outputTensor[i + height * width] * mean[1] + offset[1];
-    let b = outputTensor[i + height * width * 2] * mean[2] + offset[2];
+    const j = i * 4;
+    const r = outputTensor[i] * mean[0] + offset[0];
+    const g = outputTensor[i + height * width] * mean[1] + offset[1];
+    const b = outputTensor[i + height * width * 2] * mean[2] + offset[2];
     bytes[j + 0] = Math.round(r);
     bytes[j + 1] = Math.round(g);
     bytes[j + 2] = Math.round(b);
@@ -116,7 +118,7 @@ async function drawOutput(outputs, inCanvasId, outCanvasId) {
 
   const imageData = new ImageData(bytes, width, height);
   const outCanvas = document.createElement('canvas');
-  let outCtx = outCanvas.getContext('2d');
+  const outCtx = outCanvas.getContext('2d');
   outCanvas.width = width;
   outCanvas.height = height;
   outCtx.putImageData(imageData, 0, 0, 0, 0, outCanvas.width, outCanvas.height);
@@ -127,12 +129,12 @@ async function drawOutput(outputs, inCanvasId, outCanvasId) {
   outputCanvas.height = inputCanvas.height;
   const ctx = outputCanvas.getContext('2d');
   ctx.drawImage(outCanvas, 0, 0, outputCanvas.width, outputCanvas.height);
-};
+}
 
 function showInferenceTime(inferenceTime) {
-  let inferenceTimeElement = document.getElementById('inferenceTime');
-  inferenceTimeElement.innerHTML = `<p class='font-weight-normal'>`
-      + `Inference time: <span class='ir'>${inferenceTime} ms</span></p>`;
+  const inferenceTimeElement = document.getElementById('inferenceTime');
+  inferenceTimeElement.innerHTML = `<p class='font-weight-normal'>` +
+      `Inference time: <span class='ir'>${inferenceTime} ms</span></p>`;
 }
 
 async function prepare(transferStyle) {

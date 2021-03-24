@@ -1,4 +1,3 @@
-
 'use strict';
 
 function sizeOfShape(shape) {
@@ -9,17 +8,17 @@ function sizeOfShape(shape) {
 
 async function buildConstantByNpy(builder, url) {
   const dataTypeMap = new Map([
-    ['f2', { type: 'float16', array: Uint16Array }],
-    ['f4', { type: 'float32', array: Float32Array }],
-    ['f8', { type: 'float64', array: Float64Array }],
-    ['i1', { type: 'int8', array: Int8Array }],
-    ['i2', { type: 'int16', array: Int16Array }],
-    ['i4', { type: 'int32', array: Int32Array }],
-    ['i8', { type: 'int64', array: BigInt64Array }],
-    ['u1', { type: 'uint8', array: Uint8Array }],
-    ['u2', { type: 'uint16', array: Uint16Array }],
-    ['u4', { type: 'uint32', array: Uint32Array }],
-    ['u8', { type: 'uint64', array: BigUint64Array }],
+    ['f2', {type: 'float16', array: Uint16Array}],
+    ['f4', {type: 'float32', array: Float32Array}],
+    ['f8', {type: 'float64', array: Float64Array}],
+    ['i1', {type: 'int8', array: Int8Array}],
+    ['i2', {type: 'int16', array: Int16Array}],
+    ['i4', {type: 'int32', array: Int32Array}],
+    ['i8', {type: 'int64', array: BigInt64Array}],
+    ['u1', {type: 'uint8', array: Uint8Array}],
+    ['u2', {type: 'uint16', array: Uint16Array}],
+    ['u4', {type: 'uint32', array: Uint32Array}],
+    ['u8', {type: 'uint64', array: BigUint64Array}],
   ]);
   const response = await fetch(url);
   const buffer = await response.arrayBuffer();
@@ -27,7 +26,7 @@ async function buildConstantByNpy(builder, url) {
   if (!dataTypeMap.has(npArray.dataType)) {
     throw new Error(`Data type ${npArray.dataType} is not supported.`);
   }
-  let dimensions = npArray.shape;
+  const dimensions = npArray.shape;
   const type = dataTypeMap.get(npArray.dataType).type;
   const TypedArrayConstructor = dataTypeMap.get(npArray.dataType).array;
   const typedArray = new TypedArrayConstructor(sizeOfShape(dimensions));
@@ -35,12 +34,12 @@ async function buildConstantByNpy(builder, url) {
   const littleEndian = npArray.byteOrder === '<';
   for (let i = 0; i < sizeOfShape(dimensions); ++i) {
     typedArray[i] = dataView[`get` + type[0].toUpperCase() + type.substr(1)](
-      i * TypedArrayConstructor.BYTES_PER_ELEMENT, littleEndian);
+        i * TypedArrayConstructor.BYTES_PER_ELEMENT, littleEndian);
   }
-  return builder.constant({ type, dimensions }, typedArray);
+  return builder.constant({type, dimensions}, typedArray);
 }
 
-/* eslint max-len: ["error", { "code": 130 }] */
+/* eslint max-len: ["error", {"code": 130}] */
 
 // Style Transfer Baseline Model
 export class StyleTransfer {
@@ -53,8 +52,8 @@ export class StyleTransfer {
   }
 
   buildSubNetwork_(builder, conv2D, variableMul, variableAdd) {
-    const sub = builder.sub(conv2D, builder.reduceMean(conv2D, { axes: [2, 3], keepDimensions: true }));
-    const reduceMean = builder.reduceMean(builder.mul(sub, sub), { axes: [2, 3], keepDimensions: true });
+    const sub = builder.sub(conv2D, builder.reduceMean(conv2D, {axes: [2, 3], keepDimensions: true}));
+    const reduceMean = builder.reduceMean(builder.mul(sub, sub), {axes: [2, 3], keepDimensions: true});
     const pow = builder.pow(builder.add(reduceMean, this.constAdd_), this.constPow_);
     const mul = builder.mul(variableMul, builder.div(sub, pow));
     return builder.add(mul, variableAdd);
@@ -119,88 +118,88 @@ export class StyleTransfer {
     const variableMul15 = await buildConstantByNpy(builder, baseUrl + 'Variable_47_read__42__cf__42_0.npy');
 
     const padding1 = builder.constant(
-      { type: 'int32', dimensions: [4, 2] }, new Int32Array([0, 0, 0, 0, 1, 1, 1, 1]));
+        {type: 'int32', dimensions: [4, 2]}, new Int32Array([0, 0, 0, 0, 1, 1, 1, 1]));
     const padding4 = builder.constant(
-      { type: 'int32', dimensions: [4, 2] }, new Int32Array([0, 0, 0, 0, 4, 4, 4, 4]));
+        {type: 'int32', dimensions: [4, 2]}, new Int32Array([0, 0, 0, 0, 4, 4, 4, 4]));
     this.constAdd_ = builder.constant(
-      { type: 'float32', dimensions: [1] }, new Float32Array([9.999999717180685e-10]));
+        {type: 'float32', dimensions: [1]}, new Float32Array([9.999999717180685e-10]));
     this.constPow_ = builder.constant(
-      { type: 'float32', dimensions: [1] }, new Float32Array([0.5]));
+        {type: 'float32', dimensions: [1]}, new Float32Array([0.5]));
     const constMul0 = builder.constant(
-      { type: 'float32', dimensions: [1] }, new Float32Array([150]));
+        {type: 'float32', dimensions: [1]}, new Float32Array([150]));
     const constAdd0 = builder.constant(
-      { type: 'float32', dimensions: [1] }, new Float32Array([127.5]));
+        {type: 'float32', dimensions: [1]}, new Float32Array([127.5]));
     // Build up the network.
-    const input = builder.input('input', { type: 'float32', dimensions: this.dimensions_ });
-    const conv2D0 = builder.conv2d(builder.pad(input, padding4, { mode: "reflection" }), weightConv0);
+    const input = builder.input('input', {type: 'float32', dimensions: this.dimensions_});
+    const conv2D0 = builder.conv2d(builder.pad(input, padding4, {mode: 'reflection'}), weightConv0);
 
     const add0 = this.buildSubNetwork_(builder, conv2D0, variableMul0, variableAdd0);
     const relu0 = builder.relu(add0);
-    const conv2D1 = builder.conv2d(builder.pad(relu0, padding1, { mode: "reflection" }),
-      weightConv1, { strides: [2, 2] });
+    const conv2D1 = builder.conv2d(builder.pad(relu0, padding1, {mode: 'reflection'}),
+        weightConv1, {strides: [2, 2]});
 
     const add1 = this.buildSubNetwork_(builder, conv2D1, variableMul1, variableAdd1);
     const relu1 = builder.relu(add1);
-    const conv2D2 = builder.conv2d(builder.pad(relu1, padding1, { mode: "reflection" }),
-      weightConv2, { strides: [2, 2] });
+    const conv2D2 = builder.conv2d(builder.pad(relu1, padding1, {mode: 'reflection'}),
+        weightConv2, {strides: [2, 2]});
 
     const add2 = this.buildSubNetwork_(builder, conv2D2, variableMul2, variableAdd2);
     const relu2 = builder.relu(add2); // next input
-    const conv2D3 = builder.conv2d(builder.pad(relu2, padding1, { mode: "reflection" }), weightConv3);
+    const conv2D3 = builder.conv2d(builder.pad(relu2, padding1, {mode: 'reflection'}), weightConv3);
 
     const add3 = this.buildSubNetwork_(builder, conv2D3, variableMul3, variableAdd3);
     const relu3 = builder.relu(add3);
-    const conv2D4 = builder.conv2d(builder.pad(relu3, padding1, { mode: "reflection" }), weightConv4);
+    const conv2D4 = builder.conv2d(builder.pad(relu3, padding1, {mode: 'reflection'}), weightConv4);
 
     const add4 = this.buildSubNetwork_(builder, conv2D4, variableMul4, variableAdd4);
     const add5 = builder.add(relu2, add4); // next input
-    const conv2D5 = builder.conv2d(builder.pad(add5, padding1, { mode: "reflection" }), weightConv5);
+    const conv2D5 = builder.conv2d(builder.pad(add5, padding1, {mode: 'reflection'}), weightConv5);
 
     const add6 = this.buildSubNetwork_(builder, conv2D5, variableMul5, variableAdd5);
     const relu4 = builder.relu(add6);
-    const conv2D6 = builder.conv2d(builder.pad(relu4, padding1, { mode: "reflection" }), weightConv6);
+    const conv2D6 = builder.conv2d(builder.pad(relu4, padding1, {mode: 'reflection'}), weightConv6);
 
     const add7 = this.buildSubNetwork_(builder, conv2D6, variableMul6, variableAdd6);
     const add8 = builder.add(add5, add7); // next input
-    const conv2D7 = builder.conv2d(builder.pad(add8, padding1, { mode: "reflection" }), weightConv7);
+    const conv2D7 = builder.conv2d(builder.pad(add8, padding1, {mode: 'reflection'}), weightConv7);
 
     const add9 = this.buildSubNetwork_(builder, conv2D7, variableMul7, variableAdd7);
     const relu5 = builder.relu(add9);
-    const conv2D8 = builder.conv2d(builder.pad(relu5, padding1, { mode: "reflection" }), weightConv8);
+    const conv2D8 = builder.conv2d(builder.pad(relu5, padding1, {mode: 'reflection'}), weightConv8);
 
     const add10 = this.buildSubNetwork_(builder, conv2D8, variableMul8, variableAdd8);
     const add11 = builder.add(add8, add10); // next input
-    const conv2D9 = builder.conv2d(builder.pad(add11, padding1, { mode: "reflection" }), weightConv9);
+    const conv2D9 = builder.conv2d(builder.pad(add11, padding1, {mode: 'reflection'}), weightConv9);
 
     const add12 = this.buildSubNetwork_(builder, conv2D9, variableMul9, variableAdd9);
     const relu6 = builder.relu(add12);
-    const conv2D10 = builder.conv2d(builder.pad(relu6, padding1, { mode: "reflection" }), weightConv10);
+    const conv2D10 = builder.conv2d(builder.pad(relu6, padding1, {mode: 'reflection'}), weightConv10);
 
     const add13 = this.buildSubNetwork_(builder, conv2D10, variableMul10, variableAdd10);
     const add14 = builder.add(add11, add13); // next input
-    const conv2D11 = builder.conv2d(builder.pad(add14, padding1, { mode: "reflection" }), weightConv11);
+    const conv2D11 = builder.conv2d(builder.pad(add14, padding1, {mode: 'reflection'}), weightConv11);
 
     const add15 = this.buildSubNetwork_(builder, conv2D11, variableMul11, variableAdd11);
     const relu7 = builder.relu(add15);
-    const conv2D12 = builder.conv2d(builder.pad(relu7, padding1, { mode: "reflection" }), weightConv12);
+    const conv2D12 = builder.conv2d(builder.pad(relu7, padding1, {mode: 'reflection'}), weightConv12);
 
     const add16 = this.buildSubNetwork_(builder, conv2D12, variableMul12, variableAdd12);
     const add17 = builder.add(add14, add16);
     const convTranspose0 = builder.conv2d(add17, weightConvTranspose0,
-      { transpose: true, strides: [2, 2], outputSizes: [270, 270] });
+        {transpose: true, strides: [2, 2], outputSizes: [270, 270]});
 
     const add18 = this.buildSubNetwork_(builder, convTranspose0, variableMul13, variableAdd13);
     const relu8 = builder.relu(add18);
     const convTranspose1 = builder.conv2d(relu8, weightConvTranspose1,
-      { transpose: true, strides: [2, 2], outputSizes: [540, 540] });
+        {transpose: true, strides: [2, 2], outputSizes: [540, 540]});
 
     const add19 = this.buildSubNetwork_(builder, convTranspose1, variableMul14, variableAdd14);
     const relu9 = builder.relu(add19);
-    const conv2D13 = builder.conv2d(builder.pad(relu9, padding4, { mode: "reflection" }), weightConv13);
+    const conv2D13 = builder.conv2d(builder.pad(relu9, padding4, {mode: 'reflection'}), weightConv13);
 
     const add20 = this.buildSubNetwork_(builder, conv2D13, variableMul15, variableAdd15);
     const output = builder.add(builder.mul(builder.tanh(add20), constMul0), constAdd0);
-    this.model_ = builder.createModel({ 'output': output });
+    this.model_ = builder.createModel({'output': output});
   }
 
   async compile(options) {
@@ -208,7 +207,7 @@ export class StyleTransfer {
   }
 
   async compute(inputBuffer) {
-    const inputs = { input: { buffer: inputBuffer } };
+    const inputs = {input: {buffer: inputBuffer}};
     return await this.compiledModel_.compute(inputs);
   }
 }

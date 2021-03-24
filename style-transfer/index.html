@@ -10,40 +10,40 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-md navbar-dark bg-dark" style="width:100%">
-    <span class="navbar-brand mb-0 h1">WebNN Style Transfer Example</span>
+  <nav class='navbar navbar-expand-md navbar-dark bg-dark' style='width:100%'>
+    <span class='navbar-brand mb-0 h1'>WebNN Style Transfer Example</span>
   </nav>
   <div class='container' id='container'>
-    <ul class="nav nav-tabs nav-justified mb-3" id="ex1" role="tablist">
-      <li class="nav-item" id="img" role="presentation">
-        <a class="nav-link active" data-toggle="tab" href="#imagetab" role="tab" aria-controls="ex3-tabs-1"
-          aria-selected="true">IMAGE</a>
+    <ul class='nav nav-tabs nav-justified mb-3' id='ex1' role='tablist'>
+      <li class='nav-item' id='img' role='presentation'>
+        <a class='nav-link active' data-toggle='tab' href='#imagetab' role='tab' aria-controls='ex3-tabs-1'
+          aria-selected='true'>IMAGE</a>
       </li>
-      <li class="nav-item" id="cam" role="presentation">
-        <a class="nav-link" data-toggle="tab" href="#cameratab" role="tab" aria-controls="ex3-tabs-2"
-          aria-selected="false">LIVE CAMERA</a>
+      <li class='nav-item' id='cam' role='presentation'>
+        <a class='nav-link' data-toggle='tab' href='#cameratab' role='tab' aria-controls='ex3-tabs-2'
+          aria-selected='false'>LIVE CAMERA</a>
       </li>
     </ul>
 
-    <div class="gallery" id="gallery">
-      <div class="gallery-item hl"><img class="gallery-image" id="starry-night"
-          src='./images/style-images/starrynight.jpg' title="The starry night"></div>
-      <div class="gallery-item"><img class="gallery-image" id="self-portrait"
-          src='./images/style-images/self-portrait.jpg' title="Self-Portrait" /></div>
-      <div class="gallery-item"><img class="gallery-image" id="bedroom" src='./images/style-images/bedroom.jpg'
-          title="Vincent`s Bedroom in Arles" /></div>
-      <div class="gallery-item"><img class="gallery-image" id="sunflowers-bew"
-          src='./images/style-images/Sunflowers-Bew.jpg' title="“Sunflowers” (1889)" /></div>
-      <div class="gallery-item"><img class="gallery-image" id="red-vineyards"
-          src='./images/style-images/Red-Vineyards.jpg' title="The Red Vineyard" /></div>
-      <div class="gallery-item"><img class="gallery-image" id="sien-with-a-cigar"
-          src='./images/style-images/sien_with_a_cigar.jpg' title="Sien with a cigar" /></div>
-      <div class="gallery-item"><img class="gallery-image" id="la-campesinos"
-          src='./images/style-images/la-campesinos.jpg' title="Rest from Work" /></div>
-      <div class="gallery-item"><img class="gallery-image" id="soup-distribution"
-          src='./images/style-images/Soup-Distribution.jpg' title="Soup Distribution in a Public Soup Kitchen" /></div>
-      <div class="gallery-item"><img class="gallery-image" id="wheatfield_with_crows"
-          src='./images/style-images/Wheatfield_with_Crows.jpg' title="Wheatfield with Crows" /></div>
+    <div class='gallery' id='gallery'>
+      <div class='gallery-item hl'><img class='gallery-image' id='starry-night'
+          src='./images/style-images/starrynight.jpg' title='The starry night'></div>
+      <div class='gallery-item'><img class='gallery-image' id='self-portrait'
+          src='./images/style-images/self-portrait.jpg' title='Self-Portrait' /></div>
+      <div class='gallery-item'><img class='gallery-image' id='bedroom' src='./images/style-images/bedroom.jpg'
+          title='Vincent`s Bedroom in Arles' /></div>
+      <div class='gallery-item'><img class='gallery-image' id='sunflowers-bew'
+          src='./images/style-images/Sunflowers-Bew.jpg' title='“Sunflowers” (1889)' /></div>
+      <div class='gallery-item'><img class='gallery-image' id='red-vineyards'
+          src='./images/style-images/Red-Vineyards.jpg' title='The Red Vineyard' /></div>
+      <div class='gallery-item'><img class='gallery-image' id='sien-with-a-cigar'
+          src='./images/style-images/sien_with_a_cigar.jpg' title='Sien with a cigar' /></div>
+      <div class='gallery-item'><img class='gallery-image' id='la-campesinos'
+          src='./images/style-images/la-campesinos.jpg' title='Rest from Work' /></div>
+      <div class='gallery-item'><img class='gallery-image' id='soup-distribution'
+          src='./images/style-images/Soup-Distribution.jpg' title='Soup Distribution in a Public Soup Kitchen' /></div>
+      <div class='gallery-item'><img class='gallery-image' id='wheatfield_with_crows'
+          src='./images/style-images/Wheatfield_with_Crows.jpg' title='Wheatfield with Crows' /></div>
     </div>
 
     <div class='tab-content clearfix' style='display: none;' id='progressmodel'>
@@ -72,14 +72,14 @@
         <div class='icdisplay'>
           <div class='col-lg-12 col-xs-12 text-center'>
             <div class='row'>
-              <div class='col bt-3 mb-3' style="display: flex;">
-                <div id='div-photos' style="margin: auto; display: flex;" title="Original image">
+              <div class='col bt-3 mb-3' style='display: flex;'>
+                <div id='div-photos' style='margin: auto; display: flex;' title='Original image'>
                   <img id='feedElement' hidden crossorigin='anonymous' class='img-fluid' alt='Responsive image' src=''>
                   <canvas id='inputCanvas'></canvas>
                 </div>
               </div>
-              <div class='col bt-3 mb-3' style="display: flex;" title="Transferred image">
-                <div id='div-styles' style="margin: auto; display: flex;">
+              <div class='col bt-3 mb-3' style='display: flex;' title='Transferred image'>
+                <div id='div-styles' style='margin: auto; display: flex;'>
                   <canvas id='outputCanvas'></canvas>
                 </div>
               </div>
@@ -87,7 +87,7 @@
             <div class='row'>
               <div class='col'>
                 <div class='box'>
-                  <h6 class='text-muted'>
+                  <h6 class='text-muted shoulddisplay' style='display: none;'>
                     <i>The painting style of <span class='text-uppercase badge badge-primary'><span></i>
                   </h6>
                 </div>
@@ -95,7 +95,7 @@
             </div>
             <div class='row mt-1'>
               <div class='col'>
-                <label class="btn btn-outline-info">
+                <label class='btn btn-outline-info shoulddisplay' style='display: none;'>
                   <input type='file' id='imageFile' accept='image/*' hidden />
                   <span>Pick Image</span>
                 </label>
@@ -107,15 +107,15 @@
       <div class='tab-pane text-center col-sm' id='cameratab'>
         <div class='icdisplay'>
           <div class='row'>
-            <div class='col bt-3 mb-3' style="display: flex;">
-              <div id='div-photos' style="margin: auto; display: flex;">
+            <div class='col bt-3 mb-3' style='display: flex;'>
+              <div id='div-photos' style='margin: auto; display: flex;'>
                 <canvas id='camInCanvas'></canvas>
               </div>
             </div>
-            <video id='feedMediaElement' autoplay playsinline style="display: none;"></video>
+            <video id='feedMediaElement' autoplay playsinline style='display: none;'></video>
 
-            <div class='col bt-3 mb-3' style="display: flex;">
-              <div id='div-styles' style="margin: auto; display: flex;">
+            <div class='col bt-3 mb-3' style='display: flex;'>
+              <div id='div-styles' style='margin: auto; display: flex;'>
                 <canvas id='camOutCanvas'></canvas>
               </div>
             </div>
@@ -123,7 +123,7 @@
           <div class='row'>
             <div class='col'>
               <div class='box'>
-                <h6 class='text-muted'>
+                <h6 class='text-muted shoulddisplay' style='display: none;'>
                   <i>The painting style of <span class='text-uppercase badge badge-primary'><span></i>
                 </h6>
               </div>
@@ -144,7 +144,6 @@
     crossorigin="anonymous"></script>
   <script src="https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js"></script>
   <script src="./libs/numpy.js"></script>
-  <script src="./ui.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.3.0"> </script>
   <script type="module">
     import { main } from './main.js';

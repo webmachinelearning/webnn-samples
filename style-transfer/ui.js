@@ -1,8 +1,8 @@
 'use strict';
 
-/* eslint max-len: ["error", { "code": 130 }] */
+/* eslint max-len: ["error", {"code": 350}] */
 
-const showProgressComponent = async (pm, pb, pi) => {
+export async function showProgressComponent(pm, pb, pi) {
   let p = '';
   let modelicon = ``;
   if (pm === 'done') {
@@ -72,11 +72,11 @@ const showProgressComponent = async (pm, pb, pi) => {
   $('#progressstep').html(p);
   $('.shoulddisplay').hide();
   $('.icdisplay').hide();
-  await new Promise(res => setTimeout(res, 100));
-};
+  await new Promise((res) => setTimeout(res, 100));
+}
 
-const readyShowResultComponents = () => {
+export function readyShowResultComponents() {
   $('#progressmodel').hide();
   $('.icdisplay').show();
   $('.shoulddisplay').show();
-};
+}
