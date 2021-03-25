@@ -72,6 +72,7 @@ export async function showProgressComponent(pm, pb, pi) {
   $('#progressstep').html(p);
   $('.shoulddisplay').hide();
   $('.icdisplay').hide();
+  $('#gallery .gallery-image').off('click');
   await new Promise((res) => setTimeout(res, 100));
 }
 

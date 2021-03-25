@@ -20,22 +20,12 @@ $(document).ready(() => {
 
 // Click trigger to do inference with <img> element
 $('#img').click(async () => {
-  inputType = 'image';
-  $('.shoulddisplay').hide();
   if (reqId !== 0) {
     cancelAnimationFrame(reqId);
     reqId = 0;
   }
-  await main();
-});
-
-// Click trigger to do inference with switched <img> element
-$('#gallery .gallery-image').click(async (e) => {
-  modelId = $(e.target).attr('id');
-  const modelName = $('#modelId').attr('title');
-  $('.badge').html(modelName);
-  $('#gallery .gallery-item').removeClass('hl');
-  $(e.target).parent().addClass('hl');
+  inputType = 'image';
+  $('.shoulddisplay').hide();
   await main();
 });
 
@@ -51,6 +41,8 @@ $('#imageFile').change((e) => {
     $('#feedElement').on('load', async () => {
       await main();
     });
+    $('#feedElement').removeAttr('height');
+    $('#feedElement').removeAttr('width');
     imgElement.src = URL.createObjectURL(files[0]);
   }
 });
@@ -61,6 +53,20 @@ $('#cam').click(async () => {
   $('.shoulddisplay').hide();
   await main();
 });
+
+// Click handler to do inference with switched <img> element
+async function handleImageSwitch(e) {
+  if (reqId !== 0) {
+    cancelAnimationFrame(reqId);
+    reqId = 0;
+  }
+  modelId = $(e.target).attr('id');
+  const modelName = $('#modelId').attr('title');
+  $('.badge').html(modelName);
+  $('#gallery .gallery-item').removeClass('hl');
+  $(e.target).parent().addClass('hl');
+  await main();
+}
 
 async function getMediaStream() {
   // Support 'user' facing mode at present
@@ -179,6 +185,7 @@ export async function main() {
     } else {
       throw Error(`Unknown inputType ${inputType}`);
     }
+    $('#gallery .gallery-image').on('click', handleImageSwitch);
   } catch (error) {
     console.log(error);
     addWarning(error.message);
