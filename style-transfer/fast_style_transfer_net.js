@@ -1,54 +1,18 @@
 'use strict';
 
-function sizeOfShape(shape) {
-  return shape.reduce((a, b) => {
-    return a * b;
-  });
-}
-
-async function buildConstantByNpy(builder, url) {
-  const dataTypeMap = new Map([
-    ['f2', {type: 'float16', array: Uint16Array}],
-    ['f4', {type: 'float32', array: Float32Array}],
-    ['f8', {type: 'float64', array: Float64Array}],
-    ['i1', {type: 'int8', array: Int8Array}],
-    ['i2', {type: 'int16', array: Int16Array}],
-    ['i4', {type: 'int32', array: Int32Array}],
-    ['i8', {type: 'int64', array: BigInt64Array}],
-    ['u1', {type: 'uint8', array: Uint8Array}],
-    ['u2', {type: 'uint16', array: Uint16Array}],
-    ['u4', {type: 'uint32', array: Uint32Array}],
-    ['u8', {type: 'uint64', array: BigUint64Array}],
-  ]);
-  const response = await fetch(url);
-  const buffer = await response.arrayBuffer();
-  const npArray = new numpy.Array(new Uint8Array(buffer));
-  if (!dataTypeMap.has(npArray.dataType)) {
-    throw new Error(`Data type ${npArray.dataType} is not supported.`);
-  }
-  const dimensions = npArray.shape;
-  const type = dataTypeMap.get(npArray.dataType).type;
-  const TypedArrayConstructor = dataTypeMap.get(npArray.dataType).array;
-  const typedArray = new TypedArrayConstructor(sizeOfShape(dimensions));
-  const dataView = new DataView(npArray.data.buffer);
-  const littleEndian = npArray.byteOrder === '<';
-  for (let i = 0; i < sizeOfShape(dimensions); ++i) {
-    typedArray[i] = dataView[`get` + type[0].toUpperCase() + type.substr(1)](
-        i * TypedArrayConstructor.BYTES_PER_ELEMENT, littleEndian);
-  }
-  return builder.constant({type, dimensions}, typedArray);
-}
-
 /* eslint max-len: ["error", {"code": 130}] */
 
-// Style Transfer Baseline Model
-export class StyleTransfer {
+// Fast Style Transfer Baseline Model
+export class FastStyleTransferNet {
   constructor() {
     this.model_ = null;
     this.compiledModel_ = null;
-    this.dimensions_ = [1, 3, 540, 540];
+    this.inputDimensions_ = [1, 3, 540, 540];
     this.constPow_ = null;
     this.constAdd_ = null;
+    this.loadTime_ = 0;
+    this.compileTime_ = 0;
+    this.computeTime_ = 0;
   }
 
   buildSubNetwork_(builder, conv2D, variableMul, variableAdd) {
@@ -59,13 +23,50 @@ export class StyleTransfer {
     return builder.add(mul, variableAdd);
   }
 
-  getDimensions() {
-    return this.dimensions_;
+  // Covert input element to tensor data
+  preprocess(inputElement) {
+    const tensor = new Float32Array(
+        this.inputDimensions_.slice(1).reduce((a, b) => a * b));
+
+    inputElement.width = inputElement.videoWidth ||
+        inputElement.naturalWidth;
+    inputElement.height = inputElement.videoHeight ||
+        inputElement.naturalHeight;
+
+    const [channels, height, width] = this.inputDimensions_.slice(1);
+    const mean = [0, 0, 0, 0];
+    const std = [1, 1, 1, 1];
+    const imageChannels = 4; // RGBA
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = width;
+    canvasElement.height = height;
+    const canvasContext = canvasElement.getContext('2d');
+    canvasContext.drawImage(inputElement, 0, 0, width, height);
+
+    const pixels = canvasContext.getImageData(0, 0, width, height).data;
+
+    for (let c = 0; c < channels; ++c) {
+      for (let h = 0; h < height; ++h) {
+        for (let w = 0; w < width; ++w) {
+          const value =
+              pixels[h * width * imageChannels + w * imageChannels + c];
+          tensor[c * width * height + h * width + w] =
+              (value - mean[c]) / std[c];
+        }
+      }
+    }
+    return tensor;
   }
 
-  async load(baseUrl) {
+  async load(modelId) {
+    console.log(`- Model ID: ${modelId} -`);
+    console.log('- Loading weights... ');
+    const start = performance.now();
+
     const nn = navigator.ml.getNeuralNetworkContext();
     const builder = nn.createModelBuilder();
+    const baseUrl = `./weights/${modelId}/`;
 
     // Create constants by loading pre-trained data from .npy files.
     const weightConv0 = await buildConstantByNpy(builder, baseUrl + 'Variable_read__0__cf__0_0.npy');
@@ -130,7 +131,7 @@ export class StyleTransfer {
     const constAdd0 = builder.constant(
         {type: 'float32', dimensions: [1]}, new Float32Array([127.5]));
     // Build up the network.
-    const input = builder.input('input', {type: 'float32', dimensions: this.dimensions_});
+    const input = builder.input('input', {type: 'float32', dimensions: this.inputDimensions_});
     const conv2D0 = builder.conv2d(builder.pad(input, padding4, {mode: 'reflection'}), weightConv0);
 
     const add0 = this.buildSubNetwork_(builder, conv2D0, variableMul0, variableAdd0);
@@ -200,14 +201,34 @@ export class StyleTransfer {
     const add20 = this.buildSubNetwork_(builder, conv2D13, variableMul15, variableAdd15);
     const output = builder.add(builder.mul(builder.tanh(add20), constMul0), constAdd0);
     this.model_ = builder.createModel({'output': output});
+
+    this.loadTime_ = (performance.now() - start).toFixed(2);
+    console.log(`  done in ${this.loadTime_} ms.`);
   }
 
   async compile(options) {
+    console.log('- Compiling... ');
+    const start = performance.now();
     this.compiledModel_ = await this.model_.compile(options);
+    this.compileTime_ = (performance.now() - start).toFixed(2);
+    console.log(`  done in ${this.compileTime_} ms.`);
   }
 
   async compute(inputBuffer) {
+    console.log('- Computing... ');
+    const start = performance.now();
     const inputs = {input: {buffer: inputBuffer}};
-    return await this.compiledModel_.compute(inputs);
+    const outputs = await this.compiledModel_.compute(inputs);
+    this.computeTime_ = (performance.now() - start).toFixed(2);
+    console.log(`  done in ${this.computeTime_} ms.`);
+    return outputs;
+  }
+
+  getPerfResult() {
+    return {
+      'loadTime': this.loadTime_,
+      'compileTime': this.compileTime_,
+      'computeTime': this.computeTime_,
+    };
   }
 }

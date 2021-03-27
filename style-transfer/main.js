@@ -1,6 +1,6 @@
 'use strict';
 
-import {TransferStyle} from './transferStyle.js';
+import {FastStyleTransferNet} from './fast_style_transfer_net.js';
 import {showProgressComponent, readyShowResultComponents} from './ui.js';
 
 const maxWidth = 380;
@@ -11,7 +11,7 @@ const camElement = document.getElementById('feedMediaElement');
 let reqId = 0;
 let modelId = 'starry-night';
 let inputType = 'image';
-let transferStyle;
+let fastStyleTransferNet;
 
 $(document).ready(() => {
   $('.icdisplay').hide();
@@ -79,12 +79,13 @@ async function getMediaStream() {
  * This method is used to render live camera tab.
  */
 async function renderCamStream() {
-  const outputs = await transferStyle.compute();
-  const inferenceTime = transferStyle.getInferenceTime();
+  const inputBuffer = await fastStyleTransferNet.preprocess(camElement);
+  const outputs = await fastStyleTransferNet.compute(inputBuffer);
+  const perfResult = fastStyleTransferNet.getPerfResult();
   camElement.width = camElement.videoWidth;
   camElement.height = camElement.videoHeight;
   drawInput(camElement, 'camInCanvas');
-  showInferenceTime(inferenceTime);
+  showPerfResult(perfResult);
   await drawOutput(outputs, 'camInCanvas', 'camOutCanvas');
   reqId = requestAnimationFrame(renderCamStream);
 }
@@ -137,21 +138,10 @@ async function drawOutput(outputs, inCanvasId, outCanvasId) {
   ctx.drawImage(outCanvas, 0, 0, outputCanvas.width, outputCanvas.height);
 }
 
-function showInferenceTime(inferenceTime) {
-  const inferenceTimeElement = document.getElementById('inferenceTime');
-  inferenceTimeElement.innerHTML = `<p class='font-weight-normal'>` +
-      `Inference time: <span class='ir'>${inferenceTime} ms</span></p>`;
-}
-
-async function prepare(transferStyle) {
-  // UI shows loading model progress
-  await showProgressComponent('current', 'pending', 'pending');
-  await transferStyle.load(modelId);
-  // UI shows compiling model progress
-  await showProgressComponent('done', 'current', 'pending');
-  await transferStyle.compile();
-  // UI shows inferencing progress
-  await showProgressComponent('done', 'done', 'current');
+function showPerfResult(perfResult) {
+  $('#loadTime').html(`${perfResult.loadTime} ms`);
+  $('#compileTime').html(`${perfResult.compileTime} ms`);
+  $('#computeTime').html(`${perfResult.computeTime} ms`);
 }
 
 function addWarning(msg) {
@@ -165,20 +155,26 @@ function addWarning(msg) {
 
 export async function main() {
   try {
+    fastStyleTransferNet = new FastStyleTransferNet();
+    // UI shows loading model progress
+    await showProgressComponent('current', 'pending', 'pending');
+    await fastStyleTransferNet.load(modelId);
+    // UI shows compiling model progress
+    await showProgressComponent('done', 'current', 'pending');
+    await fastStyleTransferNet.compile();
+    // UI shows inferencing progress
+    await showProgressComponent('done', 'done', 'current');
     if (inputType === 'image') {
-      transferStyle = new TransferStyle(imgElement);
-      drawInput(imgElement, 'inputCanvas');
-      await prepare(transferStyle);
-      const outputs = await transferStyle.compute();
+      const inputBuffer = await fastStyleTransferNet.preprocess(imgElement);
+      const outputs = await fastStyleTransferNet.compute(inputBuffer);
       await showProgressComponent('done', 'done', 'done');
       readyShowResultComponents();
+      drawInput(imgElement, 'inputCanvas');
       await drawOutput(outputs, 'inputCanvas', 'outputCanvas');
-      showInferenceTime(transferStyle.getInferenceTime());
+      showPerfResult(fastStyleTransferNet.getPerfResult());
     } else if (inputType === 'camera') {
       const stream = await getMediaStream();
       camElement.srcObject = stream;
-      transferStyle = new TransferStyle(camElement);
-      await prepare(transferStyle);
       camElement.onloadedmediadata = await renderCamStream();
       await showProgressComponent('done', 'done', 'done');
       readyShowResultComponents();

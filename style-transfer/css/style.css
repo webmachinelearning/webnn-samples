@@ -42,7 +42,6 @@
   text-transform: lowercase;
   min-width: 80px;
   display: inline-block;
-  text-align: right;
 }
 
 .loading-page {
@@ -292,4 +291,9 @@
   .prog_list_title {
     text-align: left;
   }
+}
+
+.list-pipe > li:not(:last-child)::after {
+  content: "|";
+  color: #17a2b8;
 }

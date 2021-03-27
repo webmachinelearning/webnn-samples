@@ -1,7 +1,7 @@
 ## WebNN Fast Style Transfer Example
 Fast neural style transfer is the process of taking the style of one image then applying it to the content of another image.
 This example shows how the ['Fast Style Transfer' models](https://github.com/acerwebai/VangoghCrazyWorld)
-from Acer in ONNX format may be implememented by using the WebNN API.
+from Vangogh Crazy World project in ONNX format may be implememented by using the WebNN API.
 
 ### Usage
 
@@ -16,3 +16,7 @@ You could also click 'Pick Image' button to choose your local image to tranfer t
 Here we transformed every frame in a live camera, then combined the results. Click 'LIVE CAMERA' tab, allow the browser to use your local camera if there's a prompt, then you will see a styled live camera.
 
 Switch the style images to experience various painting styles.
+
+### Note
+
+All image asserts under `images` folder come from https://github.com/acerwebai/VangoghCrazyWorld-Web/tree/master/images, which are licensed under the MIT.
