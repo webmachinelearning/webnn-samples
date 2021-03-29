@@ -1,5 +1,7 @@
 'use strict';
 
+import {buildConstantByNpy} from '../common/utils.js';
+
 /* eslint max-len: ["error", {"code": 130}] */
 
 // Fast Style Transfer Baseline Model
@@ -10,17 +12,19 @@ export class FastStyleTransferNet {
     this.inputDimensions_ = [1, 3, 540, 540];
     this.constPow_ = null;
     this.constAdd_ = null;
-    this.loadTime_ = 0;
-    this.compileTime_ = 0;
-    this.computeTime_ = 0;
   }
 
-  buildSubNetwork_(builder, conv2D, variableMul, variableAdd) {
-    const sub = builder.sub(conv2D, builder.reduceMean(conv2D, {axes: [2, 3], keepDimensions: true}));
-    const reduceMean = builder.reduceMean(builder.mul(sub, sub), {axes: [2, 3], keepDimensions: true});
-    const pow = builder.pow(builder.add(reduceMean, this.constAdd_), this.constPow_);
-    const mul = builder.mul(variableMul, builder.div(sub, pow));
-    return builder.add(mul, variableAdd);
+  buildInstanceNormalization_(builder, conv2D, variableMul, variableAdd) {
+    if ('instanceNormalization' in builder) {
+      return builder.instanceNormalization(conv2D,
+          {scale: builder.squeeze(variableMul), bias: builder.squeeze(variableAdd)});
+    } else {
+      const sub = builder.sub(conv2D, builder.reduceMean(conv2D, {axes: [2, 3], keepDimensions: true}));
+      const reduceMean = builder.reduceMean(builder.mul(sub, sub), {axes: [2, 3], keepDimensions: true});
+      const pow = builder.pow(builder.add(reduceMean, this.constAdd_), this.constPow_);
+      const mul = builder.mul(variableMul, builder.div(sub, pow));
+      return builder.add(mul, variableAdd);
+    }
   }
 
   // Covert input element to tensor data
@@ -60,10 +64,6 @@ export class FastStyleTransferNet {
   }
 
   async load(modelId) {
-    console.log(`- Model ID: ${modelId} -`);
-    console.log('- Loading weights... ');
-    const start = performance.now();
-
     const nn = navigator.ml.getNeuralNetworkContext();
     const builder = nn.createModelBuilder();
     const baseUrl = `./weights/${modelId}/`;
@@ -134,101 +134,82 @@ export class FastStyleTransferNet {
     const input = builder.input('input', {type: 'float32', dimensions: this.inputDimensions_});
     const conv2D0 = builder.conv2d(builder.pad(input, padding4, {mode: 'reflection'}), weightConv0);
 
-    const add0 = this.buildSubNetwork_(builder, conv2D0, variableMul0, variableAdd0);
+    const add0 = this.buildInstanceNormalization_(builder, conv2D0, variableMul0, variableAdd0);
     const relu0 = builder.relu(add0);
     const conv2D1 = builder.conv2d(builder.pad(relu0, padding1, {mode: 'reflection'}),
         weightConv1, {strides: [2, 2]});
 
-    const add1 = this.buildSubNetwork_(builder, conv2D1, variableMul1, variableAdd1);
+    const add1 = this.buildInstanceNormalization_(builder, conv2D1, variableMul1, variableAdd1);
     const relu1 = builder.relu(add1);
     const conv2D2 = builder.conv2d(builder.pad(relu1, padding1, {mode: 'reflection'}),
         weightConv2, {strides: [2, 2]});
 
-    const add2 = this.buildSubNetwork_(builder, conv2D2, variableMul2, variableAdd2);
+    const add2 = this.buildInstanceNormalization_(builder, conv2D2, variableMul2, variableAdd2);
     const relu2 = builder.relu(add2); // next input
     const conv2D3 = builder.conv2d(builder.pad(relu2, padding1, {mode: 'reflection'}), weightConv3);
 
-    const add3 = this.buildSubNetwork_(builder, conv2D3, variableMul3, variableAdd3);
+    const add3 = this.buildInstanceNormalization_(builder, conv2D3, variableMul3, variableAdd3);
     const relu3 = builder.relu(add3);
     const conv2D4 = builder.conv2d(builder.pad(relu3, padding1, {mode: 'reflection'}), weightConv4);
 
-    const add4 = this.buildSubNetwork_(builder, conv2D4, variableMul4, variableAdd4);
+    const add4 = this.buildInstanceNormalization_(builder, conv2D4, variableMul4, variableAdd4);
     const add5 = builder.add(relu2, add4); // next input
     const conv2D5 = builder.conv2d(builder.pad(add5, padding1, {mode: 'reflection'}), weightConv5);
 
-    const add6 = this.buildSubNetwork_(builder, conv2D5, variableMul5, variableAdd5);
+    const add6 = this.buildInstanceNormalization_(builder, conv2D5, variableMul5, variableAdd5);
     const relu4 = builder.relu(add6);
     const conv2D6 = builder.conv2d(builder.pad(relu4, padding1, {mode: 'reflection'}), weightConv6);
 
-    const add7 = this.buildSubNetwork_(builder, conv2D6, variableMul6, variableAdd6);
+    const add7 = this.buildInstanceNormalization_(builder, conv2D6, variableMul6, variableAdd6);
     const add8 = builder.add(add5, add7); // next input
     const conv2D7 = builder.conv2d(builder.pad(add8, padding1, {mode: 'reflection'}), weightConv7);
 
-    const add9 = this.buildSubNetwork_(builder, conv2D7, variableMul7, variableAdd7);
+    const add9 = this.buildInstanceNormalization_(builder, conv2D7, variableMul7, variableAdd7);
     const relu5 = builder.relu(add9);
     const conv2D8 = builder.conv2d(builder.pad(relu5, padding1, {mode: 'reflection'}), weightConv8);
 
-    const add10 = this.buildSubNetwork_(builder, conv2D8, variableMul8, variableAdd8);
+    const add10 = this.buildInstanceNormalization_(builder, conv2D8, variableMul8, variableAdd8);
     const add11 = builder.add(add8, add10); // next input
     const conv2D9 = builder.conv2d(builder.pad(add11, padding1, {mode: 'reflection'}), weightConv9);
 
-    const add12 = this.buildSubNetwork_(builder, conv2D9, variableMul9, variableAdd9);
+    const add12 = this.buildInstanceNormalization_(builder, conv2D9, variableMul9, variableAdd9);
     const relu6 = builder.relu(add12);
     const conv2D10 = builder.conv2d(builder.pad(relu6, padding1, {mode: 'reflection'}), weightConv10);
 
-    const add13 = this.buildSubNetwork_(builder, conv2D10, variableMul10, variableAdd10);
+    const add13 = this.buildInstanceNormalization_(builder, conv2D10, variableMul10, variableAdd10);
     const add14 = builder.add(add11, add13); // next input
     const conv2D11 = builder.conv2d(builder.pad(add14, padding1, {mode: 'reflection'}), weightConv11);
 
-    const add15 = this.buildSubNetwork_(builder, conv2D11, variableMul11, variableAdd11);
+    const add15 = this.buildInstanceNormalization_(builder, conv2D11, variableMul11, variableAdd11);
     const relu7 = builder.relu(add15);
     const conv2D12 = builder.conv2d(builder.pad(relu7, padding1, {mode: 'reflection'}), weightConv12);
 
-    const add16 = this.buildSubNetwork_(builder, conv2D12, variableMul12, variableAdd12);
+    const add16 = this.buildInstanceNormalization_(builder, conv2D12, variableMul12, variableAdd12);
     const add17 = builder.add(add14, add16);
     const convTranspose0 = builder.conv2d(add17, weightConvTranspose0,
         {transpose: true, strides: [2, 2], outputSizes: [270, 270]});
 
-    const add18 = this.buildSubNetwork_(builder, convTranspose0, variableMul13, variableAdd13);
+    const add18 = this.buildInstanceNormalization_(builder, convTranspose0, variableMul13, variableAdd13);
     const relu8 = builder.relu(add18);
     const convTranspose1 = builder.conv2d(relu8, weightConvTranspose1,
         {transpose: true, strides: [2, 2], outputSizes: [540, 540]});
 
-    const add19 = this.buildSubNetwork_(builder, convTranspose1, variableMul14, variableAdd14);
+    const add19 = this.buildInstanceNormalization_(builder, convTranspose1, variableMul14, variableAdd14);
     const relu9 = builder.relu(add19);
     const conv2D13 = builder.conv2d(builder.pad(relu9, padding4, {mode: 'reflection'}), weightConv13);
 
-    const add20 = this.buildSubNetwork_(builder, conv2D13, variableMul15, variableAdd15);
+    const add20 = this.buildInstanceNormalization_(builder, conv2D13, variableMul15, variableAdd15);
     const output = builder.add(builder.mul(builder.tanh(add20), constMul0), constAdd0);
     this.model_ = builder.createModel({'output': output});
-
-    this.loadTime_ = (performance.now() - start).toFixed(2);
-    console.log(`  done in ${this.loadTime_} ms.`);
   }
 
   async compile(options) {
-    console.log('- Compiling... ');
-    const start = performance.now();
     this.compiledModel_ = await this.model_.compile(options);
-    this.compileTime_ = (performance.now() - start).toFixed(2);
-    console.log(`  done in ${this.compileTime_} ms.`);
   }
 
   async compute(inputBuffer) {
-    console.log('- Computing... ');
-    const start = performance.now();
     const inputs = {input: {buffer: inputBuffer}};
     const outputs = await this.compiledModel_.compute(inputs);
-    this.computeTime_ = (performance.now() - start).toFixed(2);
-    console.log(`  done in ${this.computeTime_} ms.`);
     return outputs;
-  }
-
-  getPerfResult() {
-    return {
-      'loadTime': this.loadTime_,
-      'compileTime': this.compileTime_,
-      'computeTime': this.computeTime_,
-    };
   }
 }

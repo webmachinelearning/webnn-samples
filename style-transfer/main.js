@@ -12,6 +12,9 @@ let reqId = 0;
 let modelId = 'starry-night';
 let inputType = 'image';
 let fastStyleTransferNet;
+let loadTime = 0;
+let compileTime = 0;
+let computeTime = 0;
 
 $(document).ready(() => {
   $('.icdisplay').hide();
@@ -80,12 +83,15 @@ async function getMediaStream() {
  */
 async function renderCamStream() {
   const inputBuffer = await fastStyleTransferNet.preprocess(camElement);
+  console.log('- Computing... ');
+  const start = performance.now();
   const outputs = await fastStyleTransferNet.compute(inputBuffer);
-  const perfResult = fastStyleTransferNet.getPerfResult();
+  computeTime = (performance.now() - start).toFixed(2);
+  console.log(`  done in ${computeTime} ms.`);
   camElement.width = camElement.videoWidth;
   camElement.height = camElement.videoHeight;
   drawInput(camElement, 'camInCanvas');
-  showPerfResult(perfResult);
+  showPerfResult();
   await drawOutput(outputs, 'camInCanvas', 'camOutCanvas');
   reqId = requestAnimationFrame(renderCamStream);
 }
@@ -138,10 +144,10 @@ async function drawOutput(outputs, inCanvasId, outCanvasId) {
   ctx.drawImage(outCanvas, 0, 0, outputCanvas.width, outputCanvas.height);
 }
 
-function showPerfResult(perfResult) {
-  $('#loadTime').html(`${perfResult.loadTime} ms`);
-  $('#compileTime').html(`${perfResult.compileTime} ms`);
-  $('#computeTime').html(`${perfResult.computeTime} ms`);
+function showPerfResult() {
+  $('#loadTime').html(`${loadTime} ms`);
+  $('#compileTime').html(`${compileTime} ms`);
+  $('#computeTime').html(`${computeTime} ms`);
 }
 
 function addWarning(msg) {
@@ -158,20 +164,33 @@ export async function main() {
     fastStyleTransferNet = new FastStyleTransferNet();
     // UI shows loading model progress
     await showProgressComponent('current', 'pending', 'pending');
+    console.log(`- Model ID: ${modelId} -`);
+    console.log('- Loading weights... ');
+    let start = performance.now();
     await fastStyleTransferNet.load(modelId);
+    loadTime = (performance.now() - start).toFixed(2);
+    console.log(`  done in ${loadTime} ms.`);
     // UI shows compiling model progress
     await showProgressComponent('done', 'current', 'pending');
+    console.log('- Compiling... ');
+    start = performance.now();
     await fastStyleTransferNet.compile();
+    compileTime = (performance.now() - start).toFixed(2);
+    console.log(`  done in ${compileTime} ms.`);
     // UI shows inferencing progress
     await showProgressComponent('done', 'done', 'current');
     if (inputType === 'image') {
       const inputBuffer = await fastStyleTransferNet.preprocess(imgElement);
+      console.log('- Computing... ');
+      start = performance.now();
       const outputs = await fastStyleTransferNet.compute(inputBuffer);
+      computeTime = (performance.now() - start).toFixed(2);
+      console.log(`  done in ${computeTime} ms.`);
       await showProgressComponent('done', 'done', 'done');
       readyShowResultComponents();
       drawInput(imgElement, 'inputCanvas');
       await drawOutput(outputs, 'inputCanvas', 'outputCanvas');
-      showPerfResult(fastStyleTransferNet.getPerfResult());
+      showPerfResult();
     } else if (inputType === 'camera') {
       const stream = await getMediaStream();
       camElement.srcObject = stream;

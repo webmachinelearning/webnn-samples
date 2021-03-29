@@ -294,6 +294,4 @@ numpy.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.Array = numpy.Array;
-}
+export {numpy};

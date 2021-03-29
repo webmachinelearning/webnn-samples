@@ -1,6 +1,8 @@
 
 'use strict';
 
+import {buildConstantByNpy} from '../common/utils.js';
+
 /* eslint max-len: ["error", { "code": 130 }] */
 
 // Noise Suppression Net 2 (NSNet2) Baseline Model for Deep Noise Suppression Challenge (DNS) 2021.

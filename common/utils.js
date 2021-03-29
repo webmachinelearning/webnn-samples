@@ -1,14 +1,14 @@
 'use strict';
 
+import {numpy} from './libs/numpy.js';
+
 function sizeOfShape(shape) {
   return shape.reduce((a, b) => {
     return a * b;
   });
 }
 
-/* eslint-disable no-unused-vars */
-async function buildConstantByNpy(builder, url) {
-/* eslint-enable no-unused-vars */
+export async function buildConstantByNpy(builder, url) {
   const dataTypeMap = new Map([
     ['f2', {type: 'float16', array: Uint16Array}],
     ['f4', {type: 'float32', array: Float32Array}],
