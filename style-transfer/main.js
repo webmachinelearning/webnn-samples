@@ -8,10 +8,13 @@ const maxHeight = 380;
 const imgElement = document.getElementById('feedElement');
 imgElement.src = './images/content-images/travelspace.jpg';
 const camElement = document.getElementById('feedMediaElement');
-let reqId = 0;
 let modelId = 'starry-night';
+let isFirstTimeLoad = true;
+let isModelChanged = false;
+let shouldStopFrame = false;
 let inputType = 'image';
 let fastStyleTransferNet;
+let stream = null;
 let loadTime = 0;
 let compileTime = 0;
 let computeTime = 0;
@@ -23,9 +26,9 @@ $(document).ready(() => {
 
 // Click trigger to do inference with <img> element
 $('#img').click(async () => {
-  if (reqId !== 0) {
-    cancelAnimationFrame(reqId);
-    reqId = 0;
+  shouldStopFrame = true;
+  if (stream !== null) {
+    stopCamera();
   }
   inputType = 'image';
   $('.shoulddisplay').hide();
@@ -35,6 +38,9 @@ $('#img').click(async () => {
 $('#gallery .gallery-image').hover((e) => {
   const id = $(e.target).attr('id');
   const modelName = $('#' + id).attr('title');
+  $('.badge').html(modelName);
+}, () => {
+  const modelName = $(`#${modelId}`).attr('title');
   $('.badge').html(modelName);
 });
 
@@ -59,23 +65,31 @@ $('#cam').click(async () => {
 
 // Click handler to do inference with switched <img> element
 async function handleImageSwitch(e) {
-  if (reqId !== 0) {
-    cancelAnimationFrame(reqId);
-    reqId = 0;
+  const newModelId = $(e.target).attr('id');
+  if (newModelId !== modelId) {
+    shouldStopFrame = true;
+    isModelChanged = true;
+    modelId = newModelId;
+    const modelName = $(`#${modelId}`).attr('title');
+    $('.badge').html(modelName);
+    $('#gallery .gallery-item').removeClass('hl');
+    $(e.target).parent().addClass('hl');
+    await main();
   }
-  modelId = $(e.target).attr('id');
-  const modelName = $('#modelId').attr('title');
-  $('.badge').html(modelName);
-  $('#gallery .gallery-item').removeClass('hl');
-  $(e.target).parent().addClass('hl');
-  await main();
 }
 
 async function getMediaStream() {
   // Support 'user' facing mode at present
   const constraints = {audio: false, video: {facingMode: 'user'}};
-  const stream = await navigator.mediaDevices.getUserMedia(constraints);
-  return stream;
+  stream = await navigator.mediaDevices.getUserMedia(constraints);
+}
+
+function stopCamera() {
+  stream.getTracks().forEach((track) => {
+    if (track.readyState === 'live' && track.kind === 'video') {
+      track.stop();
+    }
+  });
 }
 
 /**
@@ -93,7 +107,9 @@ async function renderCamStream() {
   drawInput(camElement, 'camInCanvas');
   showPerfResult();
   await drawOutput(outputs, 'camInCanvas', 'camOutCanvas');
-  reqId = requestAnimationFrame(renderCamStream);
+  if (!shouldStopFrame) {
+    requestAnimationFrame(renderCamStream);
+  }
 }
 
 function drawInput(srcElement, canvasId) {
@@ -161,22 +177,29 @@ function addWarning(msg) {
 
 export async function main() {
   try {
-    fastStyleTransferNet = new FastStyleTransferNet();
-    // UI shows loading model progress
-    await showProgressComponent('current', 'pending', 'pending');
-    console.log(`- Model ID: ${modelId} -`);
-    console.log('- Loading weights... ');
-    let start = performance.now();
-    await fastStyleTransferNet.load(modelId);
-    loadTime = (performance.now() - start).toFixed(2);
-    console.log(`  done in ${loadTime} ms.`);
-    // UI shows compiling model progress
-    await showProgressComponent('done', 'current', 'pending');
-    console.log('- Compiling... ');
-    start = performance.now();
-    await fastStyleTransferNet.compile();
-    compileTime = (performance.now() - start).toFixed(2);
-    console.log(`  done in ${compileTime} ms.`);
+    let start;
+    // Only do load() and compile() when page first time loads and
+    // there's new model choosed
+    if (isFirstTimeLoad || isModelChanged) {
+      fastStyleTransferNet = new FastStyleTransferNet();
+      isFirstTimeLoad = false;
+      isModelChanged = false;
+      console.log(`- Model ID: ${modelId} -`);
+      // UI shows loading model progress
+      await showProgressComponent('current', 'pending', 'pending');
+      console.log('- Loading weights... ');
+      start = performance.now();
+      await fastStyleTransferNet.load(modelId);
+      loadTime = (performance.now() - start).toFixed(2);
+      console.log(`  done in ${loadTime} ms.`);
+      // UI shows compiling model progress
+      await showProgressComponent('done', 'current', 'pending');
+      console.log('- Compiling... ');
+      start = performance.now();
+      await fastStyleTransferNet.compile();
+      compileTime = (performance.now() - start).toFixed(2);
+      console.log(`  done in ${compileTime} ms.`);
+    }
     // UI shows inferencing progress
     await showProgressComponent('done', 'done', 'current');
     if (inputType === 'image') {
@@ -192,8 +215,9 @@ export async function main() {
       await drawOutput(outputs, 'inputCanvas', 'outputCanvas');
       showPerfResult();
     } else if (inputType === 'camera') {
-      const stream = await getMediaStream();
+      await getMediaStream();
       camElement.srcObject = stream;
+      shouldStopFrame = false;
       camElement.onloadedmediadata = await renderCamStream();
       await showProgressComponent('done', 'done', 'done');
       readyShowResultComponents();
