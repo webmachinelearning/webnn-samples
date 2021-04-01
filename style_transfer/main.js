@@ -181,6 +181,9 @@ export async function main() {
     // Only do load() and compile() when page first time loads and
     // there's new model choosed
     if (isFirstTimeLoad || isModelChanged) {
+      if (fastStyleTransferNet !== undefined) {
+        fastStyleTransferNet.dispose();
+      }
       fastStyleTransferNet = new FastStyleTransferNet();
       isFirstTimeLoad = false;
       isModelChanged = false;

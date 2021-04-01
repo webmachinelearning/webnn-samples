@@ -207,6 +207,10 @@ export class FastStyleTransferNet {
     this.compiledModel_ = await this.model_.compile(options);
   }
 
+  dispose() {
+    this.compiledModel_.dispose();
+  }
+
   async compute(inputBuffer) {
     const inputs = {input: {buffer: inputBuffer}};
     const outputs = await this.compiledModel_.compute(inputs);
