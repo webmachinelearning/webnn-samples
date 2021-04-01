@@ -182,6 +182,7 @@ export async function main() {
     // there's new model choosed
     if (isFirstTimeLoad || isModelChanged) {
       if (fastStyleTransferNet !== undefined) {
+        // Call dispose() to and avoid memory leak
         fastStyleTransferNet.dispose();
       }
       fastStyleTransferNet = new FastStyleTransferNet();

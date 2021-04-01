@@ -207,8 +207,12 @@ export class FastStyleTransferNet {
     this.compiledModel_ = await this.model_.compile(options);
   }
 
+  // Release the constant tensors of a model
   dispose() {
-    this.compiledModel_.dispose();
+    // dispose() is only available in webnn-polyfill
+    if ('dispose' in this.compiledModel_) {
+      this.compiledModel_.dispose();
+    }
   }
 
   async compute(inputBuffer) {
