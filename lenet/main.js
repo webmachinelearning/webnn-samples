@@ -3,7 +3,7 @@
 import {LeNet} from './lenet.js';
 import {Pen} from './pen.js';
 
-const compilationTimeElement = document.getElementById('compilationTime');
+const buildTimeElement = document.getElementById('buildTime');
 const inferenceTimeElement = document.getElementById('inferenceTime');
 const predictButton = document.getElementById('predict');
 const nextButton = document.getElementById('next');
@@ -58,16 +58,16 @@ export async function main() {
   const lenet = new LeNet('lenet.bin');
   try {
     let start = performance.now();
-    await lenet.load();
+    const outputOperand = await lenet.load();
     console.log(
         `loading elapsed time: ${(performance.now() - start).toFixed(2)} ms`);
 
     start = performance.now();
-    await lenet.compile();
-    const compilationTime = performance.now() - start;
-    console.log(`compilation elapsed time: ${compilationTime.toFixed(2)} ms`);
-    compilationTimeElement.innerHTML = 'Compilation Time: ' +
-        `<span class='text-primary'>${compilationTime.toFixed(2)}</span> ms`;
+    await lenet.build(outputOperand);
+    const buildTime = performance.now() - start;
+    console.log(`build elapsed time: ${buildTime.toFixed(2)} ms`);
+    buildTimeElement.innerHTML = 'Build Time: ' +
+        `<span class='text-primary'>${buildTime.toFixed(2)}</span> ms`;
 
     predictButton.removeAttribute('disabled');
   } catch (error) {

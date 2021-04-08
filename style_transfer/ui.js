@@ -59,7 +59,7 @@ export async function showProgressComponent(pm, pb, pi) {
             ${modelicon}<span class='prog_list_title'>Model loading</span>
           </li>
           <li class='prog prog-${pb}'>
-            ${updateicon}<span class='prog_list_title'>Model compilation</span>
+            ${updateicon}<span class='prog_list_title'>Model building</span>
           </li>
           <li class='prog prog-${pi}'>
             ${inferenceicon}<span class='prog_list_title'>Model inferencing</span>

@@ -16,7 +16,7 @@ let inputType = 'image';
 let fastStyleTransferNet;
 let stream = null;
 let loadTime = 0;
-let compileTime = 0;
+let buildTime = 0;
 let computeTime = 0;
 
 $(document).ready(() => {
@@ -74,8 +74,8 @@ async function handleImageSwitch(e) {
     $('.badge').html(modelName);
     $('#gallery .gallery-item').removeClass('hl');
     $(e.target).parent().addClass('hl');
-    await main();
   }
+  await main();
 }
 
 async function getMediaStream() {
@@ -96,7 +96,7 @@ function stopCamera() {
  * This method is used to render live camera tab.
  */
 async function renderCamStream() {
-  const inputBuffer = await fastStyleTransferNet.preprocess(camElement);
+  const inputBuffer = fastStyleTransferNet.preprocess(camElement);
   console.log('- Computing... ');
   const start = performance.now();
   const outputs = await fastStyleTransferNet.compute(inputBuffer);
@@ -125,7 +125,7 @@ function drawInput(srcElement, canvasId) {
 }
 
 async function drawOutput(outputs, inCanvasId, outCanvasId) {
-  const outputTensor = outputs.output.buffer;
+  const outputTensor = outputs.output.data;
   const outputSize = outputs.output.dimensions;
   const height = outputSize[2];
   const width = outputSize[3];
@@ -162,7 +162,7 @@ async function drawOutput(outputs, inCanvasId, outCanvasId) {
 
 function showPerfResult() {
   $('#loadTime').html(`${loadTime} ms`);
-  $('#compileTime').html(`${compileTime} ms`);
+  $('#buildTime').html(`${buildTime} ms`);
   $('#computeTime').html(`${computeTime} ms`);
 }
 
@@ -178,7 +178,7 @@ function addWarning(msg) {
 export async function main() {
   try {
     let start;
-    // Only do load() and compile() when page first time loads and
+    // Only do load() and build() when page first time loads and
     // there's new model choosed
     if (isFirstTimeLoad || isModelChanged) {
       if (fastStyleTransferNet !== undefined) {
@@ -189,25 +189,25 @@ export async function main() {
       isFirstTimeLoad = false;
       isModelChanged = false;
       console.log(`- Model ID: ${modelId} -`);
-      // UI shows loading model progress
+      // UI shows model loading progress
       await showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');
       start = performance.now();
-      await fastStyleTransferNet.load(modelId);
+      const outputOperand = await fastStyleTransferNet.load(modelId);
       loadTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${loadTime} ms.`);
-      // UI shows compiling model progress
+      // UI shows model building progress
       await showProgressComponent('done', 'current', 'pending');
-      console.log('- Compiling... ');
+      console.log('- Building... ');
       start = performance.now();
-      await fastStyleTransferNet.compile();
-      compileTime = (performance.now() - start).toFixed(2);
-      console.log(`  done in ${compileTime} ms.`);
+      await fastStyleTransferNet.build(outputOperand);
+      buildTime = (performance.now() - start).toFixed(2);
+      console.log(`  done in ${buildTime} ms.`);
     }
     // UI shows inferencing progress
     await showProgressComponent('done', 'done', 'current');
     if (inputType === 'image') {
-      const inputBuffer = await fastStyleTransferNet.preprocess(imgElement);
+      const inputBuffer = fastStyleTransferNet.preprocess(imgElement);
       console.log('- Computing... ');
       start = performance.now();
       const outputs = await fastStyleTransferNet.compute(inputBuffer);

@@ -1,4 +1,4 @@
-const nn = navigator.ml.getNeuralNetworkContext();
+const context = navigator.ml.createContext({powerPreference: 'low-power'});
 
 // The following code builds a graph as:
 // constant1 ---+
@@ -13,7 +13,7 @@ const nn = navigator.ml.getNeuralNetworkContext();
 const TENSOR_DIMS = [1, 2, 2, 2];
 const TENSOR_SIZE = 8;
 
-const builder = nn.createModelBuilder();
+const builder = new MLGraphBuilder(context);
 
 // Create OperandDescriptor object.
 const desc = {type: 'float32', dimensions: TENSOR_DIMS};
@@ -41,25 +41,22 @@ const intermediateOutput2 = builder.add(constant2, input2);
 // output is the output operand of the Mul operation.
 const output = builder.mul(intermediateOutput1, intermediateOutput2);
 
-// Create the model by identifying the outputs.
-const model = builder.createModel({'output': output});
-
-// Compile the constructed model.
-const compilation = await model.compile({powerPreference: 'low-power'});
+// Build graph.
+const graph = await builder.build({'output': output});
 
 // Setup the input buffers with value 1.
 const inputBuffer1 = new Float32Array(TENSOR_SIZE).fill(1);
 const inputBuffer2 = new Float32Array(TENSOR_SIZE).fill(1);
 
-// Asynchronously execute the compiled model with the specified inputs.
+// Asynchronously execute the built model with the specified inputs.
 const inputs = {
-  'input1': {buffer: inputBuffer1},
-  'input2': {buffer: inputBuffer2},
+  'input1': {data: inputBuffer1},
+  'input2': {data: inputBuffer2},
 };
-const outputs = await compilation.compute(inputs);
+const outputs = await graph.compute(inputs);
 
 // Log the shape and computed result of the output operand.
 console.log('Output shape: ' + outputs.output.dimensions);
 // Output shape: 1,2,2,2
-console.log('Output value: ' + outputs.output.buffer);
+console.log('Output value: ' + outputs.output.data);
 // Output value: 2.25,2.25,2.25,2.25,2.25,2.25,2.25,2.25

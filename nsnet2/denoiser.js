@@ -28,18 +28,19 @@ export class Denoiser {
     return new Promise((resolve, reject) => {
       this.log(' - Loading weights... ');
       const start = performance.now();
-      this.nsnet.load('./weights/', this.batchSize, this.frames).then(() => {
+      this.nsnet.load(
+          './weights/', this.batchSize, this.frames).then((outputOperand) => {
         const modelLoadTime = performance.now() - start;
         this.log(`done in <span class='text-primary'>` +
             `${modelLoadTime.toFixed(2)}</span> ms.`, true);
-        this.log(' - Compiling... ');
+        this.log(' - Building... ');
         setTimeout(async () => {
           try {
             const start = performance.now();
-            await this.nsnet.compile();
-            const modelCompileTime = performance.now() - start;
+            await this.nsnet.build(outputOperand);
+            const modelBuildTime = performance.now() - start;
             this.log(`done in <span class='text-primary'>` +
-                `${modelCompileTime.toFixed(2)}</span> ms.`, true);
+                `${modelBuildTime.toFixed(2)}</span> ms.`, true);
             this.log(' - Warming up iSTFT... ');
           } catch (error) {
             reject(error);
@@ -106,13 +107,13 @@ export class Denoiser {
       const outputs = await this.nsnet.compute(
           inputData, initialHiddenState92Buffer, initialHiddenState155Buffer);
       const computeTime = (performance.now() - start).toFixed(2);
-      initialHiddenState92Buffer = outputs.gru94.buffer;
-      initialHiddenState155Buffer = outputs.gru157.buffer;
+      initialHiddenState92Buffer = outputs.gru94.data;
+      initialHiddenState155Buffer = outputs.gru157.data;
       start = performance.now();
       let sliceStart;
       let sliceSize;
       const sigOut = tf.tidy(() => {
-        const out = tf.tensor(outputs.output.buffer, outputs.output.dimensions);
+        const out = tf.tensor(outputs.output.data, outputs.output.dimensions);
         let Gain = tf.transpose(out);
         Gain = tf.clipByValue(Gain, this.mingain, 1.0);
         // Workaround tf.js WebGL backend for complex data.
