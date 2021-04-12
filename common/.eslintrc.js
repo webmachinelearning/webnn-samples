@@ -3,5 +3,6 @@ module.exports = {
   globals: {
     'BigInt64Array': 'readonly',
     'BigUint64Array': 'readonly',
+    'tf': 'readonly',
   },
 };

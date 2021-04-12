@@ -1,7 +1,8 @@
 'use strict';
 
 import {FastStyleTransferNet} from './fast_style_transfer_net.js';
-import {showProgressComponent, readyShowResultComponents} from './ui.js';
+import {showProgressComponent, readyShowResultComponents} from '../common/ui.js';
+import {getInputTensor} from '../common/utils.js';
 
 const maxWidth = 380;
 const maxHeight = 380;
@@ -18,6 +19,10 @@ let stream = null;
 let loadTime = 0;
 let buildTime = 0;
 let computeTime = 0;
+const inputOptions = {
+  inputDimensions: [1, 3, 540, 540],
+  nchwFlag: true,
+};
 
 $(document).ready(() => {
   $('.icdisplay').hide();
@@ -96,7 +101,7 @@ function stopCamera() {
  * This method is used to render live camera tab.
  */
 async function renderCamStream() {
-  const inputBuffer = fastStyleTransferNet.preprocess(camElement);
+  const inputBuffer = getInputTensor(camElement, inputOptions);
   console.log('- Computing... ');
   const start = performance.now();
   const outputs = await fastStyleTransferNet.compute(inputBuffer);
@@ -207,7 +212,7 @@ export async function main() {
     // UI shows inferencing progress
     await showProgressComponent('done', 'done', 'current');
     if (inputType === 'image') {
-      const inputBuffer = fastStyleTransferNet.preprocess(imgElement);
+      const inputBuffer = getInputTensor(imgElement, inputOptions);
       console.log('- Computing... ');
       start = performance.now();
       const outputs = await fastStyleTransferNet.compute(inputBuffer);
