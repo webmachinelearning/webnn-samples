@@ -38,11 +38,13 @@ $(document).ready(() => {
 
 $('#modelBtns .btn').on('change', async (e) => {
   modelName = $(e.target).attr('id');
+  shouldStopFrame = true;
   await main();
 });
 
 $('#layoutBtns .btn').on('change', async (e) => {
   layout = $(e.target).attr('id');
+  shouldStopFrame = true;
   await main();
 });
 
