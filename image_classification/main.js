@@ -14,6 +14,8 @@ imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
 let modelName;
 let shouldStopFrame = false;
+let isFirstTimeLoad = true;
+let instanceType = '';
 let inputType = 'image';
 let netInstance = null;
 let labels = null;
@@ -210,27 +212,35 @@ export async function main() {
     if (modelName !== undefined) {
       $('#nomodelInfo').hide();
       $('input[type="radio"]').attr('disabled', true);
-      labels = await fetchLabels(layoutOptions.labelUrl);
-      if (netInstance !== null) {
-        // Call dispose() to and avoid memory leak
-        netInstance.dispose();
+
+      let start;
+      // Only do load() and build() when model first time loads and
+      // there's new model choosed
+      if (isFirstTimeLoad || instanceType !== modelName + layout) {
+        labels = await fetchLabels(layoutOptions.labelUrl);
+        if (netInstance !== null) {
+          // Call dispose() to and avoid memory leak
+          netInstance.dispose();
+        }
+        instanceType = modelName + layout;
+        netInstance = constructNetObject(instanceType);
+        isFirstTimeLoad = false;
+        console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
+        // UI shows model loading progress
+        await showProgressComponent('current', 'pending', 'pending');
+        console.log('- Loading weights... ');
+        start = performance.now();
+        const outputOperand = await netInstance.load();
+        loadTime = (performance.now() - start).toFixed(2);
+        console.log(`  done in ${loadTime} ms.`);
+        // UI shows model building progress
+        await showProgressComponent('done', 'current', 'pending');
+        console.log('- Building... ');
+        start = performance.now();
+        await netInstance.build(outputOperand);
+        buildTime = (performance.now() - start).toFixed(2);
+        console.log(`  done in ${buildTime} ms.`);
       }
-      netInstance = constructNetObject(modelName + layout);
-      console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
-      // UI shows model loading progress
-      await showProgressComponent('current', 'pending', 'pending');
-      console.log('- Loading weights... ');
-      let start = performance.now();
-      const outputOperand = await netInstance.load();
-      loadTime = (performance.now() - start).toFixed(2);
-      console.log(`  done in ${loadTime} ms.`);
-      // UI shows model building progress
-      await showProgressComponent('done', 'current', 'pending');
-      console.log('- Building... ');
-      start = performance.now();
-      await netInstance.build(outputOperand);
-      buildTime = (performance.now() - start).toFixed(2);
-      console.log(`  done in ${buildTime} ms.`);
       // UI shows inferencing progress
       await showProgressComponent('done', 'done', 'current');
       if (inputType === 'image') {
