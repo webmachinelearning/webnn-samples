@@ -2,11 +2,18 @@
 
 import {buildConstantByNpy} from '../common/utils.js';
 
-// SqueezeNet 1.0 baseline model with nhwc layout
+// SqueezeNet 1.0 model with 'nhwc' layout
 export class SqueezeNetNhwc {
   constructor() {
     this.builder_ = null;
     this.graph_ = null;
+    this.inputOptions = {
+      mean: [127.5, 127.5, 127.5],
+      std: [127.5, 127.5, 127.5],
+      inputLayout: 'nhwc',
+      labelUrl: './labels/labels1001.txt',
+      inputDimensions: [1, 224, 224, 3],
+    };
   }
 
   async buildConv_(input, name, options = undefined) {
@@ -39,8 +46,8 @@ export class SqueezeNetNhwc {
     this.builder_ = new MLGraphBuilder(context);
     const strides = [2, 2];
     const layout = 'nhwc';
-    const placeholder = this.builder_.input(
-        'input', {type: 'float32', dimensions: [1, 224, 224, 3]});
+    const placeholder = this.builder_.input('input',
+        {type: 'float32', dimensions: this.inputOptions.inputDimensions});
     const conv1 = await this.buildConv_(
         placeholder, 'conv1', {strides, autoPad: 'same-lower'});
     const maxpool1 = this.builder_.maxPool2d(

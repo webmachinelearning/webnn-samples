@@ -1,7 +1,7 @@
 'use strict';
 
-import {MobileNetNchw} from './mobilenet_nchw.js';
-import {MobileNetNhwc} from './mobilenet_nhwc.js';
+import {MobileNetV2Nchw} from './mobilenet_nchw.js';
+import {MobileNetV2Nhwc} from './mobilenet_nhwc.js';
 import {SqueezeNetNchw} from './squeezenet_nchw.js';
 import {SqueezeNetNhwc} from './squeezenet_nhwc.js';
 import {showProgressComponent, readyShowResultComponents} from '../common/ui.js';
@@ -24,21 +24,7 @@ let stream = null;
 let loadTime = 0;
 let buildTime = 0;
 let computeTime = 0;
-const nchwOptions = {
-  mean: [0.485, 0.456, 0.406],
-  std: [0.229, 0.224, 0.225],
-  norm: true,
-  nchwFlag: true,
-  labelUrl: './labels/labels1000.txt',
-  inputDimensions: [1, 3, 224, 224],
-};
-const nhwcOptions = {
-  mean: [127.5, 127.5, 127.5],
-  std: [127.5, 127.5, 127.5],
-  labelUrl: './labels/labels1001.txt',
-  inputDimensions: [1, 224, 224, 3],
-};
-let layoutOptions = nchwOptions;
+let inputOptions;
 
 async function fetchLabels(url) {
   const response = await fetch(url);
@@ -57,11 +43,6 @@ $('#modelBtns .btn').on('change', async (e) => {
 
 $('#layoutBtns .btn').on('change', async (e) => {
   layout = $(e.target).attr('id');
-  if (layout === 'nchw') {
-    layoutOptions = nchwOptions;
-  } else {
-    layoutOptions = nhwcOptions;
-  }
   await main();
 });
 
@@ -113,7 +94,7 @@ function stopCamera() {
  * This method is used to render live camera tab.
  */
 async function renderCamStream() {
-  const inputBuffer = getInputTensor(camElement, layoutOptions);
+  const inputBuffer = getInputTensor(camElement, inputOptions);
   console.log('- Computing... ');
   const start = performance.now();
   const outputs = await netInstance.compute(inputBuffer);
@@ -189,8 +170,8 @@ function showPerfResult() {
 
 function constructNetObject(type) {
   const netObject = {
-    'mobilenetnchw': new MobileNetNchw(),
-    'mobilenetnhwc': new MobileNetNhwc(),
+    'mobilenetnchw': new MobileNetV2Nchw(),
+    'mobilenetnhwc': new MobileNetV2Nhwc(),
     'squeezenetnchw': new SqueezeNetNchw(),
     'squeezenetnhwc': new SqueezeNetNhwc(),
   };
@@ -214,13 +195,14 @@ export async function main() {
     // Only do load() and build() when model first time loads and
     // there's new model choosed
     if (isFirstTimeLoad || instanceType !== modelName + layout) {
-      labels = await fetchLabels(layoutOptions.labelUrl);
       if (netInstance !== null) {
         // Call dispose() to and avoid memory leak
         netInstance.dispose();
       }
       instanceType = modelName + layout;
       netInstance = constructNetObject(instanceType);
+      inputOptions = netInstance.inputOptions;
+      labels = await fetchLabels(inputOptions.labelUrl);
       isFirstTimeLoad = false;
       console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
       // UI shows model loading progress
@@ -241,7 +223,7 @@ export async function main() {
     // UI shows inferencing progress
     await showProgressComponent('done', 'done', 'current');
     if (inputType === 'image') {
-      const inputBuffer = getInputTensor(imgElement, layoutOptions);
+      const inputBuffer = getInputTensor(imgElement, inputOptions);
       console.log('- Computing... ');
       start = performance.now();
       const outputs = await netInstance.compute(inputBuffer);

@@ -21,7 +21,7 @@ let buildTime = 0;
 let computeTime = 0;
 const inputOptions = {
   inputDimensions: [1, 3, 540, 540],
-  nchwFlag: true,
+  inputLayout: 'nchw',
 };
 
 $(document).ready(() => {

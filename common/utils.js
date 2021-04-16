@@ -8,7 +8,7 @@ function sizeOfShape(shape) {
   });
 }
 
-export async function buildConstantByNpy(builder, url, isDepthwise = false) {
+export async function buildConstantByNpy(builder, url) {
   const dataTypeMap = new Map([
     ['f2', {type: 'float16', array: Uint16Array}],
     ['f4', {type: 'float32', array: Float32Array}],
@@ -28,25 +28,15 @@ export async function buildConstantByNpy(builder, url, isDepthwise = false) {
   if (!dataTypeMap.has(npArray.dataType)) {
     throw new Error(`Data type ${npArray.dataType} is not supported.`);
   }
-  let dimensions = npArray.shape;
+  const dimensions = npArray.shape;
   const type = dataTypeMap.get(npArray.dataType).type;
   const TypedArrayConstructor = dataTypeMap.get(npArray.dataType).array;
-  let typedArray = new TypedArrayConstructor(sizeOfShape(dimensions));
+  const typedArray = new TypedArrayConstructor(sizeOfShape(dimensions));
   const dataView = new DataView(npArray.data.buffer);
   const littleEndian = npArray.byteOrder === '<';
   for (let i = 0; i < sizeOfShape(dimensions); ++i) {
     typedArray[i] = dataView[`get` + type[0].toUpperCase() + type.substr(1)](
         i * TypedArrayConstructor.BYTES_PER_ELEMENT, littleEndian);
-  }
-  // TODO(Wanming): This is a workaround to transpose 'ihwo' to 'hwio',
-  // and will be removed once 'ihwo' filterLayout is supported.
-  if (isDepthwise) {
-    const a = tf.tensor(typedArray, dimensions, type);
-    const b = tf.transpose(a, [1, 2, 0, 3]);
-    const buffer = await b.buffer();
-    dimensions = b.shape;
-    typedArray = buffer.values;
-    tf.dispose();
   }
   return builder.constant({type, dimensions}, typedArray);
 }
@@ -54,12 +44,22 @@ export async function buildConstantByNpy(builder, url, isDepthwise = false) {
 /**
  * This method is used to covert input element to tensor data.
  * @param {Object} inputElement, an object of HTML [<img> | <video>] element.
- * @param {!Object<string, *>} options, an object of options to process
+ * @param {!Object<string, *>} inputOptions, an object of options to process
  * input element.
+ * inputOptions = {
+ *     inputLayout {String}, // input layout of tensor.
+ *     inputDimensions: {!Array<number>}, // dimensions of input tensor.
+ *     mean: {Array<number>}, // optional, mean values for processing the input
+ *       element. If not specified, it will be set to [0, 0, 0, 0].
+ *     std: {Array<number>}, // optional, std values for processing the input
+ *       element. If not specified, it will be set to [1, 1, 1, 1].
+ *     norm: {Boolean}, // optional, normlization flag. If not specified,
+ *       it will be set to false.
+ * };
  * @return {Object} tensor, an object of input tensor.
  */
-export function getInputTensor(inputElement, options) {
-  const inputDimensions = options.inputDimensions;
+export function getInputTensor(inputElement, inputOptions) {
+  const inputDimensions = inputOptions.inputDimensions;
   const tensor = new Float32Array(
       inputDimensions.slice(1).reduce((a, b) => a * b));
 
@@ -69,13 +69,13 @@ export function getInputTensor(inputElement, options) {
       inputElement.naturalHeight;
 
   let [channels, height, width] = inputDimensions.slice(1);
-  const mean = options.mean || [0, 0, 0, 0];
-  const std = options.std || [1, 1, 1, 1];
-  const normlizationFlag = options.norm || false;
-  const nchwFlag = options.nchwFlag || false;
+  const mean = inputOptions.mean || [0, 0, 0, 0];
+  const std = inputOptions.std || [1, 1, 1, 1];
+  const normlizationFlag = inputOptions.norm || false;
+  const inputLayout = inputOptions.inputLayout;
   const imageChannels = 4; // RGBA
 
-  if (!nchwFlag) {
+  if (inputLayout === 'nhwc') {
     [height, width, channels] = inputDimensions.slice(1);
   }
   const canvasElement = document.createElement('canvas');
@@ -95,7 +95,7 @@ export function getInputTensor(inputElement, options) {
       for (let w = 0; w < width; ++w) {
         const value =
             pixels[h * width * imageChannels + w * imageChannels + c];
-        if (nchwFlag) {
+        if (inputLayout === 'nchw') {
           tensor[c * width * height + h * width + w] =
               (value - mean[c]) / std[c];
         } else {

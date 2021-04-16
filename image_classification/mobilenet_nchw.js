@@ -2,14 +2,22 @@
 
 import {buildConstantByNpy} from '../common/utils.js';
 
-// MobileNet V2 baseline model with nchw layout
-export class MobileNetNchw {
+// MobileNet V2 model with 'nchw' input layout
+export class MobileNetV2Nchw {
   constructor() {
     this.builder_ = null;
     this.graph_ = null;
+    this.inputOptions = {
+      mean: [0.485, 0.456, 0.406],
+      std: [0.229, 0.224, 0.225],
+      norm: true,
+      inputLayout: 'nchw',
+      labelUrl: './labels/labels1000.txt',
+      inputDimensions: [1, 3, 224, 224],
+    };
   }
 
-  async buildConv_(input, name, shouldClip = true, options = undefined) {
+  async buildConv_(input, name, shouldRelu6 = true, options = undefined) {
     const prefix = './weights/mobilenet_nchw/conv_' + name;
     const weightsName = prefix + '_weight.npy';
     const weights =
@@ -20,7 +28,7 @@ export class MobileNetNchw {
     const conv = this.builder_.add(
         this.builder_.conv2d(input, weights, options),
         this.builder_.reshape(bias, [1, -1, 1, 1]));
-    if (shouldClip) {
+    if (shouldRelu6) {
       return this.builder_.clamp(
           conv,
           {
@@ -42,7 +50,7 @@ export class MobileNetNchw {
     return this.builder_.gemm(input, weights, options);
   }
 
-  async buildFire_(
+  async buildBottleneck_(
       input, convNameArray, groups, strides = false, shouldAdd = true) {
     const conv1x1 = await this.buildConv_(input, convNameArray[0]);
     const options = {
@@ -63,17 +71,17 @@ export class MobileNetNchw {
     }
   }
 
-  async buildFireMore_(
+  async buildBottleneckMore_(
       input, convNameArray, groupsArrary, strides = true) {
-    const out1 = await this.buildFire_(
+    const out1 = await this.buildBottleneck_(
         input, convNameArray.slice(0, 3), groupsArrary[0], strides, false);
-    const out2 = await this.buildFire_(
+    const out2 = await this.buildBottleneck_(
         out1, convNameArray.slice(3, 6), groupsArrary[1]);
     if (convNameArray.length >= 9) {
-      const out3 = await this.buildFire_(
+      const out3 = await this.buildBottleneck_(
           out2, convNameArray.slice(6, 9), groupsArrary[1]);
       if (convNameArray.length === 12) {
-        return await this.buildFire_(
+        return await this.buildBottleneck_(
             out3, convNameArray.slice(9, 12), groupsArrary[1]);
       } else {
         return out3;
@@ -86,24 +94,24 @@ export class MobileNetNchw {
   async load() {
     const context = navigator.ml.createContext();
     this.builder_ = new MLGraphBuilder(context);
-    const data = this.builder_.input(
-        'input', {type: 'float32', dimensions: [1, 3, 224, 224]});
+    const data = this.builder_.input('input',
+        {type: 'float32', dimensions: this.inputOptions.inputDimensions});
     const conv0 = await this.buildConv_(
         data, 0, true, {padding: [1, 1, 1, 1], strides: [2, 2]});
     const conv2 = await this.buildConv_(
         conv0, 2, true, {padding: [1, 1, 1, 1], groups: 32});
     const conv4 = await this.buildConv_(conv2, 4, false);
-    const add15 = await this.buildFireMore_(
+    const add15 = await this.buildBottleneckMore_(
         conv4, [5, 7, 9, 10, 12, 14], [96, 144]);
-    const add32 = await this.buildFireMore_(
+    const add32 = await this.buildBottleneckMore_(
         add15, [16, 18, 20, 21, 23, 25, 27, 29, 31], [144, 192]);
-    const add55 = await this.buildFireMore_(
+    const add55 = await this.buildBottleneckMore_(
         add32, [33, 35, 37, 38, 40, 42, 44, 46, 48, 50, 52, 54], [192, 384]);
-    const add72 = await this.buildFireMore_(
+    const add72 = await this.buildBottleneckMore_(
         add55, [56, 58, 60, 61, 63, 65, 67, 69, 71], [384, 576], false);
-    const add89 = await this.buildFireMore_(
+    const add89 = await this.buildBottleneckMore_(
         add72, [73, 75, 77, 78, 80, 82, 84, 86, 88], [576, 960]);
-    const conv94 = await this.buildFire_(
+    const conv94 = await this.buildBottleneck_(
         add89, [90, 92, 94], 960, false, false);
     const conv95 = await this.buildConv_(conv94, 95, true);
     const pool97 = this.builder_.averagePool2d(conv95);
