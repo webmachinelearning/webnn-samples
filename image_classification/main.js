@@ -12,10 +12,11 @@ const maxHeight = 380;
 const imgElement = document.getElementById('feedElement');
 imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
-let modelName;
+let modelName ='mobilenet';
+let layout = 'nchw';
+let instanceType = modelName + layout;
 let shouldStopFrame = false;
 let isFirstTimeLoad = true;
-let instanceType = '';
 let inputType = 'image';
 let netInstance = null;
 let labels = null;
@@ -23,7 +24,6 @@ let stream = null;
 let loadTime = 0;
 let buildTime = 0;
 let computeTime = 0;
-let layout = 'nchw';
 const nchwOptions = {
   mean: [0.485, 0.456, 0.406],
   std: [0.229, 0.224, 0.225],
@@ -209,65 +209,61 @@ function addWarning(msg) {
 
 export async function main() {
   try {
-    if (modelName !== undefined) {
-      $('#nomodelInfo').hide();
-      $('input[type="radio"]').attr('disabled', true);
-
-      let start;
-      // Only do load() and build() when model first time loads and
-      // there's new model choosed
-      if (isFirstTimeLoad || instanceType !== modelName + layout) {
-        labels = await fetchLabels(layoutOptions.labelUrl);
-        if (netInstance !== null) {
-          // Call dispose() to and avoid memory leak
-          netInstance.dispose();
-        }
-        instanceType = modelName + layout;
-        netInstance = constructNetObject(instanceType);
-        isFirstTimeLoad = false;
-        console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
-        // UI shows model loading progress
-        await showProgressComponent('current', 'pending', 'pending');
-        console.log('- Loading weights... ');
-        start = performance.now();
-        const outputOperand = await netInstance.load();
-        loadTime = (performance.now() - start).toFixed(2);
-        console.log(`  done in ${loadTime} ms.`);
-        // UI shows model building progress
-        await showProgressComponent('done', 'current', 'pending');
-        console.log('- Building... ');
-        start = performance.now();
-        await netInstance.build(outputOperand);
-        buildTime = (performance.now() - start).toFixed(2);
-        console.log(`  done in ${buildTime} ms.`);
+    $('input[type="radio"]').attr('disabled', true);
+    let start;
+    // Only do load() and build() when model first time loads and
+    // there's new model choosed
+    if (isFirstTimeLoad || instanceType !== modelName + layout) {
+      labels = await fetchLabels(layoutOptions.labelUrl);
+      if (netInstance !== null) {
+        // Call dispose() to and avoid memory leak
+        netInstance.dispose();
       }
-      // UI shows inferencing progress
-      await showProgressComponent('done', 'done', 'current');
-      if (inputType === 'image') {
-        const inputBuffer = getInputTensor(imgElement, layoutOptions);
-        console.log('- Computing... ');
-        start = performance.now();
-        const outputs = await netInstance.compute(inputBuffer);
-        computeTime = (performance.now() - start).toFixed(2);
-        console.log('output: ', outputs);
-        console.log(`  done in ${computeTime} ms.`);
-        await showProgressComponent('done', 'done', 'done');
-        readyShowResultComponents();
-        drawInput(imgElement, 'inputCanvas');
-        await drawOutput(outputs, labels);
-        showPerfResult();
-      } else if (inputType === 'camera') {
-        await getMediaStream();
-        camElement.srcObject = stream;
-        shouldStopFrame = false;
-        camElement.onloadedmediadata = await renderCamStream();
-        await showProgressComponent('done', 'done', 'done');
-        readyShowResultComponents();
-      } else {
-        throw Error(`Unknown inputType ${inputType}`);
-      }
-      $('input[type="radio"]').attr('disabled', false);
+      instanceType = modelName + layout;
+      netInstance = constructNetObject(instanceType);
+      isFirstTimeLoad = false;
+      console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
+      // UI shows model loading progress
+      await showProgressComponent('current', 'pending', 'pending');
+      console.log('- Loading weights... ');
+      start = performance.now();
+      const outputOperand = await netInstance.load();
+      loadTime = (performance.now() - start).toFixed(2);
+      console.log(`  done in ${loadTime} ms.`);
+      // UI shows model building progress
+      await showProgressComponent('done', 'current', 'pending');
+      console.log('- Building... ');
+      start = performance.now();
+      await netInstance.build(outputOperand);
+      buildTime = (performance.now() - start).toFixed(2);
+      console.log(`  done in ${buildTime} ms.`);
     }
+    // UI shows inferencing progress
+    await showProgressComponent('done', 'done', 'current');
+    if (inputType === 'image') {
+      const inputBuffer = getInputTensor(imgElement, layoutOptions);
+      console.log('- Computing... ');
+      start = performance.now();
+      const outputs = await netInstance.compute(inputBuffer);
+      computeTime = (performance.now() - start).toFixed(2);
+      console.log('output: ', outputs);
+      console.log(`  done in ${computeTime} ms.`);
+      await showProgressComponent('done', 'done', 'done');
+      readyShowResultComponents();
+      drawInput(imgElement, 'inputCanvas');
+      await drawOutput(outputs, labels);
+      showPerfResult();
+    } else if (inputType === 'camera') {
+      await getMediaStream();
+      camElement.srcObject = stream;
+      shouldStopFrame = false;
+      camElement.onloadedmediadata = await renderCamStream();
+      await showProgressComponent('done', 'done', 'done');
+      readyShowResultComponents();
+    } else {
+      throw Error(`Unknown inputType ${inputType}`);
+    }
+    $('input[type="radio"]').attr('disabled', false);
   } catch (error) {
     console.log(error);
     addWarning(error.message);
