@@ -22,11 +22,6 @@ export class MobileNetV2Nhwc {
     const prefix = './weights/mobilenet_nhwc/';
     const weightsName = prefix + 'Const_' + weightsSubName + '.npy';
     let weights = await buildConstantByNpy(this.builder_, weightsName);
-    if (biasSubName.includes('depthwise')) {
-      // TODO(Wanming): remove this workaround to use 'ihwo' filterLayout for
-      // DepthwiseConv2D once it is implemented.
-      weights = this.builder_.transpose(weights, {permutation: [1, 2, 0, 3]});
-    }
     const biasName = prefix + 'MobilenetV2_' + biasSubName + '_bias.npy';
     const bias = await buildConstantByNpy(this.builder_, biasName);
     options.inputLayout = 'nhwc';
@@ -50,7 +45,7 @@ export class MobileNetV2Nhwc {
     const biasPrefix = 'expanded_conv_' + biasName;
 
     dwiseOptions.autoPad = autoPad;
-    dwiseOptions.filterLayout = 'hwio';
+    dwiseOptions.filterLayout = 'ihwo';
     const convOptions = {autoPad, filterLayout: 'ohwi'};
 
     const conv1x1Relu6 = await this.buildConv_(
@@ -77,7 +72,7 @@ export class MobileNetV2Nhwc {
     const conv0 = await this.buildConv_(
         input, '90', 'Conv_Conv2D', true, {strides, autoPad, filterLayout});
     const conv1 = await this.buildConv_(
-        conv0, '238', 'expanded_conv_depthwise_depthwise', true, {autoPad, groups: 32, filterLayout: 'hwio'});
+        conv0, '238', 'expanded_conv_depthwise_depthwise', true, {autoPad, groups: 32, filterLayout: 'ihwo'});
     const conv2 = await this.buildConv_(
         conv1, '167', 'expanded_conv_project_Conv2D', false, {autoPad, filterLayout});
     const bottleneck0 = await this.buildLinearBottleneck_(
