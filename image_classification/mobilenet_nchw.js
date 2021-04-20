@@ -17,7 +17,7 @@ export class MobileNetV2Nchw {
     };
   }
 
-  async buildConv_(input, name, shouldRelu6 = true, options = undefined) {
+  async buildConv_(input, name, relu6 = true, options = undefined) {
     const prefix = './weights/mobilenet_nchw/conv_' + name;
     const weightsName = prefix + '_weight.npy';
     const weights =
@@ -28,16 +28,15 @@ export class MobileNetV2Nchw {
     const conv = this.builder_.add(
         this.builder_.conv2d(input, weights, options),
         this.builder_.reshape(bias, [1, -1, 1, 1]));
-    if (shouldRelu6) {
+    if (relu6) {
       return this.builder_.clamp(
           conv,
           {
             minValue: this.builder_.constant(0.),
             maxValue: this.builder_.constant(6.0),
           });
-    } else {
-      return conv;
     }
+    return conv;
   }
 
   async buildGemm_(input, name) {
@@ -50,45 +49,23 @@ export class MobileNetV2Nchw {
     return this.builder_.gemm(input, weights, options);
   }
 
-  async buildBottleneck_(
-      input, convNameArray, groups, strides = false, shouldAdd = true) {
-    const conv1x1 = await this.buildConv_(input, convNameArray[0]);
+  async buildLinearBottleneck_(
+      input, convNameArray, group, stride, shortcut = true) {
+    const conv1x1Relu6 = await this.buildConv_(input, convNameArray[0]);
     const options = {
       padding: [1, 1, 1, 1],
-      groups: groups,
+      groups: group,
+      strides: [stride, stride],
     };
-    if (strides) {
-      options.strides = [2, 2];
-    }
-    const conv3x3 = await this.buildConv_(
-        conv1x1, convNameArray[1], true, options);
-    const conv1x1NotClip = await this.buildConv_(
-        conv3x3, convNameArray[2], false);
-    if (shouldAdd) {
-      return this.builder_.add(input, conv1x1NotClip);
-    } else {
-      return conv1x1NotClip;
-    }
-  }
+    const dwise3x3Relu6 = await this.buildConv_(
+        conv1x1Relu6, convNameArray[1], true, options);
+    const conv1x1Linear = await this.buildConv_(
+        dwise3x3Relu6, convNameArray[2], false);
 
-  async buildBottleneckMore_(
-      input, convNameArray, groupsArrary, strides = true) {
-    const out1 = await this.buildBottleneck_(
-        input, convNameArray.slice(0, 3), groupsArrary[0], strides, false);
-    const out2 = await this.buildBottleneck_(
-        out1, convNameArray.slice(3, 6), groupsArrary[1]);
-    if (convNameArray.length >= 9) {
-      const out3 = await this.buildBottleneck_(
-          out2, convNameArray.slice(6, 9), groupsArrary[1]);
-      if (convNameArray.length === 12) {
-        return await this.buildBottleneck_(
-            out3, convNameArray.slice(9, 12), groupsArrary[1]);
-      } else {
-        return out3;
-      }
-    } else {
-      return out2;
+    if (shortcut) {
+      return this.builder_.add(input, conv1x1Linear);
     }
+    return conv1x1Linear;
   }
 
   async load() {
@@ -97,27 +74,48 @@ export class MobileNetV2Nchw {
     const data = this.builder_.input('input',
         {type: 'float32', dimensions: this.inputOptions.inputDimensions});
     const conv0 = await this.buildConv_(
-        data, 0, true, {padding: [1, 1, 1, 1], strides: [2, 2]});
-    const conv2 = await this.buildConv_(
-        conv0, 2, true, {padding: [1, 1, 1, 1], groups: 32});
-    const conv4 = await this.buildConv_(conv2, 4, false);
-    const add15 = await this.buildBottleneckMore_(
-        conv4, [5, 7, 9, 10, 12, 14], [96, 144]);
-    const add32 = await this.buildBottleneckMore_(
-        add15, [16, 18, 20, 21, 23, 25, 27, 29, 31], [144, 192]);
-    const add55 = await this.buildBottleneckMore_(
-        add32, [33, 35, 37, 38, 40, 42, 44, 46, 48, 50, 52, 54], [192, 384]);
-    const add72 = await this.buildBottleneckMore_(
-        add55, [56, 58, 60, 61, 63, 65, 67, 69, 71], [384, 576], false);
-    const add89 = await this.buildBottleneckMore_(
-        add72, [73, 75, 77, 78, 80, 82, 84, 86, 88], [576, 960]);
-    const conv94 = await this.buildBottleneck_(
-        add89, [90, 92, 94], 960, false, false);
-    const conv95 = await this.buildConv_(conv94, 95, true);
-    const pool97 = this.builder_.averagePool2d(conv95);
-    const reshape103 = this.builder_.reshape(pool97, [1, -1]);
-    const gemm104 = await this.buildGemm_(reshape103, 104);
-    return this.builder_.softmax(gemm104);
+        data, '0', true, {padding: [1, 1, 1, 1], strides: [2, 2]});
+    const conv1 = await this.buildConv_(
+        conv0, '2', true, {padding: [1, 1, 1, 1], groups: 32});
+    const conv2 = await this.buildConv_(conv1, '4', false);
+    const bottleneck0 = await this.buildLinearBottleneck_(
+        conv2, ['5', '7', '9'], 96, 2, false);
+    const bottleneck1 = await this.buildLinearBottleneck_(
+        bottleneck0, ['10', '12', '14'], 144, 1);
+    const bottleneck2 = await this.buildLinearBottleneck_(
+        bottleneck1, ['16', '18', '20'], 144, 2, false);
+    const bottleneck3 = await this.buildLinearBottleneck_(
+        bottleneck2, ['21', '23', '25'], 192, 1);
+    const bottleneck4 = await this.buildLinearBottleneck_(
+        bottleneck3, ['27', '29', '31'], 192, 1);
+    const bottleneck5 = await this.buildLinearBottleneck_(
+        bottleneck4, ['33', '35', '37'], 192, 2, false);
+    const bottleneck6 = await this.buildLinearBottleneck_(
+        bottleneck5, ['38', '40', '42'], 384, 1);
+    const bottleneck7 = await this.buildLinearBottleneck_(
+        bottleneck6, ['44', '46', '48'], 384, 1);
+    const bottleneck8 = await this.buildLinearBottleneck_(
+        bottleneck7, ['50', '52', '54'], 384, 1);
+    const bottleneck9 = await this.buildLinearBottleneck_(
+        bottleneck8, ['56', '58', '60'], 384, 1, false);
+    const bottleneck10 = await this.buildLinearBottleneck_(
+        bottleneck9, ['61', '63', '65'], 576, 1);
+    const bottleneck11 = await this.buildLinearBottleneck_(
+        bottleneck10, ['67', '69', '71'], 576, 1);
+    const bottleneck12 = await this.buildLinearBottleneck_(
+        bottleneck11, ['73', '75', '77'], 576, 2, false);
+    const bottleneck13 = await this.buildLinearBottleneck_(
+        bottleneck12, ['78', '80', '82'], 960, 1);
+    const bottleneck14 = await this.buildLinearBottleneck_(
+        bottleneck13, ['84', '86', '88'], 960, 1);
+    const bottleneck15 = await this.buildLinearBottleneck_(
+        bottleneck14, ['90', '92', '94'], 960, 1, false);
+
+    const conv3 = await this.buildConv_(bottleneck15, '95', true);
+    const pool = this.builder_.averagePool2d(conv3);
+    const reshape = this.builder_.reshape(pool, [1, -1]);
+    const gemm = await this.buildGemm_(reshape, '104');
+    return this.builder_.softmax(gemm);
   }
 
   async build(outputOperand) {

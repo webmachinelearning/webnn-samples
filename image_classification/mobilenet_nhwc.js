@@ -18,7 +18,7 @@ export class MobileNetV2Nhwc {
     };
   }
 
-  async buildConv_(input, weightsSubName, biasSubName, shouldRelu6, options) {
+  async buildConv_(input, weightsSubName, biasSubName, relu6, options) {
     const prefix = './weights/mobilenet_nhwc/';
     const weightsName = prefix + 'Const_' + weightsSubName + '.npy';
     let weights = await buildConstantByNpy(this.builder_, weightsName);
@@ -34,7 +34,7 @@ export class MobileNetV2Nhwc {
         this.builder_.conv2d(input, weights, options),
         this.builder_.reshape(bias, [1, 1, 1, -1]));
     // `relu6` in TFLite equals to `clamp` in WebNN API
-    if (shouldRelu6) {
+    if (relu6) {
       return this.builder_.clamp(
           add,
           {
@@ -45,20 +45,25 @@ export class MobileNetV2Nhwc {
     return add;
   }
 
-  async buildBottleneck_(input, weightsNameIndexes, biasNameIndex, depthwiseOptions) {
+  async buildLinearBottleneck_(input, weightsNameArray, biasName, dwiseOptions, shortcut = true) {
     const autoPad = 'same-lower';
-    const biasPrefix = 'expanded_conv_' + biasNameIndex;
+    const biasPrefix = 'expanded_conv_' + biasName;
 
-    depthwiseOptions.autoPad = autoPad;
-    depthwiseOptions.filterLayout = 'hwio';
-    const covOptions = {autoPad, filterLayout: 'ohwi'};
+    dwiseOptions.autoPad = autoPad;
+    dwiseOptions.filterLayout = 'hwio';
+    const convOptions = {autoPad, filterLayout: 'ohwi'};
 
-    const conv0 = await this.buildConv_(
-        input, weightsNameIndexes[0], `${biasPrefix}_expand_Conv2D`, true, covOptions);
-    const depthwiseConv = await this.buildConv_(
-        conv0, weightsNameIndexes[1], `${biasPrefix}_depthwise_depthwise`, true, depthwiseOptions);
-    return await this.buildConv_(
-        depthwiseConv, weightsNameIndexes[2], `${biasPrefix}_project_Conv2D`, false, covOptions);
+    const conv1x1Relu6 = await this.buildConv_(
+        input, weightsNameArray[0], `${biasPrefix}_expand_Conv2D`, true, convOptions);
+    const dwise3x3Relu6 = await this.buildConv_(
+        conv1x1Relu6, weightsNameArray[1], `${biasPrefix}_depthwise_depthwise`, true, dwiseOptions);
+    const conv1x1Linear = await this.buildConv_(
+        dwise3x3Relu6, weightsNameArray[2], `${biasPrefix}_project_Conv2D`, false, convOptions);
+
+    if (shortcut) {
+      return this.builder_.add(input, conv1x1Linear);
+    }
+    return conv1x1Linear;
   }
 
   async load() {
@@ -75,35 +80,43 @@ export class MobileNetV2Nhwc {
         conv0, '238', 'expanded_conv_depthwise_depthwise', true, {autoPad, groups: 32, filterLayout: 'hwio'});
     const conv2 = await this.buildConv_(
         conv1, '167', 'expanded_conv_project_Conv2D', false, {autoPad, filterLayout});
-    const fire0 = await this.buildBottleneck_(conv2, ['165', '99', '73'], '1', {strides, groups: 96});
-    const fire1 = await this.buildBottleneck_(fire0, ['3', '119', '115'], '2', {groups: 144});
-    const add0 = this.builder_.add(fire0, fire1);
-    const fire2 = await this.buildBottleneck_(add0, ['255', '216', '157'], '3', {strides, groups: 144});
-    const fire3 = await this.buildBottleneck_(fire2, ['227', '221', '193'], '4', {groups: 192});
-    const add1 = this.builder_.add(fire2, fire3);
-    const fire4 = await this.buildBottleneck_(add1, ['243', '102', '215'], '5', {groups: 192});
-    const add2 = this.builder_.add(add1, fire4);
-    const fire5 = await this.buildBottleneck_(add2, ['226', '163', '229'], '6', {strides, groups: 192});
-    const fire6 = await this.buildBottleneck_(fire5, ['104', '254', '143'], '7', {groups: 384});
-    const add3 = this.builder_.add(fire5, fire6);
-    const fire7 = await this.buildBottleneck_(add3, ['25', '142', '202'], '8', {groups: 384});
-    const add4 = this.builder_.add(add3, fire7);
-    const fire8 = await this.buildBottleneck_(add4, ['225', '129', '98'], '9', {groups: 384});
-    const add5 = this.builder_.add(add4, fire8);
-    const fire9 = await this.buildBottleneck_(add5, ['169', '2', '246'], '10', {groups: 384});
-    const fire10 = await this.buildBottleneck_(fire9, ['162', '87', '106'], '11', {groups: 576});
-    const add6 = this.builder_.add(fire9, fire10);
-    const fire11 = await this.buildBottleneck_(add6, ['52', '22', '40'], '12', {groups: 576});
-    const add7 = this.builder_.add(add6, fire11);
-    const fire12 = await this.buildBottleneck_(add7, ['114', '65', '242'], '13', {strides, groups: 576});
-    const fire13 = await this.buildBottleneck_(fire12, ['203', '250', '92'], '14', {groups: 960});
-    const add8 = this.builder_.add(fire12, fire13);
-    const fire14 = await this.buildBottleneck_(add8, ['133', '130', '258'], '15', {groups: 960});
-    const add9 = this.builder_.add(add8, fire14);
-    const fire15 = await this.buildBottleneck_(add9, ['60', '248', '100'], '16', {groups: 960});
-    const conv3 = await this.buildConv_(fire15, '71', 'Conv_1_Conv2D', true, {autoPad, filterLayout});
+    const bottleneck0 = await this.buildLinearBottleneck_(
+        conv2, ['165', '99', '73'], '1', {strides, groups: 96}, false);
+    const bottleneck1 = await this.buildLinearBottleneck_(
+        bottleneck0, ['3', '119', '115'], '2', {groups: 144});
+    const bottleneck2 = await this.buildLinearBottleneck_(
+        bottleneck1, ['255', '216', '157'], '3', {strides, groups: 144}, false);
+    const bottleneck3 = await this.buildLinearBottleneck_(
+        bottleneck2, ['227', '221', '193'], '4', {groups: 192});
+    const bottleneck4 = await this.buildLinearBottleneck_(
+        bottleneck3, ['243', '102', '215'], '5', {groups: 192});
+    const bottleneck5 = await this.buildLinearBottleneck_(
+        bottleneck4, ['226', '163', '229'], '6', {strides, groups: 192}, false);
+    const bottleneck6 = await this.buildLinearBottleneck_(
+        bottleneck5, ['104', '254', '143'], '7', {groups: 384});
+    const bottleneck7 = await this.buildLinearBottleneck_(
+        bottleneck6, ['25', '142', '202'], '8', {groups: 384});
+    const bottleneck8 = await this.buildLinearBottleneck_(
+        bottleneck7, ['225', '129', '98'], '9', {groups: 384});
+    const bottleneck9 = await this.buildLinearBottleneck_(
+        bottleneck8, ['169', '2', '246'], '10', {groups: 384}, false);
+    const bottleneck10 = await this.buildLinearBottleneck_(
+        bottleneck9, ['162', '87', '106'], '11', {groups: 576});
+    const bottleneck11 = await this.buildLinearBottleneck_(
+        bottleneck10, ['52', '22', '40'], '12', {groups: 576});
+    const bottleneck12 = await this.buildLinearBottleneck_(
+        bottleneck11, ['114', '65', '242'], '13', {strides, groups: 576}, false);
+    const bottleneck13 = await this.buildLinearBottleneck_(
+        bottleneck12, ['203', '250', '92'], '14', {groups: 960});
+    const bottleneck14 = await this.buildLinearBottleneck_(
+        bottleneck13, ['133', '130', '258'], '15', {groups: 960});
+    const bottleneck15 = await this.buildLinearBottleneck_(
+        bottleneck14, ['60', '248', '100'], '16', {groups: 960}, false);
+    const conv3 = await this.buildConv_(
+        bottleneck15, '71', 'Conv_1_Conv2D', true, {autoPad, filterLayout});
 
-    const averagePool2d = this.builder_.averagePool2d(conv3, {windowDimensions: [7, 7], layout: 'nhwc'});
+    const averagePool2d = this.builder_.averagePool2d(
+        conv3, {windowDimensions: [7, 7], layout: 'nhwc'});
     const conv4 = await this.buildConv_(
         averagePool2d, '222', 'Logits_Conv2d_1c_1x1_Conv2D', false, {autoPad, filterLayout});
     const reshape = this.builder_.reshape(conv4, [1, -1]);
