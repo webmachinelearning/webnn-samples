@@ -21,7 +21,7 @@ export class MobileNetV2Nhwc {
   async buildConv_(input, weightsSubName, biasSubName, relu6, options) {
     const prefix = './weights/mobilenet_nhwc/';
     const weightsName = prefix + 'Const_' + weightsSubName + '.npy';
-    let weights = await buildConstantByNpy(this.builder_, weightsName);
+    const weights = await buildConstantByNpy(this.builder_, weightsName);
     const biasName = prefix + 'MobilenetV2_' + biasSubName + '_bias.npy';
     const bias = await buildConstantByNpy(this.builder_, biasName);
     options.inputLayout = 'nhwc';
