@@ -28,8 +28,10 @@ export class Denoiser {
     return new Promise((resolve, reject) => {
       this.log(' - Loading weights... ');
       const start = performance.now();
+      const weightsUrl = 'https://webmachinelearning.github.io/test-data/' +
+          'models/nsnet2_nchw/';
       this.nsnet.load(
-          './weights/', this.batchSize, this.frames).then((outputOperand) => {
+          weightsUrl, this.batchSize, this.frames).then((outputOperand) => {
         const modelLoadTime = performance.now() - start;
         this.log(`done in <span class='text-primary'>` +
             `${modelLoadTime.toFixed(2)}</span> ms.`, true);
