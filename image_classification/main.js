@@ -1,32 +1,51 @@
 'use strict';
 
-import {FastStyleTransferNet} from './fast_style_transfer_net.js';
+import {MobileNetV2Nchw} from './mobilenet_nchw.js';
+import {MobileNetV2Nhwc} from './mobilenet_nhwc.js';
+import {SqueezeNetNchw} from './squeezenet_nchw.js';
+import {SqueezeNetNhwc} from './squeezenet_nhwc.js';
 import {showProgressComponent, readyShowResultComponents} from '../common/ui.js';
 import {getInputTensor} from '../common/utils.js';
 
 const maxWidth = 380;
 const maxHeight = 380;
 const imgElement = document.getElementById('feedElement');
-imgElement.src = './images/content-images/travelspace.jpg';
+imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
-let modelId = 'starry-night';
-let isFirstTimeLoad = true;
-let isModelChanged = false;
+let modelName ='mobilenet';
+let layout = 'nchw';
+let instanceType = modelName + layout;
 let shouldStopFrame = false;
+let isFirstTimeLoad = true;
 let inputType = 'image';
-let fastStyleTransferNet;
+let netInstance = null;
+let labels = null;
 let stream = null;
 let loadTime = 0;
 let buildTime = 0;
 let computeTime = 0;
-const inputOptions = {
-  inputDimensions: [1, 3, 540, 540],
-  inputLayout: 'nchw',
-};
+let inputOptions;
+
+async function fetchLabels(url) {
+  const response = await fetch(url);
+  const data = await response.text();
+  return data.split('\n');
+}
 
 $(document).ready(() => {
   $('.icdisplay').hide();
-  $('.badge').html(modelId);
+});
+
+$('#modelBtns .btn').on('change', async (e) => {
+  modelName = $(e.target).attr('id');
+  shouldStopFrame = true;
+  await main();
+});
+
+$('#layoutBtns .btn').on('change', async (e) => {
+  layout = $(e.target).attr('id');
+  shouldStopFrame = true;
+  await main();
 });
 
 // Click trigger to do inference with <img> element
@@ -38,15 +57,6 @@ $('#img').click(async () => {
   inputType = 'image';
   $('.shoulddisplay').hide();
   await main();
-});
-
-$('#gallery .gallery-image').hover((e) => {
-  const id = $(e.target).attr('id');
-  const modelName = $('#' + id).attr('title');
-  $('.badge').html(modelName);
-}, () => {
-  const modelName = $(`#${modelId}`).attr('title');
-  $('.badge').html(modelName);
 });
 
 $('#imageFile').change((e) => {
@@ -67,21 +77,6 @@ $('#cam').click(async () => {
   $('.shoulddisplay').hide();
   await main();
 });
-
-// Click handler to do inference with switched <img> element
-async function handleImageSwitch(e) {
-  const newModelId = $(e.target).attr('id');
-  if (newModelId !== modelId) {
-    shouldStopFrame = true;
-    isModelChanged = true;
-    modelId = newModelId;
-    const modelName = $(`#${modelId}`).attr('title');
-    $('.badge').html(modelName);
-    $('#gallery .gallery-item').removeClass('hl');
-    $(e.target).parent().addClass('hl');
-  }
-  await main();
-}
 
 async function getMediaStream() {
   // Support 'user' facing mode at present
@@ -104,17 +99,43 @@ async function renderCamStream() {
   const inputBuffer = getInputTensor(camElement, inputOptions);
   console.log('- Computing... ');
   const start = performance.now();
-  const outputs = await fastStyleTransferNet.compute(inputBuffer);
+  const outputs = await netInstance.compute(inputBuffer);
   computeTime = (performance.now() - start).toFixed(2);
   console.log(`  done in ${computeTime} ms.`);
   camElement.width = camElement.videoWidth;
   camElement.height = camElement.videoHeight;
   drawInput(camElement, 'camInCanvas');
   showPerfResult();
-  await drawOutput(outputs, 'camInCanvas', 'camOutCanvas');
+  await drawOutput(outputs, labels);
   if (!shouldStopFrame) {
     requestAnimationFrame(renderCamStream);
   }
+}
+
+// Get top 3 classes of labels from output tensor
+function getTopClasses(tensor, labels) {
+  const probs = Array.from(tensor);
+  const indexes = probs.map((prob, index) => [prob, index]);
+  const sorted = indexes.sort((a, b) => {
+    if (a[0] === b[0]) {
+      return 0;
+    }
+    return a[0] < b[0] ? -1 : 1;
+  });
+  sorted.reverse();
+  const classes = [];
+
+  for (let i = 0; i < 3; ++i) {
+    const prob = sorted[i][0];
+    const index = sorted[i][1];
+    const c = {
+      label: labels[index],
+      prob: (prob * 100).toFixed(2),
+    };
+    classes.push(c);
+  }
+
+  return classes;
 }
 
 function drawInput(srcElement, canvasId) {
@@ -129,46 +150,35 @@ function drawInput(srcElement, canvasId) {
   ctx.drawImage(srcElement, 0, 0, scaledWidth, scaledHeight);
 }
 
-async function drawOutput(outputs, inCanvasId, outCanvasId) {
+async function drawOutput(outputs, labels) {
   const outputTensor = outputs.output.data;
-  const outputSize = outputs.output.dimensions;
-  const height = outputSize[2];
-  const width = outputSize[3];
-  const mean = [1, 1, 1, 1];
-  const offset = [0, 0, 0, 0];
-  const bytes = new Uint8ClampedArray(width * height * 4);
-  const a = 255;
+  const labelClasses = getTopClasses(outputTensor, labels);
 
-  for (let i = 0; i < height * width; ++i) {
-    const j = i * 4;
-    const r = outputTensor[i] * mean[0] + offset[0];
-    const g = outputTensor[i + height * width] * mean[1] + offset[1];
-    const b = outputTensor[i + height * width * 2] * mean[2] + offset[2];
-    bytes[j + 0] = Math.round(r);
-    bytes[j + 1] = Math.round(g);
-    bytes[j + 2] = Math.round(b);
-    bytes[j + 3] = Math.round(a);
-  }
-
-  const imageData = new ImageData(bytes, width, height);
-  const outCanvas = document.createElement('canvas');
-  const outCtx = outCanvas.getContext('2d');
-  outCanvas.width = width;
-  outCanvas.height = height;
-  outCtx.putImageData(imageData, 0, 0, 0, 0, outCanvas.width, outCanvas.height);
-
-  const inputCanvas = document.getElementById(inCanvasId);
-  const outputCanvas = document.getElementById(outCanvasId);
-  outputCanvas.width = inputCanvas.width;
-  outputCanvas.height = inputCanvas.height;
-  const ctx = outputCanvas.getContext('2d');
-  ctx.drawImage(outCanvas, 0, 0, outputCanvas.width, outputCanvas.height);
+  $('#inferenceresult').show();
+  labelClasses.forEach((c, i) => {
+    console.log(`\tlabel: ${c.label}, probability: ${c.prob}%`);
+    const labelElement = document.getElementById(`label${i}`);
+    const probElement = document.getElementById(`prob${i}`);
+    labelElement.innerHTML = `${c.label}`;
+    probElement.innerHTML = `${c.prob}%`;
+  });
 }
 
 function showPerfResult() {
   $('#loadTime').html(`${loadTime} ms`);
   $('#buildTime').html(`${buildTime} ms`);
   $('#computeTime').html(`${computeTime} ms`);
+}
+
+function constructNetObject(type) {
+  const netObject = {
+    'mobilenetnchw': new MobileNetV2Nchw(),
+    'mobilenetnhwc': new MobileNetV2Nhwc(),
+    'squeezenetnchw': new SqueezeNetNchw(),
+    'squeezenetnhwc': new SqueezeNetNhwc(),
+  };
+
+  return netObject[type];
 }
 
 function addWarning(msg) {
@@ -182,30 +192,33 @@ function addWarning(msg) {
 
 export async function main() {
   try {
+    $('input[type="radio"]').attr('disabled', true);
     let start;
-    // Only do load() and build() when page first time loads and
+    // Only do load() and build() when model first time loads and
     // there's new model choosed
-    if (isFirstTimeLoad || isModelChanged) {
-      if (fastStyleTransferNet !== undefined) {
+    if (isFirstTimeLoad || instanceType !== modelName + layout) {
+      if (netInstance !== null) {
         // Call dispose() to and avoid memory leak
-        fastStyleTransferNet.dispose();
+        netInstance.dispose();
       }
-      fastStyleTransferNet = new FastStyleTransferNet();
+      instanceType = modelName + layout;
+      netInstance = constructNetObject(instanceType);
+      inputOptions = netInstance.inputOptions;
+      labels = await fetchLabels(inputOptions.labelUrl);
       isFirstTimeLoad = false;
-      isModelChanged = false;
-      console.log(`- Model ID: ${modelId} -`);
+      console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
       // UI shows model loading progress
       await showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');
       start = performance.now();
-      const outputOperand = await fastStyleTransferNet.load(modelId);
+      const outputOperand = await netInstance.load();
       loadTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${loadTime} ms.`);
       // UI shows model building progress
       await showProgressComponent('done', 'current', 'pending');
       console.log('- Building... ');
       start = performance.now();
-      await fastStyleTransferNet.build(outputOperand);
+      await netInstance.build(outputOperand);
       buildTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${buildTime} ms.`);
     }
@@ -215,13 +228,14 @@ export async function main() {
       const inputBuffer = getInputTensor(imgElement, inputOptions);
       console.log('- Computing... ');
       start = performance.now();
-      const outputs = await fastStyleTransferNet.compute(inputBuffer);
+      const outputs = await netInstance.compute(inputBuffer);
       computeTime = (performance.now() - start).toFixed(2);
+      console.log('output: ', outputs);
       console.log(`  done in ${computeTime} ms.`);
       await showProgressComponent('done', 'done', 'done');
       readyShowResultComponents();
       drawInput(imgElement, 'inputCanvas');
-      await drawOutput(outputs, 'inputCanvas', 'outputCanvas');
+      await drawOutput(outputs, labels);
       showPerfResult();
     } else if (inputType === 'camera') {
       await getMediaStream();
@@ -233,7 +247,7 @@ export async function main() {
     } else {
       throw Error(`Unknown inputType ${inputType}`);
     }
-    $('#gallery .gallery-image').on('click', handleImageSwitch);
+    $('input[type="radio"]').attr('disabled', false);
   } catch (error) {
     console.log(error);
     addWarning(error.message);
