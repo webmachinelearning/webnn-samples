@@ -12,6 +12,8 @@ export class FastStyleTransferNet {
     this.inputDimensions_ = [1, 3, 540, 540];
     this.constPow_ = null;
     this.constAdd_ = null;
+    this.weightsUrl_ = 'https://webmachinelearning.github.io/test-data/' +
+        'models/fast_style_transfer_nchw/';
   }
 
   buildInstanceNormalization_(conv2D, variableMul, variableAdd) {
@@ -66,7 +68,7 @@ export class FastStyleTransferNet {
   async load(modelId) {
     const context = navigator.ml.createContext();
     this.builder_ = new MLGraphBuilder(context);
-    const baseUrl = `./weights/${modelId}/`;
+    const baseUrl = this.weightsUrl_ + modelId + '/';
 
     // Create constants by loading pre-trained data from .npy files.
     const weightConv0 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_read__0__cf__0_0.npy');
