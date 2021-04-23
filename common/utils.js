@@ -40,3 +40,70 @@ export async function buildConstantByNpy(builder, url) {
   }
   return builder.constant({type, dimensions}, typedArray);
 }
+
+/**
+ * This method is used to covert input element to tensor data.
+ * @param {Object} inputElement, an object of HTML [<img> | <video>] element.
+ * @param {!Object<string, *>} inputOptions, an object of options to process
+ * input element.
+ * inputOptions = {
+ *     inputLayout {String}, // input layout of tensor.
+ *     inputDimensions: {!Array<number>}, // dimensions of input tensor.
+ *     mean: {Array<number>}, // optional, mean values for processing the input
+ *       element. If not specified, it will be set to [0, 0, 0, 0].
+ *     std: {Array<number>}, // optional, std values for processing the input
+ *       element. If not specified, it will be set to [1, 1, 1, 1].
+ *     norm: {Boolean}, // optional, normlization flag. If not specified,
+ *       it will be set to false.
+ * };
+ * @return {Object} tensor, an object of input tensor.
+ */
+export function getInputTensor(inputElement, inputOptions) {
+  const inputDimensions = inputOptions.inputDimensions;
+  const tensor = new Float32Array(
+      inputDimensions.slice(1).reduce((a, b) => a * b));
+
+  inputElement.width = inputElement.videoWidth ||
+      inputElement.naturalWidth;
+  inputElement.height = inputElement.videoHeight ||
+      inputElement.naturalHeight;
+
+  let [channels, height, width] = inputDimensions.slice(1);
+  const mean = inputOptions.mean || [0, 0, 0, 0];
+  const std = inputOptions.std || [1, 1, 1, 1];
+  const normlizationFlag = inputOptions.norm || false;
+  const inputLayout = inputOptions.inputLayout;
+  const imageChannels = 4; // RGBA
+
+  if (inputLayout === 'nhwc') {
+    [height, width, channels] = inputDimensions.slice(1);
+  }
+  const canvasElement = document.createElement('canvas');
+  canvasElement.width = width;
+  canvasElement.height = height;
+  const canvasContext = canvasElement.getContext('2d');
+  canvasContext.drawImage(inputElement, 0, 0, width, height);
+
+  let pixels = canvasContext.getImageData(0, 0, width, height).data;
+
+  if (normlizationFlag) {
+    pixels = new Float32Array(pixels).map((p) => p / 255);
+  }
+
+  for (let c = 0; c < channels; ++c) {
+    for (let h = 0; h < height; ++h) {
+      for (let w = 0; w < width; ++w) {
+        const value =
+            pixels[h * width * imageChannels + w * imageChannels + c];
+        if (inputLayout === 'nchw') {
+          tensor[c * width * height + h * width + w] =
+              (value - mean[c]) / std[c];
+        } else {
+          tensor[h * width * channels + w * channels + c] =
+              (value - mean[c]) / std[c];
+        }
+      }
+    }
+  }
+  return tensor;
+}

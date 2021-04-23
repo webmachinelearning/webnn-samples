@@ -9,7 +9,6 @@ export class FastStyleTransferNet {
   constructor() {
     this.builder_ = null;
     this.graph_ = null;
-    this.inputDimensions_ = [1, 3, 540, 540];
     this.constPow_ = null;
     this.constAdd_ = null;
   }
@@ -25,42 +24,6 @@ export class FastStyleTransferNet {
       const mul = this.builder_.mul(variableMul, this.builder_.div(sub, pow));
       return this.builder_.add(mul, variableAdd);
     }
-  }
-
-  // Covert input element to tensor data
-  preprocess(inputElement) {
-    const tensor = new Float32Array(
-        this.inputDimensions_.slice(1).reduce((a, b) => a * b));
-
-    inputElement.width = inputElement.videoWidth ||
-        inputElement.naturalWidth;
-    inputElement.height = inputElement.videoHeight ||
-        inputElement.naturalHeight;
-
-    const [channels, height, width] = this.inputDimensions_.slice(1);
-    const mean = [0, 0, 0, 0];
-    const std = [1, 1, 1, 1];
-    const imageChannels = 4; // RGBA
-
-    const canvasElement = document.createElement('canvas');
-    canvasElement.width = width;
-    canvasElement.height = height;
-    const canvasContext = canvasElement.getContext('2d');
-    canvasContext.drawImage(inputElement, 0, 0, width, height);
-
-    const pixels = canvasContext.getImageData(0, 0, width, height).data;
-
-    for (let c = 0; c < channels; ++c) {
-      for (let h = 0; h < height; ++h) {
-        for (let w = 0; w < width; ++w) {
-          const value =
-              pixels[h * width * imageChannels + w * imageChannels + c];
-          tensor[c * width * height + h * width + w] =
-              (value - mean[c]) / std[c];
-        }
-      }
-    }
-    return tensor;
   }
 
   async load(modelId) {
@@ -131,7 +94,7 @@ export class FastStyleTransferNet {
     const constAdd0 = this.builder_.constant(
         {type: 'float32', dimensions: [1]}, new Float32Array([127.5]));
     // Build up the network.
-    const input = this.builder_.input('input', {type: 'float32', dimensions: this.inputDimensions_});
+    const input = this.builder_.input('input', {type: 'float32', dimensions: [1, 3, 540, 540]});
     const conv2D0 = this.builder_.conv2d(this.builder_.pad(input, padding4, {mode: 'reflection'}), weightConv0);
 
     const add0 = this.buildInstanceNormalization_(conv2D0, variableMul0, variableAdd0);
