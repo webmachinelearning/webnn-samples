@@ -55,7 +55,9 @@ function clearResult() {
 export async function main() {
   drawNextDigitFromMnist();
   const pen = new Pen(visualCanvas);
-  const lenet = new LeNet('lenet.bin');
+  const weightUrl = 'https://webmachinelearning.github.io/test-data/' +
+      'models/lenet_nchw/lenet.bin';
+  const lenet = new LeNet(weightUrl);
   try {
     let start = performance.now();
     const outputOperand = await lenet.load();
