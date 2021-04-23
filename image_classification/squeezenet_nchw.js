@@ -7,6 +7,8 @@ export class SqueezeNetNchw {
   constructor() {
     this.builder_ = null;
     this.graph_ = null;
+    this.weightsUrl_ = 'https://webmachinelearning.github.io/test-data/' +
+    'models/squeezenet1.1_nchw/';
     this.inputOptions = {
       mean: [0.485, 0.456, 0.406],
       std: [0.229, 0.224, 0.225],
@@ -18,7 +20,7 @@ export class SqueezeNetNchw {
   }
 
   async buildConv_(input, name, options = undefined) {
-    const prefix = './weights/squeezenet_nchw/squeezenet0_' + name;
+    const prefix = this.weightsUrl_ + 'squeezenet0_' + name;
     const weightsName = prefix + '_weight.npy';
     const weights = await buildConstantByNpy(this.builder_, weightsName);
     const biasName = prefix + '_bias.npy';

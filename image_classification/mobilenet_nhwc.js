@@ -9,6 +9,8 @@ export class MobileNetV2Nhwc {
   constructor() {
     this.builder_ = null;
     this.graph_ = null;
+    this.weightsUrl_ = 'https://webmachinelearning.github.io/test-data/' +
+    'models/mobilenetv2_nhwc/';
     this.inputOptions = {
       mean: [127.5, 127.5, 127.5],
       std: [127.5, 127.5, 127.5],
@@ -19,10 +21,9 @@ export class MobileNetV2Nhwc {
   }
 
   async buildConv_(input, weightsSubName, biasSubName, relu6, options) {
-    const prefix = './weights/mobilenet_nhwc/';
-    const weightsName = prefix + 'Const_' + weightsSubName + '.npy';
+    const weightsName = this.weightsUrl_ + 'Const_' + weightsSubName + '.npy';
     const weights = await buildConstantByNpy(this.builder_, weightsName);
-    const biasName = prefix + 'MobilenetV2_' + biasSubName + '_bias.npy';
+    const biasName = this.weightsUrl_ + 'MobilenetV2_' + biasSubName + '_bias.npy';
     const bias = await buildConstantByNpy(this.builder_, biasName);
     options.inputLayout = 'nhwc';
     const add = this.builder_.add(
