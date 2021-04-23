@@ -12,7 +12,7 @@ export class FastStyleTransferNet {
     this.constPow_ = null;
     this.constAdd_ = null;
     this.weightsUrl_ = 'https://webmachinelearning.github.io/test-data/' +
-        'models/fast_style_transfer_nchw/';
+        'models/fast_style_transfer_nchw/weights/';
   }
 
   buildInstanceNormalization_(conv2D, variableMul, variableAdd) {
