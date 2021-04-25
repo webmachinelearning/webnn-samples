@@ -2,7 +2,7 @@
 
 import {FastStyleTransferNet} from './fast_style_transfer_net.js';
 import {showProgressComponent, readyShowResultComponents} from '../common/ui.js';
-import {getInputTensor} from '../common/utils.js';
+import {getInputTensor, getMedianValue} from '../common/utils.js';
 
 const maxWidth = 380;
 const maxHeight = 380;
@@ -165,10 +165,16 @@ async function drawOutput(outputs, inCanvasId, outCanvasId) {
   ctx.drawImage(outCanvas, 0, 0, outputCanvas.width, outputCanvas.height);
 }
 
-function showPerfResult() {
+function showPerfResult(medianComputeTime = undefined) {
   $('#loadTime').html(`${loadTime} ms`);
   $('#buildTime').html(`${buildTime} ms`);
-  $('#computeTime').html(`${computeTime} ms`);
+  if (medianComputeTime !== undefined) {
+    $('#computeLabel').html('Median inference time:');
+    $('#computeTime').html(`${medianComputeTime} ms`);
+  } else {
+    $('#computeLabel').html('Inference time:');
+    $('#computeTime').html(`${computeTime} ms`);
+  }
 }
 
 function addWarning(msg) {
@@ -183,6 +189,16 @@ function addWarning(msg) {
 export async function main() {
   try {
     let start;
+    // Set 'numRuns' param to run inference multiple times
+    const params = new URLSearchParams(location.search);
+    let numRuns = params.get('numRuns');
+    numRuns = numRuns === null ? 1 : parseInt(numRuns);
+
+    if (numRuns < 1) {
+      addWarning('The value of param numRuns must be greater than or equal' +
+          ' to 1.');
+      return;
+    }
     // Only do load() and build() when page first time loads and
     // there's new model choosed
     if (isFirstTimeLoad || isModelChanged) {
@@ -214,15 +230,26 @@ export async function main() {
     if (inputType === 'image') {
       const inputBuffer = getInputTensor(imgElement, inputOptions);
       console.log('- Computing... ');
-      start = performance.now();
-      const outputs = await fastStyleTransferNet.compute(inputBuffer);
-      computeTime = (performance.now() - start).toFixed(2);
-      console.log(`  done in ${computeTime} ms.`);
+      const computeTimeArray = [];
+      let medianComputeTime;
+      let outputs;
+      for (let i = 0; i < numRuns; i++) {
+        start = performance.now();
+        outputs = await fastStyleTransferNet.compute(inputBuffer);
+        computeTime = (performance.now() - start).toFixed(2);
+        console.log(`  compute time ${i+1}: ${computeTime} ms`);
+        computeTimeArray.push(Number(computeTime));
+      }
+      if (numRuns > 1) {
+        medianComputeTime = getMedianValue(computeTimeArray);
+        medianComputeTime = medianComputeTime.toFixed(2);
+        console.log(`  median compute time: ${medianComputeTime} ms`);
+      }
       await showProgressComponent('done', 'done', 'done');
       readyShowResultComponents();
       drawInput(imgElement, 'inputCanvas');
       await drawOutput(outputs, 'inputCanvas', 'outputCanvas');
-      showPerfResult();
+      showPerfResult(medianComputeTime);
     } else if (inputType === 'camera') {
       await getMediaStream();
       camElement.srcObject = stream;
