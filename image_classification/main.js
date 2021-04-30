@@ -5,7 +5,7 @@ import {MobileNetV2Nhwc} from './mobilenet_nhwc.js';
 import {SqueezeNetNchw} from './squeezenet_nchw.js';
 import {SqueezeNetNhwc} from './squeezenet_nhwc.js';
 import {showProgressComponent, readyShowResultComponents} from '../common/ui.js';
-import {getInputTensor} from '../common/utils.js';
+import {getInputTensor, getMedianValue} from '../common/utils.js';
 
 const maxWidth = 380;
 const maxHeight = 380;
@@ -164,10 +164,16 @@ async function drawOutput(outputs, labels) {
   });
 }
 
-function showPerfResult() {
+function showPerfResult(medianComputeTime = undefined) {
   $('#loadTime').html(`${loadTime} ms`);
   $('#buildTime').html(`${buildTime} ms`);
-  $('#computeTime').html(`${computeTime} ms`);
+  if (medianComputeTime !== undefined) {
+    $('#computeLabel').html('Median inference time:');
+    $('#computeTime').html(`${medianComputeTime} ms`);
+  } else {
+    $('#computeLabel').html('Inference time:');
+    $('#computeTime').html(`${computeTime} ms`);
+  }
 }
 
 function constructNetObject(type) {
@@ -194,6 +200,16 @@ export async function main() {
   try {
     $('input[type="radio"]').attr('disabled', true);
     let start;
+    // Set 'numRuns' param to run inference multiple times
+    const params = new URLSearchParams(location.search);
+    let numRuns = params.get('numRuns');
+    numRuns = numRuns === null ? 1 : parseInt(numRuns);
+
+    if (numRuns < 1) {
+      addWarning('The value of param numRuns must be greater than or equal' +
+          ' to 1.');
+      return;
+    }
     // Only do load() and build() when model first time loads and
     // there's new model choosed
     if (isFirstTimeLoad || instanceType !== modelName + layout) {
@@ -227,16 +243,27 @@ export async function main() {
     if (inputType === 'image') {
       const inputBuffer = getInputTensor(imgElement, inputOptions);
       console.log('- Computing... ');
-      start = performance.now();
-      const outputs = await netInstance.compute(inputBuffer);
-      computeTime = (performance.now() - start).toFixed(2);
+      const computeTimeArray = [];
+      let medianComputeTime;
+      let outputs;
+      for (let i = 0; i < numRuns; i++) {
+        start = performance.now();
+        outputs = await netInstance.compute(inputBuffer);
+        computeTime = (performance.now() - start).toFixed(2);
+        console.log(`  compute time ${i+1}: ${computeTime} ms`);
+        computeTimeArray.push(Number(computeTime));
+      }
+      if (numRuns > 1) {
+        medianComputeTime = getMedianValue(computeTimeArray);
+        medianComputeTime = medianComputeTime.toFixed(2);
+        console.log(`  median compute time: ${medianComputeTime} ms`);
+      }
       console.log('output: ', outputs);
-      console.log(`  done in ${computeTime} ms.`);
       await showProgressComponent('done', 'done', 'done');
       readyShowResultComponents();
       drawInput(imgElement, 'inputCanvas');
       await drawOutput(outputs, labels);
-      showPerfResult();
+      showPerfResult(medianComputeTime);
     } else if (inputType === 'camera') {
       await getMediaStream();
       camElement.srcObject = stream;

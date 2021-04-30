@@ -107,3 +107,10 @@ export function getInputTensor(inputElement, inputOptions) {
   }
   return tensor;
 }
+
+// Get median value from an array of Number
+export function getMedianValue(array) {
+  array = array.sort((a, b) => a - b);
+  return array.length % 2 !== 0 ? array[Math.floor(array.length / 2)] :
+      (array[array.length / 2 - 1] + array[array.length / 2]) / 2;
+}
