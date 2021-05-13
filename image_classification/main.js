@@ -4,6 +4,8 @@ import {MobileNetV2Nchw} from './mobilenet_nchw.js';
 import {MobileNetV2Nhwc} from './mobilenet_nhwc.js';
 import {SqueezeNetNchw} from './squeezenet_nchw.js';
 import {SqueezeNetNhwc} from './squeezenet_nhwc.js';
+import {ResNet50V2Nchw} from './resnet50v2_nchw.js';
+import {ResNet101V2Nhwc} from './resnet101v2_nhwc.js';
 import {showProgressComponent, readyShowResultComponents} from '../common/ui.js';
 import {getInputTensor} from '../common/utils.js';
 
@@ -176,6 +178,8 @@ function constructNetObject(type) {
     'mobilenetnhwc': new MobileNetV2Nhwc(),
     'squeezenetnchw': new SqueezeNetNchw(),
     'squeezenetnhwc': new SqueezeNetNhwc(),
+    'resnetnchw': new ResNet50V2Nchw(),
+    'resnetnhwc': new ResNet101V2Nhwc(),
   };
 
   return netObject[type];
