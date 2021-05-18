@@ -2,10 +2,25 @@
 
 import {numpy} from './libs/numpy.js';
 
-function sizeOfShape(shape) {
+export function sizeOfShape(shape) {
   return shape.reduce((a, b) => {
     return a * b;
   });
+}
+
+// In ES6 environment, use this funtion to get buffer from a url:
+// fetch for a http url and 'fs' for a local file path
+export async function getBufferFromUrl(url) {
+  let arrayBuffer;
+  if (globalThis.fetch) {
+    const response = await fetch(url);
+    arrayBuffer = await response.arrayBuffer();
+  } else {
+    const fs = await import('fs');
+    const uint8Array = await fs.promises.readFile(url);
+    arrayBuffer = uint8Array.buffer;
+  }
+  return arrayBuffer;
 }
 
 export async function buildConstantByNpy(builder, url) {
