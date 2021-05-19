@@ -8,8 +8,10 @@ export function sizeOfShape(shape) {
   });
 }
 
-// In ES6 environment, use this funtion to get buffer from a url:
-// fetch for a http url and 'fs' for a local file path
+// This function is used for reading buffer from a given url,
+// which will be exported to node.js environment as well,
+// so we use 'fs' module for examples ran in node.js and
+// fetch() method for examples ran in browser.
 export async function getBufferFromUrl(url) {
   let arrayBuffer;
   if (globalThis.fetch) {
