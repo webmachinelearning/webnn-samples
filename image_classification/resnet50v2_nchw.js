@@ -62,7 +62,7 @@ export class ResNet50V2Nchw {
     const weight = await buildConstantByNpy(this.builder_, weightName);
     const biasName = prefix + '_bias.npy';
     const bias = await buildConstantByNpy(this.builder_, biasName);
-    const options = {c: bias, bTranspose: true};
+    const options = {c: this.builder_.reshape(bias, [1, -1]), bTranspose: true};
     return this.builder_.gemm(input, weight, options);
   }
 
