@@ -42,7 +42,7 @@ export class MobileNetV2Nhwc {
   }
 
   async buildLinearBottleneck_(input, weightsNameArray, biasName, dwiseOptions, shortcut = true) {
-    const autoPad = 'same-lower';
+    const autoPad = 'same-upper';
     const biasPrefix = 'expanded_conv_' + biasName;
 
     dwiseOptions.autoPad = autoPad;
@@ -66,7 +66,7 @@ export class MobileNetV2Nhwc {
     const context = navigator.ml.createContext();
     this.builder_ = new MLGraphBuilder(context);
     const strides = [2, 2];
-    const autoPad = 'same-lower';
+    const autoPad = 'same-upper';
     const filterLayout = 'ohwi';
     const input = this.builder_.input(
         'input', {type: 'float32', dimensions: this.inputOptions.inputDimensions});
