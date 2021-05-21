@@ -17,14 +17,17 @@ export class SqueezeNetNchw {
       labelUrl: './labels/labels1000.txt',
       inputDimensions: [1, 3, 224, 224],
     };
+    this.constantsAarry_ = [];
   }
 
   async buildConv_(input, name, options = undefined) {
     const prefix = this.weightsUrl_ + 'squeezenet0_' + name;
     const weightsName = prefix + '_weight.npy';
     const weights = await buildConstantByNpy(this.builder_, weightsName);
+    this.constantsAarry_.push(weights);
     const biasName = prefix + '_bias.npy';
     const bias = await buildConstantByNpy(this.builder_, biasName);
+    this.constantsAarry_.push(bias);
     return this.builder_.relu(this.builder_.add(
         this.builder_.conv2d(input, weights, options),
         this.builder_.reshape(bias, [1, -1, 1, 1])));

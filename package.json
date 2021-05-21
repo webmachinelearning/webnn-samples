@@ -33,5 +33,9 @@
   "scripts": {
     "lint": "eslint . --ext .js",
     "start": "http-server"
+  },
+  "dependencies": {
+    "babel-eslint": "^8.0.3",
+    "jquery": "^3.6.0"
   }
 }

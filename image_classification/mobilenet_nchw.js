@@ -17,6 +17,7 @@ export class MobileNetV2Nchw {
       labelUrl: './labels/labels1000.txt',
       inputDimensions: [1, 3, 224, 224],
     };
+    this.constantsAarry_ = [];
   }
 
   async buildConv_(input, name, relu6 = true, options = undefined) {
@@ -24,18 +25,26 @@ export class MobileNetV2Nchw {
     const weightsName = prefix + '_weight.npy';
     const weights =
         await buildConstantByNpy(this.builder_, weightsName);
+    this.constantsAarry_.push(weights);
     const biasName = prefix + '_bias.npy';
     const bias =
         await buildConstantByNpy(this.builder_, biasName);
+    this.constantsAarry_.push(bias);
     const conv = this.builder_.add(
         this.builder_.conv2d(input, weights, options),
         this.builder_.reshape(bias, [1, -1, 1, 1]));
     if (relu6) {
+      const minValue = this.builder_.constant(
+          {type: 'float32', dimensions: [1]}, new Float32Array([0.]));
+      const maxValue = this.builder_.constant(
+          {type: 'float32', dimensions: [1]}, new Float32Array([6.0]));
+      this.constantsAarry_.push(minValue);
+      this.constantsAarry_.push(maxValue);
       return this.builder_.clamp(
           conv,
           {
-            minValue: this.builder_.constant(0.),
-            maxValue: this.builder_.constant(6.0),
+            minValue: minValue,
+            maxValue: maxValue,
           });
     }
     return conv;
@@ -45,9 +54,12 @@ export class MobileNetV2Nchw {
     const prefix = this.weightsUrl_ + 'gemm_' + name;
     const weightsName = prefix + '_weight.npy';
     const weights = await buildConstantByNpy(this.builder_, weightsName);
+    this.constantsAarry_.push(weights);
     const biasName = prefix + '_bias.npy';
     const bias = await buildConstantByNpy(this.builder_, biasName);
-    const options = {c: bias, bTranspose: true};
+    this.constantsAarry_.push(bias);
+    const reshapedBias = this.builder_.reshape(bias, [1, -1]);
+    const options = {c: reshapedBias, bTranspose: true};
     return this.builder_.gemm(input, weights, options);
   }
 
