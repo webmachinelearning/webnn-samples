@@ -1,13 +1,9 @@
 
 'use strict';
 
-const context = navigator.ml.createContext();
+import {getBufferFromUrl, sizeOfShape} from '../common/utils.js';
 
-function sizeOfShape(shape) {
-  return shape.reduce((a, b) => {
-    return a * b;
-  });
-}
+const context = navigator.ml.createContext();
 
 export class LeNet {
   constructor(url) {
@@ -17,8 +13,7 @@ export class LeNet {
   }
 
   async load() {
-    const response = await fetch(this.url_);
-    const arrayBuffer = await response.arrayBuffer();
+    const arrayBuffer = await getBufferFromUrl(this.url_);
     const WEIGHTS_FILE_SIZE = 1724336;
     if (arrayBuffer.byteLength !== WEIGHTS_FILE_SIZE) {
       throw new Error('Incorrect weights file');
