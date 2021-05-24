@@ -24,9 +24,11 @@ export class ResNet101V2Nhwc {
 
   async buildConv_(input, nameArray, options = undefined, relu = true) {
     let prefix = this.weightsUrl_ + 'resnet_v2_101_';
-    // nameArray[0]: block's index
-    // nameArray[1]: unit's index
-    // nameArray[2]: conv's index
+    // Items in 'nameArray' represent the indexes of block, unit, conv
+    // respectively, except two kinds of specific conv names:
+    // 1. contains 'shortcut', e.g.
+    // resnet_v2_101_block1_unit_1_bottleneck_v2_shortcut_weights.npy
+    // 2. contains 'logits', e.g. resnet_v2_101_logits_weights.npy
     if (nameArray[0] !== '' && nameArray[1] !== '') {
       prefix += `block${nameArray[0]}_unit_${nameArray[1]}_bottleneck_v2_`;
     }
