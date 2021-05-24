@@ -17,6 +17,8 @@ export class MobileNetV2Nchw {
       labelUrl: './labels/labels1000.txt',
       inputDimensions: [1, 3, 224, 224],
     };
+    // To avoid these constants being released too early,
+    // we need push them to this array to increase the reference count.
     this.constantsAarry_ = [];
   }
 

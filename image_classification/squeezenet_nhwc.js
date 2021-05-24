@@ -16,6 +16,8 @@ export class SqueezeNetNhwc {
       labelUrl: './labels/labels1001.txt',
       inputDimensions: [1, 224, 224, 3],
     };
+    // To avoid these constants being released too early,
+    // we need push them to this array to increase the reference count.
     this.constantsAarry_ = [];
   }
 
