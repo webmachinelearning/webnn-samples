@@ -196,7 +196,6 @@ function addWarning(msg) {
 
 export async function main() {
   try {
-    $('input[type="radio"]').attr('disabled', true);
     let start;
     // Only do load() and build() when model first time loads and
     // there's new model choosed
@@ -251,7 +250,6 @@ export async function main() {
     } else {
       throw Error(`Unknown inputType ${inputType}`);
     }
-    $('input[type="radio"]').attr('disabled', false);
   } catch (error) {
     console.log(error);
     addWarning(error.message);

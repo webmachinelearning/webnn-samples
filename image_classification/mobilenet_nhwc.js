@@ -126,7 +126,7 @@ export class MobileNetV2Nhwc {
   // Release the constant tensors of a model
   dispose() {
     // dispose() is only available in webnn-polyfill
-    if ('dispose' in this.graph_) {
+    if (this.graph_ !== null && 'dispose' in this.graph_) {
       this.graph_.dispose();
     }
   }
