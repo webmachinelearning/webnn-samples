@@ -14,7 +14,7 @@
     <span class='navbar-brand mb-0 h1'>WebNN Image Classification Example</span>
   </nav>
   <div class='container' id='container'>
-    <div class="row row-cols-3 align-items-start mb-3 mt-3">
+    <div class="row align-items-start mb-3 mt-3">
       <div class="col">
         <div class="btn-group-toggle" data-toggle="buttons" id="layoutBtns">
           <label class="mr-3">Layout: </label>
@@ -26,14 +26,17 @@
           </label>
         </div>
       </div>
-      <div class ="col">
+      <div class ="col-8">
         <div class="btn-group-toggle" data-toggle="buttons" id="modelBtns">
           <label class="mr-3">Model: </label>
           <label class="btn btn-outline-info btn-sm mr-2 active">
             <input type="radio" name="model" id="mobilenet" autocomplete="off" checked>MobileNet V2
           </label>
-          <label class="btn btn-outline-info btn-sm">
+          <label class="btn btn-outline-info btn-sm mr-2">
             <input type="radio" name="model" id="squeezenet" autocomplete="off">SqueezeNet
+          </label>
+          <label class="btn btn-outline-info btn-sm mr-2">
+            <input type="radio" name="model" id="resnet" autocomplete="off">ResNet V2
           </label>
         </div>
       </div>
