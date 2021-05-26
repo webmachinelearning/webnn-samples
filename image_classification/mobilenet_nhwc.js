@@ -18,35 +18,24 @@ export class MobileNetV2Nhwc {
       labelUrl: './labels/labels1001.txt',
       inputDimensions: [1, 224, 224, 3],
     };
-    // To avoid these constants being released too early,
-    // we need push them to this array to increase the reference count.
-    this.constantsAarry_ = [];
   }
 
   async buildConv_(input, weightsSubName, biasSubName, relu6, options) {
     const weightsName = this.weightsUrl_ + 'Const_' + weightsSubName + '.npy';
     const weights = await buildConstantByNpy(this.builder_, weightsName);
-    this.constantsAarry_.push(weights);
     const biasName = this.weightsUrl_ + 'MobilenetV2_' + biasSubName + '_bias.npy';
     const bias = await buildConstantByNpy(this.builder_, biasName);
-    this.constantsAarry_.push(bias);
     options.inputLayout = 'nhwc';
     const add = this.builder_.add(
         this.builder_.conv2d(input, weights, options),
         this.builder_.reshape(bias, [1, 1, 1, -1]));
     // `relu6` in TFLite equals to `clamp` in WebNN API
     if (relu6) {
-      const minValue = this.builder_.constant(
-          {type: 'float32', dimensions: [1]}, new Float32Array([0.]));
-      const maxValue = this.builder_.constant(
-          {type: 'float32', dimensions: [1]}, new Float32Array([6.0]));
-      this.constantsAarry_.push(minValue);
-      this.constantsAarry_.push(maxValue);
       return this.builder_.clamp(
           add,
           {
-            minValue: minValue,
-            maxValue: maxValue,
+            minValue: this.builder_.constant(0.),
+            maxValue: this.builder_.constant(6.0),
           });
     }
     return add;

@@ -16,19 +16,14 @@ export class SqueezeNetNhwc {
       labelUrl: './labels/labels1001.txt',
       inputDimensions: [1, 224, 224, 3],
     };
-    // To avoid these constants being released too early,
-    // we need push them to this array to increase the reference count.
-    this.constantsAarry_ = [];
   }
 
   async buildConv_(input, name, options = undefined) {
     const prefix = this.weightsUrl_ + name;
     const weightsName = prefix + '_kernel.npy';
     const weights = await buildConstantByNpy(this.builder_, weightsName);
-    this.constantsAarry_.push(weights);
     const biasName = prefix + '_Conv2D_bias.npy';
     const bias = await buildConstantByNpy(this.builder_, biasName);
-    this.constantsAarry_.push(bias);
     if (options !== undefined) {
       options.inputLayout = 'nhwc';
       options.filterLayout = 'ohwi';
