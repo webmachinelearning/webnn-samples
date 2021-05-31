@@ -8,6 +8,7 @@
 * [Noise suppression](https://webmachinelearning.github.io/webnn-samples/nsnet2/)
 * [Fast style transfer](https://webmachinelearning.github.io/webnn-samples/style_transfer/)
 * [Image classification](https://webmachinelearning.github.io/webnn-samples/image_classification/)
+* [Object detection](https://webmachinelearning.github.io/webnn-samples/object_detection/)
 
 ### Setup & Run
 
