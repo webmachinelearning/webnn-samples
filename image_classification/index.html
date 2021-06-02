@@ -150,16 +150,13 @@
       </div>
     </div>
   </div>
+  <script>
+    // To fix issues of loading all 3rd-party libraries when we reuse codes for electron.
+    if ( typeof module === "object") module = undefined;
+  </script>
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
     integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
     crossorigin="anonymous"></script>
-  <script>
-    // Loading jQuery from url will cost some time, if we need reuse codes for electron,
-    // we should ensure jQuery is included before Bootstrap's JavaScript via this way.
-    if ( typeof module === "object" && typeof module.exports === "function") {
-      window.jQuery = window.$ = require('jquery');
-    }
-  </script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
     integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
     crossorigin="anonymous"></script>
