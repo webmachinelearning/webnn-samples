@@ -49,20 +49,10 @@ export class TinyYoloV2Nchw {
     return batchNorm;
   }
 
-  async buildLeakyRelu_(input, name, maxPool2d = true, stride = 2) {
+  async buildConvolutional_(input, name) {
     const conv = await this.buildConv_(input, name);
     const batchNorm = await this.buildBatchNorm_(conv, name);
-    const leakyRelu =
-        this.builder_.leakyRelu(batchNorm, {alpha: 0.10000000149011612});
-
-    if (maxPool2d) {
-      return this.builder_.maxPool2d(leakyRelu, {
-        windowDimensions: [2, 2],
-        strides: [stride, stride],
-        autoPad: 'same-upper',
-      });
-    }
-    return leakyRelu;
+    return this.builder_.leakyRelu(batchNorm, {alpha: 0.10000000149011612});
   }
 
   async load() {
@@ -75,20 +65,30 @@ export class TinyYoloV2Nchw {
       dimensions: [1]}, new Float32Array([0.003921568859368563]));
     const addBias = this.builder_.constant({type: 'float32',
       dimensions: [3, 1, 1]}, new Float32Array([0, 0, 0]));
-
+    const poolOptions = {
+      windowDimensions: [2, 2],
+      strides: [2, 2],
+      autoPad: 'same-upper',
+    };
     const mul = this.builder_.mul(image, mulScale);
     const add = this.builder_.add(mul, addBias);
-    const loop0 = await this.buildLeakyRelu_(add, '');
-    const loop1 = await this.buildLeakyRelu_(loop0, '1');
-    const loop2 = await this.buildLeakyRelu_(loop1, '2');
-    const loop3 = await this.buildLeakyRelu_(loop2, '3');
-    const loop4 = await this.buildLeakyRelu_(loop3, '4');
-    const loop5 = await this.buildLeakyRelu_(loop4, '5', true, 1);
-    const loop6 = await this.buildLeakyRelu_(loop5, '6', false);
-    const loop7 = await this.buildLeakyRelu_(loop6, '7', false);
-    const conv = await this.buildConv_(loop7, '8', true);
+    const conv0 = await this.buildConvolutional_(add, '');
+    const pool0 = this.builder_.maxPool2d(conv0, poolOptions);
+    const conv1 = await this.buildConvolutional_(pool0, '1');
+    const pool1 = this.builder_.maxPool2d(conv1, poolOptions);
+    const conv2 = await this.buildConvolutional_(pool1, '2');
+    const pool2 = this.builder_.maxPool2d(conv2, poolOptions);
+    const conv3 = await this.buildConvolutional_(pool2, '3');
+    const pool3 = this.builder_.maxPool2d(conv3, poolOptions);
+    const conv4 = await this.buildConvolutional_(pool3, '4');
+    const pool4 = this.builder_.maxPool2d(conv4, poolOptions);
+    const conv5 = await this.buildConvolutional_(pool4, '5');
+    const pool5 = this.builder_.maxPool2d(conv5,
+        {windowDimensions: [2, 2], autoPad: 'same-upper'});
+    const conv6 = await this.buildConvolutional_(pool5, '6');
+    const conv7 = await this.buildConvolutional_(conv6, '7');
+    const conv = await this.buildConv_(conv7, '8', true);
     return conv;
-    // return this.builder_.transpose(conv, {permutation: [0, 2, 3, 1]});
   }
 
   async build(outputOperand) {

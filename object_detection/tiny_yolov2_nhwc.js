@@ -35,21 +35,11 @@ export class TinyYoloV2Nhwc {
         this.builder_.reshape(bias, [1, 1, 1, -1]));
   }
 
-  async buildLeakyRelu_(input, name, maxPool2d = true, stride = 2) {
+  async buildConvolutional_(input, name) {
     const conv = await this.buildConv_(input, name);
     const alpha = this.builder_.constant({type: 'float32', dimensions: [1]},
         new Float32Array([0.10000000149011612]));
-    const mul = this.builder_.mul(conv, alpha);
-    const maximum = this.builder_.max(conv, mul);
-    if (maxPool2d) {
-      return this.builder_.maxPool2d(maximum, {
-        windowDimensions: [2, 2],
-        strides: [stride, stride],
-        autoPad: 'same-upper',
-        layout: 'nhwc',
-      });
-    }
-    return maximum;
+    return this.builder_.max(conv, this.builder_.mul(conv, alpha));
   }
 
   async load() {
@@ -57,15 +47,29 @@ export class TinyYoloV2Nhwc {
     this.builder_ = new MLGraphBuilder(context);
     const input = this.builder_.input('input',
         {type: 'float32', dimensions: this.inputOptions.inputDimensions});
-    const leakyRelu1 = await this.buildLeakyRelu_(input, '1');
-    const leakyRelu2 = await this.buildLeakyRelu_(leakyRelu1, '2');
-    const leakyRelu3 = await this.buildLeakyRelu_(leakyRelu2, '3');
-    const leakyRelu4 = await this.buildLeakyRelu_(leakyRelu3, '4');
-    const leakyRelu5 = await this.buildLeakyRelu_(leakyRelu4, '5');
-    const leakyRelu6 = await this.buildLeakyRelu_(leakyRelu5, '6', true, 1);
-    const leakyRelu7 = await this.buildLeakyRelu_(leakyRelu6, '7', false);
-    const leakyRelu8 = await this.buildLeakyRelu_(leakyRelu7, '8', false);
-    return await this.buildConv_(leakyRelu8, '9');
+
+    const poolOptions = {
+      windowDimensions: [2, 2],
+      strides: [2, 2],
+      autoPad: 'same-upper',
+      layout: 'nhwc',
+    };
+    const conv1 = await this.buildConvolutional_(input, '1');
+    const pool1 = this.builder_.maxPool2d(conv1, poolOptions);
+    const conv2 = await this.buildConvolutional_(pool1, '2');
+    const pool2 = this.builder_.maxPool2d(conv2, poolOptions);
+    const conv3 = await this.buildConvolutional_(pool2, '3');
+    const pool3 = this.builder_.maxPool2d(conv3, poolOptions);
+    const conv4 = await this.buildConvolutional_(pool3, '4');
+    const pool4 = this.builder_.maxPool2d(conv4, poolOptions);
+    const conv5 = await this.buildConvolutional_(pool4, '5');
+    const pool5 = this.builder_.maxPool2d(conv5, poolOptions);
+    const conv6 = await this.buildConvolutional_(pool5, '6');
+    const pool6 = this.builder_.maxPool2d(conv6,
+        {windowDimensions: [2, 2], autoPad: 'same-upper', layout: 'nhwc'});
+    const conv7 = await this.buildConvolutional_(pool6, '7');
+    const conv8 = await this.buildConvolutional_(conv7, '8');
+    return await this.buildConv_(conv8, '9');
   }
 
   async build(outputOperand) {
