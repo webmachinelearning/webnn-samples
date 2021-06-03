@@ -14,6 +14,6 @@ You could also click 'Pick Image' button to choose your local image to classfy i
 
 ### Classify video stream
 
-Here we classfy every frame in a live camera, then combined the results. Click 'LIVE CAMERA' tab, allow the browser to use your local camera if there's a prompt, then you will see a styled live camera.
+Here we classfy every frame in a live camera, then combined the results. Click 'LIVE CAMERA' tab, allow the browser to use your local camera if there's a prompt, then you will see real-time classfication results on the page.
 
 Switch model or layout to check variance predict result.
