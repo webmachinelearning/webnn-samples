@@ -2,10 +2,27 @@
 
 import {numpy} from './libs/numpy.js';
 
-function sizeOfShape(shape) {
+export function sizeOfShape(shape) {
   return shape.reduce((a, b) => {
     return a * b;
   });
+}
+
+// This function is used for reading buffer from a given url,
+// which will be exported to node.js environment as well,
+// so we use 'fs' module for examples ran in node.js and
+// fetch() method for examples ran in browser.
+export async function getBufferFromUrl(url) {
+  let arrayBuffer;
+  if (globalThis.fetch) {
+    const response = await fetch(url);
+    arrayBuffer = await response.arrayBuffer();
+  } else {
+    const fs = await import('fs');
+    const uint8Array = await fs.promises.readFile(url);
+    arrayBuffer = uint8Array.buffer;
+  }
+  return arrayBuffer;
 }
 
 export async function buildConstantByNpy(builder, url) {

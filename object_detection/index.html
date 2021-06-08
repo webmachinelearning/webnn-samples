@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>WebNN Image Classification Example</title>
+  <title>WebNN Object Detection Example</title>
   <link href='../common/css/style.css' rel='stylesheet'>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
@@ -11,10 +11,10 @@
 
 <body>
   <nav class='navbar navbar-expand-md navbar-dark bg-dark' style='width:100%'>
-    <span class='navbar-brand mb-0 h1'>WebNN Image Classification Example</span>
+    <span class='navbar-brand mb-0 h1'>WebNN Object Detection Example</span>
   </nav>
   <div class='container' id='container'>
-    <div class="row align-items-start mb-3 mt-3">
+    <div class="row row-cols-3 align-items-start mb-3 mt-3">
       <div class="col">
         <div class="btn-group-toggle" data-toggle="buttons" id="layoutBtns">
           <label class="mr-3">Layout: </label>
@@ -26,17 +26,11 @@
           </label>
         </div>
       </div>
-      <div class ="col-8">
+      <div class ="col">
         <div class="btn-group-toggle" data-toggle="buttons" id="modelBtns">
           <label class="mr-3">Model: </label>
           <label class="btn btn-outline-info btn-sm mr-2 active">
-            <input type="radio" name="model" id="mobilenet" autocomplete="off" checked>MobileNet V2
-          </label>
-          <label class="btn btn-outline-info btn-sm mr-2">
-            <input type="radio" name="model" id="squeezenet" autocomplete="off">SqueezeNet
-          </label>
-          <label class="btn btn-outline-info btn-sm mr-2">
-            <input type="radio" name="model" id="resnet" autocomplete="off">ResNet V2
+            <input type="radio" name="model" id="tinyyolov2" autocomplete="off" checked>Tiny Yolo V2
           </label>
         </div>
       </div>
@@ -69,6 +63,23 @@
         </div>
       </div>
     </div>
+    <div class='shoulddisplay tab-content clearfix' style='display: none;'>
+      <ul class="list-inline list-pipe text-center">
+        <li class="list-inline-item">
+          Load time: <span class='ir' id='loadTime'></span>
+        </li>
+        <li class="list-inline-item">
+          Build time: <span class='ir' id='buildTime'></span>
+        </li>
+        <li class="list-inline-item">
+          <span id='computeLabel'></span>
+          <span class='ir' id='computeTime'></span>
+        </li>
+      </ul>
+    </div>
+    <div class='shoulddisplay tab-content clearfix text-center' style='display: none;'>
+      <canvas id='outputCanvas' width='640' height='480'></canvas>
+    </div>
     <div class='tab-content clearfix row'>
       <div class='tab-pane text-center active col-sm' id='imagetab'>
         <div class='icdisplay'>
@@ -77,7 +88,6 @@
               <div class='col bt-3 mb-3' style='display: flex;'>
                 <div id='div-photos' style='margin: auto; display: flex;' title='Original image'>
                   <img id='feedElement' hidden crossorigin='anonymous' class='img-fluid' alt='Responsive image' src=''>
-                  <canvas id='inputCanvas'></canvas>
                 </div>
               </div>
             </div>
@@ -97,67 +107,14 @@
           <div class='row'>
             <div class='col bt-3 mb-3' style='display: flex;'>
               <div id='div-photos' style='margin: auto; display: flex;'>
-                <canvas id='camInCanvas'></canvas>
               </div>
             </div>
             <video id='feedMediaElement' autoplay playsinline style='display: none;'></video>
           </div>
         </div>
       </div>
-      <div class='shoulddisplay col-sm' style='display: none; font-size: 0.9rem;'>
-        <div class='row tc'>
-          <ul class="list-inline list-pipe text-center">
-            <li class="list-inline-item">
-              Load time: <span class='ir' id='loadTime'></span>
-            </li>
-            <li class="list-inline-item">
-              Build time: <span class='ir' id='buildTime'></span>
-            </li>
-            <li class="list-inline-item">
-              <span id='computeLabel'></span>
-              <span class='ir' id='computeTime'></span>
-            </li>
-          </ul>
-        </div>
-        <div class='row text-center tc' id='inferenceresult'>
-          <table class='table'>
-            <thead class="thead-light">
-              <tr>
-                <th scope='col'>#</th>
-                <th scope='col'>Label</th>
-                <th scope='col'>Probability</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope='row'>1</th>
-                <td id='label0'></td>
-                <td id='prob0'></td>
-              </tr>
-              <tr>
-                <th scope='row'>2</th>
-                <td id='label1'></td>
-                <td id='prob1'></td>
-              </tr>
-              <tr>
-                <th scope='row'>3</th>
-                <td id='label2'></td>
-                <td id='prob2'></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
   </div>
-  <script>
-    // This workaround is to fix jquery loading issue in electron.
-    // Refer to https://stackoverflow.com/questions/32621988/electron-jquery-is-not-defined.
-    if (typeof module === "object") {
-      window.tempModule = module;
-      module = undefined;
-    }
-  </script>
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
     integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
     crossorigin="anonymous"></script>
@@ -168,10 +125,6 @@
     integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
     crossorigin="anonymous"></script>
   <script src="https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js"></script>
-  <script>
-    // To restore module after loading 3rd-party libraries.
-    if (window.tempModule) module = window.tempModule;
-  </script>
   <script type="module">
     import { main } from './main.js';
     window.onload = function () {

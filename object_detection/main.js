@@ -1,20 +1,15 @@
 'use strict';
 
-import {MobileNetV2Nchw} from './mobilenet_nchw.js';
-import {MobileNetV2Nhwc} from './mobilenet_nhwc.js';
-import {SqueezeNetNchw} from './squeezenet_nchw.js';
-import {SqueezeNetNhwc} from './squeezenet_nhwc.js';
-import {ResNet50V2Nchw} from './resnet50v2_nchw.js';
-import {ResNet101V2Nhwc} from './resnet101v2_nhwc.js';
+import {TinyYoloV2Nchw} from './tiny_yolov2_nchw.js';
+import {TinyYoloV2Nhwc} from './tiny_yolov2_nhwc.js';
 import {showProgressComponent, readyShowResultComponents} from '../common/ui.js';
 import {getInputTensor, getMedianValue} from '../common/utils.js';
+import * as Yolo2Decoder from './libs/yolo2Decoder.js';
 
-const maxWidth = 380;
-const maxHeight = 380;
 const imgElement = document.getElementById('feedElement');
 imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
-let modelName ='mobilenet';
+let modelName ='tinyyolov2';
 let layout = 'nchw';
 let instanceType = modelName + layout;
 let shouldStopFrame = false;
@@ -106,64 +101,30 @@ async function renderCamStream() {
   console.log(`  done in ${computeTime} ms.`);
   camElement.width = camElement.videoWidth;
   camElement.height = camElement.videoHeight;
-  drawInput(camElement, 'camInCanvas');
   showPerfResult();
-  await drawOutput(outputs, labels);
+  await drawOutput(camElement, outputs, labels);
   if (!shouldStopFrame) {
     requestAnimationFrame(renderCamStream);
   }
 }
 
-// Get top 3 classes of labels from output tensor
-function getTopClasses(tensor, labels) {
-  const probs = Array.from(tensor);
-  const indexes = probs.map((prob, index) => [prob, index]);
-  const sorted = indexes.sort((a, b) => {
-    if (a[0] === b[0]) {
-      return 0;
-    }
-    return a[0] < b[0] ? -1 : 1;
-  });
-  sorted.reverse();
-  const classes = [];
-
-  for (let i = 0; i < 3; ++i) {
-    const prob = sorted[i][0];
-    const index = sorted[i][1];
-    const c = {
-      label: labels[index],
-      prob: (prob * 100).toFixed(2),
-    };
-    classes.push(c);
+async function drawOutput(inputElement, outputs, labels) {
+  let outputTensor = outputs.output.data;
+  // Transpose 'nchw' output to 'nhwc' for postprocessing
+  if (layout === 'nchw') {
+    const tf = navigator.ml.createContext().tf;
+    const a = tf.tensor(outputTensor, outputs.output.dimensions, 'float32');
+    const b = tf.transpose(a, [0, 2, 3, 1]);
+    const buffer = await b.buffer();
+    tf.dispose();
+    outputTensor = buffer.values;
   }
-
-  return classes;
-}
-
-function drawInput(srcElement, canvasId) {
-  const inputCanvas = document.getElementById(canvasId);
-  const resizeRatio = Math.max(
-      Math.max(srcElement.width / maxWidth, srcElement.height / maxHeight), 1);
-  const scaledWidth = Math.floor(srcElement.width / resizeRatio);
-  const scaledHeight = Math.floor(srcElement.height / resizeRatio);
-  inputCanvas.height = scaledHeight;
-  inputCanvas.width = scaledWidth;
-  const ctx = inputCanvas.getContext('2d');
-  ctx.drawImage(srcElement, 0, 0, scaledWidth, scaledHeight);
-}
-
-async function drawOutput(outputs, labels) {
-  const outputTensor = outputs.output.data;
-  const labelClasses = getTopClasses(outputTensor, labels);
-
   $('#inferenceresult').show();
-  labelClasses.forEach((c, i) => {
-    console.log(`\tlabel: ${c.label}, probability: ${c.prob}%`);
-    const labelElement = document.getElementById(`label${i}`);
-    const probElement = document.getElementById(`prob${i}`);
-    labelElement.innerHTML = `${c.label}`;
-    probElement.innerHTML = `${c.prob}%`;
-  });
+  const outputElemnt = document.getElementById('outputCanvas');
+  const decodeOut = Yolo2Decoder.decodeYOLOv2({numClasses: 20},
+      outputTensor, inputOptions.anchors);
+  const boxes = Yolo2Decoder.getBoxes(decodeOut, inputOptions.margin);
+  Yolo2Decoder.drawBoxes(inputElement, outputElemnt, boxes, labels);
 }
 
 function showPerfResult(medianComputeTime = undefined) {
@@ -180,12 +141,8 @@ function showPerfResult(medianComputeTime = undefined) {
 
 function constructNetObject(type) {
   const netObject = {
-    'mobilenetnchw': new MobileNetV2Nchw(),
-    'mobilenetnhwc': new MobileNetV2Nhwc(),
-    'squeezenetnchw': new SqueezeNetNchw(),
-    'squeezenetnhwc': new SqueezeNetNhwc(),
-    'resnetnchw': new ResNet50V2Nchw(),
-    'resnetnhwc': new ResNet101V2Nhwc(),
+    'tinyyolov2nchw': new TinyYoloV2Nchw(),
+    'tinyyolov2nhwc': new TinyYoloV2Nhwc(),
   };
 
   return netObject[type];
@@ -264,8 +221,7 @@ export async function main() {
       console.log('output: ', outputs);
       await showProgressComponent('done', 'done', 'done');
       readyShowResultComponents();
-      drawInput(imgElement, 'inputCanvas');
-      await drawOutput(outputs, labels);
+      await drawOutput(imgElement, outputs, labels);
       showPerfResult(medianComputeTime);
     } else if (inputType === 'camera') {
       await getMediaStream();

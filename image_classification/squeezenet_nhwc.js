@@ -51,7 +51,7 @@ export class SqueezeNetNhwc {
     const placeholder = this.builder_.input('input',
         {type: 'float32', dimensions: this.inputOptions.inputDimensions});
     const conv1 = await this.buildConv_(
-        placeholder, 'conv1', {strides, autoPad: 'same-lower'});
+        placeholder, 'conv1', {strides, autoPad: 'same-upper'});
     const maxpool1 = this.builder_.maxPool2d(
         conv1, {windowDimensions: [3, 3], strides, layout});
     const fire2 = await this.buildFire_(maxpool1, 'fire2');
@@ -80,7 +80,7 @@ export class SqueezeNetNhwc {
   // Release the constant tensors of a model
   dispose() {
     // dispose() is only available in webnn-polyfill
-    if ('dispose' in this.graph_) {
+    if (this.graph_ !== null && 'dispose' in this.graph_) {
       this.graph_.dispose();
     }
   }
