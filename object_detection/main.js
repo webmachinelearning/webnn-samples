@@ -2,14 +2,17 @@
 
 import {TinyYoloV2Nchw} from './tiny_yolov2_nchw.js';
 import {TinyYoloV2Nhwc} from './tiny_yolov2_nhwc.js';
+import {SsdMobilenetV1Nchw} from './ssd_mobilenetv1_nchw.js';
+import {SsdMobilenetV1Nhwc} from './ssd_mobilenetv1_nhwc.js';
 import {showProgressComponent, readyShowResultComponents} from '../common/ui.js';
 import {getInputTensor, getMedianValue} from '../common/utils.js';
 import * as Yolo2Decoder from './libs/yolo2Decoder.js';
+import * as SsdDecoder from './libs/ssdDecoder.js';
 
 const imgElement = document.getElementById('feedElement');
 imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
-let modelName ='tinyyolov2';
+let modelName = 'tinyyolov2';
 let layout = 'nchw';
 let instanceType = modelName + layout;
 let shouldStopFrame = false;
@@ -109,22 +112,39 @@ async function renderCamStream() {
 }
 
 async function drawOutput(inputElement, outputs, labels) {
-  let outputTensor = outputs.output.data;
-  // Transpose 'nchw' output to 'nhwc' for postprocessing
-  if (layout === 'nchw') {
-    const tf = navigator.ml.createContext().tf;
-    const a = tf.tensor(outputTensor, outputs.output.dimensions, 'float32');
-    const b = tf.transpose(a, [0, 2, 3, 1]);
-    const buffer = await b.buffer();
-    tf.dispose();
-    outputTensor = buffer.values;
-  }
+  const outputElement = document.getElementById('outputCanvas');
   $('#inferenceresult').show();
-  const outputElemnt = document.getElementById('outputCanvas');
-  const decodeOut = Yolo2Decoder.decodeYOLOv2({numClasses: 20},
-      outputTensor, inputOptions.anchors);
-  const boxes = Yolo2Decoder.getBoxes(decodeOut, inputOptions.margin);
-  Yolo2Decoder.drawBoxes(inputElement, outputElemnt, boxes, labels);
+
+  // Draw output for SSD Mobilenet V1 model
+  if (modelName === 'ssdmobilenetv1') {
+    const boxesTensor = outputs.boxes.data;
+    const scoresTensor = outputs.scores.data;
+    const anchors = SsdDecoder.generateAnchors({});
+    SsdDecoder.decodeOutputBoxTensor({}, boxesTensor, anchors);
+    let [totalDetections, boxesList, scoresList, classesList] =
+        SsdDecoder.nonMaxSuppression({}, boxesTensor, scoresTensor);
+    boxesList = SsdDecoder.cropSsdBox(
+      inputElement, totalDetections, boxesList, inputOptions.margin);
+    SsdDecoder.drawBoxes(
+        outputElement, totalDetections, inputElement,
+        boxesList, scoresList, classesList, labels);
+  } else {
+    // Draw output for Tiny Yolo V2 model
+    let outputTensor = outputs.output.data;
+    // Transpose 'nchw' output to 'nhwc' for postprocessing
+    if (layout === 'nchw') {
+      const tf = navigator.ml.createContext().tf;
+      const a = tf.tensor(outputTensor, outputs.output.dimensions, 'float32');
+      const b = tf.transpose(a, [0, 2, 3, 1]);
+      const buffer = await b.buffer();
+      tf.dispose();
+      outputTensor = buffer.values;
+    }
+    const decodeOut = Yolo2Decoder.decodeYOLOv2({numClasses: 20},
+        outputTensor, inputOptions.anchors);
+    const boxes = Yolo2Decoder.getBoxes(decodeOut, inputOptions.margin);
+    Yolo2Decoder.drawBoxes(inputElement, outputElement, boxes, labels);
+  }
 }
 
 function showPerfResult(medianComputeTime = undefined) {
@@ -143,6 +163,8 @@ function constructNetObject(type) {
   const netObject = {
     'tinyyolov2nchw': new TinyYoloV2Nchw(),
     'tinyyolov2nhwc': new TinyYoloV2Nhwc(),
+    'ssdmobilenetv1nchw': new SsdMobilenetV1Nchw(),
+    'ssdmobilenetv1nhwc': new SsdMobilenetV1Nhwc(),
   };
 
   return netObject[type];
@@ -159,6 +181,7 @@ function addWarning(msg) {
 
 export async function main() {
   try {
+    $('input[type="radio"]').attr('disabled', true);
     let start;
     // Set 'numRuns' param to run inference multiple times
     const params = new URLSearchParams(location.search);
@@ -233,6 +256,7 @@ export async function main() {
     } else {
       throw Error(`Unknown inputType ${inputType}`);
     }
+    $('input[type="radio"]').attr('disabled', false);
   } catch (error) {
     console.log(error);
     addWarning(error.message);
