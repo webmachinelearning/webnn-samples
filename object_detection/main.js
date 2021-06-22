@@ -124,7 +124,7 @@ async function drawOutput(inputElement, outputs, labels) {
     let [totalDetections, boxesList, scoresList, classesList] =
         SsdDecoder.nonMaxSuppression({}, boxesTensor, scoresTensor);
     boxesList = SsdDecoder.cropSsdBox(
-      inputElement, totalDetections, boxesList, inputOptions.margin);
+        inputElement, totalDetections, boxesList, inputOptions.margin);
     SsdDecoder.drawBoxes(
         outputElement, totalDetections, inputElement,
         boxesList, scoresList, classesList, labels);
