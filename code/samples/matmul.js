@@ -10,9 +10,10 @@ const bufferB = new Float32Array(sizeOfShape(descB.dimensions)).fill(0.5);
 const b = builder.constant(descB, bufferB);
 const c = builder.matmul(a, b);
 
-const graph = await builder.build({c});
+const graph = builder.build({c});
 const bufferA = new Float32Array(sizeOfShape(descA.dimensions)).fill(0.5);
-const inputs = {'a': {data: bufferA}};
-const outputs = await graph.compute(inputs);
-console.log(`shape: [${outputs.c.dimensions}]`);
-console.log(`values: ${outputs.c.data}`);
+const bufferC = new Float32Array(9);
+const inputs = {'a': bufferA};
+const outputs = {'c': bufferC};
+graph.compute(inputs, outputs);
+console.log(`values: ${bufferC}`);

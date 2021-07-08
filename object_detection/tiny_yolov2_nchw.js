@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy} from '../common/utils.js';
+import {buildConstantByNpy, sizeOfShape} from '../common/utils.js';
 
 // Tiny Yolo V2 model with 'nchw' layout, trained on the Pascal VOC dataset.
 export class TinyYoloV2Nchw {
@@ -91,8 +91,8 @@ export class TinyYoloV2Nchw {
     return conv;
   }
 
-  async build(outputOperand) {
-    this.graph_ = await this.builder_.build({'output': outputOperand});
+  build(outputOperand) {
+    this.graph_ = this.builder_.build({'output': outputOperand});
   }
 
   // Release the constant tensors of a model
@@ -103,9 +103,11 @@ export class TinyYoloV2Nchw {
     }
   }
 
-  async compute(inputBuffer) {
-    const inputs = {input: {data: inputBuffer}};
-    const outputs = await this.graph_.compute(inputs);
+  compute(inputBuffer) {
+    const inputs = {'input': inputBuffer};
+    const outputBuffer = new Float32Array(sizeOfShape([1, 125, 13, 13]));
+    const outputs = {'output': outputBuffer};
+    this.graph_.compute(inputs, outputs);
     return outputs;
   }
 }

@@ -65,7 +65,7 @@ export async function main() {
         `loading elapsed time: ${(performance.now() - start).toFixed(2)} ms`);
 
     start = performance.now();
-    await lenet.build(outputOperand);
+    lenet.build(outputOperand);
     const buildTime = performance.now() - start;
     console.log(`build elapsed time: ${buildTime.toFixed(2)} ms`);
     buildTimeElement.innerHTML = 'Build Time: ' +
@@ -95,7 +95,7 @@ export async function main() {
 
       for (let i = 0; i < n; i++) {
         start = performance.now();
-        result = await lenet.predict(input);
+        result = lenet.predict(input);
         inferenceTime = performance.now() - start;
         console.log(`execution elapsed time: ${inferenceTime.toFixed(2)} ms`);
         console.log(`execution result: ${result}`);

@@ -99,7 +99,7 @@ async function renderCamStream() {
   const inputBuffer = getInputTensor(camElement, inputOptions);
   console.log('- Computing... ');
   const start = performance.now();
-  const outputs = await netInstance.compute(inputBuffer);
+  const outputs = netInstance.compute(inputBuffer);
   computeTime = (performance.now() - start).toFixed(2);
   console.log(`  done in ${computeTime} ms.`);
   camElement.width = camElement.videoWidth;
@@ -117,8 +117,8 @@ async function drawOutput(inputElement, outputs, labels) {
 
   // Draw output for SSD Mobilenet V1 model
   if (modelName === 'ssdmobilenetv1') {
-    const boxesTensor = outputs.boxes.data;
-    const scoresTensor = outputs.scores.data;
+    const boxesTensor = outputs.boxes;
+    const scoresTensor = outputs.scores;
     const anchors = SsdDecoder.generateAnchors({});
     SsdDecoder.decodeOutputBoxTensor({}, boxesTensor, anchors);
     let [totalDetections, boxesList, scoresList, classesList] =
@@ -130,11 +130,11 @@ async function drawOutput(inputElement, outputs, labels) {
         boxesList, scoresList, classesList, labels);
   } else {
     // Draw output for Tiny Yolo V2 model
-    let outputTensor = outputs.output.data;
+    let outputTensor = outputs.output;
     // Transpose 'nchw' output to 'nhwc' for postprocessing
     if (layout === 'nchw') {
       const tf = navigator.ml.createContext().tf;
-      const a = tf.tensor(outputTensor, outputs.output.dimensions, 'float32');
+      const a = tf.tensor(outputTensor, [1, 125, 13, 13], 'float32');
       const b = tf.transpose(a, [0, 2, 3, 1]);
       const buffer = await b.buffer();
       tf.dispose();
@@ -217,7 +217,7 @@ export async function main() {
       await showProgressComponent('done', 'current', 'pending');
       console.log('- Building... ');
       start = performance.now();
-      await netInstance.build(outputOperand);
+      netInstance.build(outputOperand);
       buildTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${buildTime} ms.`);
     }
@@ -231,7 +231,7 @@ export async function main() {
       let outputs;
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
-        outputs = await netInstance.compute(inputBuffer);
+        outputs = netInstance.compute(inputBuffer);
         computeTime = (performance.now() - start).toFixed(2);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);
         computeTimeArray.push(Number(computeTime));

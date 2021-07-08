@@ -114,13 +114,15 @@ export class LeNet {
     return this.builder_.softmax(add4);
   }
 
-  async build(outputOperand) {
-    this.graph_ = await this.builder_.build({'output': outputOperand});
+  build(outputOperand) {
+    this.graph_ = this.builder_.build({'output': outputOperand});
   }
 
-  async predict(inputBuffer) {
-    const inputs = {input: {data: inputBuffer}};
-    const outputs = await this.graph_.compute(inputs);
-    return outputs.output.data;
+  predict(inputBuffer) {
+    const inputs = {'input': inputBuffer};
+    const outputBuffer = new Float32Array(10);
+    const outputs = {'output': outputBuffer};
+    this.graph_.compute(inputs, outputs);
+    return outputBuffer;
   }
 }

@@ -104,7 +104,7 @@ async function renderCamStream() {
   const inputBuffer = getInputTensor(camElement, inputOptions);
   console.log('- Computing... ');
   const start = performance.now();
-  const outputs = await fastStyleTransferNet.compute(inputBuffer);
+  const outputs = fastStyleTransferNet.compute(inputBuffer);
   computeTime = (performance.now() - start).toFixed(2);
   console.log(`  done in ${computeTime} ms.`);
   camElement.width = camElement.videoWidth;
@@ -130,8 +130,8 @@ function drawInput(srcElement, canvasId) {
 }
 
 async function drawOutput(outputs, inCanvasId, outCanvasId) {
-  const outputTensor = outputs.output.data;
-  const outputSize = outputs.output.dimensions;
+  const outputTensor = outputs.outputBuffer;
+  const outputSize = outputs.outputShape;
   const height = outputSize[2];
   const width = outputSize[3];
   const mean = [1, 1, 1, 1];
@@ -221,7 +221,7 @@ export async function main() {
       await showProgressComponent('done', 'current', 'pending');
       console.log('- Building... ');
       start = performance.now();
-      await fastStyleTransferNet.build(outputOperand);
+      fastStyleTransferNet.build(outputOperand);
       buildTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${buildTime} ms.`);
     }
@@ -235,7 +235,7 @@ export async function main() {
       let outputs;
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
-        outputs = await fastStyleTransferNet.compute(inputBuffer);
+        outputs = fastStyleTransferNet.compute(inputBuffer);
         computeTime = (performance.now() - start).toFixed(2);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);
         computeTimeArray.push(Number(computeTime));

@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy} from '../common/utils.js';
+import {buildConstantByNpy, sizeOfShape} from '../common/utils.js';
 
 // SSD MobileNet V1 model with 'nhwc' layout, trained on the COCO dataset.
 export class SsdMobilenetV1Nhwc {
@@ -226,9 +226,8 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     return {'boxes': concat0, 'scores': concat1};
   }
 
-  async build(outputOperand) {
-    this.graph_ = await this.builder_.build(
-        {'boxes': outputOperand.boxes, 'scores': outputOperand.scores});
+  build(outputOperand) {
+    this.graph_ = this.builder_.build(outputOperand);
   }
 
   // Release the constant tensors of a model
@@ -239,9 +238,15 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     }
   }
 
-  async compute(inputBuffer) {
-    const inputs = {input: {data: inputBuffer}};
-    const outputs = await this.graph_.compute(inputs);
+  compute(inputBuffer) {
+    const inputs = {'input': inputBuffer};
+    const boxesBuffer = new Float32Array(sizeOfShape([1, 1917, 1, 4]));
+    const scoresBuffer = new Float32Array(sizeOfShape([1, 1917, 91]));
+    const outputs = {
+      'boxes': boxesBuffer,
+      'scores': scoresBuffer,
+    };
+    this.graph_.compute(inputs, outputs);
     return outputs;
   }
 }

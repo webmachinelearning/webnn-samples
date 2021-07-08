@@ -101,22 +101,22 @@ async function renderCamStream() {
   const inputBuffer = getInputTensor(camElement, inputOptions);
   console.log('- Computing... ');
   const start = performance.now();
-  const outputs = await netInstance.compute(inputBuffer);
+  const outputBuffer = netInstance.compute(inputBuffer);
   computeTime = (performance.now() - start).toFixed(2);
   console.log(`  done in ${computeTime} ms.`);
   camElement.width = camElement.videoWidth;
   camElement.height = camElement.videoHeight;
   drawInput(camElement, 'camInCanvas');
   showPerfResult();
-  await drawOutput(outputs, labels);
+  await drawOutput(outputBuffer, labels);
   if (!shouldStopFrame) {
     requestAnimationFrame(renderCamStream);
   }
 }
 
-// Get top 3 classes of labels from output tensor
-function getTopClasses(tensor, labels) {
-  const probs = Array.from(tensor);
+// Get top 3 classes of labels from output buffer
+function getTopClasses(buffer, labels) {
+  const probs = Array.from(buffer);
   const indexes = probs.map((prob, index) => [prob, index]);
   const sorted = indexes.sort((a, b) => {
     if (a[0] === b[0]) {
@@ -152,9 +152,8 @@ function drawInput(srcElement, canvasId) {
   ctx.drawImage(srcElement, 0, 0, scaledWidth, scaledHeight);
 }
 
-async function drawOutput(outputs, labels) {
-  const outputTensor = outputs.output.data;
-  const labelClasses = getTopClasses(outputTensor, labels);
+async function drawOutput(outputBuffer, labels) {
+  const labelClasses = getTopClasses(outputBuffer, labels);
 
   $('#inferenceresult').show();
   labelClasses.forEach((c, i) => {
@@ -237,7 +236,7 @@ export async function main() {
       await showProgressComponent('done', 'current', 'pending');
       console.log('- Building... ');
       start = performance.now();
-      await netInstance.build(outputOperand);
+      netInstance.build(outputOperand);
       buildTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${buildTime} ms.`);
     }
@@ -248,10 +247,10 @@ export async function main() {
       console.log('- Computing... ');
       const computeTimeArray = [];
       let medianComputeTime;
-      let outputs;
+      let outputBuffer;
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
-        outputs = await netInstance.compute(inputBuffer);
+        outputBuffer = netInstance.compute(inputBuffer);
         computeTime = (performance.now() - start).toFixed(2);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);
         computeTimeArray.push(Number(computeTime));
@@ -261,11 +260,11 @@ export async function main() {
         medianComputeTime = medianComputeTime.toFixed(2);
         console.log(`  median compute time: ${medianComputeTime} ms`);
       }
-      console.log('output: ', outputs);
+      console.log('outputBuffer: ', outputBuffer);
       await showProgressComponent('done', 'done', 'done');
       readyShowResultComponents();
       drawInput(imgElement, 'inputCanvas');
-      await drawOutput(outputs, labels);
+      await drawOutput(outputBuffer, labels);
       showPerfResult(medianComputeTime);
     } else if (inputType === 'camera') {
       await getMediaStream();

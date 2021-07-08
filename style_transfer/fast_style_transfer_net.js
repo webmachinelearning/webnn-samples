@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy} from '../common/utils.js';
+import {buildConstantByNpy, sizeOfShape} from '../common/utils.js';
 
 /* eslint max-len: ["error", {"code": 130}] */
 
@@ -167,8 +167,8 @@ export class FastStyleTransferNet {
     return this.builder_.add(this.builder_.mul(this.builder_.tanh(add20), constMul0), constAdd0);
   }
 
-  async build(outputOperand) {
-    this.graph_ = await this.builder_.build({'output': outputOperand});
+  build(outputOperand) {
+    this.graph_ = this.builder_.build({'output': outputOperand});
   }
 
   // Release the constant tensors of a model
@@ -179,9 +179,12 @@ export class FastStyleTransferNet {
     }
   }
 
-  async compute(inputBuffer) {
-    const inputs = {input: {data: inputBuffer}};
-    const outputs = await this.graph_.compute(inputs);
-    return outputs;
+  compute(inputBuffer) {
+    const inputs = {'input': inputBuffer};
+    const outputShape = [1, 3, 540, 540];
+    const outputBuffer = new Float32Array(sizeOfShape(outputShape));
+    const outputs = {'output': outputBuffer};
+    this.graph_.compute(inputs, outputs);
+    return {outputBuffer, outputShape};
   }
 }

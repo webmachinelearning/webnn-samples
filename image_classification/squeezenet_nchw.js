@@ -65,8 +65,8 @@ export class SqueezeNetNchw {
     return this.builder_.softmax(reshape0);
   }
 
-  async build(outputOperand) {
-    this.graph_ = await this.builder_.build({'output': outputOperand});
+  build(outputOperand) {
+    this.graph_ = this.builder_.build({'output': outputOperand});
   }
 
   // Release the constant tensors of a model
@@ -77,9 +77,11 @@ export class SqueezeNetNchw {
     }
   }
 
-  async compute(inputBuffer) {
-    const inputs = {input: {data: inputBuffer}};
-    const outputs = await this.graph_.compute(inputs);
-    return outputs;
+  compute(inputBuffer) {
+    const inputs = {'input': inputBuffer};
+    const outputBuffer = new Float32Array(1000);
+    const outputs = {'output': outputBuffer};
+    this.graph_.compute(inputs, outputs);
+    return outputBuffer;
   }
 }
