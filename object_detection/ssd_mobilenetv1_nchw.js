@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy, sizeOfShape} from '../common/utils.js';
+import {buildConstantByNpy} from '../common/utils.js';
 
 const testDataURL = 'https://webmachinelearning.github.io/test-data';
 

@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy, sizeOfShape} from '../common/utils.js';
+import {buildConstantByNpy} from '../common/utils.js';
 
 // Tiny Yolo V2 model with 'nhwc' layout, trained on the Pascal VOC dataset.
 export class TinyYoloV2Nhwc {

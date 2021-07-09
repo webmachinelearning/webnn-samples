@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy, sizeOfShape} from '../common/utils.js';
+import {buildConstantByNpy} from '../common/utils.js';
 
 // SSD MobileNet V1 model with 'nhwc' layout, trained on the COCO dataset.
 export class SsdMobilenetV1Nhwc {
