@@ -259,15 +259,8 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     }
   }
 
-  compute(inputBuffer) {
+  compute(inputBuffer, outputs) {
     const inputs = {'input': inputBuffer};
-    const boxesBuffer = new Float32Array(sizeOfShape([1, 1917, 1, 4]));
-    const scoresBuffer = new Float32Array(sizeOfShape([1, 1917, 91]));
-    const outputs = {
-      'boxes': boxesBuffer,
-      'scores': scoresBuffer,
-    };
     this.graph_.compute(inputs, outputs);
-    return outputs;
   }
 }

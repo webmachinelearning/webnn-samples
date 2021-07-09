@@ -17,6 +17,7 @@ export class MobileNetV2Nchw {
       labelUrl: './labels/labels1000.txt',
       inputDimensions: [1, 3, 224, 224],
     };
+    this.outputDimensions = [1, 1000];
   }
 
   async buildConv_(input, name, relu6 = true, options = undefined) {
@@ -132,11 +133,9 @@ export class MobileNetV2Nchw {
     }
   }
 
-  compute(inputBuffer) {
+  compute(inputBuffer, outputBuffer) {
     const inputs = {'input': inputBuffer};
-    const outputBuffer = new Float32Array(1000);
     const outputs = {'output': outputBuffer};
     this.graph_.compute(inputs, outputs);
-    return outputBuffer;
   }
 }

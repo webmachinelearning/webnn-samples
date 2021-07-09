@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy, sizeOfShape} from '../common/utils.js';
+import {buildConstantByNpy} from '../common/utils.js';
 
 /* eslint max-len: ["error", {"code": 130}] */
 
@@ -13,6 +13,11 @@ export class FastStyleTransferNet {
     this.constAdd_ = null;
     this.weightsUrl_ = 'https://webmachinelearning.github.io/test-data/' +
         'models/fast_style_transfer_nchw/weights/';
+    this.inputOptions = {
+      inputDimensions: [1, 3, 540, 540],
+      inputLayout: 'nchw',
+    };
+    this.outputDimensions = [1, 3, 540, 540];
   }
 
   buildInstanceNormalization_(conv2D, variableMul, variableAdd) {
@@ -96,7 +101,7 @@ export class FastStyleTransferNet {
     const constAdd0 = this.builder_.constant(
         {type: 'float32', dimensions: [1]}, new Float32Array([127.5]));
     // Build up the network.
-    const input = this.builder_.input('input', {type: 'float32', dimensions: [1, 3, 540, 540]});
+    const input = this.builder_.input('input', {type: 'float32', dimensions: this.inputOptions.inputDimensions});
     const conv2D0 = this.builder_.conv2d(this.builder_.pad(input, padding4, {mode: 'reflection'}), weightConv0);
 
     const add0 = this.buildInstanceNormalization_(conv2D0, variableMul0, variableAdd0);
@@ -179,12 +184,9 @@ export class FastStyleTransferNet {
     }
   }
 
-  compute(inputBuffer) {
+  compute(inputBuffer, outputBuffer) {
     const inputs = {'input': inputBuffer};
-    const outputShape = [1, 3, 540, 540];
-    const outputBuffer = new Float32Array(sizeOfShape(outputShape));
     const outputs = {'output': outputBuffer};
     this.graph_.compute(inputs, outputs);
-    return {outputBuffer, outputShape};
   }
 }

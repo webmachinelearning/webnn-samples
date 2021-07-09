@@ -118,11 +118,9 @@ export class LeNet {
     this.graph_ = this.builder_.build({'output': outputOperand});
   }
 
-  predict(inputBuffer) {
+  predict(inputBuffer, outputBuffer) {
     const inputs = {'input': inputBuffer};
-    const outputBuffer = new Float32Array(10);
     const outputs = {'output': outputBuffer};
     this.graph_.compute(inputs, outputs);
-    return outputBuffer;
   }
 }

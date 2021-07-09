@@ -1,5 +1,6 @@
 'use strict';
 
+import {sizeOfShape} from '../common/utils.js';
 import {LeNet} from './lenet.js';
 import {Pen} from './pen.js';
 
@@ -88,17 +89,17 @@ export async function main() {
       }
 
       let start;
-      let result;
       let inferenceTime;
       const inferenceTimeArray = [];
       const input = getInputFromCanvas();
+      const outputBuffer = new Float32Array(sizeOfShape([1, 10]));
 
       for (let i = 0; i < n; i++) {
         start = performance.now();
-        result = lenet.predict(input);
+        lenet.predict(input, outputBuffer);
         inferenceTime = performance.now() - start;
         console.log(`execution elapsed time: ${inferenceTime.toFixed(2)} ms`);
-        console.log(`execution result: ${result}`);
+        console.log(`execution result: ${outputBuffer}`);
         inferenceTimeArray.push(inferenceTime);
       }
 
@@ -114,7 +115,7 @@ export async function main() {
             '</span> ms';
       }
 
-      const classes = topK(Array.from(result));
+      const classes = topK(Array.from(outputBuffer));
       classes.forEach((c, i) => {
         console.log(`\tlabel: ${c.label}, probability: ${c.prob}%`);
         const labelElement = document.getElementById(`label${i}`);

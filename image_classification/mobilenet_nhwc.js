@@ -18,6 +18,7 @@ export class MobileNetV2Nhwc {
       labelUrl: './labels/labels1001.txt',
       inputDimensions: [1, 224, 224, 3],
     };
+    this.outputDimensions = [1, 1001];
   }
 
   async buildConv_(input, weightsSubName, biasSubName, relu6, options) {
@@ -131,11 +132,9 @@ export class MobileNetV2Nhwc {
     }
   }
 
-  compute(inputBuffer) {
+  compute(inputBuffer, outputBuffer) {
     const inputs = {'input': inputBuffer};
-    const outputBuffer = new Float32Array(1001);
     const outputs = {'output': outputBuffer};
     this.graph_.compute(inputs, outputs);
-    return outputBuffer;
   }
 }

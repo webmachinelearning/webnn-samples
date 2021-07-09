@@ -2,7 +2,7 @@
 
 import {FastStyleTransferNet} from './fast_style_transfer_net.js';
 import {showProgressComponent, readyShowResultComponents} from '../common/ui.js';
-import {getInputTensor, getMedianValue} from '../common/utils.js';
+import {getInputTensor, getMedianValue, sizeOfShape} from '../common/utils.js';
 
 const maxWidth = 380;
 const maxHeight = 380;
@@ -19,10 +19,7 @@ let stream = null;
 let loadTime = 0;
 let buildTime = 0;
 let computeTime = 0;
-const inputOptions = {
-  inputDimensions: [1, 3, 540, 540],
-  inputLayout: 'nchw',
-};
+let outputBuffer;
 
 $(document).ready(() => {
   $('.icdisplay').hide();
@@ -101,17 +98,18 @@ function stopCamera() {
  * This method is used to render live camera tab.
  */
 async function renderCamStream() {
-  const inputBuffer = getInputTensor(camElement, inputOptions);
+  const inputBuffer =
+      getInputTensor(camElement, fastStyleTransferNet.inputOptions);
   console.log('- Computing... ');
   const start = performance.now();
-  const outputs = fastStyleTransferNet.compute(inputBuffer);
+  fastStyleTransferNet.compute(inputBuffer, outputBuffer);
   computeTime = (performance.now() - start).toFixed(2);
   console.log(`  done in ${computeTime} ms.`);
   camElement.width = camElement.videoWidth;
   camElement.height = camElement.videoHeight;
   drawInput(camElement, 'camInCanvas');
   showPerfResult();
-  await drawOutput(outputs, 'camInCanvas', 'camOutCanvas');
+  drawOutput('camInCanvas', 'camOutCanvas');
   if (!shouldStopFrame) {
     requestAnimationFrame(renderCamStream);
   }
@@ -129,9 +127,8 @@ function drawInput(srcElement, canvasId) {
   ctx.drawImage(srcElement, 0, 0, scaledWidth, scaledHeight);
 }
 
-async function drawOutput(outputs, inCanvasId, outCanvasId) {
-  const outputTensor = outputs.outputBuffer;
-  const outputSize = outputs.outputShape;
+function drawOutput(inCanvasId, outCanvasId) {
+  const outputSize = fastStyleTransferNet.outputDimensions;
   const height = outputSize[2];
   const width = outputSize[3];
   const mean = [1, 1, 1, 1];
@@ -141,9 +138,9 @@ async function drawOutput(outputs, inCanvasId, outCanvasId) {
 
   for (let i = 0; i < height * width; ++i) {
     const j = i * 4;
-    const r = outputTensor[i] * mean[0] + offset[0];
-    const g = outputTensor[i + height * width] * mean[1] + offset[1];
-    const b = outputTensor[i + height * width * 2] * mean[2] + offset[2];
+    const r = outputBuffer[i] * mean[0] + offset[0];
+    const g = outputBuffer[i + height * width] * mean[1] + offset[1];
+    const b = outputBuffer[i + height * width * 2] * mean[2] + offset[2];
     bytes[j + 0] = Math.round(r);
     bytes[j + 1] = Math.round(g);
     bytes[j + 2] = Math.round(b);
@@ -207,6 +204,8 @@ export async function main() {
         fastStyleTransferNet.dispose();
       }
       fastStyleTransferNet = new FastStyleTransferNet();
+      outputBuffer =
+          new Float32Array(sizeOfShape(fastStyleTransferNet.outputDimensions));
       isFirstTimeLoad = false;
       isModelChanged = false;
       console.log(`- Model ID: ${modelId} -`);
@@ -228,14 +227,14 @@ export async function main() {
     // UI shows inferencing progress
     await showProgressComponent('done', 'done', 'current');
     if (inputType === 'image') {
-      const inputBuffer = getInputTensor(imgElement, inputOptions);
+      const inputBuffer =
+          getInputTensor(imgElement, fastStyleTransferNet.inputOptions);
       console.log('- Computing... ');
       const computeTimeArray = [];
       let medianComputeTime;
-      let outputs;
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
-        outputs = fastStyleTransferNet.compute(inputBuffer);
+        fastStyleTransferNet.compute(inputBuffer, outputBuffer);
         computeTime = (performance.now() - start).toFixed(2);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);
         computeTimeArray.push(Number(computeTime));
@@ -248,7 +247,7 @@ export async function main() {
       await showProgressComponent('done', 'done', 'done');
       readyShowResultComponents();
       drawInput(imgElement, 'inputCanvas');
-      await drawOutput(outputs, 'inputCanvas', 'outputCanvas');
+      drawOutput('inputCanvas', 'outputCanvas');
       showPerfResult(medianComputeTime);
     } else if (inputType === 'camera') {
       await getMediaStream();

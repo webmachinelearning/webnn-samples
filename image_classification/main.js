@@ -7,7 +7,7 @@ import {SqueezeNetNhwc} from './squeezenet_nhwc.js';
 import {ResNet50V2Nchw} from './resnet50v2_nchw.js';
 import {ResNet101V2Nhwc} from './resnet101v2_nhwc.js';
 import {showProgressComponent, readyShowResultComponents} from '../common/ui.js';
-import {getInputTensor, getMedianValue} from '../common/utils.js';
+import {getInputTensor, getMedianValue, sizeOfShape} from '../common/utils.js';
 
 const maxWidth = 380;
 const maxHeight = 380;
@@ -27,6 +27,7 @@ let loadTime = 0;
 let buildTime = 0;
 let computeTime = 0;
 let inputOptions;
+let outputBuffer;
 
 async function fetchLabels(url) {
   const response = await fetch(url);
@@ -101,7 +102,7 @@ async function renderCamStream() {
   const inputBuffer = getInputTensor(camElement, inputOptions);
   console.log('- Computing... ');
   const start = performance.now();
-  const outputBuffer = netInstance.compute(inputBuffer);
+  netInstance.compute(inputBuffer, outputBuffer);
   computeTime = (performance.now() - start).toFixed(2);
   console.log(`  done in ${computeTime} ms.`);
   camElement.width = camElement.videoWidth;
@@ -223,6 +224,8 @@ export async function main() {
       netInstance = constructNetObject(instanceType);
       inputOptions = netInstance.inputOptions;
       labels = await fetchLabels(inputOptions.labelUrl);
+      outputBuffer =
+          new Float32Array(sizeOfShape(netInstance.outputDimensions));
       isFirstTimeLoad = false;
       console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
       // UI shows model loading progress
@@ -247,10 +250,9 @@ export async function main() {
       console.log('- Computing... ');
       const computeTimeArray = [];
       let medianComputeTime;
-      let outputBuffer;
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
-        outputBuffer = netInstance.compute(inputBuffer);
+        netInstance.compute(inputBuffer, outputBuffer);
         computeTime = (performance.now() - start).toFixed(2);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);
         computeTimeArray.push(Number(computeTime));

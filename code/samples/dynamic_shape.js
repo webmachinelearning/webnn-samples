@@ -9,7 +9,7 @@ const b = builder.input('b', descB);
 const c = builder.matmul(a, b);
 const graph = builder.build({'c': c});
 
-function allocateAndCompute(shapeA, shapeB, shapeC) {
+function compute(shapeA, shapeB, shapeC) {
   const bufferA = new Float32Array(sizeOfShape(shapeA)).fill(0.5);
   const bufferB = new Float32Array(sizeOfShape(shapeB)).fill(0.5);
   const bufferC = new Float32Array(sizeOfShape(shapeC));
@@ -24,6 +24,6 @@ function allocateAndCompute(shapeA, shapeB, shapeC) {
   console.log(`values: ${bufferC}`);
 }
 
-allocateAndCompute([3, 4], [4, 3], [3, 3]);
-allocateAndCompute([4, 4], [4, 4], [4, 4]);
-allocateAndCompute([5, 4], [4, 5], [5, 5]);
+compute([3, 4], [4, 3], [3, 3]);
+compute([4, 4], [4, 4], [4, 4]);
+compute([5, 4], [4, 5], [5, 5]);

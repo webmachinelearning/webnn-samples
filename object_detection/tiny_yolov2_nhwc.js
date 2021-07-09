@@ -17,6 +17,7 @@ export class TinyYoloV2Nhwc {
       inputDimensions: [1, 416, 416, 3],
       norm: true,
     };
+    this.outputDimensions = [1, 13, 13, 125];
   }
 
   async buildConv_(input, name) {
@@ -84,11 +85,8 @@ export class TinyYoloV2Nhwc {
     }
   }
 
-  compute(inputBuffer) {
+  compute(inputBuffer, outputs) {
     const inputs = {'input': inputBuffer};
-    const outputBuffer = new Float32Array(sizeOfShape([1, 13, 13, 125]));
-    const outputs = {'output': outputBuffer};
     this.graph_.compute(inputs, outputs);
-    return outputs;
   }
 }
