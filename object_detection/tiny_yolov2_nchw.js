@@ -16,6 +16,7 @@ export class TinyYoloV2Nchw {
       anchors: [1.08, 1.19, 3.42, 4.41, 6.63, 11.38, 9.42, 5.11, 16.62, 10.52],
       inputDimensions: [1, 3, 416, 416],
     };
+    this.outputDimensions = [1, 125, 13, 13];
   }
 
   async buildConv_(input, name, useBias = false) {
@@ -91,8 +92,8 @@ export class TinyYoloV2Nchw {
     return conv;
   }
 
-  async build(outputOperand) {
-    this.graph_ = await this.builder_.build({'output': outputOperand});
+  build(outputOperand) {
+    this.graph_ = this.builder_.build({'output': outputOperand});
   }
 
   // Release the constant tensors of a model
@@ -103,9 +104,8 @@ export class TinyYoloV2Nchw {
     }
   }
 
-  async compute(inputBuffer) {
-    const inputs = {input: {data: inputBuffer}};
-    const outputs = await this.graph_.compute(inputs);
-    return outputs;
+  compute(inputBuffer, outputs) {
+    const inputs = {'input': inputBuffer};
+    this.graph_.compute(inputs, outputs);
   }
 }

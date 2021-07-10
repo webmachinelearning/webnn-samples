@@ -247,9 +247,8 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     return {'boxes': concat0, 'scores': concat1};
   }
 
-  async build(outputOperand) {
-    this.graph_ = await this.builder_.build(
-        {'boxes': outputOperand.boxes, 'scores': outputOperand.scores});
+  build(outputOperand) {
+    this.graph_ = this.builder_.build(outputOperand);
   }
 
   // Release the constant tensors of a model
@@ -260,9 +259,8 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     }
   }
 
-  async compute(inputBuffer) {
-    const inputs = {input: {data: inputBuffer}};
-    const outputs = await this.graph_.compute(inputs);
-    return outputs;
+  compute(inputBuffer, outputs) {
+    const inputs = {'input': inputBuffer};
+    this.graph_.compute(inputs, outputs);
   }
 }

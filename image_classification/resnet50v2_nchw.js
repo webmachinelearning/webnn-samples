@@ -17,6 +17,7 @@ export class ResNet50V2Nchw {
       labelUrl: './labels/labels1000.txt',
       inputDimensions: [1, 3, 224, 224],
     };
+    this.outputDimensions = [1, 1000];
   }
 
   async buildConv_(input, name, stageName, options = undefined) {
@@ -149,8 +150,8 @@ export class ResNet50V2Nchw {
     return this.builder_.softmax(gemm);
   }
 
-  async build(outputOperand) {
-    this.graph_ = await this.builder_.build({'output': outputOperand});
+  build(outputOperand) {
+    this.graph_ = this.builder_.build({'output': outputOperand});
   }
 
   // Release the constant tensors of a model
@@ -161,9 +162,9 @@ export class ResNet50V2Nchw {
     }
   }
 
-  async compute(inputBuffer) {
-    const inputs = {input: {data: inputBuffer}};
-    const outputs = await this.graph_.compute(inputs);
-    return outputs;
+  compute(inputBuffer, outputBuffer) {
+    const inputs = {'input': inputBuffer};
+    const outputs = {'output': outputBuffer};
+    this.graph_.compute(inputs, outputs);
   }
 }

@@ -1,10 +1,7 @@
 import {samplesRepo} from './samples_repo.js';
+import {sizeOfShape} from '../common/utils.js';
 
-window.sizeOfShape = function(shape) {
-  return shape.reduce((a, b) => {
-    return a * b;
-  });
-};
+window.sizeOfShape = sizeOfShape;
 
 export function main() {
   const selectElement = document.getElementById('example-select');

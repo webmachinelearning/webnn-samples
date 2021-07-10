@@ -5,7 +5,7 @@ import {TinyYoloV2Nhwc} from './tiny_yolov2_nhwc.js';
 import {SsdMobilenetV1Nchw} from './ssd_mobilenetv1_nchw.js';
 import {SsdMobilenetV1Nhwc} from './ssd_mobilenetv1_nhwc.js';
 import {showProgressComponent, readyShowResultComponents} from '../common/ui.js';
-import {getInputTensor, getMedianValue} from '../common/utils.js';
+import {getInputTensor, getMedianValue, sizeOfShape} from '../common/utils.js';
 import * as Yolo2Decoder from './libs/yolo2Decoder.js';
 import * as SsdDecoder from './libs/ssdDecoder.js';
 
@@ -25,6 +25,7 @@ let loadTime = 0;
 let buildTime = 0;
 let computeTime = 0;
 let inputOptions;
+let outputs;
 
 async function fetchLabels(url) {
   const response = await fetch(url);
@@ -99,7 +100,7 @@ async function renderCamStream() {
   const inputBuffer = getInputTensor(camElement, inputOptions);
   console.log('- Computing... ');
   const start = performance.now();
-  const outputs = await netInstance.compute(inputBuffer);
+  netInstance.compute(inputBuffer, outputs);
   computeTime = (performance.now() - start).toFixed(2);
   console.log(`  done in ${computeTime} ms.`);
   camElement.width = camElement.videoWidth;
@@ -117,12 +118,10 @@ async function drawOutput(inputElement, outputs, labels) {
 
   // Draw output for SSD Mobilenet V1 model
   if (modelName === 'ssdmobilenetv1') {
-    const boxesTensor = outputs.boxes.data;
-    const scoresTensor = outputs.scores.data;
     const anchors = SsdDecoder.generateAnchors({});
-    SsdDecoder.decodeOutputBoxTensor({}, boxesTensor, anchors);
+    SsdDecoder.decodeOutputBoxTensor({}, outputs.boxes, anchors);
     let [totalDetections, boxesList, scoresList, classesList] =
-        SsdDecoder.nonMaxSuppression({}, boxesTensor, scoresTensor);
+        SsdDecoder.nonMaxSuppression({}, outputs.boxes, outputs.scores);
     boxesList = SsdDecoder.cropSsdBox(
         inputElement, totalDetections, boxesList, inputOptions.margin);
     SsdDecoder.drawBoxes(
@@ -130,18 +129,19 @@ async function drawOutput(inputElement, outputs, labels) {
         boxesList, scoresList, classesList, labels);
   } else {
     // Draw output for Tiny Yolo V2 model
-    let outputTensor = outputs.output.data;
     // Transpose 'nchw' output to 'nhwc' for postprocessing
+    let outputBuffer = outputs.output;
     if (layout === 'nchw') {
       const tf = navigator.ml.createContext().tf;
-      const a = tf.tensor(outputTensor, outputs.output.dimensions, 'float32');
+      const a =
+          tf.tensor(outputBuffer, netInstance.outputDimensions, 'float32');
       const b = tf.transpose(a, [0, 2, 3, 1]);
       const buffer = await b.buffer();
       tf.dispose();
-      outputTensor = buffer.values;
+      outputBuffer = buffer.values;
     }
     const decodeOut = Yolo2Decoder.decodeYOLOv2({numClasses: 20},
-        outputTensor, inputOptions.anchors);
+        outputBuffer, inputOptions.anchors);
     const boxes = Yolo2Decoder.getBoxes(decodeOut, inputOptions.margin);
     Yolo2Decoder.drawBoxes(inputElement, outputElement, boxes, labels);
   }
@@ -204,6 +204,16 @@ export async function main() {
       netInstance = constructNetObject(instanceType);
       inputOptions = netInstance.inputOptions;
       labels = await fetchLabels(inputOptions.labelUrl);
+      if (modelName === 'tinyyolov2') {
+        outputs = {
+          'output': new Float32Array(sizeOfShape(netInstance.outputDimensions)),
+        };
+      } else {
+        outputs = {
+          'boxes': new Float32Array(sizeOfShape([1, 1917, 1, 4])),
+          'scores': new Float32Array(sizeOfShape([1, 1917, 91])),
+        };
+      }
       isFirstTimeLoad = false;
       console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
       // UI shows model loading progress
@@ -217,7 +227,7 @@ export async function main() {
       await showProgressComponent('done', 'current', 'pending');
       console.log('- Building... ');
       start = performance.now();
-      await netInstance.build(outputOperand);
+      netInstance.build(outputOperand);
       buildTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${buildTime} ms.`);
     }
@@ -228,10 +238,9 @@ export async function main() {
       console.log('- Computing... ');
       const computeTimeArray = [];
       let medianComputeTime;
-      let outputs;
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
-        outputs = await netInstance.compute(inputBuffer);
+        netInstance.compute(inputBuffer, outputs);
         computeTime = (performance.now() - start).toFixed(2);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);
         computeTimeArray.push(Number(computeTime));

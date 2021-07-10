@@ -1,5 +1,6 @@
 import {NSNet2} from './nsnet2.js';
 import * as featurelib from './featurelib.js';
+import {sizeOfShape} from '../common/utils.js';
 
 export class Denoiser {
   constructor(batchSize, frames, sampleRate) {
@@ -39,7 +40,7 @@ export class Denoiser {
         setTimeout(async () => {
           try {
             const start = performance.now();
-            await this.nsnet.build(outputOperand);
+            this.nsnet.build(outputOperand);
             const modelBuildTime = performance.now() - start;
             this.log(`done in <span class='text-primary'>` +
                 `${modelBuildTime.toFixed(2)}</span> ms.`, true);
@@ -83,6 +84,14 @@ export class Denoiser {
         new Float32Array(1 * this.batchSize * this.nsnet.hiddenSize);
     let initialHiddenState155Buffer =
         new Float32Array(1 * this.batchSize * this.nsnet.hiddenSize);
+    const outputShape = [this.batchSize, this.frames, this.nsnet.frameSize];
+    const gru94Shape =
+        [this.batchSize, 1, this.batchSize, this.nsnet.hiddenSize];
+    const gru157Shape =
+        [this.batchSize, 1, this.batchSize, this.nsnet.hiddenSize];
+    const outputBuffer = new Float32Array(sizeOfShape(outputShape));
+    const gru94Buffer = new Float32Array(sizeOfShape(gru94Shape));
+    const gru157Buffer = new Float32Array(sizeOfShape(gru157Shape));
     for (let frame = 0; !lastIteration; frame += this.frames - overlap * 2) {
       lastIteration = frame + this.frames + 1 > audioFrames;
       const audioSize = sizePerFrame * (this.frames + 1);
@@ -106,16 +115,17 @@ export class Denoiser {
       inputFeature.dispose();
       const calcFeatTime = (performance.now() - start).toFixed(2);
       start = performance.now();
-      const outputs = await this.nsnet.compute(
-          inputData, initialHiddenState92Buffer, initialHiddenState155Buffer);
+      const outputs = this.nsnet.compute(
+          inputData, initialHiddenState92Buffer, initialHiddenState155Buffer,
+          outputBuffer, gru94Buffer, gru157Buffer);
       const computeTime = (performance.now() - start).toFixed(2);
-      initialHiddenState92Buffer = outputs.gru94.data;
-      initialHiddenState155Buffer = outputs.gru157.data;
+      initialHiddenState92Buffer = outputs.gru94;
+      initialHiddenState155Buffer = outputs.gru157;
       start = performance.now();
       let sliceStart;
       let sliceSize;
       const sigOut = tf.tidy(() => {
-        const out = tf.tensor(outputs.output.data, outputs.output.dimensions);
+        const out = tf.tensor(outputs.output, outputShape);
         let Gain = tf.transpose(out);
         Gain = tf.clipByValue(Gain, this.mingain, 1.0);
         // Workaround tf.js WebGL backend for complex data.

@@ -10,7 +10,7 @@ export class NSNet2 {
   constructor() {
     this.builder_ = null;
     this.graph_ = null;
-    this.frameSize_ = 161;
+    this.frameSize = 161;
     this.hiddenSize = 400;
   }
 
@@ -35,7 +35,7 @@ export class NSNet2 {
     const weight217 = await buildConstantByNpy(this.builder_, baseUrl + '217.npy');
     const biasFcOut4 = await buildConstantByNpy(this.builder_, baseUrl + 'fc_out_4_bias.npy');
     // Build up the network.
-    const input = this.builder_.input('input', {type: 'float32', dimensions: [batchSize, frames, this.frameSize_]});
+    const input = this.builder_.input('input', {type: 'float32', dimensions: [batchSize, frames, this.frameSize]});
     const relu20 = this.builder_.relu(this.builder_.add(this.builder_.matmul(input, weight172), biasFcIn0));
     const transpose31 = this.builder_.transpose(relu20, {permutation: [1, 0, 2]});
     const initialState92 = this.builder_.input(
@@ -55,16 +55,22 @@ export class NSNet2 {
     return {output, gru94, gru157};
   }
 
-  async build(outputOperand) {
-    this.graph_ = await this.builder_.build(outputOperand);
+  build(outputOperand) {
+    this.graph_ = this.builder_.build(outputOperand);
   }
 
-  async compute(inputBuffer, initialState92Buffer, initialState155Buffer) {
+  compute(inputBuffer, initialState92Buffer, initialState155Buffer, outputBuffer, gru94Buffer, gru157Buffer) {
     const inputs = {
-      input: {data: inputBuffer},
-      initialState92: {data: initialState92Buffer},
-      initialState155: {data: initialState155Buffer},
+      'input': inputBuffer,
+      'initialState92': initialState92Buffer,
+      'initialState155': initialState155Buffer,
     };
-    return await this.graph_.compute(inputs);
+    const outputs = {
+      'output': outputBuffer,
+      'gru94': gru94Buffer,
+      'gru157': gru157Buffer,
+    };
+    this.graph_.compute(inputs, outputs);
+    return outputs;
   }
 }
