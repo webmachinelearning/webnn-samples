@@ -16,6 +16,7 @@ export class SqueezeNetNhwc {
       labelUrl: './labels/labels1001.txt',
       inputDimensions: [1, 224, 224, 3],
     };
+    this.outputDimensions = [1, 1001];
   }
 
   async buildConv_(input, name, options = undefined) {
@@ -73,8 +74,8 @@ export class SqueezeNetNhwc {
     return this.builder_.softmax(reshape);
   }
 
-  async build(outputOperand) {
-    this.graph_ = await this.builder_.build({'output': outputOperand});
+  build(outputOperand) {
+    this.graph_ = this.builder_.build({'output': outputOperand});
   }
 
   // Release the constant tensors of a model
@@ -85,9 +86,9 @@ export class SqueezeNetNhwc {
     }
   }
 
-  async compute(inputBuffer) {
-    const inputs = {input: {data: inputBuffer}};
-    const outputs = await this.graph_.compute(inputs);
-    return outputs;
+  compute(inputBuffer, outputBuffer) {
+    const inputs = {'input': inputBuffer};
+    const outputs = {'output': outputBuffer};
+    this.graph_.compute(inputs, outputs);
   }
 }

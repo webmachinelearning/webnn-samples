@@ -4,7 +4,6 @@ const samples = [
   'simple_graph.js',
   'matmul.js',
   'dynamic_shape.js',
-  'preallocated_outputs.js',
   'optional_outputs.js',
 ];
 

@@ -13,6 +13,11 @@ export class FastStyleTransferNet {
     this.constAdd_ = null;
     this.weightsUrl_ = 'https://webmachinelearning.github.io/test-data/' +
         'models/fast_style_transfer_nchw/weights/';
+    this.inputOptions = {
+      inputDimensions: [1, 3, 540, 540],
+      inputLayout: 'nchw',
+    };
+    this.outputDimensions = [1, 3, 540, 540];
   }
 
   buildInstanceNormalization_(conv2D, variableMul, variableAdd) {
@@ -96,7 +101,7 @@ export class FastStyleTransferNet {
     const constAdd0 = this.builder_.constant(
         {type: 'float32', dimensions: [1]}, new Float32Array([127.5]));
     // Build up the network.
-    const input = this.builder_.input('input', {type: 'float32', dimensions: [1, 3, 540, 540]});
+    const input = this.builder_.input('input', {type: 'float32', dimensions: this.inputOptions.inputDimensions});
     const conv2D0 = this.builder_.conv2d(this.builder_.pad(input, padding4, {mode: 'reflection'}), weightConv0);
 
     const add0 = this.buildInstanceNormalization_(conv2D0, variableMul0, variableAdd0);
@@ -167,8 +172,8 @@ export class FastStyleTransferNet {
     return this.builder_.add(this.builder_.mul(this.builder_.tanh(add20), constMul0), constAdd0);
   }
 
-  async build(outputOperand) {
-    this.graph_ = await this.builder_.build({'output': outputOperand});
+  build(outputOperand) {
+    this.graph_ = this.builder_.build({'output': outputOperand});
   }
 
   // Release the constant tensors of a model
@@ -179,9 +184,9 @@ export class FastStyleTransferNet {
     }
   }
 
-  async compute(inputBuffer) {
-    const inputs = {input: {data: inputBuffer}};
-    const outputs = await this.graph_.compute(inputs);
-    return outputs;
+  compute(inputBuffer, outputBuffer) {
+    const inputs = {'input': inputBuffer};
+    const outputs = {'output': outputBuffer};
+    this.graph_.compute(inputs, outputs);
   }
 }
