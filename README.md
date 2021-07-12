@@ -13,7 +13,8 @@
 ### Setup & Run
 
 ```sh
-> npm install
+>  git clone --recurse-submodules https://github.com/webmachinelearning/webnn-samples
+> cd webnn-samples & npm install
 > npm start
 ```
 

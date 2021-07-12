@@ -11,8 +11,7 @@ export class FastStyleTransferNet {
     this.graph_ = null;
     this.constPow_ = null;
     this.constAdd_ = null;
-    this.weightsUrl_ = 'https://webmachinelearning.github.io/test-data/' +
-        'models/fast_style_transfer_nchw/weights/';
+    this.weightsUrl_ = '../test-data/models/fast_style_transfer_nchw/weights/';
     this.inputOptions = {
       inputDimensions: [1, 3, 540, 540],
       inputLayout: 'nchw',
