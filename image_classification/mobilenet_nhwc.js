@@ -9,8 +9,7 @@ export class MobileNetV2Nhwc {
   constructor() {
     this.builder_ = null;
     this.graph_ = null;
-    this.weightsUrl_ = 'https://webmachinelearning.github.io/test-data/' +
-    'models/mobilenetv2_nhwc/weights/';
+    this.weightsUrl_ = '../test-data/models/mobilenetv2_nhwc/weights/';
     this.inputOptions = {
       mean: [127.5, 127.5, 127.5],
       std: [127.5, 127.5, 127.5],
