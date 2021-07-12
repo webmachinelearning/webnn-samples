@@ -7,8 +7,7 @@ export class TinyYoloV2Nhwc {
   constructor() {
     this.builder_ = null;
     this.graph_ = null;
-    this.weightsUrl_ = 'https://webmachinelearning.github.io/test-data/' +
-        'models/tiny_yolov2_nhwc/weights/';
+    this.weightsUrl_ = '../test-data/models/tiny_yolov2_nhwc/weights/';
     this.inputOptions = {
       inputLayout: 'nhwc',
       labelUrl: './labels/pascal_classes.txt',
