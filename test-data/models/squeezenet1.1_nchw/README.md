@@ -1,0 +1,2 @@
+`.npy` files under `weights` folder are downloaded from model of [SqueezeNet 1.1](https://github.com/onnx/models/tree/master/vision/classification/squeezenet),
+`.npy` files under `test_data_set` folder are created by Intel, which are all licensed under the Apache 2.0.

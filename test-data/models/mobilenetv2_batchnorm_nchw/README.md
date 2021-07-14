@@ -1,0 +1,1 @@
+`.npy` files under this folder are downloaded from model of [MobileNet V2 (BatchNormalization)](https://s3.amazonaws.com/onnx-model-zoo/mobilenet/mobilenetv2-1.0/mobilenetv2-1.0.tar.gz), which is licensed under the Apache 2.0.

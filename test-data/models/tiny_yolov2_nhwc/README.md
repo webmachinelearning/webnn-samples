@@ -1,0 +1,1 @@
+`.npy` files under this folder are downloaded from model of Tiny YOLO v2, which is converted from [YAD2K project](https://github.com/allanzelener/YAD2K) and  licensed under the MIT.

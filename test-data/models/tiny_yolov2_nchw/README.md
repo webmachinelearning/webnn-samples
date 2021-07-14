@@ -1,0 +1,1 @@
+`.npy` files under this folder are downloaded from model of [Tiny YOLO v2](https://github.com/onnx/models/blob/master/vision/object_detection_segmentation/tiny-yolov2/model/tinyyolov2-8.tar.gz), which is licensed under the Apache 2.0.

@@ -1,0 +1,1 @@
+`lenet.bin` file under this folder is copied from [the LeNet example of OpenVINO*](https://github.com/openvinotoolkit/openvino/blob/master/inference-engine/samples/ngraph_function_creation_sample/), which is licensed under the Apache 2.0.

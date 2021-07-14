@@ -1,0 +1,1 @@
+`.npy` files under this folder are downloaded from models of [Fast Style Transfer](https://github.com/acerwebai/VangoghCrazyWorld) from Vangogh Crazy World project, which is licensed under the MIT.

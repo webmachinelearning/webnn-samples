@@ -1,0 +1,1 @@
+`.npy` files under this folder are downloaded from model of [ResNet101 V2](https://storage.googleapis.com/download.tensorflow.org/models/tflite_11_05_08/resnet_v2_101.tgz), which is licensed under the Apache 2.0.
