@@ -30,7 +30,7 @@
         <div class="btn-group-toggle" data-toggle="buttons" id="modelBtns">
           <label class="mr-3">Model: </label>
           <label class="btn btn-outline-info btn-sm mr-2 active">
-            <input type="radio" name="model" id="mobilenet" autocomplete="off" checked>MobileNet V2
+            <input type="radio" name="model" id="mobilenet" autocomplete="off">MobileNet V2
           </label>
           <label class="btn btn-outline-info btn-sm mr-2">
             <input type="radio" name="model" id="squeezenet" autocomplete="off">SqueezeNet
@@ -69,6 +69,10 @@
         </div>
       </div>
     </div>
+    <div class='tab-content text-center mt-5 col-sm' id='hint'>
+      <h2 class="text-uppercase text-warning">No model selected</h2>
+      <p class="font-weight-lighter">Please select model and layout then click 'Predict' button to start prediction.</p>
+    </div>
     <div class='tab-content clearfix row'>
       <div class='tab-pane text-center active col-sm' id='imagetab'>
         <div class='icdisplay'>
@@ -76,7 +80,7 @@
             <div class='row'>
               <div class='col bt-3 mb-3' style='display: flex;'>
                 <div id='div-photos' style='margin: auto; display: flex;' title='Original image'>
-                  <img id='feedElement' hidden crossorigin='anonymous' class='img-fluid' alt='Responsive image' src=''>
+                  <img id='feedElement' hidden crossorigin='anonymous' class='img-fluid' alt='Responsive image'>
                   <canvas id='inputCanvas'></canvas>
                 </div>
               </div>
@@ -172,12 +176,7 @@
     // To restore module after loading 3rd-party libraries.
     if (window.tempModule) module = window.tempModule;
   </script>
-  <script type="module">
-    import { main } from './main.js';
-    window.onload = function () {
-      main();
-    }
-  </script>
+  <script type="module" src='./main.js'></script>
 </body>
 
 </html>
