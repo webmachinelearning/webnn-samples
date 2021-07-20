@@ -297,3 +297,185 @@
   content: "|";
   color: #17a2b8;
 }
+
+#semanticsegmentation #feedElement {
+  display: none;
+}
+
+#semanticsegmentation #canvas {
+  display: block;
+  max-width: 1539px;
+  max-height: 1539px;
+}
+
+@media (max-width: 768px) {
+  #semanticsegmentation #canvas {
+    max-width: 1539px;
+    max-height: 1539px;
+  }
+}
+
+#semanticsegmentation .tab-content {
+  margin: 0px auto;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#semanticsegmentation .slidecontainer {
+  margin: 0 0.5rem;
+  height: 20px;
+  width: 100%;
+}
+#semanticsegmentation .slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 1px;
+  border-radius: 1px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+#semanticsegmentation .slider:hover {
+  opacity: 1;
+}
+#semanticsegmentation .slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #777;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+}
+#semanticsegmentation .slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #777;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+}
+#semanticsegmentation .controls {
+  font-size: 0.8rem;
+}
+#semanticsegmentation .controls .label {
+  width: 100%;
+  margin: 10px 0 8px 0.5rem;
+}
+#semanticsegmentation .controls .btn-group {
+  width: 100%;
+  border-radius: 0px;
+}
+#semanticsegmentation .btn {
+  border: 0px;
+  border-bottom: 1px rgba(25, 190, 225, 1.0) solid;
+  background: rgba(255, 255, 255, 1.0) !important;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  color: #333;
+  font-weight: 200;
+}
+
+#semanticsegmentation .controls .btn-group .btn.active {
+  outline: 0;
+  -webkit-box-shadow: none;
+          box-shadow: none;
+  color: rgba(25, 190, 225, 1.0);
+  border: 1px rgba(25, 190, 225, 1.0) solid;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+#semanticsegmentation .controls .btn-group .btn.active:hover {
+  background: rgba(213, 213, 213, 0.15) !important;
+}
+
+#semanticsegmentation .controls .btn:hover {
+  color: rgba(15, 76, 129, 1.0);
+  background: rgba(213, 213, 213, 0.15) !important;
+  border: 1px rgba(15, 76, 129, 1.0) solid;
+}
+
+#semanticsegmentation .controls .btn-group .btn, #semanticsegmentation .btn {
+  width: 24%;
+  border-radius: 0px;
+  padding: 4px;
+  margin: 0.5rem;
+}
+#semanticsegmentation .effects-select label:nth-child(1) {
+  margin-right: 5px;
+}
+#semanticsegmentation .effects-select label:nth-child(2) {
+}
+
+#semanticsegmentation .blur-wrapper,
+#semanticsegmentation .color-picker-wrapper,
+#semanticsegmentation .labels-wrapper,
+#semanticsegmentation .color-map-alpha-wrapper,
+#semanticsegmentation .refine-edge-wrapper,
+#semanticsegmentation .select-bg-wrapper {
+  display: none;
+}
+#semanticsegmentation .controls[data-select="blur"] .blur-wrapper {
+  display: flex;
+}
+#semanticsegmentation .controls[data-select="fill"] .color-picker-wrapper {
+  display: flex;
+}
+#semanticsegmentation .controls[data-select="label"] .labels-wrapper,
+#semanticsegmentation .controls[data-select="label"] .color-map-alpha-wrapper {
+  display: flex;
+}
+#semanticsegmentation .controls:not([data-select="label"]) .refine-edge-wrapper {
+  display: flex;
+}
+#semanticsegmentation .controls[data-select="image"] .select-bg-wrapper {
+  display: flex;
+}
+#semanticsegmentation .labels-wrapper {
+  margin: 1em 0;
+  font-size: 14px;
+}
+#semanticsegmentation .seg-label.highlight {
+  color: #fff;
+  background: rgba(25, 190, 225, 1.0);
+}
+#semanticsegmentation .seg-label span {
+  margin-right: 5px;
+}
+#semanticsegmentation .seg-label {
+  transition: color .1s ease-in, background-color .1s ease-in;
+  padding: 3px 10px 3px 10px;
+  border-radius: 15px;
+  height: 30px;
+  font-variant: small-caps;
+}
+#semanticsegmentation .select-bg-wrapper .btn {
+  width: auto !important;
+}
+
+#semanticsegmentation video {
+  display: none;
+}
+
+#semanticsegmentation #outputCanvas {
+  width: 100%;
+  max-width: 1539px;
+  max-height: 1539px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.2), inset 0 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+@media (max-width: 768px) {
+  #semanticsegmentation #outputCanvas {
+    max-width: 1539px;
+    max-height: 1539px;
+  }
+}

@@ -72,6 +72,8 @@ export async function buildConstantByNpy(builder, url) {
  *       element. If not specified, it will be set to [1, 1, 1, 1].
  *     norm: {Boolean}, // optional, normlization flag. If not specified,
  *       it will be set to false.
+ *     scaledFlag: {boolean}, // optional, scaling flag. If specified,
+ *       scale the width and height of the input element.
  * };
  * @return {Object} tensor, an object of input tensor.
  */
@@ -89,6 +91,7 @@ export function getInputTensor(inputElement, inputOptions) {
   const mean = inputOptions.mean || [0, 0, 0, 0];
   const std = inputOptions.std || [1, 1, 1, 1];
   const normlizationFlag = inputOptions.norm || false;
+  const scaledFlag = inputOptions.scaledFlag || false;
   const inputLayout = inputOptions.inputLayout;
   const imageChannels = 4; // RGBA
 
@@ -99,7 +102,16 @@ export function getInputTensor(inputElement, inputOptions) {
   canvasElement.width = width;
   canvasElement.height = height;
   const canvasContext = canvasElement.getContext('2d');
-  canvasContext.drawImage(inputElement, 0, 0, width, height);
+
+  if (scaledFlag) {
+    const resizeRatio = Math.max(
+        Math.max(inputElement.width / width, inputElement.height / height), 1);
+    const scaledWidth = Math.floor(inputElement.width / resizeRatio);
+    const scaledHeight = Math.floor(inputElement.height / resizeRatio);
+    canvasContext.drawImage(inputElement, 0, 0, scaledWidth, scaledHeight);
+  } else {
+    canvasContext.drawImage(inputElement, 0, 0, width, height);
+  }
 
   let pixels = canvasContext.getImageData(0, 0, width, height).data;
 

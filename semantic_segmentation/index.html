@@ -1,0 +1,213 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>WebNN Semantic Segmentation Example</title>
+  <link href='../common/css/style.css' rel='stylesheet'>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+</head>
+
+<body>
+  <nav class='navbar navbar-expand-md navbar-dark bg-dark' style='width:100%'>
+    <span class='navbar-brand mb-0 h1'>WebNN Semantic Segmentation Example</span>
+  </nav>
+  <div class='container' id='container'>
+    <div class="row align-items-start mb-3 mt-3">
+      <div class="col">
+        <div class="btn-group-toggle" data-toggle="buttons" id="layoutBtns">
+          <label class="mr-3">Layout: </label>
+          <label class="btn btn-outline-info btn-sm mr-2 active">
+            <input type="radio" name="layout" id="nchw" autocomplete="off" checked>NCHW
+          </label>
+          <label class="btn btn-outline-info btn-sm">
+            <input type="radio" name="layout" id="nhwc" autocomplete="off">NHWC
+          </label>
+        </div>
+      </div>
+      <div class ="col-8">
+        <div class="btn-group-toggle" data-toggle="buttons" id="modelBtns">
+          <label class="mr-3">Model: </label>
+          <label class="btn btn-outline-info btn-sm mr-2 active">
+            <input type="radio" name="model" id="deeplabv3mobilenetv2" autocomplete="off" checked>DeepLab V3 MobileNet V2
+          </label>
+        </div>
+      </div>
+    </div>
+    <ul class='nav nav-tabs nav-justified mb-3' id='ex1' role='tablist'>
+      <li class='nav-item' id='img' role='presentation'>
+        <a class='nav-link active' data-toggle='tab' href='#imagetab' role='tab' aria-controls='ex3-tabs-1'
+          aria-selected='true'>IMAGE</a>
+      </li>
+      <li class='nav-item' id='cam' role='presentation'>
+        <a class='nav-link' data-toggle='tab' href='#cameratab' role='tab' aria-controls='ex3-tabs-2'
+          aria-selected='false'>LIVE CAMERA</a>
+      </li>
+    </ul>
+    <div class='tab-content clearfix' style='display: none;' id='progressmodel'>
+      <div class='loading-page'>
+        <div class='counter'>
+          <div class='loading'>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <p id='progressstep'>Loading model ...</p>
+        </div>
+      </div>
+    </div>
+    <div class='tab-content clearfix row' id='semanticsegmentation'>
+      <div class='icdisplay col-sm' style='display: none;'>
+        <div class='tab-pane text-center active col-sm'>
+          <div class='icdisplay'>
+            <div class='col-lg-12 col-xs-12 text-center'>
+              <div class='row'>
+                <div class='col bt-3 mb-3' style='display: flex;'>
+                  <canvas id='outputCanvas'></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class='shoulddisplay col-sm' style='display: none; font-size: 0.9rem;'>
+        <div class='row tc'>
+          <ul class="list-inline list-pipe text-center">
+            <li class="list-inline-item">
+              Load time: <span class='ir' id='loadTime'></span>
+            </li>
+            <li class="list-inline-item">
+              Build time: <span class='ir' id='buildTime'></span>
+            </li>
+            <li class="list-inline-item">
+              <span id='computeLabel'></span>
+              <span class='ir' id='computeTime'></span>
+            </li>
+          </ul>
+        </div>
+        <div class='controls text-left' data-select='blur'>
+          <div class='row'>
+            <div class='label'>
+              EFFECT:</span>
+            </div>
+            <div class='btn-group btn-group-toggle btn-group-sm effects-select' data-toggle='buttons'>
+              <label class='btn btn-secondary'>
+                <input type='radio' value='label' autocomplete='off' checked> MAP
+              </label>
+              <label class='btn btn-secondary'>
+                <input type='radio' value='fill' autocomplete='off'> FILL
+              </label>
+              <label class='btn btn-secondary'>
+                <input type='radio' value='image' autocomplete='off'> IMG
+              </label>
+              <label class='btn btn-secondary'>
+                <input type='radio' value='blur' autocomplete='off'> BLUR
+              </label>
+            </div>
+          </div>
+          <div class='row refine-edge-wrapper'>
+            <div class='label'>
+              REFINE EDGE: <span class='refine-edge-value'></span>
+            </div>
+            <div class='slidecontainer'><input type='range' min='0' max='60' value='0' class='slider'
+                id='refineEdgeSlider'></div>
+          </div>
+          <div class='row blur-wrapper'>
+            <div class='label'>
+              BLUR RADIUS: <span class='blur-radius-value'></span>
+            </div>
+            <div class='slidecontainer'><input type='range' min='0' max='50' value='0' class='slider' id='blurSlider'>
+            </div>
+          </div>
+          <div class='row color-picker-wrapper justify-content-center'>
+            <div class='label'>
+              BACKGROUND: <span class='bg-value'></span>
+            </div>
+            <div id='color-picker-container'></div>
+          </div>
+          <div class='row select-bg-wrapper justify-content-center text-center'>
+            <div class='label'>
+              <label class='btn btn-outline-primary btn-sm'>
+                Select Background <input type='file' id='chooseBackground' accept='image/*' hidden>
+              </label>
+              <button id='clearBackground' class='btn btn-outline-secondary btn-sm'>
+                Clear Background
+              </button>
+            </div>
+          </div>
+          <div class='row color-map-alpha-wrapper'>
+            <div class='label'>
+              OPACITY: <span class='color-map-alpha-value'></span>
+            </div>
+            <div class='slidecontainer'><input type='range' min='0' max='100' value='0' class='slider'
+                id='colorMapAlphaSlider'></div>
+          </div>
+          <div class='row labels-wrapper' id='labelitem'>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class='row mt-1 text-center' id='pickimage'>
+      <div class='col'>
+        <label class='btn btn-outline-info shoulddisplay' style='display: none;'>
+          <input type='file' id='imageFile' accept='image/*' hidden />
+          <span>Pick Image</span>
+        </label>
+      </div>
+    </div>
+  </div>
+  <img id='feedElement' hidden crossorigin='anonymous' src=''>
+  <video id='feedMediaElement' autoplay playsinline hidden></video>
+  <script>
+    // This workaround is to fix jquery loading issue in electron.
+    // Refer to https://stackoverflow.com/questions/32621988/electron-jquery-is-not-defined.
+    if (typeof module === "object") {
+      window.tempModule = module;
+      module = undefined;
+    }
+  </script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+    integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+    integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+  <script src="https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js"></script>
+  <script>
+    // To restore module after loading 3rd-party libraries.
+    if (window.tempModule) module = window.tempModule;
+  </script>
+  <script type="module">
+    import { main } from './main.js';
+
+    async function setBackend(backend) {
+      const tf = navigator.ml.createContext().tf;
+      if (!(await tf.setBackend(backend))) {
+        console.error(`Failed to set tf.js backend ${backend}.`);
+      }
+      await tf.ready();
+      console.info(`Uses tf.js ${tf.version_core} ${tf.getBackend()} backend.`);
+    }
+
+    window.onload = async function () {
+      // There's bug when using 'dilations' options with WebGL backend,
+      // see https://github.com/tensorflow/tfjs/issues/5293.
+      // Use 'wasm' backend as workaround before the bug been fixed.
+      await setBackend('wasm');
+      main();
+    }
+  </script>
+</body>
+
+</html>
