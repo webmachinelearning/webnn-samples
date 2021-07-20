@@ -14,10 +14,10 @@ const maxHeight = 380;
 const imgElement = document.getElementById('feedElement');
 imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
-let modelName ='mobilenet';
+let modelName = '';
 let layout = 'nchw';
 let instanceType = modelName + layout;
-let shouldStopFrame = false;
+let rafReq;
 let isFirstTimeLoad = true;
 let inputType = 'image';
 let netInstance = null;
@@ -41,19 +41,19 @@ $(document).ready(() => {
 
 $('#modelBtns .btn').on('change', async (e) => {
   modelName = $(e.target).attr('id');
-  shouldStopFrame = true;
+  if (inputType === 'camera') cancelAnimationFrame(rafReq);
   await main();
 });
 
 $('#layoutBtns .btn').on('change', async (e) => {
   layout = $(e.target).attr('id');
-  shouldStopFrame = true;
+  if (inputType === 'camera') cancelAnimationFrame(rafReq);
   await main();
 });
 
 // Click trigger to do inference with <img> element
 $('#img').click(async () => {
-  shouldStopFrame = true;
+  if (inputType === 'camera') cancelAnimationFrame(rafReq);
   if (stream !== null) {
     stopCamera();
   }
@@ -65,13 +65,14 @@ $('#img').click(async () => {
 $('#imageFile').change((e) => {
   const files = e.target.files;
   if (files.length > 0) {
-    $('#feedElement').on('load', async () => {
-      await main();
-    });
     $('#feedElement').removeAttr('height');
     $('#feedElement').removeAttr('width');
     imgElement.src = URL.createObjectURL(files[0]);
   }
+});
+
+$('#feedElement').on('load', async () => {
+  await main();
 });
 
 // Click trigger to do inference with <video> media element
@@ -110,9 +111,7 @@ async function renderCamStream() {
   drawInput(camElement, 'camInCanvas');
   showPerfResult();
   await drawOutput(outputBuffer, labels);
-  if (!shouldStopFrame) {
-    requestAnimationFrame(renderCamStream);
-  }
+  rafReq = requestAnimationFrame(renderCamStream);
 }
 
 // Get top 3 classes of labels from output buffer
@@ -158,7 +157,6 @@ async function drawOutput(outputBuffer, labels) {
 
   $('#inferenceresult').show();
   labelClasses.forEach((c, i) => {
-    console.log(`\tlabel: ${c.label}, probability: ${c.prob}%`);
     const labelElement = document.getElementById(`label${i}`);
     const probElement = document.getElementById(`prob${i}`);
     labelElement.innerHTML = `${c.label}`;
@@ -200,8 +198,10 @@ function addWarning(msg) {
   container.insertBefore(div, container.childNodes[0]);
 }
 
-export async function main() {
+async function main() {
   try {
+    if (modelName === '') return;
+    if (isFirstTimeLoad) $('#hint').hide();
     let start;
     // Set 'numRuns' param to run inference multiple times
     const params = new URLSearchParams(location.search);
@@ -271,7 +271,6 @@ export async function main() {
     } else if (inputType === 'camera') {
       await getMediaStream();
       camElement.srcObject = stream;
-      shouldStopFrame = false;
       camElement.onloadedmediadata = await renderCamStream();
       await showProgressComponent('done', 'done', 'done');
       readyShowResultComponents();

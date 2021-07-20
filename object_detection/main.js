@@ -13,10 +13,10 @@ const tf = document.getElementById('tf');
 const imgElement = document.getElementById('feedElement');
 imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
-let modelName = 'tinyyolov2';
+let modelName = '';
 let layout = 'nchw';
 let instanceType = modelName + layout;
-let shouldStopFrame = false;
+let rafReq;
 let isFirstTimeLoad = true;
 let inputType = 'image';
 let netInstance = null;
@@ -40,19 +40,19 @@ $(document).ready(() => {
 
 $('#modelBtns .btn').on('change', async (e) => {
   modelName = $(e.target).attr('id');
-  shouldStopFrame = true;
+  if (inputType === 'camera') cancelAnimationFrame(rafReq);
   await main();
 });
 
 $('#layoutBtns .btn').on('change', async (e) => {
   layout = $(e.target).attr('id');
-  shouldStopFrame = true;
+  if (inputType === 'camera') cancelAnimationFrame(rafReq);
   await main();
 });
 
 // Click trigger to do inference with <img> element
 $('#img').click(async () => {
-  shouldStopFrame = true;
+  if (inputType === 'camera') cancelAnimationFrame(rafReq);
   if (stream !== null) {
     stopCamera();
   }
@@ -64,13 +64,14 @@ $('#img').click(async () => {
 $('#imageFile').change((e) => {
   const files = e.target.files;
   if (files.length > 0) {
-    $('#feedElement').on('load', async () => {
-      await main();
-    });
     $('#feedElement').removeAttr('height');
     $('#feedElement').removeAttr('width');
     imgElement.src = URL.createObjectURL(files[0]);
   }
+});
+
+$('#feedElement').on('load', async () => {
+  await main();
 });
 
 // Click trigger to do inference with <video> media element
@@ -108,9 +109,7 @@ async function renderCamStream() {
   camElement.height = camElement.videoHeight;
   showPerfResult();
   await drawOutput(camElement, outputs, labels);
-  if (!shouldStopFrame) {
-    requestAnimationFrame(renderCamStream);
-  }
+  rafReq = requestAnimationFrame(renderCamStream);
 }
 
 async function drawOutput(inputElement, outputs, labels) {
@@ -179,9 +178,10 @@ function addWarning(msg) {
   container.insertBefore(div, container.childNodes[0]);
 }
 
-export async function main() {
+async function main() {
   try {
-    $('input[type="radio"]').attr('disabled', true);
+    if (modelName === '') return;
+    if (isFirstTimeLoad) $('#hint').hide();
     let start;
     // Set 'numRuns' param to run inference multiple times
     const params = new URLSearchParams(location.search);
@@ -258,14 +258,12 @@ export async function main() {
     } else if (inputType === 'camera') {
       await getMediaStream();
       camElement.srcObject = stream;
-      shouldStopFrame = false;
       camElement.onloadedmediadata = await renderCamStream();
       await showProgressComponent('done', 'done', 'done');
       readyShowResultComponents();
     } else {
       throw Error(`Unknown inputType ${inputType}`);
     }
-    $('input[type="radio"]').attr('disabled', false);
   } catch (error) {
     console.log(error);
     addWarning(error.message);

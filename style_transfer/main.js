@@ -12,7 +12,7 @@ const camElement = document.getElementById('feedMediaElement');
 let modelId = 'starry-night';
 let isFirstTimeLoad = true;
 let isModelChanged = false;
-let shouldStopFrame = false;
+let rafReq;
 let inputType = 'image';
 let fastStyleTransferNet;
 let stream = null;
@@ -28,7 +28,7 @@ $(document).ready(() => {
 
 // Click trigger to do inference with <img> element
 $('#img').click(async () => {
-  shouldStopFrame = true;
+  if (inputType === 'camera') cancelAnimationFrame(rafReq);
   if (stream !== null) {
     stopCamera();
   }
@@ -46,15 +46,33 @@ $('#gallery .gallery-image').hover((e) => {
   $('.badge').html(modelName);
 });
 
+// Click trigger to do inference with switched <img> element
+$('#gallery .gallery-item').click(async (e) => {
+  const newModelId = $(e.target).attr('id');
+  if (inputType === 'camera') cancelAnimationFrame(rafReq);
+  if (newModelId !== modelId) {
+    isModelChanged = true;
+    modelId = newModelId;
+    const modelName = $(`#${modelId}`).attr('title');
+    $('.badge').html(modelName);
+    $('#gallery .gallery-item').removeClass('hl');
+    $(e.target).parent().addClass('hl');
+  }
+  await main();
+});
+
 $('#imageFile').change((e) => {
   const files = e.target.files;
   if (files.length > 0) {
-    $('#feedElement').on('load', async () => {
-      await main();
-    });
     $('#feedElement').removeAttr('height');
     $('#feedElement').removeAttr('width');
     imgElement.src = URL.createObjectURL(files[0]);
+  }
+});
+
+$('#feedElement').on('load', async () => {
+  if (!isFirstTimeLoad) {
+    await main();
   }
 });
 
@@ -64,21 +82,6 @@ $('#cam').click(async () => {
   $('.shoulddisplay').hide();
   await main();
 });
-
-// Click handler to do inference with switched <img> element
-async function handleImageSwitch(e) {
-  const newModelId = $(e.target).attr('id');
-  if (newModelId !== modelId) {
-    shouldStopFrame = true;
-    isModelChanged = true;
-    modelId = newModelId;
-    const modelName = $(`#${modelId}`).attr('title');
-    $('.badge').html(modelName);
-    $('#gallery .gallery-item').removeClass('hl');
-    $(e.target).parent().addClass('hl');
-  }
-  await main();
-}
 
 async function getMediaStream() {
   // Support 'user' facing mode at present
@@ -110,9 +113,7 @@ async function renderCamStream() {
   drawInput(camElement, 'camInCanvas');
   showPerfResult();
   drawOutput('camInCanvas', 'camOutCanvas');
-  if (!shouldStopFrame) {
-    requestAnimationFrame(renderCamStream);
-  }
+  rafReq = requestAnimationFrame(renderCamStream);
 }
 
 function drawInput(srcElement, canvasId) {
@@ -252,14 +253,12 @@ export async function main() {
     } else if (inputType === 'camera') {
       await getMediaStream();
       camElement.srcObject = stream;
-      shouldStopFrame = false;
       camElement.onloadedmediadata = await renderCamStream();
       await showProgressComponent('done', 'done', 'done');
       readyShowResultComponents();
     } else {
       throw Error(`Unknown inputType ${inputType}`);
     }
-    $('#gallery .gallery-image').on('click', handleImageSwitch);
   } catch (error) {
     console.log(error);
     addWarning(error.message);
