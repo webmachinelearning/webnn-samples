@@ -9,6 +9,7 @@ import {getInputTensor, getMedianValue, sizeOfShape} from '../common/utils.js';
 import * as Yolo2Decoder from './libs/yolo2Decoder.js';
 import * as SsdDecoder from './libs/ssdDecoder.js';
 
+const tf = document.getElementById('tf');
 const imgElement = document.getElementById('feedElement');
 imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
@@ -131,7 +132,6 @@ async function drawOutput(inputElement, outputs, labels) {
     // Transpose 'nchw' output to 'nhwc' for postprocessing
     let outputBuffer = outputs.output;
     if (layout === 'nchw') {
-      const tf = navigator.ml.createContext().tf;
       const a =
           tf.tensor(outputBuffer, netInstance.outputDimensions, 'float32');
       const b = tf.transpose(a, [0, 2, 3, 1]);
