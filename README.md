@@ -9,6 +9,7 @@
 * [Fast style transfer](https://webmachinelearning.github.io/webnn-samples/style_transfer/)
 * [Image classification](https://webmachinelearning.github.io/webnn-samples/image_classification/)
 * [Object detection](https://webmachinelearning.github.io/webnn-samples/object_detection/)
+* [Semantic segmentation](https://webmachinelearning.github.io/webnn-samples/semantic_segmentation/)
 
 ### Setup & Run
 
