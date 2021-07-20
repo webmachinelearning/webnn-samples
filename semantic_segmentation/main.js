@@ -13,7 +13,7 @@ const outputCanvas = document.getElementById('outputCanvas');
 let modelName ='deeplabv3mnv2';
 let layout = 'nchw';
 let instanceType = modelName + layout;
-let shouldStopFrame = false;
+let rafReq;
 let isFirstTimeLoad = true;
 let inputType = 'image';
 let netInstance = null;
@@ -39,19 +39,19 @@ $(window).on('load', () => {
 
 $('#modelBtns .btn').on('change', async (e) => {
   modelName = $(e.target).attr('id');
-  shouldStopFrame = true;
+  if (inputType === 'camera') cancelAnimationFrame(rafReq);
   await main();
 });
 
 $('#layoutBtns .btn').on('change', async (e) => {
   layout = $(e.target).attr('id');
-  shouldStopFrame = true;
+  if (inputType === 'camera') cancelAnimationFrame(rafReq);
   await main();
 });
 
 // Click trigger to do inference with <img> element
 $('#img').click(async () => {
-  shouldStopFrame = true;
+  if (inputType === 'camera') cancelAnimationFrame(rafReq);
   if (stream !== null) {
     stopCamera();
   }
@@ -64,12 +64,15 @@ $('#img').click(async () => {
 $('#imageFile').change((e) => {
   const files = e.target.files;
   if (files.length > 0) {
-    $('#feedElement').on('load', async () => {
-      await main();
-    });
     $('#feedElement').removeAttr('height');
     $('#feedElement').removeAttr('width');
     imgElement.src = URL.createObjectURL(files[0]);
+  }
+});
+
+$('#feedElement').on('load', async () => {
+  if (!isFirstTimeLoad) {
+    await main();
   }
 });
 
@@ -222,9 +225,7 @@ async function renderCamStream() {
   console.log(`  done in ${computeTime} ms.`);
   showPerfResult();
   await drawOutput(camElement);
-  if (!shouldStopFrame) {
-    requestAnimationFrame(renderCamStream);
-  }
+  rafReq = requestAnimationFrame(renderCamStream);
 }
 
 async function drawOutput(srcElement) {
@@ -360,7 +361,6 @@ export async function main() {
     } else if (inputType === 'camera') {
       await getMediaStream();
       camElement.srcObject = stream;
-      shouldStopFrame = false;
       camElement.onloadedmediadata = await renderCamStream();
       await showProgressComponent('done', 'done', 'done');
       readyShowResultComponents();
