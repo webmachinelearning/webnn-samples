@@ -90,8 +90,11 @@
     </script>
     <script type="module">
       import {main} from './main.js';
-      window.onload = function() {
-        main();
+      import {setPolyfillBackend} from '../common/utils.js';
+      window.onload = async () => {
+        const backend = (new URLSearchParams(location.search)).get('backend');
+        await setPolyfillBackend(backend);
+        await main();
       }
     </script>
   </body>

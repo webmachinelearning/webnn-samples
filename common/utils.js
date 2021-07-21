@@ -143,3 +143,30 @@ export function getMedianValue(array) {
   return array.length % 2 !== 0 ? array[Math.floor(array.length / 2)] :
       (array[array.length / 2 - 1] + array[array.length / 2]) / 2;
 }
+
+// Set tf.js backend
+export async function setPolyfillBackend(backend) {
+  if (!backend) {
+    // Use 'webgl' by default for better performance
+    backend = 'webgl';
+  }
+  const tf = navigator.ml.createContext().tf;
+  if (tf) {
+    // Note: 'wasm' backend may run failed on some sample since
+    // some ops are supported on 'wasm' backend at present
+    const backends = ['webgl', 'cpu', 'wasm'];
+    if (!backends.includes(backend)) {
+      if (backend) {
+        console.warn(`webnn-polyfill doesn't support ${backend} backend.`);
+      }
+    } else {
+      if (!(await tf.setBackend(backend))) {
+        console.error(`Failed to set tf.js backend ${backend}.`);
+      }
+    }
+    await tf.ready();
+    console.info(
+        `webnn-polyfill uses tf.js ${tf.version_core}` +
+        ` ${tf.getBackend()} backend.`);
+  }
+}

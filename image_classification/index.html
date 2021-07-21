@@ -176,7 +176,15 @@
     // To restore module after loading 3rd-party libraries.
     if (window.tempModule) module = window.tempModule;
   </script>
-  <script type="module" src='./main.js'></script>
+  <script type="module">
+    import './main.js';
+    import {setPolyfillBackend} from '../common/utils.js';
+
+    window.onload = async () => {
+      const backend = (new URLSearchParams(location.search)).get('backend');
+      await setPolyfillBackend(backend);
+    }
+  </script>
 </body>
 
 </html>
