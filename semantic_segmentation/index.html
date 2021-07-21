@@ -189,23 +189,17 @@
     if (window.tempModule) module = window.tempModule;
   </script>
   <script type="module">
-    import { main } from './main.js';
+    import {main} from './main.js';
+    import {setPolyfillBackend} from '../common/utils.js';
 
-    async function setBackend(backend) {
-      const tf = navigator.ml.createContext().tf;
-      if (!(await tf.setBackend(backend))) {
-        console.error(`Failed to set tf.js backend ${backend}.`);
-      }
-      await tf.ready();
-      console.info(`Uses tf.js ${tf.version_core} ${tf.getBackend()} backend.`);
-    }
-
-    window.onload = async function () {
+    window.onload = async () => {
       // There's bug when using 'dilations' options with WebGL backend,
       // see https://github.com/tensorflow/tfjs/issues/5293.
-      // Use 'wasm' backend as workaround before the bug been fixed.
-      await setBackend('wasm');
-      main();
+      // Use 'wasm' as default backend before the bug been fixed.
+      let backend = (new URLSearchParams(location.search)).get('backend');
+      backend = backend === null ? 'wasm' : backend;
+      await setPolyfillBackend(backend);
+      await main();
     }
   </script>
 </body>
