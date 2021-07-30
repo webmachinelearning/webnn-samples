@@ -29,11 +29,11 @@ let hoverPos = null;
 
 $(document).ready(() => {
   $('.icdisplay').hide();
-  renderer = new Renderer(outputCanvas);
-  renderer.setup();
 });
 
 $(window).on('load', () => {
+  renderer = new Renderer(outputCanvas);
+  renderer.setup();
   loadRenderUI();
 });
 
@@ -231,7 +231,6 @@ async function renderCamStream() {
 async function drawOutput(srcElement) {
   // TODO: move 'argMax' operation to graph once it is supported in WebNN spec.
   // https://github.com/webmachinelearning/webnn/issues/184
-  const tf = navigator.ml.createContext().tf;
   const a = tf.tensor(outputBuffer, netInstance.outputDimensions, 'float32');
   let axis = 3;
   if (layout === 'nchw') {

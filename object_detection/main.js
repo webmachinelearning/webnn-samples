@@ -9,7 +9,6 @@ import {getInputTensor, getMedianValue, sizeOfShape} from '../common/utils.js';
 import * as Yolo2Decoder from './libs/yolo2Decoder.js';
 import * as SsdDecoder from './libs/ssdDecoder.js';
 
-const tf = document.getElementById('tf');
 const imgElement = document.getElementById('feedElement');
 imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
