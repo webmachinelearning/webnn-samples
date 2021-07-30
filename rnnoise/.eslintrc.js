@@ -1,9 +1,7 @@
 module.exports = {
   ignorePatterns: ['signal/', 'utils/'],
   globals: {
+    'MLGraphBuilder': 'readonly',
     'Module': 'readonly',
-    'numpy': 'readonly',
-    'BigInt64Array': 'readonly',
-    'BigUint64Array': 'readonly',
   },
 };
