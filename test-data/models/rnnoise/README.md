@@ -1,0 +1,2 @@
+`.npy` files under this folder are trained from project of [xiph/rnnoise](https://github.com/xiph/rnnoise), which is licensed under the BSD 3-Clause "New" or "Revised" License.  
+Refer to [issue79](https://github.com/xiph/rnnoise/issues/79) we can load the C array weights back to Keras and it can be further used to extract a TensorFlow model.
