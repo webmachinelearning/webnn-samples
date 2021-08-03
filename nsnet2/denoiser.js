@@ -29,7 +29,7 @@ export class Denoiser {
     return new Promise((resolve, reject) => {
       this.log(' - Loading weights... ');
       const start = performance.now();
-      const weightsUrl = '../test-data/models/nsnet2_nchw/weights/';
+      const weightsUrl = '../test-data/models/nsnet2/weights/';
       this.nsnet.load(
           weightsUrl, this.batchSize, this.frames).then((outputOperand) => {
         const modelLoadTime = performance.now() - start;
