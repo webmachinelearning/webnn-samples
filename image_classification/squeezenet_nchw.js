@@ -19,15 +19,15 @@ export class SqueezeNetNchw {
     this.outputDimensions = [1, 1000];
   }
 
-  async buildConv_(input, name, options = undefined) {
+  async buildConv_(input, name, options = {}) {
     const prefix = this.weightsUrl_ + 'squeezenet0_' + name;
     const weightsName = prefix + '_weight.npy';
     const weights = await buildConstantByNpy(this.builder_, weightsName);
     const biasName = prefix + '_bias.npy';
     const bias = await buildConstantByNpy(this.builder_, biasName);
-    return this.builder_.relu(this.builder_.add(
-        this.builder_.conv2d(input, weights, options),
-        this.builder_.reshape(bias, [1, -1, 1, 1])));
+    options.bias = bias;
+    options.activation = this.builder_.relu();
+    return this.builder_.conv2d(input, weights, options);
   }
 
   async buildFire_(input, convName, conv1x1Name, conv3x3Name) {

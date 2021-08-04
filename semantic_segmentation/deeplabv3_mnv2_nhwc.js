@@ -20,7 +20,7 @@ export class DeepLabV3MNV2Nhwc {
   }
 
   async buildConv_(
-      input, namePrefix, dwBiasSuffix = '', relu6 = true, options = undefined) {
+      input, namePrefix, dwBiasSuffix = '', relu6 = true, options = {}) {
     const prefix = this.weightsUrl_ + namePrefix;
     let weightsName = prefix + '.npy';
     let biasName = prefix + '_bn_offset.npy';
@@ -33,35 +33,24 @@ export class DeepLabV3MNV2Nhwc {
     }
     const weights = await buildConstantByNpy(this.builder_, weightsName);
     const bias = await buildConstantByNpy(this.builder_, biasName);
-
-    if (options !== undefined) {
-      options.inputLayout = 'nhwc';
-      options.filterLayout = 'ohwi';
-      options.autoPad = 'same-upper';
-    } else {
-      options = {
-        inputLayout: 'nhwc',
-        filterLayout: 'ohwi',
-        autoPad: 'same-upper',
-      };
-    }
+    options.inputLayout = 'nhwc';
+    options.autoPad = 'same-upper';
     if (namePrefix.includes('depthwise')) {
       options.filterLayout = 'ihwo';
+    } else {
+      options.filterLayout = 'ohwi';
     }
-
-    const add = this.builder_.add(
-        this.builder_.conv2d(input, weights, options),
-        this.builder_.reshape(bias, [1, 1, 1, -1]));
-
+    options.bias = bias;
     if (relu6) {
-      return this.builder_.clamp(
-          add,
-          {
-            minValue: this.builder_.constant(0.),
-            maxValue: this.builder_.constant(6.0),
-          });
+      // `relu6` in TFLite equals to `clamp` in WebNN API
+      const clampOptions = {};
+      clampOptions.minValue = this.builder_.constant(0);
+      clampOptions.maxValue = this.builder_.constant(6);
+      options.activation = this.builder_.clamp(clampOptions);
+    } else {
+      options.activation = undefined;
     }
-    return add;
+    return this.builder_.conv2d(input, weights, options);
   }
 
   async buildLinearBottleneck_(

@@ -21,7 +21,7 @@ export class SsdMobilenetV1Nchw {
     };
   }
 
-  async buildConv_(input, nameArray, clip = true, options = undefined) {
+  async buildConv_(input, nameArray, relu6 = true, options = {}) {
     // nameArray: 0: keyword, 1: indice, 2: weightSuffix, 3: biasSuffix
     let prefix = '';
     let weightSuffix = '_mul_1.npy';
@@ -56,25 +56,16 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     const weights = await buildConstantByNpy(this.builder_, weightsName);
     const biasName = this.biasUrl_ + prefix + biasSuffix;
     const bias = await buildConstantByNpy(this.builder_, biasName);
-    if (options !== undefined) {
-      options.autoPad = 'same-upper';
-    } else {
-      options = {
-        autoPad: 'same-upper',
-      };
+    options.autoPad = 'same-upper';
+    options.bias = bias;
+    if (relu6) {
+      // implement `relu6` by `clamp` of  WebNN API
+      const clampOptions = {};
+      clampOptions.minValue = this.builder_.constant(0);
+      clampOptions.maxValue = this.builder_.constant(6);
+      options.activation = this.builder_.clamp(clampOptions);
     }
-    const add = this.builder_.add(
-        this.builder_.conv2d(input, weights, options),
-        this.builder_.reshape(bias, [1, -1, 1, 1]));
-    if (clip) {
-      return this.builder_.clamp(
-          add,
-          {
-            minValue: this.builder_.constant(0.),
-            maxValue: this.builder_.constant(6.0),
-          });
-    }
-    return add;
+    return this.builder_.conv2d(input, weights, options);
   }
 
   async load() {

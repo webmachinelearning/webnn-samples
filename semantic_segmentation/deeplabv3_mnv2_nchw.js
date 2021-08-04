@@ -23,7 +23,7 @@ export class DeepLabV3MNV2Nchw {
     this.outputDimensions = [1, 21, 513, 513];
   }
 
-  async buildConv_(input, nameArray, clip = true, options = undefined) {
+  async buildConv_(input, nameArray, activation = 'relu6', options = {}) {
     // nameArray: 0: bias name prefix, 1: depthWise Conv2D's bias name suffix, 2: indice of weight name
     const biasPrefix = this.biasUrl_ + nameArray[0];
     const weightsName = `${this.weightsUrl_}const_fold_opt__${nameArray[2]}.npy`;
@@ -40,18 +40,19 @@ export class DeepLabV3MNV2Nchw {
     const weights = await buildConstantByNpy(this.builder_, weightsName);
     const bias = await buildConstantByNpy(this.builder_, biasName);
 
-    const conv = this.builder_.add(
-        this.builder_.conv2d(input, weights, options),
-        this.builder_.reshape(bias, [1, -1, 1, 1]));
-    if (clip) {
-      return this.builder_.clamp(
-          conv,
-          {
-            minValue: this.builder_.constant(0.),
-            maxValue: this.builder_.constant(6.0),
-          });
+    options.bias = bias;
+    if (activation === 'relu6') {
+      // implement `relu6` by `clamp` of  WebNN API
+      const clampOptions = {};
+      clampOptions.minValue = this.builder_.constant(0);
+      clampOptions.maxValue = this.builder_.constant(6);
+      options.activation = this.builder_.clamp(clampOptions);
+    } else if (activation === 'relu') {
+      options.activation = this.builder_.relu();
+    } else {
+      options.activation = undefined;
     }
-    return conv;
+    return this.builder_.conv2d(input, weights, options);
   }
 
   async buildLinearBottleneck_(input, nameArray, dwiseOptions, shortcut = true) {
@@ -68,12 +69,12 @@ export class DeepLabV3MNV2Nchw {
     const dwise3x3Relu6 = await this.buildConv_(
         conv1x1Relu6,
         [`${biasPrefix}_depthwise`, dwBiasSuffix, nameArray[2]],
-        true,
+        'relu6',
         dwiseOptions);
     const conv1x1Linear = await this.buildConv_(
         dwise3x3Relu6,
         [`${biasPrefix}_project_Conv2D`, dwBiasSuffix, nameArray[3]],
-        false);
+        'none');
 
     if (shortcut) {
       return this.builder_.add(input, conv1x1Linear);
@@ -89,11 +90,12 @@ export class DeepLabV3MNV2Nchw {
     const input = this.builder_.input('input',
         {type: 'float32', dimensions: this.inputOptions.inputDimensions});
     const conv0 = await this.buildConv_(
-        input, ['MobilenetV2_Conv_Conv2D', '', '551'], true, {strides, padding: [1, 1, 1, 1]});
+        input, ['MobilenetV2_Conv_Conv2D', '', '551'], 'relu6', {strides, padding: [1, 1, 1, 1]});
     const conv1 = await this.buildConv_(
-        conv0, ['MobilenetV2_expanded_conv_depthwise_depthwise', '', '543'], true, {padding: [1, 1, 1, 1], groups: 32});
+        conv0, ['MobilenetV2_expanded_conv_depthwise_depthwise', '', '543'], 'relu6',
+        {padding: [1, 1, 1, 1], groups: 32});
     const conv2 = await this.buildConv_(
-        conv1, ['MobilenetV2_expanded_conv_project_Conv2D', '', '511'], false);
+        conv1, ['MobilenetV2_expanded_conv_project_Conv2D', '', '511'], 'none');
     const bottleneck0 = await this.buildLinearBottleneck_(
         conv2, ['1', '537', '494', '534'], {strides, padding: [1, 1, 1, 1], groups: 96}, false);
     const bottleneck1 = await this.buildLinearBottleneck_(
@@ -127,19 +129,16 @@ export class DeepLabV3MNV2Nchw {
     const bottleneck15 = await this.buildLinearBottleneck_(
         bottleneck14, ['16', '500', '459', '539'], {padding: [4, 4, 4, 4], groups: 960, dilations: [4, 4]}, false);
 
-    const conv3 = await this.buildConv_(bottleneck15, ['aspp0_Conv2D', '', '553'], false);
-    const relu0 = this.builder_.relu(conv3);
+    const conv3 = await this.buildConv_(bottleneck15, ['aspp0_Conv2D', '', '553'], 'relu');
     const averagePool2d = this.builder_.averagePool2d(
         bottleneck15, {windowDimensions: [65, 65], layout: 'nchw'});
-    const conv4 = await this.buildConv_(averagePool2d, ['image_pooling_Conv2D', '', '546'], false);
-    const relu1 = this.builder_.relu(conv4);
+    const conv4 = await this.buildConv_(averagePool2d, ['image_pooling_Conv2D', '', '546'], 'relu');
     const resample0 = this.builder_.resample(
-        relu1, {sizes: [1, 256, 65, 65], mode: 'linear'});
-    const concat = this.builder_.concat([resample0, relu0], 1);
+        conv4, {sizes: [1, 256, 65, 65], mode: 'linear'});
+    const concat = this.builder_.concat([resample0, conv3], 1);
 
-    const conv5 = await this.buildConv_(concat, ['concat_projection_Conv2D', '', '502'], false);
-    const relu2 = this.builder_.relu(conv5);
-    const conv6 = await this.buildConv_(relu2, ['logits_semantic', '', '541'], false);
+    const conv5 = await this.buildConv_(concat, ['concat_projection_Conv2D', '', '502'], 'relu');
+    const conv6 = await this.buildConv_(conv5, ['logits_semantic', '', '541'], 'none');
     const resample1 = this.builder_.resample(
         conv6, {sizes: [1, 21, 65, 65], mode: 'linear'});
     return this.builder_.resample(

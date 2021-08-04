@@ -26,19 +26,17 @@ export class MobileNetV2Nhwc {
     const biasName = this.weightsUrl_ + 'MobilenetV2_' + biasSubName + '_bias.npy';
     const bias = await buildConstantByNpy(this.builder_, biasName);
     options.inputLayout = 'nhwc';
-    const add = this.builder_.add(
-        this.builder_.conv2d(input, weights, options),
-        this.builder_.reshape(bias, [1, 1, 1, -1]));
-    // `relu6` in TFLite equals to `clamp` in WebNN API
+    options.bias = bias;
     if (relu6) {
-      return this.builder_.clamp(
-          add,
-          {
-            minValue: this.builder_.constant(0.),
-            maxValue: this.builder_.constant(6.0),
-          });
+      // `relu6` in TFLite equals to `clamp` in WebNN API
+      const clampOptions = {};
+      clampOptions.minValue = this.builder_.constant(0);
+      clampOptions.maxValue = this.builder_.constant(6);
+      options.activation = this.builder_.clamp(clampOptions);
+    } else {
+      options.activation = undefined;
     }
-    return add;
+    return this.builder_.conv2d(input, weights, options);
   }
 
   async buildLinearBottleneck_(input, weightsNameArray, biasName, dwiseOptions, shortcut = true) {
