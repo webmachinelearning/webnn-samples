@@ -22,7 +22,7 @@ export class ResNet101V2Nhwc {
     this.outputDimensions = [1, 1001];
   }
 
-  async buildConv_(input, nameIndices, options = undefined, relu = true) {
+  async buildConv_(input, nameIndices, options = {}, relu = true) {
     let prefix = this.weightsUrl_ + 'resnet_v2_101_';
     // Items in 'nameIndices' represent the indices of block, unit, conv
     // respectively, except two kinds of specific conv names:
@@ -43,19 +43,13 @@ export class ResNet101V2Nhwc {
     const weights = await buildConstantByNpy(this.builder_, weightsName);
     const biasName = prefix + '_Conv2D_bias.npy';
     const bias = await buildConstantByNpy(this.builder_, biasName);
-    if (options !== undefined) {
-      options.inputLayout = layout;
-      options.filterLayout = 'ohwi';
-    } else {
-      options = {inputLayout: layout, filterLayout: 'ohwi'};
-    }
-    const add = this.builder_.add(
-        this.builder_.conv2d(input, weights, options),
-        this.builder_.reshape(bias, [1, 1, 1, -1]));
+    options.inputLayout = layout;
+    options.filterLayout = 'ohwi';
+    options.bias = bias;
     if (relu) {
-      return this.builder_.relu(add);
+      options.activation = this.builder_.relu();
     }
-    return add;
+    return this.builder_.conv2d(input, weights, options);
   }
 
   async buildFusedBatchNorm_(input, nameIndices) {

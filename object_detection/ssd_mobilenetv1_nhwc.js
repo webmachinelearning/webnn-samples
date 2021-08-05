@@ -68,18 +68,15 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     if (nameArray[0].includes('depthwise')) {
       options.filterLayout = 'ihwo';
     }
-    const add = this.builder_.add(
-        this.builder_.conv2d(input, weights, options),
-        this.builder_.reshape(bias, [1, 1, 1, -1]));
+    options.bias = bias;
     if (relu6) {
-      return this.builder_.clamp(
-          add,
-          {
-            minValue: this.builder_.constant(0.),
-            maxValue: this.builder_.constant(6.0),
-          });
+      // implement `relu6` by `clamp` of  WebNN API
+      const clampOptions = {};
+      clampOptions.minValue = this.builder_.constant(0);
+      clampOptions.maxValue = this.builder_.constant(6);
+      options.activation = this.builder_.clamp(clampOptions);
     }
-    return add;
+    return this.builder_.conv2d(input, weights, options);
   }
 
   async load() {

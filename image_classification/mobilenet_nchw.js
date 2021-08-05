@@ -19,7 +19,7 @@ export class MobileNetV2Nchw {
     this.outputDimensions = [1, 1000];
   }
 
-  async buildConv_(input, name, relu6 = true, options = undefined) {
+  async buildConv_(input, name, relu6 = true, options = {}) {
     const prefix = this.weightsUrl_ + 'conv_' + name;
     const weightsName = prefix + '_weight.npy';
     const weights =
@@ -27,18 +27,17 @@ export class MobileNetV2Nchw {
     const biasName = prefix + '_bias.npy';
     const bias =
         await buildConstantByNpy(this.builder_, biasName);
-    const conv = this.builder_.add(
-        this.builder_.conv2d(input, weights, options),
-        this.builder_.reshape(bias, [1, -1, 1, 1]));
+    options.bias = bias;
     if (relu6) {
-      return this.builder_.clamp(
-          conv,
-          {
-            minValue: this.builder_.constant(0.),
-            maxValue: this.builder_.constant(6.0),
-          });
+      // implement `relu6` by `clamp` of  WebNN API
+      const clampOptions = {};
+      clampOptions.minValue = this.builder_.constant(0);
+      clampOptions.maxValue = this.builder_.constant(6);
+      options.activation = this.builder_.clamp(clampOptions);
+    } else {
+      options.activation = undefined;
     }
-    return conv;
+    return this.builder_.conv2d(input, weights, options);
   }
 
   async buildGemm_(input, name) {
