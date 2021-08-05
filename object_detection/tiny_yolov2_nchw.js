@@ -22,15 +22,12 @@ export class TinyYoloV2Nchw {
     const prefix = this.weightsUrl_ + 'convolution' + name;
     const weightName = prefix + '_W.npy';
     const weight = await buildConstantByNpy(this.builder_, weightName);
-    const conv = this.builder_.conv2d(input, weight, {autoPad: 'same-upper'});
-
+    const options = {autoPad: 'same-upper'};
     if (useBias) {
       const biasName = prefix + '_B.npy';
-      const bias = await buildConstantByNpy(this.builder_, biasName);
-      return this.builder_.add(
-          conv, this.builder_.reshape(bias, [1, -1, 1, 1]));
+      options.bias = await buildConstantByNpy(this.builder_, biasName);
     }
-    return conv;
+    return this.builder_.conv2d(input, weight, options);
   }
 
   async buildBatchNorm_(input, name) {
@@ -45,14 +42,14 @@ export class TinyYoloV2Nchw {
     const variance = await buildConstantByNpy(this.builder_, varName);
 
     const batchNorm = this.builder_.batchNormalization(
-        input, mean, variance, {scale: scale, bias: bias});
+        input, mean, variance, {scale: scale, bias: bias,
+          activation: this.builder_.leakyRelu({alpha: 0.10000000149011612})});
     return batchNorm;
   }
 
   async buildConvolutional_(input, name) {
     const conv = await this.buildConv_(input, name);
-    const batchNorm = await this.buildBatchNorm_(conv, name);
-    return this.builder_.leakyRelu(batchNorm, {alpha: 0.10000000149011612});
+    return await this.buildBatchNorm_(conv, name);
   }
 
   async load() {

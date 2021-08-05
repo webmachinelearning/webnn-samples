@@ -18,21 +18,17 @@ export class SqueezeNetNhwc {
     this.outputDimensions = [1, 1001];
   }
 
-  async buildConv_(input, name, options = undefined) {
+  async buildConv_(input, name, options = {}) {
     const prefix = this.weightsUrl_ + name;
     const weightsName = prefix + '_kernel.npy';
     const weights = await buildConstantByNpy(this.builder_, weightsName);
     const biasName = prefix + '_Conv2D_bias.npy';
     const bias = await buildConstantByNpy(this.builder_, biasName);
-    if (options !== undefined) {
-      options.inputLayout = 'nhwc';
-      options.filterLayout = 'ohwi';
-    } else {
-      options = {inputLayout: 'nhwc', filterLayout: 'ohwi'};
-    }
-    return this.builder_.relu(this.builder_.add(
-        this.builder_.conv2d(input, weights, options),
-        this.builder_.reshape(bias, [1, 1, 1, -1])));
+    options.inputLayout = 'nhwc';
+    options.filterLayout = 'ohwi';
+    options.bias = bias;
+    options.activation = this.builder_.relu();
+    return this.builder_.conv2d(input, weights, options);
   }
 
   async buildFire_(input, name) {
