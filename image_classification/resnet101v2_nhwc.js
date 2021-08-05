@@ -97,8 +97,8 @@ export class ResNet101V2Nhwc {
     return this.builder_.add(conv3, residual);
   }
 
-  async load() {
-    const context = navigator.ml.createContext();
+  async load(devicePreference) {
+    const context = navigator.ml.createContext({devicePreference});
     this.builder_ = new MLGraphBuilder(context);
     const padding = this.builder_.constant(
         {type: 'int32', dimensions: [4, 2]},

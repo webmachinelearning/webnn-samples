@@ -52,8 +52,8 @@ export class TinyYoloV2Nchw {
     return await this.buildBatchNorm_(conv, name);
   }
 
-  async load() {
-    const context = navigator.ml.createContext();
+  async load(devicePreference) {
+    const context = navigator.ml.createContext({devicePreference});
     this.builder_ = new MLGraphBuilder(context);
     const image = this.builder_.input('input',
         {type: 'float32', dimensions: this.inputOptions.inputDimensions});

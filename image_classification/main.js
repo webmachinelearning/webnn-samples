@@ -7,7 +7,7 @@ import {SqueezeNetNhwc} from './squeezenet_nhwc.js';
 import {ResNet50V2Nchw} from './resnet50v2_nchw.js';
 import {ResNet101V2Nhwc} from './resnet101v2_nhwc.js';
 import {showProgressComponent, readyShowResultComponents} from '../common/ui.js';
-import {getInputTensor, getMedianValue, sizeOfShape} from '../common/utils.js';
+import * as utils from '../common/utils.js';
 
 const maxWidth = 380;
 const maxHeight = 380;
@@ -100,7 +100,7 @@ function stopCamera() {
  * This method is used to render live camera tab.
  */
 async function renderCamStream() {
-  const inputBuffer = getInputTensor(camElement, inputOptions);
+  const inputBuffer = utils.getInputTensor(camElement, inputOptions);
   console.log('- Computing... ');
   const start = performance.now();
   netInstance.compute(inputBuffer, outputBuffer);
@@ -225,14 +225,14 @@ async function main() {
       inputOptions = netInstance.inputOptions;
       labels = await fetchLabels(inputOptions.labelUrl);
       outputBuffer =
-          new Float32Array(sizeOfShape(netInstance.outputDimensions));
+          new Float32Array(utils.sizeOfShape(netInstance.outputDimensions));
       isFirstTimeLoad = false;
       console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
       // UI shows model loading progress
       await showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');
       start = performance.now();
-      const outputOperand = await netInstance.load();
+      const outputOperand = await netInstance.load(utils.getDevicePreference());
       loadTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${loadTime} ms.`);
       // UI shows model building progress
@@ -246,7 +246,7 @@ async function main() {
     // UI shows inferencing progress
     await showProgressComponent('done', 'done', 'current');
     if (inputType === 'image') {
-      const inputBuffer = getInputTensor(imgElement, inputOptions);
+      const inputBuffer = utils.getInputTensor(imgElement, inputOptions);
       console.log('- Computing... ');
       const computeTimeArray = [];
       let medianComputeTime;
@@ -262,7 +262,7 @@ async function main() {
         computeTimeArray.push(Number(computeTime));
       }
       if (numRuns > 1) {
-        medianComputeTime = getMedianValue(computeTimeArray);
+        medianComputeTime = utils.getMedianValue(computeTimeArray);
         medianComputeTime = medianComputeTime.toFixed(2);
         console.log(`  median compute time: ${medianComputeTime} ms`);
       }

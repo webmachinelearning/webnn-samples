@@ -1,6 +1,6 @@
 'use strict';
 
-import {sizeOfShape} from '../common/utils.js';
+import {sizeOfShape, getDevicePreference} from '../common/utils.js';
 import {LeNet} from './lenet.js';
 import {Pen} from './pen.js';
 
@@ -60,7 +60,7 @@ export async function main() {
   const lenet = new LeNet(weightUrl);
   try {
     let start = performance.now();
-    const outputOperand = await lenet.load();
+    const outputOperand = await lenet.load(getDevicePreference());
     console.log(
         `loading elapsed time: ${(performance.now() - start).toFixed(2)} ms`);
 
