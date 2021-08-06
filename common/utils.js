@@ -144,7 +144,7 @@ export function getMedianValue(array) {
       (array[array.length / 2 - 1] + array[array.length / 2]) / 2;
 }
 
-// Set tf.js backend via WebNN's 'MLDevicePreference' option
+// Set tf.js backend based WebNN's 'MLDevicePreference' option
 export async function setPolyfillBackend(device) {
   // Simulate WebNN's device selection using various tf.js backends.
   // MLDevicePreference: ['default', 'gpu', 'cpu']
