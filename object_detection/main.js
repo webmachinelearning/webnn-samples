@@ -5,7 +5,7 @@ import {TinyYoloV2Nhwc} from './tiny_yolov2_nhwc.js';
 import {SsdMobilenetV1Nchw} from './ssd_mobilenetv1_nchw.js';
 import {SsdMobilenetV1Nhwc} from './ssd_mobilenetv1_nhwc.js';
 import {showProgressComponent, readyShowResultComponents} from '../common/ui.js';
-import {getInputTensor, getMedianValue, sizeOfShape} from '../common/utils.js';
+import * as utils from '../common/utils.js';
 import * as Yolo2Decoder from './libs/yolo2Decoder.js';
 import * as SsdDecoder from './libs/ssdDecoder.js';
 
@@ -98,7 +98,7 @@ function stopCamera() {
  * This method is used to render live camera tab.
  */
 async function renderCamStream() {
-  const inputBuffer = getInputTensor(camElement, inputOptions);
+  const inputBuffer = utils.getInputTensor(camElement, inputOptions);
   console.log('- Computing... ');
   const start = performance.now();
   netInstance.compute(inputBuffer, outputs);
@@ -205,12 +205,13 @@ async function main() {
       labels = await fetchLabels(inputOptions.labelUrl);
       if (modelName === 'tinyyolov2') {
         outputs = {
-          'output': new Float32Array(sizeOfShape(netInstance.outputDimensions)),
+          'output': new Float32Array(
+              utils.sizeOfShape(netInstance.outputDimensions)),
         };
       } else {
         outputs = {
-          'boxes': new Float32Array(sizeOfShape([1, 1917, 1, 4])),
-          'scores': new Float32Array(sizeOfShape([1, 1917, 91])),
+          'boxes': new Float32Array(utils.sizeOfShape([1, 1917, 1, 4])),
+          'scores': new Float32Array(utils.sizeOfShape([1, 1917, 91])),
         };
       }
       isFirstTimeLoad = false;
@@ -219,7 +220,7 @@ async function main() {
       await showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');
       start = performance.now();
-      const outputOperand = await netInstance.load();
+      const outputOperand = await netInstance.load(utils.getDevicePreference());
       loadTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${loadTime} ms.`);
       // UI shows model building progress
@@ -233,7 +234,7 @@ async function main() {
     // UI shows inferencing progress
     await showProgressComponent('done', 'done', 'current');
     if (inputType === 'image') {
-      const inputBuffer = getInputTensor(imgElement, inputOptions);
+      const inputBuffer = utils.getInputTensor(imgElement, inputOptions);
       console.log('- Computing... ');
       const computeTimeArray = [];
       let medianComputeTime;
@@ -249,7 +250,7 @@ async function main() {
         computeTimeArray.push(Number(computeTime));
       }
       if (numRuns > 1) {
-        medianComputeTime = getMedianValue(computeTimeArray);
+        medianComputeTime = utils.getMedianValue(computeTimeArray);
         medianComputeTime = medianComputeTime.toFixed(2);
         console.log(`  median compute time: ${medianComputeTime} ms`);
       }

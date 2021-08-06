@@ -198,10 +198,8 @@
     window.onload = async () => {
       // There's bug when using 'dilations' options with WebGL backend,
       // see https://github.com/tensorflow/tfjs/issues/5293.
-      // Use 'wasm' as default backend before the bug been fixed.
-      let backend = (new URLSearchParams(location.search)).get('backend');
-      backend = backend === null ? 'wasm' : backend;
-      await setPolyfillBackend(backend);
+      // Use 'cpu' as default devicePreference before the bug been fixed.
+      await setPolyfillBackend('cpu');
       await main();
     }
   </script>

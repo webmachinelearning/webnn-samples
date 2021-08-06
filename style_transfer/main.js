@@ -2,7 +2,7 @@
 
 import {FastStyleTransferNet} from './fast_style_transfer_net.js';
 import {showProgressComponent, readyShowResultComponents} from '../common/ui.js';
-import {getInputTensor, getMedianValue, sizeOfShape} from '../common/utils.js';
+import * as utils from '../common/utils.js';
 
 const maxWidth = 380;
 const maxHeight = 380;
@@ -102,7 +102,7 @@ function stopCamera() {
  */
 async function renderCamStream() {
   const inputBuffer =
-      getInputTensor(camElement, fastStyleTransferNet.inputOptions);
+      utils.getInputTensor(camElement, fastStyleTransferNet.inputOptions);
   console.log('- Computing... ');
   const start = performance.now();
   fastStyleTransferNet.compute(inputBuffer, outputBuffer);
@@ -205,8 +205,8 @@ export async function main() {
         fastStyleTransferNet.dispose();
       }
       fastStyleTransferNet = new FastStyleTransferNet();
-      outputBuffer =
-          new Float32Array(sizeOfShape(fastStyleTransferNet.outputDimensions));
+      outputBuffer = new Float32Array(
+          utils.sizeOfShape(fastStyleTransferNet.outputDimensions));
       isFirstTimeLoad = false;
       isModelChanged = false;
       console.log(`- Model ID: ${modelId} -`);
@@ -214,7 +214,9 @@ export async function main() {
       await showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');
       start = performance.now();
-      const outputOperand = await fastStyleTransferNet.load(modelId);
+      const devicePreference = utils.getDevicePreference();
+      const outputOperand =
+          await fastStyleTransferNet.load(devicePreference, modelId);
       loadTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${loadTime} ms.`);
       // UI shows model building progress
@@ -229,7 +231,7 @@ export async function main() {
     await showProgressComponent('done', 'done', 'current');
     if (inputType === 'image') {
       const inputBuffer =
-          getInputTensor(imgElement, fastStyleTransferNet.inputOptions);
+          utils.getInputTensor(imgElement, fastStyleTransferNet.inputOptions);
       console.log('- Computing... ');
       const computeTimeArray = [];
       let medianComputeTime;
@@ -245,7 +247,7 @@ export async function main() {
         computeTimeArray.push(Number(computeTime));
       }
       if (numRuns > 1) {
-        medianComputeTime = getMedianValue(computeTimeArray);
+        medianComputeTime = utils.getMedianValue(computeTimeArray);
         medianComputeTime = medianComputeTime.toFixed(2);
         console.log(`  median compute time: ${medianComputeTime} ms`);
       }
