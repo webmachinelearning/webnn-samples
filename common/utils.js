@@ -144,29 +144,35 @@ export function getMedianValue(array) {
       (array[array.length / 2 - 1] + array[array.length / 2]) / 2;
 }
 
-// Set tf.js backend
-export async function setPolyfillBackend(backend) {
-  if (!backend) {
-    // Use 'webgl' by default for better performance
-    backend = 'webgl';
-  }
+// Set tf.js backend based WebNN's 'MLDevicePreference' option
+export async function setPolyfillBackend(device) {
+  // Simulate WebNN's device selection using various tf.js backends.
+  // MLDevicePreference: ['default', 'gpu', 'cpu']
+  // 'default' or 'gpu': tfjs-backend-webgl, 'cpu': tfjs-backend-wasm
+  if (!device) device = getDevicePreference();
+  // Use 'webgl' by default for better performance.
+  // Note: 'wasm' backend may run failed on some samples since
+  // some ops aren't supported on 'wasm' backend at present
+  const backend = device === 'cpu' ? 'wasm' : 'webgl';
   const tf = navigator.ml.createContext().tf;
   if (tf) {
-    // Note: 'wasm' backend may run failed on some sample since
-    // some ops are supported on 'wasm' backend at present
-    const backends = ['webgl', 'cpu', 'wasm'];
-    if (!backends.includes(backend)) {
-      if (backend) {
-        console.warn(`webnn-polyfill doesn't support ${backend} backend.`);
-      }
-    } else {
-      if (!(await tf.setBackend(backend))) {
-        console.error(`Failed to set tf.js backend ${backend}.`);
-      }
+    if (!(await tf.setBackend(backend))) {
+      throw new Error(`Failed to set tf.js backend ${backend}.`);
     }
     await tf.ready();
     console.info(
         `webnn-polyfill uses tf.js ${tf.version_core}` +
         ` ${tf.getBackend()} backend.`);
   }
+}
+
+// Get 'devicePreference' from url query string
+export function getDevicePreference() {
+  let device = (new URLSearchParams(location.search)).get('device');
+  device = device === null ? 'default' : device;
+  const devices = ['default', 'gpu', 'cpu'];
+  if (!devices.includes(device)) {
+    throw new Error(`WebNN doesn't support ${device} devicePreference.`);
+  }
+  return device;
 }

@@ -159,8 +159,7 @@
     import {setPolyfillBackend} from '../common/utils.js';
 
     window.onload = async () => {
-      const backend = (new URLSearchParams(location.search)).get('backend');
-      await setPolyfillBackend(backend);
+      await setPolyfillBackend();
       await main();
     }
   </script>

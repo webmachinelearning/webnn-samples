@@ -38,8 +38,8 @@ export class SqueezeNetNchw {
     return this.builder_.concat([conv1x1, conv3x3], 1);
   }
 
-  async load() {
-    const context = navigator.ml.createContext();
+  async load(devicePreference) {
+    const context = navigator.ml.createContext({devicePreference});
     this.builder_ = new MLGraphBuilder(context);
     const data = this.builder_.input('input',
         {type: 'float32', dimensions: this.inputOptions.inputDimensions});
