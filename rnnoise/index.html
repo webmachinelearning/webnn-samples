@@ -1,0 +1,72 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>WebNN RNNoise Example</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark" style="width:100%">
+      <span class="navbar-brand mb-0 h1">WebNN RNNoise Example</span>
+    </nav>
+    <div class="container" id="container">
+      <div class="row">
+        <div class="col-md">
+        </div>
+        <div class="col-md-8">
+          <div id="info" style="min-height: 7em;"></div>
+        </div>
+        <div class="col-md">
+        </div>
+      </div>
+      <div class="row align-items-start" style="padding-top:2%;">
+        <div class="col-md">
+        </div>
+        <div class="col-md-8">
+          <div class="input-group mb-3" style="width: 80%;">
+            <div class="input-group-prepend">
+              <button id="choose-audio" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled>
+                Choose a sample audio
+              </button>
+              <div class="dropdown-menu">
+                <button class="dropdown-item" id="voice1">Background noise 1</button>
+                <button class="dropdown-item" id="voice2">Background noise 2</button>
+                <button class="dropdown-item" id="voice3">Background noise 3</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" id="browse">Browse...</button>
+              </div>
+            </div>
+            <span id="audio-name" class="form-control-plaintext" aria-label="Text input with dropdown button" style="padding-left: 5px;">
+          </div>
+          <form hidden>
+            <input type="file" class="form-control-file" id="file-input" accept=".wav, .opus, .mp3, .ogg, .webm">
+          </form>
+          <div style="padding-top: 5px;">
+            <div for="original-audio">Original audio:</div>
+            <audio controls id="original-audio" style="width: 80%;"></audio>
+          </div>
+        </div>
+        <div class="col-md">
+        </div>
+      </div>
+      <div class="row align-items-start" style="padding-top:2%;">
+        <div class="col-md">
+        </div>
+        <div class="col-md-8">
+          <div id="denoise-info" style="min-height: 8em;"></div>
+          <div for="original-audio">Denoised audio:</div>
+          <audio controls id="denoised-audio" style="width: 80%;"></audio>
+        </div>
+        <div class="col-md">
+        </div>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <script src="https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js"></script>
+    <script type="module" src="./rnnoise.js"></script>
+    <script type="module" src="./processer.js"></script>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
