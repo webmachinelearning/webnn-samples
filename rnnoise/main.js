@@ -1,9 +1,10 @@
 import {Processer} from './processer.js';
 import {RNNoise} from './rnnoise.js';
-import {setPolyfillBackend} from '../common/utils.js';
+import {setPolyfillBackend, getDevicePreference} from '../common/utils.js';
 
 const batchSize = 1;
 const frames = 100; // Frames is fixed at 100
+const frameSize = 480;
 const gainsSize = 22;
 const weightsUrl = '../test-data/models/rnnoise/weights/';
 const rnnoise = new RNNoise(weightsUrl, batchSize, frames);
@@ -46,7 +47,7 @@ wasmScript.onload = function() {
     console.log('DSP library Loaded.');
   };
 };
-wasmScript.src = 'signal/signal.js';
+wasmScript.src = 'process/process.js';
 document.getElementsByTagName('head')[0].appendChild(wasmScript);
 
 function getUrlById(audioList, id) {
@@ -79,8 +80,6 @@ denoisedAudio.onplay = () => {
 async function denoise() {
   const audioData = [];
   const audioContext = new AudioContext({sampleRate: 48000});
-  const sampleRate = audioContext.sampleRate;
-  const steps = 48000;
   const vadInitialHiddenStateBuffer = new Float32Array(
       rnnoise.vadGruNumDirections * batchSize *rnnoise.vadGruHiddenSize,
   ).fill(0);
@@ -117,24 +116,25 @@ async function denoise() {
       console.log('audioContext resumed.');
     });
   }
-  const analyser = new Processer(audioContext, originalAudio);
+  const analyser = new Processer(audioContext, originalAudio, frames);
   const pcm = await analyser.getAudioPCMData();
-  const frameSize = Math.ceil(pcm.length / steps);
-  const lastFrameSize = pcm.length - steps * (frameSize - 1);
+  const inputSize = frameSize * frames;
+  const numInputs = Math.ceil(pcm.length / inputSize);
+  const lastInputSize = pcm.length - inputSize * (numInputs - 1);
 
   const processStart = performance.now();
-  for (let i = 0; i < frameSize; i++) {
-    let framePCM;
-    if (i != (frameSize - 1)) {
-      framePCM = pcm.subarray(i * steps, i * steps + sampleRate);
+  for (let i = 0; i < numInputs; i++) {
+    let inputPCM;
+    if (i != (numInputs - 1)) {
+      inputPCM = pcm.subarray(i * inputSize, (i + 1) * inputSize);
     } else {
-      framePCM = new Float32Array(sampleRate).fill(0);
-      for (let j = 0; j < lastFrameSize; j++) {
-        framePCM[j] = pcm[i * sampleRate + j];
+      inputPCM = new Float32Array(inputSize).fill(0);
+      for (let j = 0; j < lastInputSize; j++) {
+        inputPCM[j] = pcm[i * inputSize + j];
       }
     }
     let start = performance.now();
-    const features = analyser.preProcessing(framePCM);
+    const features = analyser.preProcessing(inputPCM);
     const preProcessingTime = (performance.now() - start).toFixed(2);
     inputs.input = new Float32Array(features);
     start = performance.now();
@@ -147,15 +147,11 @@ async function denoise() {
     start = performance.now();
     const output = analyser.postProcessing(outputs.denoiseOutput);
     const postProcessingTime = (performance.now() - start).toFixed(2);
-    if (i == 0) {
-      audioData.push(...output);
-    } else {
-      audioData.push(...output.slice(sampleRate - steps));
-    }
+    audioData.push(...output);
 
     await log(
         DenoiseInfo, `Denoising...  ` +
-        `(${Math.ceil((i + 1) / frameSize * 100)}%)<br>` +
+        `(${Math.ceil((i + 1) / numInputs * 100)}%)<br>` +
         ` - preProcessing time: <span class='text-primary'>` +
         `${preProcessingTime}</span> ms.<br>` +
         ` - RNNoise compute time: <span class='text-primary'>` +
@@ -165,7 +161,7 @@ async function denoise() {
     );
   }
   const processTime = (performance.now() - processStart).toFixed(2);
-  log(DenoiseInfo, `<b>Done.</b> Processed ${frameSize * 100} ` +
+  log(DenoiseInfo, `<b>Done.</b> Processed ${numInputs * 100} ` +
     `frames in <span class='text-primary'>${processTime}</span> ms.`, true);
 
   // Send the denoised audio data for wav encoding.
@@ -210,13 +206,13 @@ fileInput.addEventListener('input', (event) => {
 });
 
 window.onload = async function() {
-  const backend = (new URLSearchParams(location.search)).get('backend');
-  await setPolyfillBackend(backend);
+  await setPolyfillBackend();
   await log(modelInfo, `Creating RNNoise with input shape ` +
     `[${batchSize} (batch_size) x 100 (frames) x 42].`, true);
   await log(modelInfo, '- Loading model...');
+  const devicePreference = getDevicePreference();
   let start = performance.now();
-  const outputOperand = await rnnoise.load();
+  const outputOperand = await rnnoise.load(devicePreference);
   const loadingTime = (performance.now() - start).toFixed(2);
   console.log(`loading elapsed time: ${loadingTime} ms`);
   await log(modelInfo,

@@ -1247,7 +1247,7 @@ function isFileURI(filename) {
 
 // end include: URIUtils.js
 var wasmBinaryFile;
-  wasmBinaryFile = 'signal.wasm';
+  wasmBinaryFile = 'process.wasm';
   if (!isDataURI(wasmBinaryFile)) {
     wasmBinaryFile = locateFile(wasmBinaryFile);
   }
@@ -1423,10 +1423,12 @@ var ASM_CONSTS = {
         }
       }
     }
+  Module["callRuntimeCallbacks"] = callRuntimeCallbacks;
 
   function demangle(func) {
       return func;
     }
+  Module["demangle"] = demangle;
 
   function demangleAll(text) {
       var regex =
@@ -1437,6 +1439,7 @@ var ASM_CONSTS = {
           return x === y ? x : (y + ' [' + x + ']');
         });
     }
+  Module["demangleAll"] = demangleAll;
 
   function jsStackTrace() {
       var error = new Error();
@@ -1454,16 +1457,19 @@ var ASM_CONSTS = {
       }
       return error.stack.toString();
     }
+  Module["jsStackTrace"] = jsStackTrace;
 
   function stackTrace() {
       var js = jsStackTrace();
       if (Module['extraStackTrace']) js += '\n' + Module['extraStackTrace']();
       return demangleAll(js);
     }
+  Module["stackTrace"] = stackTrace;
 
   function _emscripten_memcpy_big(dest, src, num) {
       HEAPU8.copyWithin(dest, src, src + num);
     }
+  Module["_emscripten_memcpy_big"] = _emscripten_memcpy_big;
 
   function emscripten_realloc_buffer(size) {
       try {
@@ -1476,6 +1482,7 @@ var ASM_CONSTS = {
       // implicit 0 return to save code size (caller will cast "undefined" into 0
       // anyhow)
     }
+  Module["emscripten_realloc_buffer"] = emscripten_realloc_buffer;
   function _emscripten_resize_heap(requestedSize) {
       var oldSize = HEAPU8.length;
       requestedSize = requestedSize >>> 0;
@@ -1518,6 +1525,7 @@ var ASM_CONSTS = {
       }
       return false;
     }
+  Module["_emscripten_resize_heap"] = _emscripten_resize_heap;
 var ASSERTIONS = false;
 
 

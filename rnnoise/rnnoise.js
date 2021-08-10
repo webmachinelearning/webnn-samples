@@ -10,7 +10,7 @@ export class RNNoise {
     this.model_ = null;
     this.graph_ = null;
     this.builder_ = null;
-    this.frameSize = 42;
+    this.featureSize = 42;
     this.vadGruHiddenSize = 24;
     this.vadGruNumDirections = 1;
     this.noiseGruHiddenSize = 48;
@@ -19,8 +19,8 @@ export class RNNoise {
     this.denoiseGruNumDirections = 1;
   }
 
-  async load() {
-    const context = navigator.ml.createContext();
+  async load(devicePreference) {
+    const context = navigator.ml.createContext({devicePreference});
     this.builder_ = new MLGraphBuilder(context);
     // Create constants by loading pre-trained data from .npy files.
     const inputDenseKernel0 = await buildConstantByNpy(this.builder_,
@@ -52,7 +52,7 @@ export class RNNoise {
     // Build up the network.
     const input = this.builder_.input(
         'input', {type: 'float32', dimensions: [this.batchSize_,
-          this.frames_, this.frameSize]});
+          this.frames_, this.featureSize]});
     const inputDense0 = this.builder_.matmul(input, inputDenseKernel0);
     const biasedTensorName2 = this.builder_.add(inputDense0, inputDenseBias0);
     const inputDenseTanh0 = this.builder_.tanh(biasedTensorName2);
@@ -73,7 +73,7 @@ export class RNNoise {
           initialHiddenState: vadGruInitialH,
           returnSequence: true,
           resetAfter: false,
-          activations: ['sigmoid', 'relu'],
+          activations: [this.builder_.sigmoid(), this.builder_.relu()],
         });
     const vadGruYTransposed = this.builder_.transpose(
         vadGruY, {permutation: [2, 0, 1, 3]});
@@ -98,7 +98,7 @@ export class RNNoise {
           initialHiddenState: noiseGruInitialH,
           returnSequence: true,
           resetAfter: false,
-          activations: ['sigmoid', 'relu'],
+          activations: [this.builder_.sigmoid(), this.builder_.relu()],
         });
     const noiseGruYTransposed = this.builder_.transpose(
         noiseGruY, {permutation: [2, 0, 1, 3]});
@@ -123,7 +123,7 @@ export class RNNoise {
           initialHiddenState: denoiseGruInitialH,
           returnSequence: true,
           resetAfter: false,
-          activations: ['sigmoid', 'relu'],
+          activations: [this.builder_.sigmoid(), this.builder_.relu()],
         });
     const denoiseGruYTransposed = this.builder_.transpose(
         denoiseGruY, {permutation: [2, 0, 1, 3]});

@@ -8,5 +8,5 @@ Start or pause the original audio playback with the upper media player.
 
 Once the denoising is done, start or pause the denoised audio playback with the lower media player.
 
-### Where did the contents of `signal` folder come from?
-A web based DSP library using WebAssembly translated from [Rnnoise](https://github.com/xiph/rnnoise), a recurrent neural netork based noise reduction library in C++. We extracted the pre-processing and post-processing parts for compilation using [Emscripten](https://emscripten.org/). Please check out [README.md](signal/README.md) in signal folder for details.
+### Where did the contents of `process` folder come from?
+A web based DSP library using WebAssembly translated from [Rnnoise](https://github.com/xiph/rnnoise), a recurrent neural netork based noise reduction library in C++. We extracted the pre-processing and post-processing parts for compilation using [Emscripten](https://emscripten.org/). Please check out [README.md](process/README.md) in process folder for details.

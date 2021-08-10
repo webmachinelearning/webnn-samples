@@ -1,5 +1,5 @@
 module.exports = {
-  ignorePatterns: ['signal/', 'utils/'],
+  ignorePatterns: ['process/', 'utils/'],
   globals: {
     'MLGraphBuilder': 'readonly',
     'Module': 'readonly',
