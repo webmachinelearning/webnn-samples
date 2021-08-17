@@ -131,12 +131,12 @@ async function drawOutput(inputElement, outputs, labels) {
     // Transpose 'nchw' output to 'nhwc' for postprocessing
     let outputBuffer = outputs.output;
     if (layout === 'nchw') {
-      const a =
-          tf.tensor(outputBuffer, netInstance.outputDimensions, 'float32');
-      const b = tf.transpose(a, [0, 2, 3, 1]);
-      const buffer = await b.buffer();
-      tf.dispose();
-      outputBuffer = buffer.values;
+      outputBuffer = tf.tidy(() => {
+        const a =
+            tf.tensor(outputBuffer, netInstance.outputDimensions, 'float32');
+        const b = tf.transpose(a, [0, 2, 3, 1]);
+        return b.dataSync();
+      });
     }
     const decodeOut = Yolo2Decoder.decodeYOLOv2({numClasses: 20},
         outputBuffer, inputOptions.anchors);

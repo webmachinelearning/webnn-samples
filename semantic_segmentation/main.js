@@ -231,16 +231,15 @@ async function renderCamStream() {
 async function drawOutput(srcElement) {
   // TODO: move 'argMax' operation to graph once it is supported in WebNN spec.
   // https://github.com/webmachinelearning/webnn/issues/184
-  const a = tf.tensor(outputBuffer, netInstance.outputDimensions, 'float32');
-  let axis = 3;
-  if (layout === 'nchw') {
-    axis = 1;
-  }
-  const b = tf.argMax(a, axis);
-  const buffer = await b.buffer();
-  tf.dispose();
-  const argMaxBuffer = buffer.values;
-  const outputShape = b.shape;
+  const [argMaxBuffer, outputShape] = tf.tidy(() => {
+    const a = tf.tensor(outputBuffer, netInstance.outputDimensions, 'float32');
+    let axis = 3;
+    if (layout === 'nchw') {
+      axis = 1;
+    }
+    const b = tf.argMax(a, axis);
+    return [b.dataSync(), b.shape];
+  });
 
   const width = inputOptions.inputDimensions[2];
   const imWidth = srcElement.naturalWidth | srcElement.videoWidth;
