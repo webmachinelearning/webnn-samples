@@ -96,7 +96,7 @@ export class ResNet50V2Nchw {
         {type: 'float32', dimensions: this.inputOptions.inputDimensions});
     const bn1 = await this.buildBatchNorm_(data, '0', '', false);
     const conv0 = await this.buildConv_(
-        bn1, '0', '', {pading: [3, 3, 3, 3], strides: [2, 2]});
+        bn1, '0', '', {padding: [3, 3, 3, 3], strides: [2, 2]});
     const bn2 = await this.buildBatchNorm_(conv0, '1', '');
     const pool1 = await this.builder_.maxPool2d(bn2,
         {windowDimensions: [3, 3], padding: [1, 1, 1, 1], strides: [2, 2]});
