@@ -43,9 +43,7 @@ export class DeepLabV3MNV2Nchw {
     options.bias = bias;
     if (activation === 'relu6') {
       // implement `relu6` by `clamp` of  WebNN API
-      const clampOptions = {};
-      clampOptions.minValue = this.builder_.constant(0);
-      clampOptions.maxValue = this.builder_.constant(6);
+      const clampOptions = {minValue: 0, maxValue: 6};
       options.activation = this.builder_.clamp(clampOptions);
     } else if (activation === 'relu') {
       options.activation = this.builder_.relu();

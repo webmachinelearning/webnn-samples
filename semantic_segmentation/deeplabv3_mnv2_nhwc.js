@@ -43,9 +43,7 @@ export class DeepLabV3MNV2Nhwc {
     options.bias = bias;
     if (relu6) {
       // `relu6` in TFLite equals to `clamp` in WebNN API
-      const clampOptions = {};
-      clampOptions.minValue = this.builder_.constant(0);
-      clampOptions.maxValue = this.builder_.constant(6);
+      const clampOptions = {minValue: 0, maxValue: 6};
       options.activation = this.builder_.clamp(clampOptions);
     } else {
       options.activation = undefined;
