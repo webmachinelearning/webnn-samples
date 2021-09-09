@@ -71,10 +71,7 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     options.bias = bias;
     if (relu6) {
       // implement `relu6` by `clamp` of  WebNN API
-      const clampOptions = {};
-      clampOptions.minValue = this.builder_.constant(0);
-      clampOptions.maxValue = this.builder_.constant(6);
-      options.activation = this.builder_.clamp(clampOptions);
+      options.activation = this.builder_.clamp({minValue: 0, maxValue: 6});
     }
     return this.builder_.conv2d(input, weights, options);
   }
