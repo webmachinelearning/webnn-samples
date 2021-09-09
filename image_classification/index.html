@@ -18,7 +18,7 @@
       <div class="col">
         <div class="btn-group-toggle" data-toggle="buttons" id="layoutBtns">
           <label class="mr-3">Layout: </label>
-          <label class="btn btn-outline-info btn-sm mr-2 active">
+          <label class="btn btn-outline-info btn-sm mr-2 active" id='nchw-label'>
             <input type="radio" name="layout" id="nchw" autocomplete="off" checked>NCHW
           </label>
           <label class="btn btn-outline-info btn-sm">
@@ -36,7 +36,10 @@
             <input type="radio" name="model" id="squeezenet" autocomplete="off">SqueezeNet
           </label>
           <label class="btn btn-outline-info btn-sm mr-2">
-            <input type="radio" name="model" id="resnet" autocomplete="off">ResNet V2
+            <input type="radio" name="model" id="resnet50" autocomplete="off">ResNet V2 50
+          </label>
+          <label class="btn btn-outline-secondary btn-sm mr-2 disabled" id='resnet101-label'>
+            <input type="radio" name="model" id="resnet101" autocomplete="off">ResNet V2 101
           </label>
         </div>
       </div>
