@@ -108,6 +108,7 @@ async function renderCamStream() {
   camElement.height = camElement.videoHeight;
   showPerfResult();
   await drawOutput(camElement, outputs, labels);
+  $('#fps').text(`${(1000/computeTime).toFixed(0)} FPS`);
   rafReq = requestAnimationFrame(renderCamStream);
 }
 
@@ -256,6 +257,7 @@ async function main() {
       }
       console.log('output: ', outputs);
       await showProgressComponent('done', 'done', 'done');
+      $('#fps').hide();
       readyShowResultComponents();
       await drawOutput(imgElement, outputs, labels);
       showPerfResult(medianComputeTime);
@@ -264,6 +266,7 @@ async function main() {
       camElement.srcObject = stream;
       camElement.onloadedmediadata = await renderCamStream();
       await showProgressComponent('done', 'done', 'done');
+      $('#fps').show();
       readyShowResultComponents();
     } else {
       throw Error(`Unknown inputType ${inputType}`);
