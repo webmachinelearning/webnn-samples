@@ -132,6 +132,7 @@ async function renderCamStream() {
   drawInput(camElement, 'camInCanvas');
   showPerfResult();
   await drawOutput(outputBuffer, labels);
+  $('#fps').text(`${(1000/computeTime).toFixed(0)} FPS`);
   rafReq = requestAnimationFrame(renderCamStream);
 }
 

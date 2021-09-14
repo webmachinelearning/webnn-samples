@@ -484,3 +484,7 @@
     max-height: 1539px;
   }
 }
+
+#fps {
+  font-size: 0.9rem;
+}
