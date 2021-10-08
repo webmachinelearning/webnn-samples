@@ -156,6 +156,31 @@ export async function setPolyfillBackend(device) {
   const backend = device === 'cpu' ? 'wasm' : 'webgl';
   const tf = navigator.ml.createContext().tf;
   if (tf) {
+    // Use service worker to enable SharedArrayBuffer on GitHub page.
+    // Refer to https://dev.to/stefnotch/enabling-coop-coep-without-touching-the-server-2d3n
+    if (backend === 'wasm') {
+      if ('serviceWorker' in navigator) {
+        // Register service worker
+        navigator.serviceWorker.register('../sw.js').then((registration) => {
+          console.log('COOP/COEP Service Worker registered',
+              registration.scope);
+
+          registration.addEventListener('updatefound', () => {
+            window.location.reload();
+          });
+
+          // If the registration is active, but it's not controlling the page
+          if (registration.active && !navigator.serviceWorker.controller) {
+            window.location.reload();
+          }
+        },
+        (err) => {
+          console.log('COOP/COEP Service Worker failed to register', err);
+        });
+      } else {
+        console.warn('Cannot register a service worker');
+      }
+    }
     if (!(await tf.setBackend(backend))) {
       throw new Error(`Failed to set tf.js backend ${backend}.`);
     }
