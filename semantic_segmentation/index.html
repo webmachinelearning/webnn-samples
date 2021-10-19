@@ -14,10 +14,27 @@
     <span class='navbar-brand mb-0 h1'>WebNN Semantic Segmentation Example</span>
   </nav>
   <div class='container' id='container'>
-    <div class="row align-items-start mb-3 mt-3">
+    <div class="row mb-2 mt-2 align-items-center">
+      <div class="col-1">
+        <span>Device</span>
+      </div>
+      <div class="col">
+        <div class="btn-group-toggle" data-toggle="buttons" id="deviceBtns">
+          <label class="btn btn-outline-info btn-sm mr-2">
+            <input type="radio" name="layout" id="cpu" autocomplete="off">CPU
+          </label>
+          <label class="btn btn-outline-info btn-sm active">
+            <input type="radio" name="layout" id="gpu" autocomplete="off" checked>GPU
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="row mb-2 align-items-center">
+      <div class="col-1">
+        <span>Layout</span>
+      </div>
       <div class="col">
         <div class="btn-group-toggle" data-toggle="buttons" id="layoutBtns">
-          <label class="mr-3">Layout: </label>
           <label class="btn btn-outline-info btn-sm mr-2 active">
             <input type="radio" name="layout" id="nchw" autocomplete="off" checked>NCHW
           </label>
@@ -26,9 +43,13 @@
           </label>
         </div>
       </div>
-      <div class ="col-8">
+    </div>
+    <div class="row mb-2 align-items-center">
+      <div class="col-1">
+        <span>Model</span>
+      </div>
+      <div class ="col">
         <div class="btn-group-toggle" data-toggle="buttons" id="modelBtns">
-          <label class="mr-3">Model: </label>
           <label class="btn btn-outline-info btn-sm mr-2 active">
             <input type="radio" name="model" id="deeplabv3mobilenetv2" autocomplete="off" checked>DeepLab V3 MobileNet V2
           </label>
@@ -193,12 +214,11 @@
     // To restore module after loading 3rd-party libraries.
     if (window.tempModule) module = window.tempModule;
   </script>
+  <script src="../sw.js"></script>
   <script type="module">
     import {main} from './main.js';
-    import {setPolyfillBackend} from '../common/utils.js';
 
     window.onload = async () => {
-      await setPolyfillBackend();
       await main();
     }
   </script>

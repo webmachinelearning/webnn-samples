@@ -1,6 +1,6 @@
 'use strict';
 
-import {sizeOfShape, getDevicePreference} from '../common/utils.js';
+import {sizeOfShape, setPolyfillBackend} from '../common/utils.js';
 import {LeNet} from './lenet.js';
 import {Pen} from './pen.js';
 
@@ -16,6 +16,13 @@ digitCanvas.setAttribute('height', 28);
 digitCanvas.setAttribute('width', 28);
 digitCanvas.style.backgroundColor = 'black';
 const digitContext = digitCanvas.getContext('2d');
+let devicePreference = 'gpu';
+
+$('#deviceBtns .btn').on('change', async (e) => {
+  devicePreference = $(e.target).attr('id');
+  await setPolyfillBackend(devicePreference);
+  await main();
+});
 
 function drawNextDigitFromMnist() {
   const n = Math.floor(Math.random() * 10);
@@ -60,7 +67,7 @@ export async function main() {
   const lenet = new LeNet(weightUrl);
   try {
     let start = performance.now();
-    const outputOperand = await lenet.load(getDevicePreference());
+    const outputOperand = await lenet.load(devicePreference);
     console.log(
         `loading elapsed time: ${(performance.now() - start).toFixed(2)} ms`);
 
