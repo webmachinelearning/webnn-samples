@@ -1,6 +1,6 @@
 import {Processer} from './processer.js';
 import {RNNoise} from './rnnoise.js';
-import {setPolyfillBackend, getDevicePreference} from '../common/utils.js';
+import {setPolyfillBackend} from '../common/utils.js';
 
 const batchSize = 1;
 const frames = 100; // Frames is fixed at 100
@@ -8,6 +8,13 @@ const frameSize = 480;
 const gainsSize = 22;
 const weightsUrl = '../test-data/models/rnnoise/weights/';
 const rnnoise = new RNNoise(weightsUrl, batchSize, frames);
+let devicePreference = 'gpu';
+
+$('#deviceBtns .btn').on('change', async (e) => {
+  devicePreference = $(e.target).attr('id');
+  await setPolyfillBackend(devicePreference);
+  await main();
+});
 
 const sampleAudios = [{
   name: 'voice1',
@@ -205,12 +212,12 @@ fileInput.addEventListener('input', (event) => {
   reader.readAsDataURL(event.target.files[0]);
 });
 
-window.onload = async function() {
-  await setPolyfillBackend();
+async function main() {
+  await setPolyfillBackend(devicePreference);
+  modelInfo.innerHTML = '';
   await log(modelInfo, `Creating RNNoise with input shape ` +
     `[${batchSize} (batch_size) x 100 (frames) x 42].`, true);
   await log(modelInfo, '- Loading model...');
-  const devicePreference = getDevicePreference();
   let start = performance.now();
   const outputOperand = await rnnoise.load(devicePreference);
   const loadingTime = (performance.now() - start).toFixed(2);
@@ -226,4 +233,6 @@ window.onload = async function() {
       `done in <span class='text-primary'>${buildTime}</span> ms.`, true);
   await log(modelInfo, 'RNNoise is <b>ready</b>.');
   $('#choose-audio').attr('disabled', false);
-};
+}
+
+window.onload = async () => await main();

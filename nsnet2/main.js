@@ -1,6 +1,7 @@
 'use strict';
 
 import {Denoiser} from './denoiser.js';
+import {setPolyfillBackend} from '../common/utils.js';
 
 const sampleRate = 16000;
 const batchSize = 1;
@@ -9,9 +10,16 @@ const defaultFrames = 10;
 let denoiser;
 let audioData;
 let denoisedAudioData = [];
+let devicePreference = 'gpu';
 
 const chooseAudio = document.getElementById('choose-audio');
 const audioName = document.getElementById('audio-name');
+
+$('#deviceBtns .btn').on('change', async (e) => {
+  devicePreference = $(e.target).attr('id');
+  await setPolyfillBackend(devicePreference);
+  await main();
+});
 
 const sampleAudios = [
   {
@@ -159,7 +167,7 @@ export async function main() {
     denoiser.logger = document.getElementById('info');
     denoiser.logger.innerHTML = `Creating NSNet2 with input shape ` +
         `[${batchSize} (batch_size) x ${frames} (frames) x 161].<br>`;
-    await denoiser.prepare();
+    await denoiser.prepare(devicePreference);
     denoiser.logger.innerHTML += 'NSNet2 is <b>ready</b>.';
     denoiser.logger = document.getElementById('denoise-info');
     chooseAudio.removeAttribute('disabled');

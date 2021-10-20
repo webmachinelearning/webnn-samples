@@ -26,6 +26,8 @@ let inputOptions;
 let outputBuffer;
 let renderer;
 let hoverPos = null;
+let devicePreference = 'gpu';
+let lastDevicePreference = '';
 
 $(document).ready(() => {
   $('.icdisplay').hide();
@@ -35,6 +37,12 @@ $(window).on('load', () => {
   renderer = new Renderer(outputCanvas);
   renderer.setup();
   loadRenderUI();
+});
+
+$('#deviceBtns .btn').on('change', async (e) => {
+  devicePreference = $(e.target).attr('id');
+  if (inputType === 'camera') cancelAnimationFrame(rafReq);
+  await main();
 });
 
 $('#modelBtns .btn').on('change', async (e) => {
@@ -303,9 +311,15 @@ export async function main() {
           ' to 1.');
       return;
     }
-    // Only do load() and build() when model first time loads and
-    // there's new model choosed
-    if (isFirstTimeLoad || instanceType !== modelName + layout) {
+    // Only do load() and build() when model first time loads,
+    // there's new model choosed, and device backend changed
+    if (isFirstTimeLoad || instanceType !== modelName + layout ||
+      lastDevicePreference != devicePreference) {
+      if (lastDevicePreference != devicePreference) {
+        // Set polyfill backend
+        await utils.setPolyfillBackend(devicePreference);
+        lastDevicePreference = devicePreference;
+      }
       if (netInstance !== null) {
         // Call dispose() to and avoid memory leak
         netInstance.dispose();
@@ -322,7 +336,7 @@ export async function main() {
       await showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');
       start = performance.now();
-      const outputOperand = await netInstance.load(utils.getDevicePreference());
+      const outputOperand = await netInstance.load(devicePreference);
       loadTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${loadTime} ms.`);
       // UI shows model building progress
