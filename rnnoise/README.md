@@ -2,6 +2,9 @@
 This example shows how the [RNNoise](https://github.com/xiph/rnnoise) baseline implementation of deep learning-based noise suppression model may be implemented using the WebNN API.
 
 ### Usage
+
+Choose device preference for inference.
+
 Select one of the existing sample audios from the dropdown list or upload your own one.
 
 Start or pause the original audio playback with the upper media player.

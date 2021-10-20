@@ -14,6 +14,21 @@
     <span class='navbar-brand mb-0 h1'>WebNN Fast Style Transfer Example</span>
   </nav>
   <div class='container' id='container'>
+    <div class="row mb-3 mt-3 align-items-center">
+      <div class="col-1">
+        <span>Device</span>
+      </div>
+      <div class="col">
+        <div class="btn-group-toggle" data-toggle="buttons" id="deviceBtns">
+          <label class="btn btn-outline-info btn-sm mr-2">
+            <input type="radio" name="layout" id="cpu" autocomplete="off">CPU
+          </label>
+          <label class="btn btn-outline-info btn-sm active">
+            <input type="radio" name="layout" id="gpu" autocomplete="off" checked>GPU
+          </label>
+        </div>
+      </div>
+    </div>
     <ul class='nav nav-tabs nav-justified mb-3' id='ex1' role='tablist'>
       <li class='nav-item' id='img' role='presentation'>
         <a class='nav-link active' data-toggle='tab' href='#imagetab' role='tab' aria-controls='ex3-tabs-1'
@@ -149,6 +164,7 @@
       </div>
     </div>
   </div>
+  <script src="../sw.js"></script>
   <script>
     // This workaround is to fix jquery loading issue in electron.
     // Refer to https://stackoverflow.com/questions/32621988/electron-jquery-is-not-defined.
@@ -174,10 +190,8 @@
   </script>
   <script type="module">
     import {main} from './main.js';
-    import {setPolyfillBackend} from '../common/utils.js';
 
     window.onload = async () => {
-      await setPolyfillBackend();
       await main();
     }
   </script>

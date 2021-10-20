@@ -20,10 +20,18 @@ let loadTime = 0;
 let buildTime = 0;
 let computeTime = 0;
 let outputBuffer;
+let devicePreference = 'gpu';
+let lastDevicePreference = '';
 
 $(document).ready(() => {
   $('.icdisplay').hide();
   $('.badge').html(modelId);
+});
+
+$('#deviceBtns .btn').on('change', async (e) => {
+  devicePreference = $(e.target).attr('id');
+  if (inputType === 'camera') cancelAnimationFrame(rafReq);
+  await main();
 });
 
 // Click trigger to do inference with <img> element
@@ -198,9 +206,15 @@ export async function main() {
           ' to 1.');
       return;
     }
-    // Only do load() and build() when page first time loads and
-    // there's new model choosed
-    if (isFirstTimeLoad || isModelChanged) {
+    // Only do load() and build() when model first time loads,
+    // there's new model choosed, and device backend changed
+    if (isFirstTimeLoad || isModelChanged ||
+        lastDevicePreference != devicePreference) {
+      if (lastDevicePreference != devicePreference) {
+        // Set polyfill backend
+        await utils.setPolyfillBackend(devicePreference);
+        lastDevicePreference = devicePreference;
+      }
       if (fastStyleTransferNet !== undefined) {
         // Call dispose() to and avoid memory leak
         fastStyleTransferNet.dispose();
@@ -215,7 +229,6 @@ export async function main() {
       await showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');
       start = performance.now();
-      const devicePreference = utils.getDevicePreference();
       const outputOperand =
           await fastStyleTransferNet.load(devicePreference, modelId);
       loadTime = (performance.now() - start).toFixed(2);

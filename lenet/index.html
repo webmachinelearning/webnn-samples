@@ -10,13 +10,30 @@
       <span class="navbar-brand mb-0 h1">WebNN LeNet Example</span>
     </nav>
     <div class="container" id="container">
-      <div class="row" style="padding-top:5%;">
+      <div class="row mb-4 mt-4 align-items-center">
         <div class="col-md">
         </div>
-        <div class="col-md-5" align="center">
-          <canvas id="visual_canvas" width=280 height=280></canvas>
+        <div class="col-md-9">
+          <div class="btn-group-toggle" data-toggle="buttons" id="deviceBtns">
+            <span class='mr-3'>Device</span>
+            <label class="btn btn-outline-info mr-2">
+              <input type="radio" name="layout" id="cpu" autocomplete="off">CPU
+            </label>
+            <label class="btn btn-outline-info active">
+              <input type="radio" name="layout" id="gpu" autocomplete="off" checked>GPU
+            </label>
+          </div>
+        </div>
+        <div class="col-md">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md">
         </div>
         <div class="col-md-4">
+          <canvas id="visual_canvas" width=280 height=280></canvas>
+        </div>
+        <div class="col-md-5">
           <div>
             <h5>Prediction Result:</h5>
           </div>
@@ -58,19 +75,20 @@
         <div class="col-md">
         </div>
       </div>
-      <div class="row" style="padding-top:5%;">
+      <div class="row mt-4">
         <div class="col-md">
         </div>
-        <div class="col-md-5" align="center">
-          <button type="button" class="btn btn-primary btn-lg" id="next">Next</button>
-          <button type="button" class="btn btn-primary btn-lg" id="clear">Clear</button>
-          <button type="button" class="btn btn-primary btn-lg" id="predict" disabled>Predict</button>
+        <div class="col-md-5">
+          <button type="button" class="btn btn-outline-info mr-2" id="next">Next</button>
+          <button type="button" class="btn btn-outline-info mr-2" id="clear">Clear</button>
+          <button type="button" class="btn btn-outline-info" id="predict" disabled>Predict</button>
         </div>
         <div class="col-md-4"></div>
         <div class="col-md">
         </div>
       </div>
     </div>
+    <script src="../sw.js"></script>
     <script>
       // This workaround is to fix jquery loading issue in electron.
       // Refer to https://stackoverflow.com/questions/32621988/electron-jquery-is-not-defined.
@@ -92,7 +110,7 @@
       import {main} from './main.js';
       import {setPolyfillBackend} from '../common/utils.js';
       window.onload = async () => {
-        await setPolyfillBackend();
+        await setPolyfillBackend('gpu');
         await main();
       }
     </script>

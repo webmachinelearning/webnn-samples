@@ -78,6 +78,9 @@ The following table lists the corresponding WebNN ops and parameters for each la
 </table>
 
 ### Usage
+
+Click the `Device` switch button to choose device preference for inference.
+
 Click the `Predict` button to predict the digit shown in the canvas.
 
 Click the `Next` button to pick up another digit from MNIST dataset.

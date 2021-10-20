@@ -149,38 +149,13 @@ export async function setPolyfillBackend(device) {
   // Simulate WebNN's device selection using various tf.js backends.
   // MLDevicePreference: ['default', 'gpu', 'cpu']
   // 'default' or 'gpu': tfjs-backend-webgl, 'cpu': tfjs-backend-wasm
-  if (!device) device = getDevicePreference();
+  if (!device) device = 'gpu';
   // Use 'webgl' by default for better performance.
   // Note: 'wasm' backend may run failed on some samples since
   // some ops aren't supported on 'wasm' backend at present
   const backend = device === 'cpu' ? 'wasm' : 'webgl';
   const tf = navigator.ml.createContext().tf;
   if (tf) {
-    // Use service worker to enable SharedArrayBuffer on GitHub page.
-    // Refer to https://dev.to/stefnotch/enabling-coop-coep-without-touching-the-server-2d3n
-    if (backend === 'wasm') {
-      if ('serviceWorker' in navigator) {
-        // Register service worker
-        navigator.serviceWorker.register('../sw.js').then((registration) => {
-          console.log('COOP/COEP Service Worker registered',
-              registration.scope);
-
-          registration.addEventListener('updatefound', () => {
-            window.location.reload();
-          });
-
-          // If the registration is active, but it's not controlling the page
-          if (registration.active && !navigator.serviceWorker.controller) {
-            window.location.reload();
-          }
-        },
-        (err) => {
-          console.log('COOP/COEP Service Worker failed to register', err);
-        });
-      } else {
-        console.warn('Cannot register a service worker');
-      }
-    }
     if (!(await tf.setBackend(backend))) {
       throw new Error(`Failed to set tf.js backend ${backend}.`);
     }
@@ -189,15 +164,4 @@ export async function setPolyfillBackend(device) {
         `webnn-polyfill uses tf.js ${tf.version_core}` +
         ` ${tf.getBackend()} backend.`);
   }
-}
-
-// Get 'devicePreference' from url query string
-export function getDevicePreference() {
-  let device = (new URLSearchParams(location.search)).get('device');
-  device = device === null ? 'default' : device;
-  const devices = ['default', 'gpu', 'cpu'];
-  if (!devices.includes(device)) {
-    throw new Error(`WebNN doesn't support ${device} devicePreference.`);
-  }
-  return device;
 }

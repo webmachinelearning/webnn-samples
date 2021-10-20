@@ -8,7 +8,7 @@ This example shows how the [MobileNet V2 ONNX](https://github.com/onnx/models/tr
 
 ### Classify images
 
-Choose model and layout, in a very few second you will see the predict result for the test image be presented on the page.
+Choose device, model and layout, in a very few second you will see the predict result for the test image be presented on the page.
 
 You could also click 'Pick Image' button to choose your local image to classfy it.
 

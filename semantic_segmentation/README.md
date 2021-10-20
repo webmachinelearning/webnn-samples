@@ -41,7 +41,7 @@ python3 -m tf2onnx.convert --opset 13 --tflite deeplab_mobilenetv2.tflite --outp
 
 ### Partition images
 
-Choose model and layout, in a very few second you will see the predict result for the test image be presented on the page. Operate the renderer menus to experience variance partitioning effects.
+Choose device, model and layout, in a very few second you will see the predict result for the test image be presented on the page. Operate the renderer menus to experience variance partitioning effects.
 
 You could also click 'Pick Image' button to choose your local image to partition it.
 

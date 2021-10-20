@@ -7,7 +7,7 @@ from Vangogh Crazy World project may be implemented by using the WebNN API.
 
 ### Transfer image style
 
-Select style image of famous paintings on the image gallery, in a very few second you will see the styled image presented on the page.
+Select device, style image of famous paintings on the image gallery, in a very few second you will see the styled image presented on the page.
 
 You could also click 'Pick Image' button to choose your local image to tranfer to the style you want.
 
