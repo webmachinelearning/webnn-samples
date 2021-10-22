@@ -488,3 +488,62 @@
 #fps {
   font-size: 0.9rem;
 }
+
+.btn-outline-info, .btn-outline-secondary {
+  font-size: 0.85rem;
+  color: #04a1dc;
+  padding: 0.3rem 0.5rem;
+}
+
+.btn-outline-info:hover,
+.btn-outline-info .active,
+.btn-outline-info:not(:disabled):not(.disabled).active,
+.btn-outline-info:not(:disabled):not(.disabled):active {
+  background-color: #04a1dc;
+  border: 1px solid #04a1dc;
+}
+
+.btn-lg {
+  font-size: 1rem;
+}
+
+.card-body {
+  padding: 0.8rem;
+  font-size: 0.9rem;
+  word-wrap: normal;
+}
+
+.navbar {
+  width:100%;
+  background-image: linear-gradient(135deg, #3f69b8, #2555a0, #42b3dd);
+  color: #fff;
+}
+
+.navbar-dark .navbar-nav {
+  color: #fff;
+}
+
+footer {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+}
+
+.dropdown-item:hover {
+  background-color: #04a1dc;
+  color: #fff;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.logosvg {
+  font-family: "Poppins";
+
+}
+
+.logosvg svg {
+  width: 200px;
+  height: 50px;
+}

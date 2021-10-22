@@ -4,58 +4,62 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>WebNN Object Detection Example</title>
-  <link href='../common/css/style.css' rel='stylesheet'>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <link href='../common/css/style.css' rel='stylesheet'>
 </head>
 
 <body>
-  <nav class='navbar navbar-expand-md navbar-dark bg-dark' style='width:100%'>
+  <nav class='navbar navbar-expand-md' style='width:100%'>
     <span class='navbar-brand mb-0 h1'>WebNN Object Detection Example</span>
   </nav>
   <div class='container' id='container'>
-    <div class="row mb-2 mt-2 align-items-center">
-      <div class="col-1">
-        <span>Device</span>
-      </div>
-      <div class="col">
-        <div class="btn-group-toggle" data-toggle="buttons" id="deviceBtns">
-          <label class="btn btn-outline-info btn-sm mr-2">
-            <input type="radio" name="layout" id="cpu" autocomplete="off">CPU
-          </label>
-          <label class="btn btn-outline-info btn-sm active">
-            <input type="radio" name="layout" id="gpu" autocomplete="off" checked>GPU
-          </label>
+    <div class="card mt-2 mb-2">
+      <div class="card-body">
+        <div class="row mb-2 align-items-center">
+          <div class="col-1">
+            <span>Device</span>
+          </div>
+          <div class="col">
+            <div class="btn-group-toggle" data-toggle="buttons" id="deviceBtns">
+              <label class="btn btn-outline-info btn-sm mr-2">
+                <input type="radio" name="layout" id="cpu" autocomplete="off">CPU
+              </label>
+              <label class="btn btn-outline-info btn-sm active">
+                <input type="radio" name="layout" id="gpu" autocomplete="off" checked>GPU
+              </label>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-    <div class="row mb-2 align-items-center">
-      <div class="col-1">
-        <span>Layout</span>
-      </div>
-      <div class="col">
-        <div class="btn-group-toggle" data-toggle="buttons" id="layoutBtns">
-          <label class="btn btn-outline-info btn-sm mr-2 active">
-            <input type="radio" name="layout" id="nchw" autocomplete="off" checked>NCHW
-          </label>
-          <label class="btn btn-outline-info btn-sm">
-            <input type="radio" name="layout" id="nhwc" autocomplete="off">NHWC
-          </label>
+        <div class="row mb-2 align-items-center">
+          <div class="col-1">
+            <span>Layout</span>
+          </div>
+          <div class="col">
+            <div class="btn-group-toggle" data-toggle="buttons" id="layoutBtns">
+              <label class="btn btn-outline-info btn-sm mr-2 active">
+                <input type="radio" name="layout" id="nchw" autocomplete="off" checked>NCHW
+              </label>
+              <label class="btn btn-outline-info btn-sm">
+                <input type="radio" name="layout" id="nhwc" autocomplete="off">NHWC
+              </label>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-    <div class="row mb-2 align-items-center">
-      <div class="col-1">
-        <span>Model</span>
-      </div>
-      <div class ="col">
-        <div class="btn-group-toggle" data-toggle="buttons" id="modelBtns">
-          <label class="btn btn-outline-info btn-sm mr-2 active">
-            <input type="radio" name="model" id="tinyyolov2" autocomplete="off">Tiny Yolo V2
-          </label>
-          <label class="btn btn-outline-info btn-sm mr-2">
-            <input type="radio" name="model" id="ssdmobilenetv1" autocomplete="off">SSD MobileNet V1
-          </label>
+        <div class="row align-items-center">
+          <div class="col-1">
+            <span>Model</span>
+          </div>
+          <div class="col">
+            <div class="btn-group-toggle" data-toggle="buttons" id="modelBtns">
+              <label class="btn btn-outline-info btn-sm mr-2 active">
+                <input type="radio" name="model" id="tinyyolov2" autocomplete="off">Tiny Yolo V2
+              </label>
+              <label class="btn btn-outline-info btn-sm mr-2">
+                <input type="radio" name="model" id="ssdmobilenetv1" autocomplete="off">SSD MobileNet V1
+              </label>
+            </div>
+          </div>
         </div>
       </div>
     </div>
