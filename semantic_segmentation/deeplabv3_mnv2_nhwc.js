@@ -120,16 +120,16 @@ export class DeepLabV3MNV2Nhwc {
     const averagePool2d = this.builder_.averagePool2d(bottleneck15,
         {windowDimensions: [65, 65], strides: [65, 65], layout: 'nhwc'});
     const conv4 = await this.buildConv_(averagePool2d, 'image_pooling_Conv2D');
-    const resample0 = this.builder_.resample(
-        conv4, {sizes: [1, 65, 65, 256], mode: 'linear'});
+    const resample0 = this.builder_.resample2d(
+        conv4, {sizes: [65, 65], mode: 'linear', axes: [1, 2]});
     const concat = this.builder_.concat([resample0, conv3], 3);
 
     const conv5 = await this.buildConv_(concat, 'concat_projection_Conv2D');
     const conv6 = await this.buildConv_(conv5, 'logits_semantic', '', false);
-    const resample1 = this.builder_.resample(
-        conv6, {sizes: [1, 65, 65, 21], mode: 'linear'});
-    return this.builder_.resample(
-        resample1, {sizes: [1, 513, 513, 21], mode: 'linear'});
+    const resample1 = this.builder_.resample2d(
+        conv6, {sizes: [65, 65], mode: 'linear', axes: [1, 2]});
+    return this.builder_.resample2d(
+        resample1, {sizes: [513, 513], mode: 'linear', axes: [1, 2]});
   }
 
   build(outputOperand) {
