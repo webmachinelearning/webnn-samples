@@ -1,7 +1,7 @@
 'use strict';
 
 import {FastStyleTransferNet} from './fast_style_transfer_net.js';
-import {showProgressComponent, readyShowResultComponents} from '../common/ui.js';
+import * as ui from '../common/ui.js';
 import * as utils from '../common/utils.js';
 
 const maxWidth = 380;
@@ -22,6 +22,12 @@ let computeTime = 0;
 let outputBuffer;
 let devicePreference = 'gpu';
 let lastDevicePreference = '';
+const disabledSelectors = [
+  '#tabs > li',
+  '#gallery',
+  '#gallery > div > img',
+  '.btn',
+];
 
 $(document).ready(() => {
   $('.icdisplay').hide();
@@ -37,9 +43,7 @@ $('#deviceBtns .btn').on('change', async (e) => {
 // Click trigger to do inference with <img> element
 $('#img').click(async () => {
   if (inputType === 'camera') cancelAnimationFrame(rafReq);
-  if (stream !== null) {
-    stopCamera();
-  }
+  if (stream !== null) stopCamera();
   inputType = 'image';
   $('.shoulddisplay').hide();
   await main();
@@ -195,6 +199,7 @@ function addWarning(msg) {
 
 export async function main() {
   try {
+    ui.handleClick(disabledSelectors, true);
     let start;
     // Set 'numRuns' param to run inference multiple times
     const params = new URLSearchParams(location.search);
@@ -226,7 +231,7 @@ export async function main() {
       isModelChanged = false;
       console.log(`- Model ID: ${modelId} -`);
       // UI shows model loading progress
-      await showProgressComponent('current', 'pending', 'pending');
+      await ui.showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');
       start = performance.now();
       const outputOperand =
@@ -234,7 +239,7 @@ export async function main() {
       loadTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${loadTime} ms.`);
       // UI shows model building progress
-      await showProgressComponent('done', 'current', 'pending');
+      await ui.showProgressComponent('done', 'current', 'pending');
       console.log('- Building... ');
       start = performance.now();
       fastStyleTransferNet.build(outputOperand);
@@ -242,7 +247,7 @@ export async function main() {
       console.log(`  done in ${buildTime} ms.`);
     }
     // UI shows inferencing progress
-    await showProgressComponent('done', 'done', 'current');
+    await ui.showProgressComponent('done', 'done', 'current');
     if (inputType === 'image') {
       const inputBuffer =
           utils.getInputTensor(imgElement, fastStyleTransferNet.inputOptions);
@@ -265,8 +270,8 @@ export async function main() {
         medianComputeTime = medianComputeTime.toFixed(2);
         console.log(`  median compute time: ${medianComputeTime} ms`);
       }
-      await showProgressComponent('done', 'done', 'done');
-      readyShowResultComponents();
+      await ui.showProgressComponent('done', 'done', 'done');
+      ui.readyShowResultComponents();
       drawInput(imgElement, 'inputCanvas');
       drawOutput('inputCanvas', 'outputCanvas');
       showPerfResult(medianComputeTime);
@@ -274,8 +279,8 @@ export async function main() {
       await getMediaStream();
       camElement.srcObject = stream;
       camElement.onloadedmediadata = await renderCamStream();
-      await showProgressComponent('done', 'done', 'done');
-      readyShowResultComponents();
+      await ui.showProgressComponent('done', 'done', 'done');
+      ui.readyShowResultComponents();
     } else {
       throw Error(`Unknown inputType ${inputType}`);
     }
@@ -283,4 +288,5 @@ export async function main() {
     console.log(error);
     addWarning(error.message);
   }
+  ui.handleClick(disabledSelectors, false);
 }

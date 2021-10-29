@@ -46,15 +46,9 @@
 
 .loading-page {
   width: 100%;
-  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  position:absolute;
-  top: 0;
-  left: 0;
-  background: #c0bfbf55;
-  z-index: 1000;
 }
 
 .loading-page .counter {
@@ -489,17 +483,6 @@
   font-size: 0.9rem;
 }
 
-body {
-  position: relative;
-  padding-bottom: 50px;
-}
-
-footer {
-  position: absolute;
-  width: 100%;
-  bottom: 0%;
-}
-
 .btn-outline-info, .btn-outline-secondary {
   font-size: 0.85rem;
   color: #04a1dc;
@@ -544,6 +527,18 @@ footer {
 
 .navbar-dark .navbar-nav .nav-link, .dropdown-toggle {
   color: #fff;
+}
+
+.clickDisabled {
+  pointer-events: none;
+  cursor: default;
+}
+
+.styleDisabled {
+  color: #6c757d;
+  background-color: transparent;
+  border-color: #6c757d;
+  opacity: .65;
 }
 
 .dropdown-item:hover {

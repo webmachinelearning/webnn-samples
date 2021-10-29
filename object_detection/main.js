@@ -4,7 +4,7 @@ import {TinyYoloV2Nchw} from './tiny_yolov2_nchw.js';
 import {TinyYoloV2Nhwc} from './tiny_yolov2_nhwc.js';
 import {SsdMobilenetV1Nchw} from './ssd_mobilenetv1_nchw.js';
 import {SsdMobilenetV1Nhwc} from './ssd_mobilenetv1_nhwc.js';
-import {showProgressComponent, readyShowResultComponents} from '../common/ui.js';
+import * as ui from '../common/ui.js';
 import * as utils from '../common/utils.js';
 import * as Yolo2Decoder from './libs/yolo2Decoder.js';
 import * as SsdDecoder from './libs/ssdDecoder.js';
@@ -28,6 +28,7 @@ let inputOptions;
 let outputs;
 let devicePreference = 'gpu';
 let lastDevicePreference = '';
+const disabledSelectors = ['#tabs > li', '.btn'];
 
 async function fetchLabels(url) {
   const response = await fetch(url);
@@ -60,9 +61,7 @@ $('#layoutBtns .btn').on('change', async (e) => {
 // Click trigger to do inference with <img> element
 $('#img').click(async () => {
   if (inputType === 'camera') cancelAnimationFrame(rafReq);
-  if (stream !== null) {
-    stopCamera();
-  }
+  if (stream !== null) stopCamera();
   inputType = 'image';
   $('.shoulddisplay').hide();
   await main();
@@ -189,6 +188,7 @@ function addWarning(msg) {
 async function main() {
   try {
     if (modelName === '') return;
+    ui.handleClick(disabledSelectors, true);
     if (isFirstTimeLoad) $('#hint').hide();
     let start;
     // Set 'numRuns' param to run inference multiple times
@@ -232,14 +232,14 @@ async function main() {
       isFirstTimeLoad = false;
       console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
       // UI shows model loading progress
-      await showProgressComponent('current', 'pending', 'pending');
+      await ui.showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');
       start = performance.now();
       const outputOperand = await netInstance.load(devicePreference);
       loadTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${loadTime} ms.`);
       // UI shows model building progress
-      await showProgressComponent('done', 'current', 'pending');
+      await ui.showProgressComponent('done', 'current', 'pending');
       console.log('- Building... ');
       start = performance.now();
       netInstance.build(outputOperand);
@@ -247,7 +247,7 @@ async function main() {
       console.log(`  done in ${buildTime} ms.`);
     }
     // UI shows inferencing progress
-    await showProgressComponent('done', 'done', 'current');
+    await ui.showProgressComponent('done', 'done', 'current');
     if (inputType === 'image') {
       const inputBuffer = utils.getInputTensor(imgElement, inputOptions);
       console.log('- Computing... ');
@@ -270,18 +270,18 @@ async function main() {
         console.log(`  median compute time: ${medianComputeTime} ms`);
       }
       console.log('output: ', outputs);
-      await showProgressComponent('done', 'done', 'done');
+      await ui.showProgressComponent('done', 'done', 'done');
       $('#fps').hide();
-      readyShowResultComponents();
+      ui.readyShowResultComponents();
       await drawOutput(imgElement, outputs, labels);
       showPerfResult(medianComputeTime);
     } else if (inputType === 'camera') {
       await getMediaStream();
       camElement.srcObject = stream;
       camElement.onloadedmediadata = await renderCamStream();
-      await showProgressComponent('done', 'done', 'done');
+      await ui.showProgressComponent('done', 'done', 'done');
       $('#fps').show();
-      readyShowResultComponents();
+      ui.readyShowResultComponents();
     } else {
       throw Error(`Unknown inputType ${inputType}`);
     }
@@ -289,4 +289,5 @@ async function main() {
     console.log(error);
     addWarning(error.message);
   }
+  ui.handleClick(disabledSelectors, false);
 }
