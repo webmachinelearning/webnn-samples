@@ -8,7 +8,9 @@ const frameSize = 480;
 const gainsSize = 22;
 const weightsUrl = '../test-data/models/rnnoise/weights/';
 const rnnoise = new RNNoise(weightsUrl, batchSize, frames);
-let devicePreference = 'gpu';
+// GPU takes a long time to build the model in electron and
+// the CPU backend has better performance for RNNoise model.
+let devicePreference = 'cpu';
 
 $('#deviceBtns .btn').on('change', async (e) => {
   devicePreference = $(e.target).attr('id');
