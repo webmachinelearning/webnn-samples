@@ -85,7 +85,8 @@ export function readyShowResultComponents() {
 // Use to disable buttons click during model running and resume them once
 // model running done
 export function handleClick(cssSelectors, disabled = true) {
-  for (let selector of cssSelectors) {
+  /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "selector" }] */
+  for (const selector of cssSelectors) {
     if (disabled) {
       $(selector).addClass('clickDisabled');
       if (selector.startsWith('.btn')) $(selector).addClass('styleDisabled');
