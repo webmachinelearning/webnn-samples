@@ -3,6 +3,7 @@
 import {sizeOfShape, setPolyfillBackend} from '../common/utils.js';
 import {LeNet} from './lenet.js';
 import {Pen} from './pen.js';
+import {addAlert} from '../common/ui.js';
 
 const buildTimeElement = document.getElementById('buildTime');
 const inferenceTimeElement = document.getElementById('inferenceTime');
@@ -81,7 +82,7 @@ export async function main() {
     predictButton.removeAttribute('disabled');
   } catch (error) {
     console.log(error);
-    addWarning(error.message);
+    addAlert(error.message);
   }
   predictButton.addEventListener('click', async function(e) {
     try {
@@ -135,7 +136,7 @@ export async function main() {
       });
     } catch (error) {
       console.log(error);
-      addWarning(error.message);
+      addAlert(error.message);
     }
   });
   nextButton.addEventListener('click', () => {
@@ -168,13 +169,4 @@ function topK(probs, k = 3) {
   }
 
   return classes;
-}
-
-function addWarning(msg) {
-  const div = document.createElement('div');
-  div.setAttribute('class', 'alert alert-warning alert-dismissible fade show');
-  div.setAttribute('role', 'alert');
-  div.innerHTML = msg;
-  const container = document.getElementById('container');
-  container.insertBefore(div, container.childNodes[0]);
 }

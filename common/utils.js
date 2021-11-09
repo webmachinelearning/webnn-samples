@@ -1,6 +1,7 @@
 'use strict';
 
 import {numpy} from './libs/numpy.js';
+import {addAlert} from './ui.js';
 
 export function sizeOfShape(shape) {
   return shape.reduce((a, b) => {
@@ -160,8 +161,10 @@ export async function setPolyfillBackend(device) {
       throw new Error(`Failed to set tf.js backend ${backend}.`);
     }
     await tf.ready();
-    console.info(
-        `webnn-polyfill uses tf.js ${tf.version_core}` +
-        ` ${tf.getBackend()} backend.`);
+    addAlert(
+        `This sample is running on ` +
+        `<a href='https://github.com/webmachinelearning/webnn-polyfill'>` +
+        `WebNN-polyfill</a> with tf.js ${tf.version_core} ` +
+        `<b>${tf.getBackend()}</b> backend.`, 'info');
   }
 }

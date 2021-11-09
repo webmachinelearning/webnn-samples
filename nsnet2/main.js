@@ -2,6 +2,7 @@
 
 import {Denoiser} from './denoiser.js';
 import {setPolyfillBackend} from '../common/utils.js';
+import {addAlert} from '../common/ui.js';
 
 const sampleRate = 16000;
 const batchSize = 1;
@@ -96,7 +97,7 @@ fileInput.addEventListener('input', (event) => {
     fileReader.readAsDataURL(input.files[0]);
   } catch (error) {
     console.log(error);
-    addWarning(error.message);
+    addAlert(error.message);
   }
 });
 
@@ -144,15 +145,6 @@ browseButton.onclick = () => {
   fileInput.dispatchEvent(evt);
 };
 
-function addWarning(msg) {
-  const div = document.createElement('div');
-  div.setAttribute('class', 'alert alert-warning alert-dismissible fade show');
-  div.setAttribute('role', 'alert');
-  div.innerHTML = msg;
-  const container = document.getElementById('container');
-  container.insertBefore(div, container.childNodes[0]);
-}
-
 export async function main() {
   try {
     // Handle frames parameter.
@@ -173,6 +165,6 @@ export async function main() {
     chooseAudio.removeAttribute('disabled');
   } catch (error) {
     console.log(error);
-    addWarning(error.message);
+    addAlert(error.message);
   }
 }
