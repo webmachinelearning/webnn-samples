@@ -2,7 +2,7 @@
 
 import {DeepLabV3MNV2Nchw} from './deeplabv3_mnv2_nchw.js';
 import {DeepLabV3MNV2Nhwc} from './deeplabv3_mnv2_nhwc.js';
-import {showProgressComponent, readyShowResultComponents} from '../common/ui.js';
+import * as ui from '../common/ui.js';
 import * as utils from '../common/utils.js';
 import {Renderer} from './lib/renderer.js';
 
@@ -28,6 +28,7 @@ let renderer;
 let hoverPos = null;
 let devicePreference = 'gpu';
 let lastDevicePreference = '';
+const disabledSelectors = ['#tabs > li', '.btn'];
 
 $(document).ready(() => {
   $('.icdisplay').hide();
@@ -60,9 +61,7 @@ $('#layoutBtns .btn').on('change', async (e) => {
 // Click trigger to do inference with <img> element
 $('#img').click(async () => {
   if (inputType === 'camera') cancelAnimationFrame(rafReq);
-  if (stream !== null) {
-    stopCamera();
-  }
+  if (stream !== null) stopCamera();
   inputType = 'image';
   $('#pickimage').show();
   $('.shoulddisplay').hide();
@@ -300,6 +299,7 @@ function addWarning(msg) {
 
 export async function main() {
   try {
+    ui.handleClick(disabledSelectors, true);
     let start;
     // Set 'numRuns' param to run inference multiple times
     const params = new URLSearchParams(location.search);
@@ -333,14 +333,14 @@ export async function main() {
       isFirstTimeLoad = false;
       console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
       // UI shows model loading progress
-      await showProgressComponent('current', 'pending', 'pending');
+      await ui.showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');
       start = performance.now();
       const outputOperand = await netInstance.load(devicePreference);
       loadTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${loadTime} ms.`);
       // UI shows model building progress
-      await showProgressComponent('done', 'current', 'pending');
+      await ui.showProgressComponent('done', 'current', 'pending');
       console.log('- Building... ');
       start = performance.now();
       netInstance.build(outputOperand);
@@ -348,7 +348,7 @@ export async function main() {
       console.log(`  done in ${buildTime} ms.`);
     }
     // UI shows inferencing progress
-    await showProgressComponent('done', 'done', 'current');
+    await ui.showProgressComponent('done', 'done', 'current');
     if (inputType === 'image') {
       const inputBuffer = utils.getInputTensor(imgElement, inputOptions);
       console.log('- Computing... ');
@@ -371,18 +371,18 @@ export async function main() {
         console.log(`  median compute time: ${medianComputeTime} ms`);
       }
       console.log('output: ', outputBuffer);
-      await showProgressComponent('done', 'done', 'done');
+      await ui.showProgressComponent('done', 'done', 'done');
       $('#fps').hide();
-      readyShowResultComponents();
+      ui.readyShowResultComponents();
       await drawOutput(imgElement);
       showPerfResult(medianComputeTime);
     } else if (inputType === 'camera') {
       await getMediaStream();
       camElement.srcObject = stream;
       camElement.onloadedmediadata = await renderCamStream();
-      await showProgressComponent('done', 'done', 'done');
+      await ui.showProgressComponent('done', 'done', 'done');
       $('#fps').show();
-      readyShowResultComponents();
+      ui.readyShowResultComponents();
     } else {
       throw Error(`Unknown inputType ${inputType}`);
     }
@@ -390,4 +390,5 @@ export async function main() {
     console.log(error);
     addWarning(error.message);
   }
+  ui.handleClick(disabledSelectors, false);
 }

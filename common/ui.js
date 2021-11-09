@@ -72,7 +72,6 @@ export async function showProgressComponent(pm, pb, pi) {
   $('#progressstep').html(p);
   $('.shoulddisplay').hide();
   $('.icdisplay').hide();
-  $('#gallery .gallery-image').off('click');
   await new Promise((res) => setTimeout(res, 100));
 }
 
@@ -80,4 +79,20 @@ export function readyShowResultComponents() {
   $('#progressmodel').hide();
   $('.icdisplay').show();
   $('.shoulddisplay').show();
+}
+
+// Handle buttons click
+// Use to disable buttons click during model running and resume them once
+// model running done
+export function handleClick(cssSelectors, disabled = true) {
+  /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "selector" }] */
+  for (const selector of cssSelectors) {
+    if (disabled) {
+      $(selector).addClass('clickDisabled');
+      if (selector.startsWith('.btn')) $(selector).addClass('styleDisabled');
+    } else {
+      $(selector).removeClass('clickDisabled');
+      if (selector.startsWith('.btn')) $(selector).removeClass('styleDisabled');
+    }
+  }
 }
