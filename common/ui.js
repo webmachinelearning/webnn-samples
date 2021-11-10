@@ -96,3 +96,32 @@ export function handleClick(cssSelectors, disabled = true) {
     }
   }
 }
+
+/**
+ * Show flexible alert messages
+ * @param {String} msg, alert message.
+ * @param {String} type, one of ["info", "warning"], type of message,
+ * default is 'warning'
+ */
+export function addAlert(msg, type = 'warning') {
+  let alertClass = 'alert-warning';
+  if (type === 'info') {
+    alertClass = 'alert-info';
+    if ($('.alert-info').length) {
+      $('.alert-info > span').html(msg);
+      return;
+    }
+  }
+
+  $('<div>', {
+    'class': `alert ${alertClass} alert-dismissible fade show mt-3`,
+    'role': 'alert',
+    'html': `<span>${msg}</span>`,
+  }).append($('<button>', {
+    'type': 'button',
+    'class': 'close',
+    'data-dismiss': 'alert',
+    'aria-label': 'close',
+    'html': '<span aria-hidden="true">&times;</span>',
+  })).insertBefore($('#container').children()[0]);
+}

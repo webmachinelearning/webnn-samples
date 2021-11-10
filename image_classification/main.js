@@ -219,15 +219,6 @@ function constructNetObject(type) {
   return netObject[type];
 }
 
-function addWarning(msg) {
-  const div = document.createElement('div');
-  div.setAttribute('class', 'alert alert-warning alert-dismissible fade show');
-  div.setAttribute('role', 'alert');
-  div.innerHTML = msg;
-  const container = document.getElementById('container');
-  container.insertBefore(div, container.childNodes[0]);
-}
-
 async function main() {
   try {
     if (modelName === '') return;
@@ -240,7 +231,7 @@ async function main() {
     numRuns = numRuns === null ? 1 : parseInt(numRuns);
 
     if (numRuns < 1) {
-      addWarning('The value of param numRuns must be greater than or equal' +
+      ui.addAlert('The value of param numRuns must be greater than or equal' +
           ' to 1.');
       return;
     }
@@ -320,7 +311,7 @@ async function main() {
     }
   } catch (error) {
     console.log(error);
-    addWarning(error.message);
+    ui.addAlert(error.message);
   }
   ui.handleClick(disabledSelectors, false);
 }
