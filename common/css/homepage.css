@@ -1,11 +1,23 @@
+.container {
+    max-width: 1218px;
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
+a {
+    color: #2555a0;
+    padding: 1px 0;
+    text-decoration: none;
+}
+
 .card {
-    margin: .5rem
+    margin: .5rem 0
 }
 
 .card .cardwrapper {
     border-radius: 5px;
     background-color: #fff;
-    min-height: 320px;
+    min-height: 360px;
     position: relative;
     overflow: hidden;
     box-shadow: 0 2px 3px rgba(0, 0, 0, .1), 0 2px 3px rgba(0, 0, 0, .1)
@@ -34,7 +46,7 @@
 }
 
 .card .text {
-    height: 60px;
+    height: 50px;
     margin: 0
 }
 
@@ -69,8 +81,8 @@
     background-image: linear-gradient(135deg, #5eb4fe, #62d3fd);
     color: #fff;
     font-size: .72rem;
-    padding: 6px 8px;
-    width: 120px;
+    padding: 6px 6px;
+    width: 130px;
     text-align: center;
     text-transform: uppercase;
     text-decoration: none;
@@ -87,8 +99,8 @@
     fill: #fff;
     width: 1rem;
     height: 1rem;
+    vertical-align: middle;
     margin-left: 4px;
-    margin-bottom: 4px
 }
 
 .samplelink .link {
@@ -153,9 +165,13 @@
 
 
 .title {
-    font: 500 1.1rem "Poppins", sans-serif;
-    margin: .3em 0 0;
-    transition: .8s ease 600ms
+    font: 500 1.1rem "", sans-serif;
+    line-height: 1.2rem;
+    color: #474c58;
+}
+
+.text {
+    font-size: 15px;
 }
 
 .title svg .description {
