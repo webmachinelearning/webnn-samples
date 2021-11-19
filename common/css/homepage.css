@@ -1,0 +1,191 @@
+.container {
+    max-width: 1218px;
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
+a {
+    color: #2555a0;
+    padding: 1px 0;
+    text-decoration: none;
+}
+
+.card {
+    margin: .5rem 0
+}
+
+.card .cardwrapper {
+    border-radius: 5px;
+    background-color: #fff;
+    min-height: 360px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, .1), 0 2px 3px rgba(0, 0, 0, .1)
+}
+
+.card .cardwrapper:hover {
+    box-shadow: 0 8px 8px rgba(0, 0, 0, .2), 0 8px 8px rgba(0, 0, 0, .2)
+}
+
+.card .cardwrapper:hover .data {
+    transform: translateY(0)
+}
+
+.card .data {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    transform: translateY(calc(46px + 1rem));
+    transition: transform .3s
+}
+
+.card .data .content {
+    padding: 1rem;
+    position: relative;
+    z-index: 1
+}
+
+.card .text {
+    height: 50px;
+    margin: 0
+}
+
+.card1 .content {
+    background-color: rgba(242, 245, 255, .9);
+    box-shadow: 0 5px 30px 10px rgba(0, 0, 0, .3)
+}
+
+.card1 .title a {
+    color: #474c58
+}
+
+.card2 .content {
+    background: rgba(0, 0, 0, .4);
+    box-shadow: 0 5px 30px 10px rgba(0, 0, 0, .3);
+    color: #fff
+}
+
+.card2 .title a {
+    color: #fff
+}
+
+.samplelink {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 1rem 0 .5rem 0
+}
+
+.samplelink a {
+    display: inline-block;
+    background-image: linear-gradient(135deg, #5eb4fe, #62d3fd);
+    color: #fff;
+    font-size: .72rem;
+    padding: 6px 6px;
+    width: 130px;
+    text-align: center;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid rgba(0, 0, 0, .1);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .1), 0 1px 1px rgba(0, 0, 0, .1)
+}
+
+.samplelink a:hover {
+    background-image: linear-gradient(135deg, #2555a0, #5eb4fe);
+    border: 1px solid #5eb4fe
+}
+
+.samplelink svg {
+    fill: #fff;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: middle;
+    margin-left: 4px;
+}
+
+.samplelink .link {
+    transform: rotateY(0deg) rotate(-45deg)
+}
+
+@-webkit-keyframes zoomin {
+    0% {
+        background-size: 100%
+    }
+    100% {
+        background-size: 150%
+    }
+}
+
+@keyframes zoomin {
+    0% {
+        background-size: 100%
+    }
+    100% {
+        background-size: 150%
+    }
+}
+
+#bg_ce {
+    background: url("../img/codeeditor.jpg") center/cover no-repeat
+}
+
+.cardwrapper:hover {
+    -webkit-animation: zoomin 5s linear;
+    animation: zoomin 5s linear;
+    background-size: 150%
+}
+
+#bg_ic {
+    background: url("../img/ic.jpg") center/cover no-repeat
+}
+
+#bg_hr {
+    background: url("../img/handwritten.png") center/cover no-repeat
+}
+
+#bg_st {
+    background: url("../img/starrynight.jpg") center/cover no-repeat
+}
+
+#bg_ns {
+    background: url("../img/noise.png") center/cover no-repeat
+}
+
+#bg_ns2 {
+    background: url("../img/rnnoise.png") center/cover no-repeat
+}
+
+#bg_od {
+    background: url("../img/od.png") center/cover no-repeat
+}
+
+#bg_ss {
+    background: url("../img/ss.png") center/cover no-repeat
+}
+
+
+.title {
+    font: 500 1.1rem "", sans-serif;
+    line-height: 1.2rem;
+    color: #474c58;
+}
+
+.text {
+    font-size: 15px;
+}
+
+.title svg .description {
+    color: #474c58;
+    fill: #474c58
+}
+
+.title svg {
+    display: inline-block;
+    height: 1rem;
+    width: 1rem;
+    margin-bottom: -2px
+}
+
+.gh {
+    color: #999
+}
