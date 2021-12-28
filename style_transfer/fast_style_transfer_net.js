@@ -155,13 +155,13 @@ export class FastStyleTransferNet {
 
     const add16 = this.buildInstanceNormalization_(conv2D12, variableMul12, variableAdd12);
     const add17 = this.builder_.add(add14, add16);
-    const convTranspose0 = this.builder_.conv2d(add17, weightConvTranspose0,
-        {transpose: true, strides: [2, 2], outputSizes: [270, 270]});
+    const convTranspose0 = this.builder_.convTranspose2d(add17, weightConvTranspose0,
+        {strides: [2, 2], outputSizes: [270, 270]});
 
     const add18 = this.buildInstanceNormalization_(convTranspose0, variableMul13, variableAdd13);
     const relu8 = this.builder_.relu(add18);
-    const convTranspose1 = this.builder_.conv2d(relu8, weightConvTranspose1,
-        {transpose: true, strides: [2, 2], outputSizes: [540, 540]});
+    const convTranspose1 = this.builder_.convTranspose2d(relu8, weightConvTranspose1,
+        {strides: [2, 2], outputSizes: [540, 540]});
 
     const add19 = this.buildInstanceNormalization_(convTranspose1, variableMul14, variableAdd14);
     const relu9 = this.builder_.relu(add19);
