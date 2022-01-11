@@ -167,8 +167,8 @@ export function getBoxes(results, margin) {
 
 export function drawBoxes(image, canvas, objBoxes, labels) {
   const ctx = canvas.getContext('2d');
-  const imWidth = image.naturalWidth || image.videoWidth;
-  const imHeight = image.naturalHeight || image.videoHeight;
+  const imWidth = image.naturalWidth || image.width;
+  const imHeight = image.naturalHeight || image.height;
   // drawImage
   canvas.width = imWidth / imHeight * canvas.height;
   ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
