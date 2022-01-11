@@ -59,6 +59,17 @@ export async function buildConstantByNpy(builder, url) {
   return builder.constant({type, dimensions}, typedArray);
 }
 
+// Convert video frame to a canvas element
+export function getVideoFrame(videoElement) {
+  const canvasElement = document.createElement('canvas');
+  canvasElement.width = videoElement.videoWidth;
+  canvasElement.height = videoElement.videoHeight;
+  const canvasContext = canvasElement.getContext('2d');
+  canvasContext.drawImage(videoElement, 0, 0, canvasElement.width,
+      canvasElement.height);
+  return canvasElement;
+}
+
 /**
  * This method is used to covert input element to tensor data.
  * @param {Object} inputElement, an object of HTML [<img> | <video>] element.

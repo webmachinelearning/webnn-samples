@@ -269,8 +269,8 @@ export function nonMaxSuppression(
 
 // Crop box
 export function cropSsdBox(imageSource, totalDetections, boxesList, margin) {
-  const imWidth = imageSource.naturalWidth || imageSource.videoWidth;
-  const imHeight = imageSource.naturalHeight || imageSource.videoHeight;
+  const imWidth = imageSource.naturalWidth || imageSource.width;
+  const imHeight = imageSource.naturalHeight || imageSource.height;
 
   for (let i = 0; i < totalDetections; ++i) {
     const [ymin, xmin, ymax, xmax] = boxesList[i];
@@ -292,8 +292,8 @@ export function drawBoxes(
     outputElement, totalDetections, imageSource, boxesList,
     scoresList, classesList, labels) {
   const ctx = outputElement.getContext('2d');
-  const imWidth = imageSource.naturalWidth || imageSource.videoWidth;
-  const imHeight = imageSource.naturalHeight || imageSource.videoHeight;
+  const imWidth = imageSource.naturalWidth || imageSource.width;
+  const imHeight = imageSource.naturalHeight || imageSource.height;
   outputElement.width = imWidth / imHeight * outputElement.height;
   const colors =
       ['#ff3860', '#ff0000', '#00b067', '#704e99', '#17a2b8', '#ffc107'];

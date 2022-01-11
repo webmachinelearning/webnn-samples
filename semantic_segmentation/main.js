@@ -224,14 +224,21 @@ function stopCamera() {
  * This method is used to render live camera tab.
  */
 async function renderCamStream() {
+  // If the video element's readyState is 0, the video's width and height are 0.
+  // So check the readState here to make sure it is greater than 0.
+  if (camElement.readyState === 0) {
+    rafReq = requestAnimationFrame(renderCamStream);
+    return;
+  }
   const inputBuffer = utils.getInputTensor(camElement, inputOptions);
+  const inputCanvas = utils.getVideoFrame(camElement);
   console.log('- Computing... ');
   const start = performance.now();
   netInstance.compute(inputBuffer, outputBuffer);
   computeTime = (performance.now() - start).toFixed(2);
   console.log(`  done in ${computeTime} ms.`);
   showPerfResult();
-  await drawOutput(camElement);
+  await drawOutput(inputCanvas);
   $('#fps').text(`${(1000/computeTime).toFixed(0)} FPS`);
   rafReq = requestAnimationFrame(renderCamStream);
 }
@@ -250,8 +257,8 @@ async function drawOutput(srcElement) {
   });
 
   const width = inputOptions.inputDimensions[2];
-  const imWidth = srcElement.naturalWidth | srcElement.videoWidth;
-  const imHeight = srcElement.naturalHeight | srcElement.videoHeight;
+  const imWidth = srcElement.naturalWidth | srcElement.width;
+  const imHeight = srcElement.naturalHeight | srcElement.height;
   const resizeRatio = Math.max(Math.max(imWidth, imHeight) / width, 1);
   const scaledWidth = Math.floor(imWidth / resizeRatio);
   const scaledHeight = Math.floor(imHeight / resizeRatio);
@@ -370,7 +377,7 @@ export async function main() {
     } else if (inputType === 'camera') {
       await getMediaStream();
       camElement.srcObject = stream;
-      camElement.onloadedmediadata = await renderCamStream();
+      camElement.onloadeddata = await renderCamStream();
       await ui.showProgressComponent('done', 'done', 'done');
       $('#fps').show();
       ui.readyShowResultComponents();

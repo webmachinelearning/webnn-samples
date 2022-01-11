@@ -113,8 +113,15 @@ function stopCamera() {
  * This method is used to render live camera tab.
  */
 async function renderCamStream() {
+  // If the video element's readyState is 0, the video's width and height are 0.
+  // So check the readState here to make sure it is greater than 0.
+  if (camElement.readyState === 0) {
+    rafReq = requestAnimationFrame(renderCamStream);
+    return;
+  }
   const inputBuffer =
       utils.getInputTensor(camElement, fastStyleTransferNet.inputOptions);
+  const inputCanvas = utils.getVideoFrame(camElement);
   console.log('- Computing... ');
   const start = performance.now();
   fastStyleTransferNet.compute(inputBuffer, outputBuffer);
@@ -122,7 +129,7 @@ async function renderCamStream() {
   console.log(`  done in ${computeTime} ms.`);
   camElement.width = camElement.videoWidth;
   camElement.height = camElement.videoHeight;
-  drawInput(camElement, 'camInCanvas');
+  drawInput(inputCanvas, 'camInCanvas');
   showPerfResult();
   drawOutput('camInCanvas', 'camOutCanvas');
   $('#fps').text(`${(1000/computeTime).toFixed(0)} FPS`);
@@ -269,7 +276,7 @@ export async function main() {
     } else if (inputType === 'camera') {
       await getMediaStream();
       camElement.srcObject = stream;
-      camElement.onloadedmediadata = await renderCamStream();
+      camElement.onloadeddata = await renderCamStream();
       await ui.showProgressComponent('done', 'done', 'done');
       ui.readyShowResultComponents();
     } else {
