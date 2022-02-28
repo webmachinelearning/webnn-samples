@@ -19,8 +19,8 @@ export class RNNoise {
     this.denoiseGruNumDirections = 1;
   }
 
-  async load(devicePreference) {
-    const context = navigator.ml.createContext({devicePreference});
+  async load(contextOptions) {
+    const context = navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(context);
     // Create constants by loading pre-trained data from .npy files.
     const inputDenseKernel0 = await buildConstantByNpy(this.builder_,

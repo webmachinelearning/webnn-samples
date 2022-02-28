@@ -66,8 +66,8 @@ export class MobileNetV2Nchw {
     return conv1x1Linear;
   }
 
-  async load(devicePreference) {
-    const context = navigator.ml.createContext({devicePreference});
+  async load(contextOptions) {
+    const context = navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(context);
     const data = this.builder_.input('input',
         {type: 'float32', dimensions: this.inputOptions.inputDimensions});

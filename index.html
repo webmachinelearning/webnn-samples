@@ -296,17 +296,24 @@
     // To restore module after loading 3rd-party libraries.
     if (window.tempModule) module = window.tempModule;
   </script>
-  <script>
+  <script type="module">
+    import {getUrlParams} from './common/utils.js';
     window.onload = () => {
-      // Get 'numRuns' param to run inference multiple times
-      const params = new URLSearchParams(location.search);
-      let numRuns = params.get('numRuns');
-      numRuns = numRuns === null ? 1 : parseInt(numRuns);
-      // Pass 'numRuns' param to each sample url
-      if (numRuns > 1) {
-        const replaceableUrlElems = $('.replaceableUrl');
+      const [numRuns, powerPreference] = getUrlParams();
+      const replaceableUrlElems = $('.replaceableUrl');
+      let urlSuffix;
+      if (numRuns > 1 && powerPreference) {
+        urlSuffix = `?numRuns=${numRuns}&powerPreference=${powerPreference}`;
+      }
+      if (numRuns > 1 && !powerPreference) {
+        urlSuffix = `?numRuns=${numRuns}`;
+      }
+      if (numRuns <= 1 && powerPreference) {
+        urlSuffix = `?powerPreference=${powerPreference}`;
+      }
+      if (urlSuffix) {
         for (let elem of replaceableUrlElems) {
-          elem.href += '?numRuns=' + numRuns;
+          elem.href += urlSuffix;
         }
       }
     }

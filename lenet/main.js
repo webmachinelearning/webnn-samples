@@ -1,6 +1,6 @@
 'use strict';
 
-import {sizeOfShape, setPolyfillBackend} from '../common/utils.js';
+import * as utils from '../common/utils.js';
 import {LeNet} from './lenet.js';
 import {Pen} from './pen.js';
 import {addAlert} from '../common/ui.js';
@@ -21,7 +21,7 @@ let devicePreference = 'gpu';
 
 $('#deviceBtns .btn').on('change', async (e) => {
   devicePreference = $(e.target).attr('id');
-  await setPolyfillBackend(devicePreference);
+  await utils.setPolyfillBackend(devicePreference);
   await main();
 });
 
@@ -66,9 +66,14 @@ export async function main() {
   const pen = new Pen(visualCanvas);
   const weightUrl = '../test-data/models/lenet_nchw/weights/lenet.bin';
   const lenet = new LeNet(weightUrl);
+  const [numRuns, powerPreference] = utils.getUrlParams();
   try {
+    const contextOptions = {devicePreference};
+    if (powerPreference) {
+      contextOptions['powerPreference'] = powerPreference;
+    }
     let start = performance.now();
-    const outputOperand = await lenet.load(devicePreference);
+    const outputOperand = await lenet.load(contextOptions);
     console.log(
         `loading elapsed time: ${(performance.now() - start).toFixed(2)} ms`);
 
@@ -86,26 +91,17 @@ export async function main() {
   }
   predictButton.addEventListener('click', async function(e) {
     try {
-      const params = new URLSearchParams(location.search);
-      const numRuns = params.get('numRuns');
-      const n = numRuns === null ? 1 : parseInt(numRuns);
-
-      if (n < 1) {
-        alert(`The value of param numRuns must be greater than or equal to 1.`);
-        return;
-      }
-
       let start;
       let inferenceTime;
       const inferenceTimeArray = [];
       const input = getInputFromCanvas();
-      const outputBuffer = new Float32Array(sizeOfShape([1, 10]));
+      const outputBuffer = new Float32Array(utils.sizeOfShape([1, 10]));
 
       if (numRuns > 1) {
         // Do warm up
         lenet.predict(input, outputBuffer);
       }
-      for (let i = 0; i < n; i++) {
+      for (let i = 0; i < numRuns; i++) {
         start = performance.now();
         lenet.predict(input, outputBuffer);
         inferenceTime = performance.now() - start;
@@ -114,16 +110,16 @@ export async function main() {
         inferenceTimeArray.push(inferenceTime);
       }
 
-      if (n === 1) {
+      if (numRuns === 1) {
         inferenceTimeElement.innerHTML = 'Execution Time: ' +
-        `<span class='text-primary'>${inferenceTime.toFixed(2)}</span> ms`;
+            `<span class='text-primary'>${inferenceTime.toFixed(2)}</span> ms`;
       } else {
         const medianInferenceTime = getMedianValue(inferenceTimeArray);
         console.log(`median execution elapsed time: ` +
             `${medianInferenceTime.toFixed(2)} ms`);
-        inferenceTimeElement.innerHTML = `Median Execution Time(${n} runs): ` +
-            `<span class='text-primary'>${medianInferenceTime.toFixed(2)}` +
-            '</span> ms';
+        inferenceTimeElement.innerHTML = `Median Execution Time(${numRuns}` +
+            ` runs): <span class='text-primary'>` +
+            `${medianInferenceTime.toFixed(2)}</span> ms`;
       }
 
       const classes = topK(Array.from(outputBuffer));
