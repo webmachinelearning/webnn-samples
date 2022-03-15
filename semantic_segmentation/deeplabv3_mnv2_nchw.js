@@ -142,8 +142,8 @@ export class DeepLabV3MNV2Nchw {
         resample1, {sizes: [513, 513], mode: 'linear'});
   }
 
-  build(outputOperand) {
-    this.graph_ = this.builder_.build({'output': outputOperand});
+  async build(outputOperand) {
+    this.graph_ = await this.builder_.build({'output': outputOperand});
   }
 
   // Release the constant tensors of a model
@@ -154,9 +154,9 @@ export class DeepLabV3MNV2Nchw {
     }
   }
 
-  compute(inputBuffer, outputBuffer) {
+  async compute(inputBuffer, outputBuffer) {
     const inputs = {'input': inputBuffer};
     const outputs = {'output': outputBuffer};
-    this.graph_.compute(inputs, outputs);
+    await this.graph_.compute(inputs, outputs);
   }
 }

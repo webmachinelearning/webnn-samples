@@ -138,11 +138,11 @@ export class RNNoise {
     return {denoiseOutput, vadGruYH, noiseGruYH, denoiseGruYH};
   }
 
-  build(outputOperand) {
-    this.graph_ = this.builder_.build(outputOperand);
+  async build(outputOperand) {
+    this.graph_ = await this.builder_.build(outputOperand);
   }
 
-  compute(inputs, outputs) {
-    this.graph_.compute(inputs, outputs);
+  async compute(inputs, outputs) {
+    await this.graph_.compute(inputs, outputs);
   }
 }

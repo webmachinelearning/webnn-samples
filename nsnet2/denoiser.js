@@ -44,7 +44,7 @@ export class Denoiser {
         setTimeout(async () => {
           try {
             const start = performance.now();
-            this.nsnet.build(outputOperand);
+            await this.nsnet.build(outputOperand);
             const modelBuildTime = performance.now() - start;
             this.log(`done in <span class='text-primary'>` +
                 `${modelBuildTime.toFixed(2)}</span> ms.`, true);
@@ -115,11 +115,17 @@ export class Denoiser {
       const inputFeature = tf.tidy(() => {
         return featurelib.calcFeat(inputSpec, this.cfg).expandDims(0);
       });
-      const inputData = await inputFeature.data();
+
+      let inputData = await inputFeature.data();
+
+      if (this.cfg['feattype'] == 'LogPow') {
+        inputData = inputData.map(x => Math.log10(x));
+      }
+
       inputFeature.dispose();
       const calcFeatTime = (performance.now() - start).toFixed(2);
       start = performance.now();
-      const outputs = this.nsnet.compute(
+      const outputs = await this.nsnet.compute(
           inputData, initialHiddenState92Buffer, initialHiddenState155Buffer,
           outputBuffer, gru94Buffer, gru157Buffer);
       const computeTime = (performance.now() - start).toFixed(2);
