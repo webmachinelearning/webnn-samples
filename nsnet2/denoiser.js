@@ -1,6 +1,6 @@
 import {NSNet2} from './nsnet2.js';
 import * as featurelib from './featurelib.js';
-import {sizeOfShape} from '../common/utils.js';
+import {sizeOfShape, getUrlParams} from '../common/utils.js';
 
 export class Denoiser {
   constructor(batchSize, frames, sampleRate) {
@@ -30,7 +30,12 @@ export class Denoiser {
       this.log(' - Loading weights... ');
       const start = performance.now();
       const weightsUrl = '../test-data/models/nsnet2/weights/';
-      this.nsnet.load(devicePreference, weightsUrl,
+      const powerPreference = getUrlParams()[1];
+      const contextOptions = {devicePreference};
+      if (powerPreference) {
+        contextOptions['powerPreference'] = powerPreference;
+      }
+      this.nsnet.load(contextOptions, weightsUrl,
           this.batchSize, this.frames).then((outputOperand) => {
         const modelLoadTime = performance.now() - start;
         this.log(`done in <span class='text-primary'>` +

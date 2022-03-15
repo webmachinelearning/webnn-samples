@@ -38,8 +38,8 @@ export class TinyYoloV2Nhwc {
     return this.builder_.conv2d(input, weights, options);
   }
 
-  async load(devicePreference) {
-    const context = navigator.ml.createContext({devicePreference});
+  async load(contextOptions) {
+    const context = navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(context);
     const input = this.builder_.input('input',
         {type: 'float32', dimensions: this.inputOptions.inputDimensions});

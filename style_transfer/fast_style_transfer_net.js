@@ -32,8 +32,8 @@ export class FastStyleTransferNet {
     }
   }
 
-  async load(devicePreference, modelId) {
-    const context = navigator.ml.createContext({devicePreference});
+  async load(contextOptions, modelId) {
+    const context = navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(context);
     const baseUrl = this.weightsUrl_ + modelId + '/';
 

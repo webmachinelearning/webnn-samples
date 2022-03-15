@@ -39,8 +39,8 @@ export class SqueezeNetNhwc {
     return this.builder_.concat([convE1x1, convE3x3], 3);
   }
 
-  async load(devicePreference) {
-    const context = navigator.ml.createContext({devicePreference});
+  async load(contextOptions) {
+    const context = navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(context);
     const strides = [2, 2];
     const layout = 'nhwc';

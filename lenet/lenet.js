@@ -10,14 +10,14 @@ export class LeNet {
     this.builder_ = null;
   }
 
-  async load(devicePreference) {
+  async load(contextOptions) {
     const arrayBuffer = await getBufferFromUrl(this.url_);
     const WEIGHTS_FILE_SIZE = 1724336;
     if (arrayBuffer.byteLength !== WEIGHTS_FILE_SIZE) {
       throw new Error('Incorrect weights file');
     }
 
-    const context = navigator.ml.createContext({devicePreference});
+    const context = navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(context);
     const inputShape = [1, 1, 28, 28];
     const input =

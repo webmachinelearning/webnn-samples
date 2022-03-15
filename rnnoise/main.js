@@ -1,6 +1,6 @@
 import {Processer} from './processer.js';
 import {RNNoise} from './rnnoise.js';
-import {setPolyfillBackend} from '../common/utils.js';
+import * as utils from '../common/utils.js';
 
 const batchSize = 1;
 const frames = 100; // Frames is fixed at 100
@@ -14,7 +14,7 @@ let devicePreference = 'cpu';
 
 $('#deviceBtns .btn').on('change', async (e) => {
   devicePreference = $(e.target).attr('id');
-  await setPolyfillBackend(devicePreference);
+  await utils.setPolyfillBackend(devicePreference);
   await main();
 });
 
@@ -215,13 +215,18 @@ fileInput.addEventListener('input', (event) => {
 });
 
 async function main() {
-  await setPolyfillBackend(devicePreference);
+  await utils.setPolyfillBackend(devicePreference);
   modelInfo.innerHTML = '';
   await log(modelInfo, `Creating RNNoise with input shape ` +
     `[${batchSize} (batch_size) x 100 (frames) x 42].`, true);
   await log(modelInfo, '- Loading model...');
+  const powerPreference = utils.getUrlParams()[1];
+  const contextOptions = {devicePreference};
+  if (powerPreference) {
+    contextOptions['powerPreference'] = powerPreference;
+  }
   let start = performance.now();
-  const outputOperand = await rnnoise.load(devicePreference);
+  const outputOperand = await rnnoise.load(contextOptions);
   const loadingTime = (performance.now() - start).toFixed(2);
   console.log(`loading elapsed time: ${loadingTime} ms`);
   await log(modelInfo,

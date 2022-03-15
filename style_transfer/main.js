@@ -199,16 +199,8 @@ export async function main() {
   try {
     ui.handleClick(disabledSelectors, true);
     let start;
-    // Set 'numRuns' param to run inference multiple times
-    const params = new URLSearchParams(location.search);
-    let numRuns = params.get('numRuns');
-    numRuns = numRuns === null ? 1 : parseInt(numRuns);
+    const [numRuns, powerPreference] = utils.getUrlParams();
 
-    if (numRuns < 1) {
-      ui.addAlert('The value of param numRuns must be greater than or equal' +
-          ' to 1.');
-      return;
-    }
     // Only do load() and build() when model first time loads,
     // there's new model choosed, and device backend changed
     if (isFirstTimeLoad || isModelChanged ||
@@ -231,9 +223,13 @@ export async function main() {
       // UI shows model loading progress
       await ui.showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');
+      const contextOptions = {devicePreference};
+      if (powerPreference) {
+        contextOptions['powerPreference'] = powerPreference;
+      }
       start = performance.now();
       const outputOperand =
-          await fastStyleTransferNet.load(devicePreference, modelId);
+          await fastStyleTransferNet.load(contextOptions, modelId);
       loadTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${loadTime} ms.`);
       // UI shows model building progress
