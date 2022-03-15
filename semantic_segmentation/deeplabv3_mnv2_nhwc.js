@@ -70,8 +70,8 @@ export class DeepLabV3MNV2Nhwc {
     return conv1x1Linear;
   }
 
-  async load(devicePreference) {
-    const context = navigator.ml.createContext({devicePreference});
+  async load(contextOptions) {
+    const context = navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(context);
     const strides = [2, 2];
     const input = this.builder_.input('input',

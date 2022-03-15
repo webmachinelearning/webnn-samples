@@ -14,8 +14,8 @@ export class NSNet2 {
     this.hiddenSize = 400;
   }
 
-  async load(devicePreference, baseUrl, batchSize, frames) {
-    const context = navigator.ml.createContext({devicePreference});
+  async load(contextOptions, baseUrl, batchSize, frames) {
+    const context = navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(context);
     // Create constants by loading pre-trained data from .npy files.
     const weight172 = await buildConstantByNpy(this.builder_, baseUrl + '172.npy');

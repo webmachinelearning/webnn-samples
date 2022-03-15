@@ -179,3 +179,28 @@ export async function setPolyfillBackend(device) {
         `<b>${tf.getBackend()}</b> backend.`, 'info');
   }
 }
+
+// Get url params
+export function getUrlParams() {
+  const params = new URLSearchParams(location.search);
+  // Get 'numRuns' param to run inference multiple times
+  let numRuns = params.get('numRuns');
+  numRuns = numRuns === null ? 1 : parseInt(numRuns);
+  if (numRuns < 1) {
+    addAlert(`Ignore the url param: 'numRuns', its value must be >= 1.`);
+    numRuns = 1;
+  }
+
+  // Get 'powerPreference' param to set WebNN's 'MLPowerPreference' option
+  let powerPreference = params.get('powerPreference');
+  const powerPreferences = ['default', 'high-performance', 'low-power'];
+
+  if (powerPreference && !powerPreferences.includes(powerPreference)) {
+    addAlert(`Ignore the url param: 'powerPreference', its value must be ` +
+        `one of {'default', 'high-performance', 'low-power'}.`);
+    powerPreference = null;
+  }
+
+
+  return [numRuns, powerPreference];
+}
