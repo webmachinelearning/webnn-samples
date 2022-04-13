@@ -6,7 +6,7 @@ const batchSize = 1;
 const frames = 100; // Frames is fixed at 100
 const frameSize = 480;
 const gainsSize = 22;
-const weightsUrl = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/rnnoise/weights/';
+const weightsUrl = '../test-data/models/rnnoise/weights/';
 const rnnoise = new RNNoise(weightsUrl, batchSize, frames);
 // GPU takes a long time to build the model in electron and
 // the CPU backend has better performance for RNNoise model.

@@ -8,7 +8,7 @@ export class SsdMobilenetV1Nhwc {
     this.model_ = null;
     this.builder_ = null;
     this.graph_ = null;
-    this.weightsUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/ssd_mobilenetv1_nhwc/weights/';
+    this.weightsUrl_ = '../test-data/models/ssd_mobilenetv1_nhwc/weights/';
     this.inputOptions = {
       inputLayout: 'nhwc',
       labelUrl: './labels/coco_classes.txt',
