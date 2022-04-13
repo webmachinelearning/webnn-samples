@@ -8,9 +8,9 @@ export class SsdMobilenetV1Nchw {
     this.model_ = null;
     this.builder_ = null;
     this.graph_ = null;
-    this.weightsUrl_ = '../test-data/models/ssd_mobilenetv1_nchw/weights/';
+    this.weightsUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/ssd_mobilenetv1_nchw/weights/';
     // Shares the same bias files with 'nhwc' layout
-    this.biasUrl_ = '../test-data/models/ssd_mobilenetv1_nhwc/weights/';
+    this.biasUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/ssd_mobilenetv1_nhwc/weights/';
     this.inputOptions = {
       inputLayout: 'nchw',
       labelUrl: './labels/coco_classes.txt',

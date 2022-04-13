@@ -7,7 +7,7 @@ export class DeepLabV3MNV2Nhwc {
   constructor() {
     this.builder_ = null;
     this.graph_ = null;
-    this.weightsUrl_ = '../test-data/models/deeplabv3_mnv2_nhwc/weights/';
+    this.weightsUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/deeplabv3_mnv2_nhwc/weights/';
     this.inputOptions = {
       mean: [127.5, 127.5, 127.5],
       std: [127.5, 127.5, 127.5],
