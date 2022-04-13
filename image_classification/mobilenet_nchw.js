@@ -7,7 +7,7 @@ export class MobileNetV2Nchw {
   constructor() {
     this.builder_ = null;
     this.graph_ = null;
-    this.weightsUrl_ = '../test-data/models/mobilenetv2_nchw/weights/';
+    this.weightsUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/mobilenetv2_nchw/weights/';
     this.inputOptions = {
       mean: [0.485, 0.456, 0.406],
       std: [0.229, 0.224, 0.225],
