@@ -7,7 +7,7 @@ export class TinyYoloV2Nchw {
   constructor() {
     this.builder_ = null;
     this.graph_ = null;
-    this.weightsUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/tiny_yolov2_nchw/weights/';
+    this.weightsUrl_ = '../test-data/models/tiny_yolov2_nchw/weights/';
     this.inputOptions = {
       inputLayout: 'nchw',
       labelUrl: './labels/pascal_classes.txt',
