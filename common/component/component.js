@@ -533,9 +533,9 @@ const webnnlogo = () => {
             </g>
             </g>
         </svg>
-        `
+        `;
     return nnlogo;
-}
+};
 
 const webnnsamplenav = () => {
     const nnnav =
@@ -555,11 +555,11 @@ const webnnsamplenav = () => {
             <a class="dropdown-item" href="../code/index.html">WebNN Code Editor</a>
         </div>
         </li>
-    `
+    `;
     return nnnav;
-}
+};
 
-$(document).ready(function () {
-    $('nav ul.navbar-nav').html(webnnsamplenav())
-    $('#logosvg').html(webnnlogo())
-})
+$(document).ready(function() {
+    $('nav ul.navbar-nav').html(webnnsamplenav());
+    $('#logosvg').html(webnnlogo());
+});
