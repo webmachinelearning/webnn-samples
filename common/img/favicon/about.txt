@@ -1,0 +1,6 @@
+This favicon was generated using the following font:
+
+- Font Title: Poppins
+- Font Author: Copyright 2020 The Poppins Project Authors (https://github.com/itfoundry/Poppins)
+- Font Source: http://fonts.gstatic.com/s/poppins/v19/pxiByp8kv8JHgFVrLDz8V1tvFP-KUEg.ttf
+- Font License: SIL Open Font License, 1.1 (http://scripts.sil.org/OFL))

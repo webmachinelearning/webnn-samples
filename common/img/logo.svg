@@ -1,147 +1,564 @@
-<?xml version="1.0" standalone="no"?>
-<svg preserveAspectRatio="xMidYMid meet" viewBox="2.6837848234271178 -3.5146669515502253 381.3897702611689 82.25648088697943" width="377.39" height="78.26" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-        <defs>
-            <path d="M95.07 60.95L88.43 56.95L93.22 43.77L75.93 18.77L54.72 24.27L34.93 29.77L20.55 19.1L10.18 31.77" id="cpOv8Y6Ru"></path>
-            <path d="M174.79 2.76C177.37 2.76 179.47 4.86 179.47 7.44C179.47 13.04 179.47 25.17 179.47 30.77C179.47 33.35 177.37 35.45 174.79 35.45C161.57 35.45 126.58 35.45 113.35 35.45C110.77 35.45 108.67 33.35 108.67 30.77C108.67 25.17 108.67 13.04 108.67 7.44C108.67 4.86 110.77 2.76 113.35 2.76C126.58 2.76 161.57 2.76 174.79 2.76Z" id="agNcJVAHg"></path><text id="a1qjqRMipJ" x="183" y="91" font-size="29" font-family="Arial, Helvetica, sans-serif" font-weight="300" font-style="normal" letter-spacing="0" alignment-baseline="before-edge" transform="matrix(1 0 0 1 -63.611307076040106 -90.91466084803463)" style="line-height:100%" xml:space="preserve" dominant-baseline="text-before-edge">                <tspan x="183" dy="0.05em" alignment-baseline="before-edge" dominant-baseline="text-before-edge" text-anchor="start">web</tspan>
-            </text>
-            <text id="cvPED4xOy" x="106.66" y="130" font-size="30" font-family="Arial, Helvetica, sans-serif" font-weight="300" font-style="normal" letter-spacing="0" alignment-baseline="before-edge" transform="matrix(1 0 0 1 -0.2861445783132872 -94)" style="line-height:100%" xml:space="preserve" dominant-baseline="text-before-edge">
-                <tspan x="106.66" dy="0em" alignment-baseline="before-edge" dominant-baseline="text-before-edge" text-anchor="start">machinelearning</tspan>
-            </text>
-            <path d="M88.43 56.95L72.93 59.45L48.22 41.38L10.18 31.77" id="a21WvlZiXo"></path>
-            <path d="M79.43 59.45C79.43 63.04 76.52 65.95 72.93 65.95C69.34 65.95 66.43 63.04 66.43 59.45C66.43 55.86 69.34 52.95 72.93 52.95C76.52 52.95 79.43 55.86 79.43 59.45Z" id="g7g8kcl5OU"></path>
-            <path d="M93.22 43.77L55.43 24.27L60.22 5.7L36.93 12.27" id="b2Hetrpwpy"></path>
-            <path d="M30.43 42.77L34.93 29.77" id="gvyu2zvkY"></path>
-            <path d="M48.22 41.38L36.93 13.2" id="b4uMXk2HFY"></path>
-            <path d="M60.22 24.27C60.22 27.31 57.76 29.77 54.72 29.77C51.69 29.77 49.22 27.31 49.22 24.27C49.22 21.24 51.69 18.77 54.72 18.77C57.76 18.77 60.22 21.24 60.22 24.27Z" id="e2cboCoAnw"></path>
-            <path d="M57.88 24.29C57.88 26.02 56.47 27.43 54.74 27.43C53 27.43 51.6 26.02 51.6 24.29C51.6 22.55 53 21.15 54.74 21.15C56.47 21.15 57.88 22.55 57.88 24.29Z" id="b5dP8xBYVW"></path>
-            <path d="M54.72 41.38C54.72 44.96 51.81 47.88 48.22 47.88C44.63 47.88 41.72 44.96 41.72 41.38C41.72 37.79 44.63 34.88 48.22 34.88C51.81 34.88 54.72 37.79 54.72 41.38Z" id="acQNYkRLg"></path>
-            <path d="M98.72 42.77C98.72 46.36 95.81 49.27 92.22 49.27C88.63 49.27 85.72 46.36 85.72 42.77C85.72 39.18 88.63 36.27 92.22 36.27C95.81 36.27 98.72 39.18 98.72 42.77Z" id="a6u11scCWb"></path>
-            <path d="M95.95 42.79C95.95 44.84 94.29 46.5 92.24 46.5C90.19 46.5 88.53 44.84 88.53 42.79C88.53 40.74 90.19 39.08 92.24 39.08C94.29 39.08 95.95 40.74 95.95 42.79Z" id="d3IERwUKvp"></path>
-            <path d="M53.72 56.95L72.43 42.77L75.93 19.1" id="aZDZ8EJL6"></path>
-            <path d="M43.43 13.2C43.43 16.79 40.52 19.7 36.93 19.7C33.34 19.7 30.43 16.79 30.43 13.2C30.43 9.61 33.34 6.7 36.93 6.7C40.52 6.7 43.43 9.61 43.43 13.2Z" id="k2Lr7fZfVD"></path>
-            <path d="M64.22 5.7C64.22 7.91 62.43 9.7 60.22 9.7C58.01 9.7 56.22 7.91 56.22 5.7C56.22 3.49 58.01 1.7 60.22 1.7C62.43 1.7 64.22 3.49 64.22 5.7Z" id="duDJVrz5n"></path>
-            <path d="M62.52 5.71C62.52 6.97 61.49 7.99 60.23 7.99C58.97 7.99 57.95 6.97 57.95 5.71C57.95 4.45 58.97 3.43 60.23 3.43C61.49 3.43 62.52 4.45 62.52 5.71Z" id="ayIbKo1Nt"></path>
-            <path d="M76.43 42.77C76.43 44.98 74.64 46.77 72.43 46.77C70.22 46.77 68.43 44.98 68.43 42.77C68.43 40.56 70.22 38.77 72.43 38.77C74.64 38.77 76.43 40.56 76.43 42.77Z" id="c1eIlO5ldd"></path>
-            <path d="M74.72 42.78C74.72 44.04 73.7 45.07 72.44 45.07C71.18 45.07 70.16 44.04 70.16 42.78C70.16 41.52 71.18 40.5 72.44 40.5C73.7 40.5 74.72 41.52 74.72 42.78Z" id="f4mnf1tza5"></path>
-            <path d="M24.55 18.77C24.55 20.98 22.75 22.77 20.55 22.77C18.34 22.77 16.55 20.98 16.55 18.77C16.55 16.56 18.34 14.77 20.55 14.77C22.75 14.77 24.55 16.56 24.55 18.77Z" id="aa2XZ5M5O"></path>
-            <path d="M22.84 18.78C22.84 20.04 21.82 21.07 20.56 21.07C19.3 21.07 18.27 20.04 18.27 18.78C18.27 17.52 19.3 16.5 20.56 16.5C21.82 16.5 22.84 17.52 22.84 18.78Z" id="dQ6drDsUu"></path>
-            <path d="M92.43 56.95C92.43 59.16 90.64 60.95 88.43 60.95C86.22 60.95 84.43 59.16 84.43 56.95C84.43 54.74 86.22 52.95 88.43 52.95C90.64 52.95 92.43 54.74 92.43 56.95Z" id="bmHV9Syt6"></path>
-            <path d="M90.72 56.96C90.72 58.22 89.7 59.25 88.44 59.25C87.18 59.25 86.16 58.22 86.16 56.96C86.16 55.7 87.18 54.68 88.44 54.68C89.7 54.68 90.72 55.7 90.72 56.96Z" id="a3HX1GiA1O"></path>
-            <path d="M82.43 18.77C82.43 22.36 79.52 25.27 75.93 25.27C72.34 25.27 69.43 22.36 69.43 18.77C69.43 15.18 72.34 12.27 75.93 12.27C79.52 12.27 82.43 15.18 82.43 18.77Z" id="a16Bhbi6AS"></path>
-            <path d="M57.72 56.95C57.72 59.16 55.93 60.95 53.72 60.95C51.51 60.95 49.72 59.16 49.72 56.95C49.72 54.74 51.51 52.95 53.72 52.95C55.93 52.95 57.72 54.74 57.72 56.95Z" id="e76e3RoHAb"></path>
-            <path d="M56.02 56.96C56.02 58.22 54.99 59.25 53.73 59.25C52.47 59.25 51.45 58.22 51.45 56.96C51.45 55.7 52.47 54.68 53.73 54.68C54.99 54.68 56.02 55.7 56.02 56.96Z" id="ca4XnnYOF"></path>
-            <path d="M38.93 29.77C38.93 31.98 37.14 33.77 34.93 33.77C32.72 33.77 30.93 31.98 30.93 29.77C30.93 27.56 32.72 25.77 34.93 25.77C37.14 25.77 38.93 27.56 38.93 29.77Z" id="a1BPZprC6p"></path>
-            <path d="M37.22 29.78C37.22 31.04 36.2 32.07 34.94 32.07C33.68 32.07 32.66 31.04 32.66 29.78C32.66 28.52 33.68 27.5 34.94 27.5C36.2 27.5 37.22 28.52 37.22 29.78Z" id="e1V3QTZxiP"></path>
-            <path d="M16.68 31.77C16.68 35.36 13.77 38.27 10.18 38.27C6.6 38.27 3.68 35.36 3.68 31.77C3.68 28.18 6.6 25.27 10.18 25.27C13.77 25.27 16.68 28.18 16.68 31.77Z" id="b1CDYu5y1P"></path>
-            <path d="" id="l4Kyxf2AdM"></path>
-        </defs>
+<svg
+    viewBox="2.6957588027748756 5.85526315789474 112.52568466533302 24.310003913380942"
+    width="562.65"
+    height="121.55"
+    class="webnn"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <defs>
+    <style type="text/css">
+
+      /* poppins-300 - latin */
+      @font-face {
+        font-family: 'Poppins';
+        font-style: normal;
+        font-weight: 300;
+        src: url('../css/fonts/poppins/poppins-v15-latin-300.eot'); /* IE9 Compat Modes */
+        src: local(''),
+            url('../css/fonts/poppins/poppins-v15-latin-300.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+            url('../css/fonts/poppins/poppins-v15-latin-300.woff2') format('woff2'), /* Super Modern Browsers */
+            url('../css/fonts/poppins/poppins-v15-latin-300.woff') format('woff'), /* Modern Browsers */
+            url('../css/fonts/poppins/poppins-v15-latin-300.ttf') format('truetype'), /* Safari, Android, iOS */
+            url('../css/fonts/poppins/poppins-v15-latin-300.svg#Poppins') format('svg'); /* Legacy iOS */
+      }
+
+      /* poppins-300italic - latin */
+      @font-face {
+        font-family: 'Poppins';
+        font-style: italic;
+        font-weight: 300;
+        src: url('../css/fonts/poppins/poppins-v15-latin-300italic.eot'); /* IE9 Compat Modes */
+        src: local(''),
+            url('../css/fonts/poppins/poppins-v15-latin-300italic.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+            url('../css/fonts/poppins/poppins-v15-latin-300italic.woff2') format('woff2'), /* Super Modern Browsers */
+            url('../css/fonts/poppins/poppins-v15-latin-300italic.woff') format('woff'), /* Modern Browsers */
+            url('../css/fonts/poppins/poppins-v15-latin-300italic.ttf') format('truetype'), /* Safari, Android, iOS */
+            url('../css/fonts/poppins/poppins-v15-latin-300italic.svg#Poppins') format('svg'); /* Legacy iOS */
+      }
+
+ 
+    </style>
+      <path
+        d="M64.79 7.02C65.78 7.02 66.58 7.82 66.58 8.81C66.58 10.97 66.58 15.65 66.58 17.8C66.58 18.79 65.78 19.59 64.79 19.59C59.8 19.59 46.64 19.59 41.66 19.59C40.67 19.59 39.86 18.79 39.86 17.8C39.86 15.65 39.86 10.97 39.86 8.81C39.86 7.82 40.67 7.02 41.66 7.02C46.64 7.02 59.8 7.02 64.79 7.02Z"
+        id="aUJMA4bMI"
+      ></path>
+      <text
+        id="c5jvJP04B"
+        x="63.6"
+        y="121.55"
+        font-size="10"
+        font-family="Poppins"
+        font-weight="100"
+        alignment-baseline="before-edge"
+        transform="matrix(1 0 0 1 -66.79615093164342 -104.194166492847)"
+        style="line-height: 100%"
+        xml:space="preserve"
+        dominant-baseline="text-before-edge"
+      >
+        <tspan
+          x="79.6"
+          dy="0em"
+          alignment-baseline="before-edge"
+          dominant-baseline="text-before-edge"
+          text-anchor="start"
+        >
+          neural network
+        </tspan>
+      </text>
+      <text
+        id="a1vYTZuYgt"
+        x="138.5"
+        y="89"
+        font-size="10"
+        font-family="Poppins"
+        alignment-baseline="before-edge"
+        transform="matrix(1 0 0 1 -136.17057369513643 -82.54473073858966)"
+        style="line-height: 100%"
+        xml:space="preserve"
+        dominant-baseline="text-before-edge"
+      >
+        <tspan
+          x="148.8"
+          dy="0em"
+          alignment-baseline="before-edge"
+          dominant-baseline="text-before-edge"
+          text-anchor="start"
+        >
+          web
+        </tspan>
+      </text>
+      <path
+        d="M29.98 27.82C29.98 29.12 28.93 30.17 27.64 30.17C26.35 30.17 25.3 29.12 25.3 27.82C25.3 26.53 26.35 25.48 27.64 25.48C28.93 25.48 29.98 26.53 29.98 27.82Z"
+        id="m1AZcqfjwA"
+      ></path>
+      <path
+        d="M22.48 13.75L22.91 14.38L23.06 15.15L22.91 15.92L22.48 16.55L21.85 16.98L21.08 17.13L20.31 16.98L19.68 16.55L19.26 15.92L19.1 15.15L19.26 14.38L19.68 13.75L20.31 13.33L21.08 13.17L21.85 13.33L22.48 13.75ZM20.29 14.36L20.04 14.72L19.96 15.16L20.04 15.6L20.29 15.96L20.65 16.2L21.09 16.29L21.53 16.2L21.89 15.96L22.13 15.6L22.22 15.16L22.13 14.72L21.89 14.36L21.53 14.11L21.09 14.03L20.65 14.11L20.29 14.36Z"
+        id="a99wrsIm5"
+      ></path>
+      <path
+        d="M21.08 21.31C21.08 22.61 20.03 23.65 18.74 23.65C17.45 23.65 16.4 22.61 16.4 21.31C16.4 20.02 17.45 18.97 18.74 18.97C20.03 18.97 21.08 20.02 21.08 21.31Z"
+        id="b2fOGzz6El"
+      ></path>
+      <path
+        d="M36.24 20.16L36.75 20.9L36.93 21.82L36.75 22.73L36.24 23.47L35.5 23.97L34.59 24.16L33.68 23.97L32.93 23.47L32.43 22.73L32.25 21.82L32.43 20.9L32.93 20.16L33.68 19.66L34.59 19.47L35.5 19.66L36.24 20.16ZM33.65 20.88L33.36 21.3L33.26 21.82L33.36 22.34L33.65 22.77L34.08 23.05L34.6 23.16L35.12 23.05L35.54 22.77L35.83 22.34L35.93 21.82L35.83 21.3L35.54 20.88L35.12 20.59L34.6 20.48L34.08 20.59L33.65 20.88Z"
+        id="hfanhELPS"
+      ></path>
+      <path
+        d="M17.01 11.16C17.01 12.46 15.96 13.5 14.67 13.5C13.38 13.5 12.33 12.46 12.33 11.16C12.33 9.87 13.38 8.82 14.67 8.82C15.96 8.82 17.01 9.87 17.01 11.16Z"
+        id="g3EBuH3JyM"
+      ></path>
+      <path
+        d="M24.08 7.44L24.39 7.9L24.5 8.46L24.39 9.02L24.08 9.48L23.62 9.79L23.06 9.9L22.5 9.79L22.04 9.48L21.73 9.02L21.62 8.46L21.73 7.9L22.04 7.44L22.5 7.13L23.06 7.02L23.62 7.13L24.08 7.44ZM22.48 7.88L22.31 8.15L22.24 8.47L22.31 8.79L22.48 9.05L22.75 9.22L23.07 9.29L23.39 9.22L23.65 9.05L23.82 8.79L23.89 8.47L23.82 8.15L23.65 7.88L23.39 7.71L23.07 7.64L22.75 7.71L22.48 7.88Z"
+        id="a3SqsBDOg"
+      ></path>
+      <path
+        d="M28.48 20.8L28.79 21.25L28.9 21.82L28.79 22.38L28.48 22.83L28.02 23.14L27.46 23.26L26.9 23.14L26.44 22.83L26.13 22.38L26.02 21.82L26.13 21.25L26.44 20.8L26.9 20.49L27.46 20.37L28.02 20.49L28.48 20.8ZM26.88 21.24L26.71 21.5L26.64 21.82L26.71 22.14L26.88 22.4L27.14 22.58L27.46 22.64L27.78 22.58L28.05 22.4L28.22 22.14L28.29 21.82L28.22 21.5L28.05 21.24L27.78 21.06L27.46 21L27.14 21.06L26.88 21.24Z"
+        id="i15BKTlpWe"
+      ></path>
+      <path
+        d="M9.79 12.15L10.1 12.61L10.21 13.17L10.1 13.73L9.79 14.19L9.33 14.5L8.77 14.61L8.21 14.5L7.75 14.19L7.44 13.73L7.33 13.17L7.44 12.61L7.75 12.15L8.21 11.84L8.77 11.73L9.33 11.84L9.79 12.15ZM8.19 12.59L8.02 12.85L7.95 13.17L8.02 13.49L8.19 13.76L8.45 13.93L8.77 14L9.09 13.93L9.36 13.76L9.53 13.49L9.6 13.17L9.53 12.85L9.36 12.59L9.09 12.42L8.77 12.35L8.45 12.42L8.19 12.59Z"
+        id="a7ILsoRCN"
+      ></path>
+      <path
+        d="M34.24 25.9L34.55 26.36L34.66 26.92L34.55 27.48L34.24 27.94L33.78 28.25L33.22 28.36L32.66 28.25L32.2 27.94L31.9 27.48L31.78 26.92L31.9 26.36L32.2 25.9L32.66 25.6L33.22 25.48L33.78 25.6L34.24 25.9ZM32.65 26.35L32.47 26.61L32.4 26.93L32.47 27.25L32.65 27.51L32.91 27.69L33.23 27.75L33.55 27.69L33.81 27.51L33.99 27.25L34.05 26.93L33.99 26.61L33.81 26.35L33.55 26.17L33.23 26.1L32.91 26.17L32.65 26.35Z"
+        id="e1SP5zBvIe"
+      ></path>
+      <path
+        d="M31.06 13.17C31.06 14.46 30.01 15.51 28.72 15.51C27.43 15.51 26.38 14.46 26.38 13.17C26.38 11.88 27.43 10.83 28.72 10.83C30.01 10.83 31.06 11.88 31.06 13.17Z"
+        id="bfBySayYv"
+      ></path>
+      <path
+        d="M21.74 25.9L22.05 26.36L22.16 26.92L22.05 27.48L21.74 27.94L21.28 28.25L20.72 28.36L20.16 28.25L19.7 27.94L19.39 27.48L19.28 26.92L19.39 26.36L19.7 25.9L20.16 25.6L20.72 25.48L21.28 25.6L21.74 25.9ZM20.14 26.35L19.97 26.61L19.9 26.93L19.97 27.25L20.14 27.51L20.4 27.69L20.72 27.75L21.04 27.69L21.31 27.51L21.48 27.25L21.55 26.93L21.48 26.61L21.31 26.35L21.04 26.17L20.72 26.1L20.4 26.17L20.14 26.35Z"
+        id="b1cdUukPld"
+      ></path>
+      <path
+        d="M14.97 16.11L15.28 16.57L15.39 17.13L15.28 17.69L14.97 18.15L14.51 18.46L13.95 18.57L13.39 18.46L12.93 18.15L12.62 17.69L12.51 17.13L12.62 16.57L12.93 16.11L13.39 15.8L13.95 15.69L14.51 15.8L14.97 16.11ZM13.37 16.55L13.2 16.82L13.13 17.14L13.2 17.46L13.37 17.72L13.64 17.89L13.96 17.96L14.28 17.89L14.54 17.72L14.71 17.46L14.78 17.14L14.71 16.82L14.54 16.55L14.28 16.38L13.96 16.31L13.64 16.38L13.37 16.55Z"
+        id="eK2gZrDmt"
+      ></path>
+      <path
+        d="M7.38 17.85C7.38 19.15 6.33 20.19 5.04 20.19C3.74 20.19 2.7 19.15 2.7 17.85C2.7 16.56 3.74 15.51 5.04 15.51C6.33 15.51 7.38 16.56 7.38 17.85Z"
+        id="d7YHIEVZ2"
+      ></path>
+      <path d="M7.85 14.43L5.31 17.98" id="a17Or6DtLG"></path>
+      <path d="M13.44 16.2L9.48 13.7" id="j4QWBAJZw"></path>
+      <path d="M11.46 23.78L13.44 18.59" id="bhjRTNplq"></path>
+      <path d="M16.57 20.69L7.19 17.98" id="cUv46xKpz"></path>
+      <path d="" id="a86zQgXCB"></path>
+      <path d="M19.81 15.74L14.79 16.81" id="cf4JQTqTn"></path>
+      <path d="M26.24 13.7L23.1 14.43" id="a2mhrsE0Kx"></path>
+      <path d="" id="bmGTT9MeB"></path>
+      <path d="M21.75 8.99L16.97 10.37" id="c5ckw7gUg"></path>
+      <path d="M21.75 13.13L22.49 9.68" id="bNq0DnU5M"></path>
+      <path d="M27.39 20.69L27.87 15.74" id="b1AsRfq0o"></path>
+      <path d="M21.75 26.3L26.24 22.63" id="a5Fonrsblc"></path>
+      <path d="M26.24 21.19L22.12 16.81" id="a6xLjyPrwa"></path>
+      <path d="M32.76 22.02L28.9 22.02" id="feqWMbnGx"></path>
+      <path d="M17.88 19.33L15.59 13.13" id="b877fx0LIT"></path>
+      <path d="M25.86 26.92L20.78 22.63" id="aHbsBwJX"></path>
+      <path d="M32.04 27.54L30.11 28.46" id="b7wp4SAvn"></path>
+      <path d="" id="c1lg9Iyd5S"></path>
+      <path d="" id="b531Gp81NK"></path>
+      <path d="M33.52 26.3L34.39 23.78" id="c4gBuIj7W"></path>
+      <path d="M35.36 30.17L33.98 28" id="g75dLLAPY"></path>
+      <path d="M33.96 19.91L30.46 14.95" id="b9EtFKjjmd"></path>
+    </defs>
+    <g>
+      <g>
         <g>
-            <g>
-                <g>
-                    <use xlink:href="#cpOv8Y6Ru" opacity="1" fill-opacity="0" stroke="#ffffff" stroke-width="1" stroke-opacity="1"></use>
-                </g>
-            </g>
-            <g>
-                <use xlink:href="#agNcJVAHg" opacity="1" fill="#ffffff" fill-opacity="1"></use>
-            </g>
-            <g id="c2qC5pZasR">
-                <use xlink:href="#a1qjqRMipJ" opacity="1" fill="#4777c0" fill-opacity="1"></use>
-            </g>
-            <g id="asK9Mn2P0">
-                <use xlink:href="#cvPED4xOy" opacity="1" fill="#ffffff" fill-opacity="1"></use>
-            </g>
-            <g>
-                <g>
-                    <use xlink:href="#a21WvlZiXo" opacity="1" fill-opacity="0" stroke="#ffffff" stroke-width="1" stroke-opacity="1"></use>
-                </g>
-            </g>
-            <g>
-                <use xlink:href="#g7g8kcl5OU" opacity="1" fill="#ffffff" fill-opacity="1"></use>
-            </g>
-            <g>
-                <g>
-                    <use xlink:href="#b2Hetrpwpy" opacity="1" fill-opacity="0" stroke="#ffffff" stroke-width="1" stroke-opacity="1"></use>
-                </g>
-            </g>
-            <g>
-                <g>
-                    <use xlink:href="#gvyu2zvkY" opacity="1" fill-opacity="0" stroke="#ffffff" stroke-width="1" stroke-opacity="1"></use>
-                </g>
-            </g>
-            <g>
-                <g>
-                    <use xlink:href="#b4uMXk2HFY" opacity="1" fill-opacity="0" stroke="#ffffff" stroke-width="1" stroke-opacity="1"></use>
-                </g>
-            </g>
-            <g>
-                <use xlink:href="#e2cboCoAnw" opacity="1" fill="#ffffff" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#b5dP8xBYVW" opacity="1" fill="#4777c0" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#acQNYkRLg" opacity="1" fill="#ffffff" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#a6u11scCWb" opacity="1" fill="#ffffff" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#d3IERwUKvp" opacity="1" fill="#4777c0" fill-opacity="1"></use>
-            </g>
-            <g>
-                <g>
-                    <use xlink:href="#aZDZ8EJL6" opacity="1" fill-opacity="0" stroke="#ffffff" stroke-width="1" stroke-opacity="1"></use>
-                </g>
-            </g>
-            <g>
-                <use xlink:href="#k2Lr7fZfVD" opacity="1" fill="#ffffff" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#duDJVrz5n" opacity="1" fill="#ffffff" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#ayIbKo1Nt" opacity="1" fill="#4777c0" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#c1eIlO5ldd" opacity="1" fill="#ffffff" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#f4mnf1tza5" opacity="1" fill="#4777c0" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#aa2XZ5M5O" opacity="1" fill="#ffffff" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#dQ6drDsUu" opacity="1" fill="#4777c0" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#bmHV9Syt6" opacity="1" fill="#ffffff" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#a3HX1GiA1O" opacity="1" fill="#4777c0" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#a16Bhbi6AS" opacity="1" fill="#ffffff" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#e76e3RoHAb" opacity="1" fill="#ffffff" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#ca4XnnYOF" opacity="1" fill="#4777c0" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#a1BPZprC6p" opacity="1" fill="#ffffff" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#e1V3QTZxiP" opacity="1" fill="#4777c0" fill-opacity="1"></use>
-            </g>
-            <g>
-                <use xlink:href="#b1CDYu5y1P" opacity="1" fill="#ffffff" fill-opacity="1"></use>
-            </g>
-            <g>
-                <g>
-                    <use xlink:href="#l4Kyxf2AdM" opacity="1" fill-opacity="0" stroke="#61bafb" stroke-width="1" stroke-opacity="1"></use>
-                </g>
-            </g>
+          <use
+            xlink:href="#aUJMA4bMI"
+            opacity="1"
+            fill="rgba(255, 255, 255, 1.0)"
+            fill-opacity="0.4"
+          ></use>
         </g>
-    </svg>
+        <g id="c5WataF5oH">
+          <use
+            xlink:href="#c5jvJP04B"
+            opacity="1"
+            fill="rgba(255, 255, 255, 1.0)"
+            fill-opacity="1"
+          ></use>
+        </g>
+        <g id="flQxJVdR">
+          <use
+            xlink:href="#a1vYTZuYgt"
+            opacity="1"
+            fill="rgba(255, 255, 255, 1.0)"
+            fill-opacity="1"
+          ></use>
+        </g>
+        <g>
+          <g>
+            <use
+              xlink:href="#m1AZcqfjwA"
+              opacity="1"
+              fill="rgba(255, 255, 255, 1.0)"
+              fill-opacity="1"
+            ></use>
+          </g>
+          <g>
+            <use
+              xlink:href="#a99wrsIm5"
+              opacity="1"
+              fill="rgba(255, 255, 255, 1.0)"
+              fill-opacity="1"
+            ></use>
+          </g>
+          <g>
+            <use
+              xlink:href="#b2fOGzz6El"
+              opacity="1"
+              fill="rgba(255, 255, 255, 1.0)"
+              fill-opacity="1"
+            ></use>
+          </g>
+          <g>
+            <use
+              xlink:href="#hfanhELPS"
+              opacity="1"
+              fill="rgba(255, 255, 255, 1.0)"
+              fill-opacity="1"
+            ></use>
+          </g>
+          <g>
+            <use
+              xlink:href="#g3EBuH3JyM"
+              opacity="1"
+              fill="rgba(255, 255, 255, 1.0)"
+              fill-opacity="1"
+            ></use>
+          </g>
+          <g>
+            <use
+              xlink:href="#a3SqsBDOg"
+              opacity="1"
+              fill="rgba(255, 255, 255, 1.0)"
+              fill-opacity="1"
+            ></use>
+          </g>
+          <g>
+            <use
+              xlink:href="#i15BKTlpWe"
+              opacity="1"
+              fill="rgba(255, 255, 255, 1.0)"
+              fill-opacity="1"
+            ></use>
+          </g>
+          <g>
+            <use
+              xlink:href="#a7ILsoRCN"
+              opacity="1"
+              fill="rgba(255, 255, 255, 1.0)"
+              fill-opacity="1"
+            ></use>
+          </g>
+          <g>
+            <use
+              xlink:href="#e1SP5zBvIe"
+              opacity="1"
+              fill="rgba(255, 255, 255, 1.0)"
+              fill-opacity="1"
+            ></use>
+          </g>
+          <g>
+            <use
+              xlink:href="#bfBySayYv"
+              opacity="1"
+              fill="rgba(255, 255, 255, 1.0)"
+              fill-opacity="1"
+            ></use>
+          </g>
+          <g>
+            <use
+              xlink:href="#b1cdUukPld"
+              opacity="1"
+              fill="rgba(255, 255, 255, 1.0)"
+              fill-opacity="1"
+            ></use>
+          </g>
+          <g>
+            <use
+              xlink:href="#eK2gZrDmt"
+              opacity="1"
+              fill="rgba(255, 255, 255, 1.0)"
+              fill-opacity="1"
+            ></use>
+          </g>
+          <g>
+            <use
+              xlink:href="#d7YHIEVZ2"
+              opacity="1"
+              fill="rgba(255, 255, 255, 1.0)"
+              fill-opacity="1"
+            ></use>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#a17Or6DtLG"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#j4QWBAJZw"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#bhjRTNplq"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#cUv46xKpz"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#a86zQgXCB"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#cf4JQTqTn"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#a2mhrsE0Kx"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#bmGTT9MeB"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#c5ckw7gUg"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#bNq0DnU5M"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#b1AsRfq0o"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#a5Fonrsblc"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#a6xLjyPrwa"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#feqWMbnGx"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#b877fx0LIT"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#aHbsBwJX"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#b7wp4SAvn"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#c1lg9Iyd5S"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#b531Gp81NK"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#c4gBuIj7W"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#g75dLLAPY"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+          <g>
+            <g>
+              <use
+                xlink:href="#b9EtFKjjmd"
+                opacity="1"
+                fill-opacity="0"
+                stroke="rgba(255, 255, 255, 1.0)"
+                stroke-width="1"
+                stroke-opacity="1"
+              ></use>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </svg>
