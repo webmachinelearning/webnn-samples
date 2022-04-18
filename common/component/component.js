@@ -559,7 +559,41 @@ const webnnsamplenav = () => {
     return nnnav;
 };
 
-$(document).ready(function() {
+const isWebNN = () => {
+    if (navigator.ml && navigator.ml.createContext()) {
+        if (navigator.ml.createContext().tf) {
+            return false;
+        } else {
+            return true;
+        }
+    } else {
+        return false;
+    }
+};
+
+const webnnbadge = () => {
+    const nnbadge=
+        `
+            <div class='webnnbadge mb-4'>
+                <div class='webnn-title'>WebNN API</div>
+                <div id="webnnstatus"></div>
+            </div>
+            <div class='webnnbadge mb-4'>
+                <div class='webnn-title'>W3C Spec</div>
+                <div class='webnn-status-true'><a href='https://webmachinelearning.github.io/webnn/#usecases'
+                    title='W3C Web Neural Network API Use Cases'>Use Cases</a></div>
+            </div>
+        `;
+    return nnbadge;
+};
+
+$(document).ready(function () {
     $('nav ul.navbar-nav').html(webnnsamplenav());
     $('#logosvg').html(webnnlogo());
+    $('#badge').html(webnnbadge());
+    if (!isWebNN()) {
+        $('#webnnstatus').html('not supported').addClass('webnn-status-false');
+    } else {
+        $('#webnnstatus').html('supported').addClass('webnn-status-true');
+    }
 });

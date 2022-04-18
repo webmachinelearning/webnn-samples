@@ -31,7 +31,7 @@
           </div>
           <div class="col-md-auto">
             <div class="btn-group-toggle" data-toggle="buttons" id="deviceBtns">
-              <label class="btn btn-outline-info btn-sm mr-2">
+              <label class="btn btn-outline-info btn-sm">
                 <input type="radio" name="layout" id="cpu" autocomplete="off">CPU
               </label>
               <label class="btn btn-outline-info btn-sm active">
@@ -46,7 +46,7 @@
           </div>
           <div class="col-md-auto">
             <div class="btn-group-toggle" data-toggle="buttons" id="layoutBtns">
-              <label class="btn btn-outline-info btn-sm mr-2 active">
+              <label class="btn btn-outline-info btn-sm active">
                 <input type="radio" name="layout" id="nchw" autocomplete="off" checked>NCHW
               </label>
               <label class="btn btn-outline-info btn-sm">
@@ -61,7 +61,7 @@
           </div>
           <div class="col-md-auto">
             <div class="btn-group-toggle" data-toggle="buttons" id="modelBtns">
-              <label class="btn btn-outline-info btn-sm mr-2 active">
+              <label class="btn btn-outline-info btn-sm active">
                 <input type="radio" name="model" id="deeplabv3mobilenetv2" autocomplete="off" checked>DeepLab V3 MobileNet
                 V2
               </label>
@@ -200,6 +200,7 @@
     </div>
   </div>
   <footer class="text-muted text-center text-small mt-5">
+    <div id="badge"></div>
     <p>&copy;2022 <a href="https://webmachinelearning.github.io/">WebNN API</a></p>
   </footer>
   <img id='feedElement' hidden crossorigin='anonymous' src=''>

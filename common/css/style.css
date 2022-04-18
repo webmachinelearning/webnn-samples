@@ -132,6 +132,63 @@ a:hover {
   color: #5eb4fe;
 }
 
+.webnnbadge {
+  display: inline-block;
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+}
+
+.webnn-title {
+  display: inline-block;
+  border: 1px solid rgba(37, 85, 160, 0.9);
+  background: rgba(37, 85, 160, 0.9);
+  color: rgba(255, 255, 255, 1.0);
+  padding: 0.2rem 0.4rem;
+}
+
+.webnn-title:hover {
+  border: 1px solid rgba(37, 85, 160, 1.0);
+  background: rgba(37, 85, 160, 1.0);
+}
+
+.webnn-status {
+  display: inline-block;
+  color: rgba(255, 255, 255, 1.0);
+  padding: 0.5rem;
+}
+
+.webnn-status-false {
+  background: rgba(213, 213, 213, 0.0);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  padding: 0.2rem 0.4rem;
+  margin-left: -6px;
+  border-left: 0px;
+}
+
+.webnn-status-false:hover {
+  background: rgba(213, 213, 213, 0.15);
+}
+
+.webnn-status-true {
+  margin-left: -5px;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(37, 85, 160, 0.9);
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+}
+
+.webnn-status-true {
+  border-left: 0px;
+}
+
+.webnn-status-true:hover {
+  background: rgba(213, 213, 213, 0.15);
+}
+
 @media (max-width: 768px) {
 
   #inputCanvas,
@@ -531,9 +588,9 @@ a:hover {
 }
 
 #semanticsegmentation .controls .btn:hover {
-  color: rgba(15, 76, 129, 1.0);
+  color: rgba(37, 85, 160, 1.0);
   background: rgba(213, 213, 213, 0.15) !important;
-  border: 1px rgba(15, 76, 129, 1.0) solid;
+  border: 1px rgba(37, 85, 160, 1.0) solid;
 }
 
 #semanticsegmentation .controls .btn-group .btn, #semanticsegmentation .btn {
@@ -617,30 +674,69 @@ a:hover {
   font-size: 0.9rem;
 }
 
+.card {
+  border: 0px !important;
+}
+
+.nav-link {
+  padding: .3rem 1rem;
+}
+
+.nav-tabs .nav-link, .card, .alert, .input-group-text, .custom-select {
+  border-radius: 0px;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: rgba(213, 213, 213, 0.15);
+}
+
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+  border-color: transparent;
+}
+
+.nav-link:hover {
+  border-color: transparent;
+  border: 0px;
+  background-color: rgba(213, 213, 213, 0.15);
+}
+
+.btn {
+  border-radius: 0px;
+  padding: 2px 8px !important;
+  margin-right: -5px;
+}
+
 .btn-outline-info, .btn-outline-secondary {
   font-size: 0.85rem;
-  color: #2555a0;
+  color: rgba(37, 85, 160, 1.0);
   padding: 0.3rem 0.5rem;
 }
 
 .btn-outline-info {
-  border: 1px solid #2555a0;
+  border: 1px solid rgba(37, 85, 160, 0.9);
 }
 
 .btn-info,
 .btn-info .active,
-.btn-info:hover,
 .btn-info:not(:disabled) {
-  background-color: #2555a0;
+  background-color: rgba(37, 85, 160, 0.9);
 }
 
-.btn-outline-info:hover,
 .btn-outline-info .active,
 .btn-outline-info:not(:disabled):not(.disabled).active,
 .btn-outline-info:not(:disabled):not(.disabled):active,
 .show>.btn-info.dropdown-toggle {
-  background-color: #2555a0;
-  border: 1px solid #2555a0;
+  background-color: rgba(37, 85, 160, 0.9);
+  border: 1px solid rgba(37, 85, 160, 0.9);
+}
+
+.btn-info:hover {
+  background-color: rgba(37, 85, 160, 1.0);
+}
+
+.btn-outline-info:hover {
+  background-color: rgba(37, 85, 160, 1.0) !important;
+  border: 1px solid rgba(37, 85, 160, 1.0) !important;
 }
 
 .btn-lg {
@@ -655,7 +751,7 @@ a:hover {
 
 .navbar {
   width:100%;
-  background-image: linear-gradient(135deg, #3f69b8, #2555a0, #42b3dd);
+  background-image: linear-gradient(135deg, #3f69b8, rgba(37, 85, 160, 1.0), #42b3dd);
   color: #fff;
 }
 
@@ -676,7 +772,7 @@ a:hover {
 }
 
 .dropdown-item:hover {
-  background-color: #2555a0;
+  background-color: rgba(37, 85, 160, 1.0);
   color: #fff;
 }
 
