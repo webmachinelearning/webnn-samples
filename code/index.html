@@ -26,28 +26,10 @@
   <body>
     <nav class="navbar navbar-expand-md navbar-dark">
       <a href="../index.html">
-        <div class="logosvg">
-          <object data="../common/img/logo.svg" type="image/svg+xml"></object>
-        </div>
+        <div class="logosvg" id="logosvg"></div>
       </a>
       <span class="navbar-brand">WebNN Code Editor</span>
-      <ul class="navbar-nav">
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-            Examples
-          </a>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="../image_classification/index.html">Image Classification</a>
-            <a class="dropdown-item" href="../lenet/index.html">Handwritten Digits Classification</a>
-            <a class="dropdown-item" href="../nsnet2/index.html">Noise Suppression (NSNet2)</a>
-            <a class="dropdown-item" href="../rnnoise/index.html">Noise Suppression (RNNoise)</a>
-            <a class="dropdown-item" href="../style_transfer/index.html">Fast Style Transfer</a>
-            <a class="dropdown-item" href="../object_detection/index.html">Object Detection</a>
-            <a class="dropdown-item" href="../semantic_segmentation/index.html">Semantic Segmentation</a>
-            <a class="dropdown-item" href="../code/index.html">WebNN Code Editor</a>
-          </div>
-        </li>
-      </ul>
+      <ul class="navbar-nav"></ul>
     </nav>
     <div class="container" id="container">
       <div class="row" style="padding-top:2%;">
@@ -106,6 +88,7 @@
         main();
       }
     </script>
+    <script src="../common/component/component.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-6TK7JD3KKY"></script>
     <script src="../common/libs/gtag.js"></script>
   </body>

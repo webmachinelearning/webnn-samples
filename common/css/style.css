@@ -114,7 +114,7 @@ body {
   font-family: Poppins;
 }
 
-object {
+#logosvg svg {
   width: 200px;
   height: 40px;
   pointer-events: none; 
