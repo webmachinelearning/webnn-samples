@@ -1,5 +1,5 @@
 const webnnlogo = () => {
-    const  nnlogo =
+    const nnlogo =
         `
             <svg
             viewBox="2.6957588027748756 5.85526315789474 112.52568466533302 24.310003913380942"
@@ -538,8 +538,8 @@ const webnnlogo = () => {
 }
 
 const webnnsamplenav = () => {
-    const  nnnav =
-    `
+    const nnnav =
+        `
         <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
             Samples
@@ -556,7 +556,7 @@ const webnnsamplenav = () => {
         </div>
         </li>
     `
-return nnnav;
+    return nnnav;
 }
 
 $(document).ready(function () {
