@@ -97,10 +97,9 @@ export async function main() {
       const input = getInputFromCanvas();
       const outputBuffer = new Float32Array(utils.sizeOfShape([1, 10]));
 
-      if (numRuns > 1) {
-        // Do warm up
-        lenet.predict(input, outputBuffer);
-      }
+      // Do warm up
+      lenet.predict(input, outputBuffer);
+
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
         lenet.predict(input, outputBuffer);

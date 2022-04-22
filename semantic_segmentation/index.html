@@ -62,7 +62,7 @@
           <div class="col-md-auto">
             <div class="btn-group-toggle" data-toggle="buttons" id="modelBtns">
               <label class="btn btn-outline-info btn-sm active">
-                <input type="radio" name="model" id="deeplabv3mobilenetv2" autocomplete="off" checked>DeepLab V3 MobileNet
+                <input type="radio" name="model" id="deeplabv3mnv2" autocomplete="off">DeepLab V3 MobileNet
                 V2
               </label>
             </div>
@@ -233,13 +233,7 @@
     if (window.tempModule) module = window.tempModule;
   </script>
   <script src="../sw.js"></script>
-  <script type="module">
-    import {main} from './main.js';
-
-    window.onload = async () => {
-      await main();
-    }
-  </script>
+  <script type="module" src="./main.js"></script>
   <script src="../common/component/component.js"></script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-6TK7JD3KKY"></script>
   <script src="../common/libs/gtag.js"></script>

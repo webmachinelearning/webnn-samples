@@ -248,10 +248,10 @@ export async function main() {
       console.log('- Computing... ');
       const computeTimeArray = [];
       let medianComputeTime;
-      if (numRuns > 1) {
-        // Do warm up
-        fastStyleTransferNet.compute(inputBuffer, outputBuffer);
-      }
+
+      // Do warm up
+      fastStyleTransferNet.compute(inputBuffer, outputBuffer);
+
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
         fastStyleTransferNet.compute(inputBuffer, outputBuffer);

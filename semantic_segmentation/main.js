@@ -10,7 +10,7 @@ const imgElement = document.getElementById('feedElement');
 imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
 const outputCanvas = document.getElementById('outputCanvas');
-let modelName ='deeplabv3mnv2';
+let modelName ='';
 let layout = 'nchw';
 let instanceType = modelName + layout;
 let rafReq;
@@ -297,6 +297,7 @@ function constructNetObject(type) {
 
 export async function main() {
   try {
+    if (modelName == '') return;
     ui.handleClick(disabledSelectors, true);
     let start;
     const [numRuns, powerPreference] = utils.getUrlParams();
@@ -348,10 +349,10 @@ export async function main() {
       console.log('- Computing... ');
       const computeTimeArray = [];
       let medianComputeTime;
-      if (numRuns > 1) {
-        // Do warm up
-        netInstance.compute(inputBuffer, outputBuffer);
-      }
+
+      // Do warm up
+      netInstance.compute(inputBuffer, outputBuffer);
+
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
         netInstance.compute(inputBuffer, outputBuffer);
