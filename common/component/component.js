@@ -1,3 +1,5 @@
+import {isElectron, isWebNN} from '../utils.js';
+
 const webnnlogo = () => {
     const nnlogo =
         `
@@ -559,20 +561,8 @@ const webnnsamplenav = () => {
     return nnnav;
 };
 
-const isWebNN = () => {
-    if (navigator.ml && navigator.ml.createContext()) {
-        if (navigator.ml.createContext().tf) {
-            return false;
-        } else {
-            return true;
-        }
-    } else {
-        return false;
-    }
-};
-
 const webnnbadge = () => {
-    const nnbadge=
+    const nnbadge =
         `
             <div class='webnnbadge mb-4'>
                 <div class='webnn-title'>WebNN API</div>
@@ -591,9 +581,23 @@ $(document).ready(function () {
     $('nav ul.navbar-nav').html(webnnsamplenav());
     $('#logosvg').html(webnnlogo());
     $('#badge').html(webnnbadge());
-    if (!isWebNN()) {
-        $('#webnnstatus').html('not supported').addClass('webnn-status-false');
-    } else {
+    if (isWebNN()) {
+        if ($('#backendBtns')) {
+            if (!isElectron()) {
+                $('label[name="polyfill"]').addClass('disabled');
+                $('label[name="polyfill"]').addClass('btn-outline-secondary');
+                $('label[name="polyfill"]').removeClass('btn-outline-info');
+                $('label[name="polyfill"]').attr('title', 'WebNN is supported, disable WebNN Polyfill.');
+            }
+        }
         $('#webnnstatus').html('supported').addClass('webnn-status-true');
+    } else {
+        if ($('#backendBtns')) {
+            $('label[name="webnn"]').addClass('disabled');
+            $('label[name="webnn"]').addClass('btn-outline-secondary');
+            $('label[name="webnn"]').removeClass('btn-outline-info');
+            $('label[name="webnn"]').attr('title', 'WebNN is not supported!');
+        }
+        $('#webnnstatus').html('not supported').addClass('webnn-status-false');
     }
 });

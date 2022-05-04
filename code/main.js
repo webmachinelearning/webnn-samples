@@ -1,9 +1,15 @@
 import {samplesRepo} from './samples_repo.js';
-import {sizeOfShape} from '../common/utils.js';
+import * as utils from '../common/utils.js';
 
-window.sizeOfShape = sizeOfShape;
+window.sizeOfShape = utils.sizeOfShape;
 
-export function main() {
+export async function main() {
+  // Set backend
+  if (utils.isWebNN()) {
+    await utils.setBackend('webnn', 'cpu');
+  } else {
+    await utils.setBackend('polyfill', 'gpu');
+  }
   const selectElement = document.getElementById('example-select');
   for (const name of samplesRepo.names()) {
     const option = document.createElement('option');

@@ -1,7 +1,7 @@
 'use strict';
 
 import {Denoiser} from './denoiser.js';
-import {setPolyfillBackend} from '../common/utils.js';
+import {setBackend} from '../common/utils.js';
 import {addAlert} from '../common/ui.js';
 
 const sampleRate = 16000;
@@ -11,14 +11,11 @@ const defaultFrames = 10;
 let denoiser;
 let audioData;
 let denoisedAudioData = [];
-let devicePreference = 'gpu';
 
 const chooseAudio = document.getElementById('choose-audio');
 const audioName = document.getElementById('audio-name');
 
-$('#deviceBtns .btn').on('change', async (e) => {
-  devicePreference = $(e.target).attr('id');
-  await setPolyfillBackend(devicePreference);
+$('#backendBtns .btn').on('change', async () => {
   await main();
 });
 
@@ -147,6 +144,9 @@ browseButton.onclick = () => {
 
 export async function main() {
   try {
+    const [backend, devicePreference] =
+        $('input[name="backend"]:checked').attr('id').split('_');
+    await setBackend(backend, devicePreference);
     // Handle frames parameter.
     const searchParams = new URLSearchParams(location.search);
     let frames = parseInt(searchParams.get('frames'));
