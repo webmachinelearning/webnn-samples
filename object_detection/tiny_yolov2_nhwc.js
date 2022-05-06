@@ -68,8 +68,8 @@ export class TinyYoloV2Nhwc {
     return await this.buildConv_(conv8, '9', false);
   }
 
-  build(outputOperand) {
-    this.graph_ = this.builder_.build({'output': outputOperand});
+  async build(outputOperand) {
+    this.graph_ = await this.builder_.build({'output': outputOperand});
   }
 
   // Release the constant tensors of a model
@@ -80,8 +80,8 @@ export class TinyYoloV2Nhwc {
     }
   }
 
-  compute(inputBuffer, outputs) {
+  async compute(inputBuffer, outputs) {
     const inputs = {'input': inputBuffer};
-    this.graph_.compute(inputs, outputs);
+    await this.graph_.compute(inputs, outputs);
   }
 }

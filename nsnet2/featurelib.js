@@ -11,11 +11,6 @@ export function calcFeat(Spec, cfg) {
       const pmin = tf.scalar(10**(-12));
       const powSpec = tf.pow(tf.abs(Spec), 2);
       inpFeat = tf.maximum(powSpec, pmin);
-      const data = inpFeat.dataSync();
-      for (let i = 0; i < data.length; ++i) {
-        data[i] = Math.log10(data[i]);
-      }
-      inpFeat = tf.tensor(data, Spec.shape);
     } else {
       throw new Error('Feature not implemented.');
     }

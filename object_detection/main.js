@@ -144,12 +144,12 @@ async function drawOutput(inputElement, outputs, labels) {
     // Transpose 'nchw' output to 'nhwc' for postprocessing
     let outputBuffer = outputs.output;
     if (layout === 'nchw') {
-      outputBuffer = tf.tidy(() => {
+      const transposeTensor = tf.tidy(() => {
         const a =
             tf.tensor(outputBuffer, netInstance.outputDimensions, 'float32');
-        const b = tf.transpose(a, [0, 2, 3, 1]);
-        return b.dataSync();
+        return tf.transpose(a, [0, 2, 3, 1]);
       });
+      outputBuffer = await transposeTensor.data();
     }
     const decodeOut = Yolo2Decoder.decodeYOLOv2({numClasses: 20},
         outputBuffer, inputOptions.anchors);
@@ -234,7 +234,7 @@ async function main() {
       await ui.showProgressComponent('done', 'current', 'pending');
       console.log('- Building... ');
       start = performance.now();
-      netInstance.build(outputOperand);
+      await netInstance.build(outputOperand);
       buildTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${buildTime} ms.`);
     }
@@ -247,11 +247,11 @@ async function main() {
       let medianComputeTime;
       if (numRuns > 1) {
         // Do warm up
-        netInstance.compute(inputBuffer, outputs);
+        await netInstance.compute(inputBuffer, outputs);
       }
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
-        netInstance.compute(inputBuffer, outputs);
+        await netInstance.compute(inputBuffer, outputs);
         computeTime = (performance.now() - start).toFixed(2);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);
         computeTimeArray.push(Number(computeTime));

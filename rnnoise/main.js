@@ -147,7 +147,7 @@ async function denoise() {
     const preProcessingTime = (performance.now() - start).toFixed(2);
     inputs.input = new Float32Array(features);
     start = performance.now();
-    rnnoise.compute( inputs, outputs);
+    await rnnoise.compute( inputs, outputs);
     const executionTime = (performance.now() - start).toFixed(2);
     inputs.vadGruInitialH = outputs.vadGruYH;
     inputs.noiseGruInitialH = outputs.noiseGruYH;
@@ -233,7 +233,7 @@ async function main() {
       `done in <span class='text-primary'>${loadingTime}</span> ms.`, true);
   await log(modelInfo, '- Building model...');
   start = performance.now();
-  rnnoise.build(outputOperand);
+  await rnnoise.build(outputOperand);
   const buildTime = (performance.now() - start).toFixed(2);
   console.log(`build elapsed time: ${buildTime} ms`);
   await log(modelInfo,

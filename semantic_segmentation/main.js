@@ -234,7 +234,7 @@ async function renderCamStream() {
   const inputCanvas = utils.getVideoFrame(camElement);
   console.log('- Computing... ');
   const start = performance.now();
-  netInstance.compute(inputBuffer, outputBuffer);
+  await netInstance.compute(inputBuffer, outputBuffer);
   computeTime = (performance.now() - start).toFixed(2);
   console.log(`  done in ${computeTime} ms.`);
   showPerfResult();
@@ -246,14 +246,13 @@ async function renderCamStream() {
 async function drawOutput(srcElement) {
   // TODO: move 'argMax' operation to graph once it is supported in WebNN spec.
   // https://github.com/webmachinelearning/webnn/issues/184
-  const [argMaxBuffer, outputShape] = tf.tidy(() => {
+  const argMaxResult = tf.tidy(() => {
     const a = tf.tensor(outputBuffer, netInstance.outputDimensions, 'float32');
     let axis = 3;
     if (layout === 'nchw') {
       axis = 1;
     }
-    const b = tf.argMax(a, axis);
-    return [b.dataSync(), b.shape];
+    return tf.argMax(a, axis);
   });
 
   const width = inputOptions.inputDimensions[2];
@@ -264,8 +263,8 @@ async function drawOutput(srcElement) {
   const scaledHeight = Math.floor(imHeight / resizeRatio);
 
   const segMap = {
-    data: argMaxBuffer,
-    outputShape: outputShape,
+    data: await argMaxResult.data(),
+    outputShape: argMaxResult.shape,
     labels: labels,
   };
 
@@ -337,7 +336,7 @@ export async function main() {
       await ui.showProgressComponent('done', 'current', 'pending');
       console.log('- Building... ');
       start = performance.now();
-      netInstance.build(outputOperand);
+      await netInstance.build(outputOperand);
       buildTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${buildTime} ms.`);
     }
@@ -350,11 +349,11 @@ export async function main() {
       let medianComputeTime;
       if (numRuns > 1) {
         // Do warm up
-        netInstance.compute(inputBuffer, outputBuffer);
+        await netInstance.compute(inputBuffer, outputBuffer);
       }
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
-        netInstance.compute(inputBuffer, outputBuffer);
+        await netInstance.compute(inputBuffer, outputBuffer);
         computeTime = (performance.now() - start).toFixed(2);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);
         computeTimeArray.push(Number(computeTime));

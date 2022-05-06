@@ -165,7 +165,7 @@ export async function setPolyfillBackend(device) {
   // Use 'webgl' by default for better performance.
   // Note: 'wasm' backend may run failed on some samples since
   // some ops aren't supported on 'wasm' backend at present
-  const backend = device === 'cpu' ? 'wasm' : 'webgl';
+  const backend = device === 'cpu' ? 'wasm' : 'webgpu';
   const tf = navigator.ml.createContext().tf;
   if (tf) {
     if (!(await tf.setBackend(backend))) {
