@@ -29,8 +29,10 @@ let buildTime = 0;
 let computeTime = 0;
 let inputOptions;
 let outputBuffer;
-let devicePreference = 'gpu';
+let devicePreference = '';
 let lastDevicePreference = '';
+let backend = '';
+let lastBackend = '';
 const disabledSelectors = ['#tabs > li', '.btn'];
 
 async function fetchLabels(url) {
@@ -41,10 +43,14 @@ async function fetchLabels(url) {
 
 $(document).ready(() => {
   $('.icdisplay').hide();
+  if (utils.isWebNN()) {
+    $('#webnn_cpu').click();
+  } else {
+    $('#polyfill_gpu').click();
+  }
 });
 
-$('#deviceBtns .btn').on('change', async (e) => {
-  devicePreference = $(e.target).attr('id');
+$('#backendBtns .btn').on('change', async (e) => {
   if (inputType === 'camera') cancelAnimationFrame(rafReq);
   await main();
 });
@@ -227,19 +233,23 @@ function constructNetObject(type) {
 async function main() {
   try {
     if (modelName === '') return;
+    [backend, devicePreference] =
+        $('input[name="backend"]:checked').attr('id').split('_');
     ui.handleClick(disabledSelectors, true);
     if (isFirstTimeLoad) $('#hint').hide();
     let start;
     const [numRuns, powerPreference] = utils.getUrlParams();
 
     // Only do load() and build() when model first time loads,
-    // there's new model choosed, and device backend changed
+    // there's new model choosed, backend changed or device changed
     if (isFirstTimeLoad || instanceType !== modelName + layout ||
-        lastDevicePreference != devicePreference) {
-      if (lastDevicePreference != devicePreference) {
-        // Set polyfill backend
-        await utils.setPolyfillBackend(devicePreference);
-        lastDevicePreference = devicePreference;
+        lastDevicePreference != devicePreference || lastBackend != backend) {
+      if (lastDevicePreference != devicePreference || lastBackend != backend) {
+        // Set backend and device
+        await utils.setBackend(backend, devicePreference);
+        lastDevicePreference = lastDevicePreference != devicePreference ?
+                               devicePreference : lastDevicePreference;
+        lastBackend = lastBackend != backend ? backend : lastBackend;
       }
       if (netInstance !== null) {
         // Call dispose() to and avoid memory leak
@@ -279,10 +289,10 @@ async function main() {
       console.log('- Computing... ');
       const computeTimeArray = [];
       let medianComputeTime;
-      if (numRuns > 1) {
-        // Do warm up
-        netInstance.compute(inputBuffer, outputBuffer);
-      }
+
+      // Do warm up
+      netInstance.compute(inputBuffer, outputBuffer);
+
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
         netInstance.compute(inputBuffer, outputBuffer);

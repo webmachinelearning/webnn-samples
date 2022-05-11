@@ -17,11 +17,8 @@ digitCanvas.setAttribute('height', 28);
 digitCanvas.setAttribute('width', 28);
 digitCanvas.style.backgroundColor = 'black';
 const digitContext = digitCanvas.getContext('2d');
-let devicePreference = 'gpu';
 
-$('#deviceBtns .btn').on('change', async (e) => {
-  devicePreference = $(e.target).attr('id');
-  await utils.setPolyfillBackend(devicePreference);
+$('#backendBtns .btn').on('change', async () => {
   await main();
 });
 
@@ -61,7 +58,10 @@ function clearResult() {
   }
 }
 
-export async function main() {
+async function main() {
+  const [backend, devicePreference] =
+      $('input[name="backend"]:checked').attr('id').split('_');
+  await utils.setBackend(backend, devicePreference);
   drawNextDigitFromMnist();
   const pen = new Pen(visualCanvas);
   const weightUrl = '../test-data/models/lenet_nchw/weights/lenet.bin';
@@ -97,10 +97,9 @@ export async function main() {
       const input = getInputFromCanvas();
       const outputBuffer = new Float32Array(utils.sizeOfShape([1, 10]));
 
-      if (numRuns > 1) {
-        // Do warm up
-        lenet.predict(input, outputBuffer);
-      }
+      // Do warm up
+      lenet.predict(input, outputBuffer);
+
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
         lenet.predict(input, outputBuffer);

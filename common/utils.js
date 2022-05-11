@@ -201,6 +201,95 @@ export function getUrlParams() {
     powerPreference = null;
   }
 
-
   return [numRuns, powerPreference];
+}
+
+// Set backend for using WebNN-polyfill or WebNN
+export async function setBackend(backend, device) {
+  const webnnPolyfillId = 'webnn_polyfill';
+  const webnnNodeId = 'webnn_node';
+  const webnnPolyfillElem = document.getElementById(webnnPolyfillId);
+  const webnnNodeElem = document.getElementById(webnnNodeId);
+
+  if (backend === 'polyfill') {
+    if (webnnNodeElem) {
+      document.body.removeChild(webnnNodeElem);
+      // Unset global objects defined in node_setup.js
+      global.navigator.ml = undefined;
+      global.MLContext = undefined;
+      global.MLGraphBuilder = undefined;
+      global.MLGraph = undefined;
+      global.MLOperand = undefined;
+    }
+    if (!webnnPolyfillElem) {
+      const webnnPolyfillUrl =
+          'https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js';
+      if (typeof(tf) != 'undefined') {
+        // Reset tf.ENV to avoid environments from tf.min.js
+        // affect webnn-polyfill.js
+        tf.engine().reset();
+      }
+      // Create WebNN-polyfill script
+      await loadScript(webnnPolyfillUrl, webnnPolyfillId);
+    }
+    await setPolyfillBackend(device);
+  } else if (backend === 'webnn') {
+    // For Electron
+    if (isElectron()) {
+      if (webnnPolyfillElem) {
+        document.body.removeChild(webnnPolyfillElem);
+      }
+      if (!webnnNodeElem) {
+        // Create WebNN node script, node_setup.js is located at
+        // https://github.com/webmachinelearning/webnn-native/tree/main/node/examples/electron/webnn-samples
+        // Specific for running samples with WebNN node addon on Electron.js
+        await loadScript('../../node_setup.js', webnnNodeId);
+      }
+      addAlert(
+          `This sample is running on WebNN-native with <b>${device}</b>` +
+          ` backend.`, 'info');
+    } else {
+      // For Browser
+      if (!isWebNN()) {
+        addAlert(`WebNN is not supported!`, 'warning');
+      }
+    }
+  } else {
+    addAlert(`Unknow backend: ${backend}`, 'warning');
+  }
+}
+
+// Promise to load script with url and id
+async function loadScript(url, id) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.onload = resolve;
+    script.onerror = reject;
+    script.src = url;
+    script.id = id;
+    if (url.startsWith('http')) {
+      script.crossOrigin = 'anonymous';
+    }
+    document.body.appendChild(script);
+  });
+}
+
+export function isElectron() {
+  const userAgent = navigator.userAgent.toLowerCase();
+  return userAgent.indexOf(' electron/') > -1;
+}
+
+export function isWebNN() {
+  // This would be used in
+  // https://github.com/webmachinelearning/webnn-native/tree/main/node/examples/electron/webnn-samples,
+  // where WebNN is enabled by default.
+  if (isElectron()) {
+    return true;
+  } else {
+    if (navigator.ml && navigator.ml.createContext()) {
+      return !navigator.ml.createContext().tf;
+    } else {
+      return false;
+    }
+  }
 }

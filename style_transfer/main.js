@@ -20,8 +20,10 @@ let loadTime = 0;
 let buildTime = 0;
 let computeTime = 0;
 let outputBuffer;
-let devicePreference = 'gpu';
+let devicePreference = '';
 let lastDevicePreference = '';
+let backend = '';
+let lastBackend = '';
 const disabledSelectors = [
   '#tabs > li',
   '#gallery',
@@ -34,8 +36,9 @@ $(document).ready(() => {
   $('.badge').html(modelId);
 });
 
-$('#deviceBtns .btn').on('change', async (e) => {
-  devicePreference = $(e.target).attr('id');
+$('#backendBtns .btn').on('change', async (e) => {
+  [backend, devicePreference] =
+      $('input[name="backend"]:checked').attr('id').split('_');
   if (inputType === 'camera') cancelAnimationFrame(rafReq);
   await main();
 });
@@ -197,18 +200,22 @@ function showPerfResult(medianComputeTime = undefined) {
 
 export async function main() {
   try {
+    if (backend === '') return;
     ui.handleClick(disabledSelectors, true);
+    if (isFirstTimeLoad) $('#hint').hide();
     let start;
     const [numRuns, powerPreference] = utils.getUrlParams();
 
     // Only do load() and build() when model first time loads,
-    // there's new model choosed, and device backend changed
+    // there's new model choosed, backend changed or device changed
     if (isFirstTimeLoad || isModelChanged ||
-        lastDevicePreference != devicePreference) {
-      if (lastDevicePreference != devicePreference) {
-        // Set polyfill backend
-        await utils.setPolyfillBackend(devicePreference);
-        lastDevicePreference = devicePreference;
+      lastDevicePreference != devicePreference || lastBackend != backend) {
+      if (lastDevicePreference != devicePreference || lastBackend != backend) {
+        // Set backend and device
+        await utils.setBackend(backend, devicePreference);
+        lastDevicePreference = lastDevicePreference != devicePreference ?
+                                devicePreference : lastDevicePreference;
+        lastBackend = lastBackend != backend ? backend : lastBackend;
       }
       if (fastStyleTransferNet !== undefined) {
         // Call dispose() to and avoid memory leak
@@ -248,10 +255,10 @@ export async function main() {
       console.log('- Computing... ');
       const computeTimeArray = [];
       let medianComputeTime;
-      if (numRuns > 1) {
-        // Do warm up
-        fastStyleTransferNet.compute(inputBuffer, outputBuffer);
-      }
+
+      // Do warm up
+      fastStyleTransferNet.compute(inputBuffer, outputBuffer);
+
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
         fastStyleTransferNet.compute(inputBuffer, outputBuffer);

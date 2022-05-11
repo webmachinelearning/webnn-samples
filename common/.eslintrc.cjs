@@ -4,6 +4,7 @@ module.exports = {
     'BigInt64Array': 'readonly',
     'BigUint64Array': 'readonly',
     "globalThis": true,
+    'tf': 'readonly',
   },
   parser: 'babel-eslint'
 };
