@@ -6,7 +6,6 @@ import {SqueezeNetNchw} from './squeezenet_nchw.js';
 import {SqueezeNetNhwc} from './squeezenet_nhwc.js';
 import {ResNet50V2Nchw} from './resnet50v2_nchw.js';
 import {ResNet50V2Nhwc} from './resnet50v2_nhwc.js';
-import {ResNet101V2Nhwc} from './resnet101v2_nhwc.js';
 import * as ui from '../common/ui.js';
 import * as utils from '../common/utils.js';
 
@@ -57,32 +56,12 @@ $('#backendBtns .btn').on('change', async (e) => {
 
 $('#modelBtns .btn').on('change', async (e) => {
   modelName = $(e.target).attr('id');
-  // Disable ResNet 101 NCHW as we haven't support it yet
-  if (modelName === 'resnet101') {
-    $('#nchw-label').addClass('disabled');
-    $('#nchw-label').addClass('btn-outline-secondary');
-    $('#nchw-label').removeClass('btn-outline-info');
-  } else {
-    $('#nchw-label').removeClass('disabled');
-    $('#nchw-label').removeClass('btn-outline-secondary');
-    $('#nchw-label').addClass('btn-outline-info');
-  }
   if (inputType === 'camera') cancelAnimationFrame(rafReq);
   await main();
 });
 
 $('#layoutBtns .btn').on('change', async (e) => {
   layout = $(e.target).attr('id');
-  // Disable ResNet 101 NCHW as we haven't support it yet
-  if (layout === 'nhwc') {
-    $('#resnet101-label').removeClass('disabled');
-    $('#resnet101-label').removeClass('btn-outline-secondary');
-    $('#resnet101-label').addClass('btn-outline-info');
-  } else {
-    $('#resnet101-label').addClass('disabled');
-    $('#resnet101-label').addClass('btn-outline-secondary');
-    $('#resnet101-label').removeClass('btn-outline-info');
-  }
   if (inputType === 'camera') cancelAnimationFrame(rafReq);
   await main();
 });
@@ -224,7 +203,6 @@ function constructNetObject(type) {
     'squeezenetnhwc': new SqueezeNetNhwc(),
     'resnet50nchw': new ResNet50V2Nchw(),
     'resnet50nhwc': new ResNet50V2Nhwc(),
-    'resnet101nhwc': new ResNet101V2Nhwc(),
   };
 
   return netObject[type];
