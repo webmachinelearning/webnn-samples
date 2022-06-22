@@ -86,6 +86,21 @@ export function getVideoFrame(videoElement) {
  *       it will be set to false.
  *     scaledFlag: {boolean}, // optional, scaling flag. If specified,
  *       scale the width and height of the input element.
+ *     drawOptions: { // optional, drawOptions is used for
+ *         CanvasRenderingContext2D.drawImage() method.
+ *       sx: {number}, // the x-axis coordinate of the top left corner of
+ *         sub-retangle of the source image.
+ *       sy: {number}, // the y-axis coordinate of the top left corner of
+ *         sub-retangle of the source image.
+ *       sWidth: {number}, // the width of the sub-retangle of the
+ *         source image.
+ *       sHeight: {number}, // the height of the sub-retangle of the
+ *         source image.
+ *       dWidth: {number}, // the width to draw the image in the detination
+ *         canvas.
+ *       dHeight: {number}, // the height to draw the image in the detination
+ *         canvas.
+ *     },
  * };
  * @return {Object} tensor, an object of input tensor.
  */
@@ -106,6 +121,7 @@ export function getInputTensor(inputElement, inputOptions) {
   const scaledFlag = inputOptions.scaledFlag || false;
   const inputLayout = inputOptions.inputLayout;
   const imageChannels = 4; // RGBA
+  const drawOptions = inputOptions.drawOptions;
 
   if (inputLayout === 'nhwc') {
     [height, width, channels] = inputDimensions.slice(1);
@@ -115,14 +131,20 @@ export function getInputTensor(inputElement, inputOptions) {
   canvasElement.height = height;
   const canvasContext = canvasElement.getContext('2d');
 
-  if (scaledFlag) {
-    const resizeRatio = Math.max(
-        Math.max(inputElement.width / width, inputElement.height / height), 1);
-    const scaledWidth = Math.floor(inputElement.width / resizeRatio);
-    const scaledHeight = Math.floor(inputElement.height / resizeRatio);
-    canvasContext.drawImage(inputElement, 0, 0, scaledWidth, scaledHeight);
+  if (drawOptions) {
+    canvasContext.drawImage(inputElement, drawOptions.sx, drawOptions.sy,
+        drawOptions.sWidth, drawOptions.sHeight, 0, 0, drawOptions.dWidth,
+        drawOptions.dHeight);
   } else {
-    canvasContext.drawImage(inputElement, 0, 0, width, height);
+    if (scaledFlag) {
+      const resizeRatio = Math.max(Math.max(
+          inputElement.width / width, inputElement.height / height), 1);
+      const scaledWidth = Math.floor(inputElement.width / resizeRatio);
+      const scaledHeight = Math.floor(inputElement.height / resizeRatio);
+      canvasContext.drawImage(inputElement, 0, 0, scaledWidth, scaledHeight);
+    } else {
+      canvasContext.drawImage(inputElement, 0, 0, width, height);
+    }
   }
 
   let pixels = canvasContext.getImageData(0, 0, width, height).data;
