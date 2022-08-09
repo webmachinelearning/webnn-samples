@@ -78,7 +78,7 @@ async function main() {
         `loading elapsed time: ${(performance.now() - start).toFixed(2)} ms`);
 
     start = performance.now();
-    lenet.build(outputOperand);
+    await lenet.build(outputOperand);
     const buildTime = performance.now() - start;
     console.log(`build elapsed time: ${buildTime.toFixed(2)} ms`);
     buildTimeElement.innerHTML = 'Build Time: ' +
@@ -98,11 +98,11 @@ async function main() {
       const outputBuffer = new Float32Array(utils.sizeOfShape([1, 10]));
 
       // Do warm up
-      lenet.predict(input, outputBuffer);
+      await lenet.compute(input, outputBuffer);
 
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
-        lenet.predict(input, outputBuffer);
+        await lenet.compute(input, outputBuffer);
         inferenceTime = performance.now() - start;
         console.log(`execution elapsed time: ${inferenceTime.toFixed(2)} ms`);
         console.log(`execution result: ${outputBuffer}`);

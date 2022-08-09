@@ -127,7 +127,7 @@ async function renderCamStream() {
   const inputCanvas = utils.getVideoFrame(camElement);
   console.log('- Computing... ');
   const start = performance.now();
-  fastStyleTransferNet.compute(inputBuffer, outputBuffer);
+  await fastStyleTransferNet.compute(inputBuffer, outputBuffer);
   computeTime = (performance.now() - start).toFixed(2);
   console.log(`  done in ${computeTime} ms.`);
   camElement.width = camElement.videoWidth;
@@ -243,7 +243,7 @@ export async function main() {
       await ui.showProgressComponent('done', 'current', 'pending');
       console.log('- Building... ');
       start = performance.now();
-      fastStyleTransferNet.build(outputOperand);
+      await fastStyleTransferNet.build(outputOperand);
       buildTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${buildTime} ms.`);
     }
@@ -257,11 +257,11 @@ export async function main() {
       let medianComputeTime;
 
       // Do warm up
-      fastStyleTransferNet.compute(inputBuffer, outputBuffer);
+      await fastStyleTransferNet.compute(inputBuffer, outputBuffer);
 
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
-        fastStyleTransferNet.compute(inputBuffer, outputBuffer);
+        await fastStyleTransferNet.compute(inputBuffer, outputBuffer);
         computeTime = (performance.now() - start).toFixed(2);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);
         computeTimeArray.push(Number(computeTime));

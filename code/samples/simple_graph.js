@@ -1,4 +1,6 @@
-const context = navigator.ml.createContext({powerPreference: 'low-power'});
+
+const context =
+    await navigator.ml.createContext({powerPreference: 'low-power'});
 
 // The following code builds a graph as:
 // constant1 ---+
@@ -43,7 +45,7 @@ const intermediateOutput2 = builder.add(constant2, input2);
 const output = builder.mul(intermediateOutput1, intermediateOutput2);
 
 // Compile the constructed graph.
-const graph = builder.build({'output': output});
+const graph = await builder.build({'output': output});
 
 // Setup the input buffers with value 1.
 const inputBuffer1 = new Float32Array(TENSOR_SIZE).fill(1);
@@ -56,7 +58,7 @@ const inputs = {
   'input2': inputBuffer2,
 };
 const outputs = {'output': outputBuffer};
-graph.compute(inputs, outputs);
+await context.compute(graph, inputs, outputs);
 
 console.log('Output value: ' + outputBuffer);
 // Output value: 2.25,2.25,2.25,2.25,2.25,2.25,2.25,2.25
