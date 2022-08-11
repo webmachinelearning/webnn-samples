@@ -117,7 +117,8 @@ async function renderCamStream() {
   }
   const inputCanvas = utils.getVideoFrame(camElement);
   console.log('- Computing... ');
-  const [totalComputeTime, strokedRects, keyPoints] = predict(camElement);
+  const [totalComputeTime, strokedRects, keyPoints] =
+      await predict(camElement);
   console.log(`  done in ${totalComputeTime} ms.`);
   computeTime = totalComputeTime;
   showPerfResult();
@@ -126,7 +127,7 @@ async function renderCamStream() {
   rafReq = requestAnimationFrame(renderCamStream);
 }
 
-function predict(inputElement) {
+async function predict(inputElement) {
   const fdInputBuffer = utils.getInputTensor(inputElement, fdInputOptions);
   let totalComputeTime = 0;
   let start = performance.now();
@@ -289,7 +290,7 @@ async function main() {
           utils.sizeOfShape(fldInputOptions.inputDimensions)), fldOutputs);
 
       for (let i = 0; i < numRuns; i++) {
-        [computeTime, strokedRects, keyPoints] = predict(imgElement);
+        [computeTime, strokedRects, keyPoints] = await predict(imgElement);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);
         computeTimeArray.push(Number(computeTime));
       }
