@@ -5,7 +5,7 @@ import {buildConstantByNpy} from '../common/utils.js';
 // SimpleCNN model with 'nchw' layout.
 export class FaceLandmarkNchw {
   constructor() {
-    this.model_ = null;
+    this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.weightsUrl_ = '../test-data/models/face_landmark_nchw/weights';
@@ -62,8 +62,8 @@ export class FaceLandmarkNchw {
   }
 
   async load(contextOptions) {
-    const context = navigator.ml.createContext(contextOptions);
-    this.builder_ = new MLGraphBuilder(context);
+    this.context_ = await navigator.ml.createContext(contextOptions);
+    this.builder_ = new MLGraphBuilder(this.context_);
     const input = this.builder_.input('input',
         {type: 'float32', dimensions: this.inputOptions.inputDimensions});
 
@@ -93,8 +93,8 @@ export class FaceLandmarkNchw {
     return gemm1;
   }
 
-  build(outputOperand) {
-    this.graph_ = this.builder_.build({'output': outputOperand});
+  async build(outputOperand) {
+    this.graph_ = await this.builder_.build({'output': outputOperand});
   }
 
   // Release the constant tensors of a model
@@ -105,8 +105,8 @@ export class FaceLandmarkNchw {
     }
   }
 
-  compute(inputBuffer, outputs) {
+  async compute(inputBuffer, outputs) {
     const inputs = {'input': inputBuffer};
-    this.graph_.compute(inputs, outputs);
+    await this.context_.compute(this.graph_, inputs, outputs);
   }
 }
