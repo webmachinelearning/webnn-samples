@@ -163,6 +163,9 @@ a {
     background: url("../img/ss.png") center/cover no-repeat
 }
 
+#bg_fld {
+    background: url("../img/fld.png") center/cover no-repeat
+}
 
 .title {
     font: 500 1.1rem "", sans-serif;

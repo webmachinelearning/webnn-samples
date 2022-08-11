@@ -554,6 +554,7 @@ const webnnsamplenav = () => {
             <a class="dropdown-item" href="../style_transfer/index.html">Fast Style Transfer</a>
             <a class="dropdown-item" href="../object_detection/index.html">Object Detection</a>
             <a class="dropdown-item" href="../semantic_segmentation/index.html">Semantic Segmentation</a>
+            <a class="dropdown-item" href="../facial_landmark_detection/index.html">Facial landmark Detection</a>
             <a class="dropdown-item" href="../code/index.html">WebNN Code Editor</a>
         </div>
         </li>

@@ -12,6 +12,7 @@
 * [Image classification](https://webmachinelearning.github.io/webnn-samples/image_classification/)
 * [Object detection](https://webmachinelearning.github.io/webnn-samples/object_detection/)
 * [Semantic segmentation](https://webmachinelearning.github.io/webnn-samples/semantic_segmentation/)
+* [Facial Landmark Detection](https://webmachinelearning.github.io/webnn-samples/facial_landmark_detection/)
 
 ### Setup & Run
 

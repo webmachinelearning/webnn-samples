@@ -1,0 +1,214 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>WebNN Facial Landmark Detection Example</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <link href='../common/css/style.css' rel='stylesheet'>
+  <link rel="icon" type="image/x-icon" href="../common/img/favicon/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="../common/img/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../common/img/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../common/img/favicon/favicon-16x16.png">
+  <link rel="manifest" href="../common/img/favicon/site.webmanifest">
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-md navbar-dark">
+    <a href="../index.html">
+      <div class="logosvg" id="logosvg"></div>
+    </a>
+    <span class="navbar-brand">Facial Landmark Detection</span>
+    <ul class="navbar-nav"></ul>
+  </nav>
+  <div class='container' id='container'>
+    <div class="card mt-2 mb-2">
+      <div class="card-body">
+        <div class="row mb-2 align-items-center justify-content-md-left">
+          <div class="col-1 wider-col">
+            <span>Backend</span>
+          </div>
+          <div class="col-md-auto">
+            <div class="btn-group-toggle" data-toggle="buttons" id="backendBtns">
+              <label class="btn btn-outline-info custom" name="polyfill">
+                <input type="radio" name="backend" id="polyfill_cpu" autocomplete="off">Wasm (CPU)
+              </label>
+              <label class="btn btn-outline-info custom" name="polyfill">
+                <input type="radio" name="backend" id="polyfill_gpu" autocomplete="off">WebGL (GPU)
+              </label>
+              <label class="btn btn-outline-info custom" name="webnn">
+                <input type="radio" name="backend" id="webnn_cpu" autocomplete="off">WebNN (CPU)
+              </label>
+              <label class="btn btn-outline-info custom" name="webnn">
+                <input type="radio" name="backend" id="webnn_gpu" autocomplete="off">WebNN (GPU)
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="row mb-2 align-items-center">
+          <div class="col-1 wider-col">
+            <span>Layout</span>
+          </div>
+          <div class="col-md-auto">
+            <div class="btn-group-toggle" data-toggle="buttons" id="layoutBtns">
+              <label class="btn btn-outline-info btn-sm active">
+                <input type="radio" name="layout" id="nchw" autocomplete="off" checked>NCHW
+              </label>
+              <label class="btn btn-outline-info btn-sm">
+                <input type="radio" name="layout" id="nhwc" autocomplete="off">NHWC
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="row mb-2 align-items-center">
+          <div class="col-1 wider-col">
+            <span>FacialLandmark</span>
+          </div>
+          <div class="col-md-auto">
+            <div class="btn-group-toggle" data-toggle="buttons" id="modelBtns">
+              <label class="btn btn-outline-info btn-sm">
+                <input type="radio" name="fldmodel" id="facelandmark" autocomplete="off" checked>SimpleCNN
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="row align-items-center">
+          <div class="col-1 wider-col">
+            <span>FaceDetection</span>
+          </div>
+          <div class="col-md-auto">
+            <div class="btn-group-toggle" data-toggle="buttons" id="fdModelBtns">
+              <label class="btn btn-outline-info btn-sm">
+                <input type="radio" name="fdmodel" id="ssdmobilenetv2face" autocomplete="off">SSD MobileNet V2 Face
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ul class='nav nav-tabs nav-justified mb-3' id='tabs' role='tablist'>
+      <li class='nav-item' id='img' role='presentation'>
+        <a class='nav-link active' data-toggle='tab' href='#imagetab' role='tab' aria-controls='ex3-tabs-1'
+          aria-selected='true'>IMAGE</a>
+      </li>
+      <li class='nav-item' id='cam' role='presentation'>
+        <a class='nav-link' data-toggle='tab' href='#cameratab' role='tab' aria-controls='ex3-tabs-2'
+          aria-selected='false'>LIVE CAMERA</a>
+      </li>
+    </ul>
+    <div class='tab-content clearfix' style='display: none;' id='progressmodel'>
+      <div class='loading-page'>
+        <div class='counter'>
+          <div class='loading'>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <p id='progressstep'>Loading model ...</p>
+        </div>
+      </div>
+    </div>
+    <div class='tab-content text-center mt-5 col-sm' id='hint'>
+      <h2 class="text-uppercase text-info">No model selected</h2>
+      <p class="font-weight-lighter">Please select model to start prediction.</p>
+    </div>
+    <div class='shoulddisplay tab-content clearfix' style='display: none;'>
+      <ul class="list-inline list-pipe text-center">
+        <li class="list-inline-item">
+          Load time: <span class='ir' id='loadTime'></span>
+        </li>
+        <li class="list-inline-item">
+          Build time: <span class='ir' id='buildTime'></span>
+        </li>
+        <li class="list-inline-item">
+          <span id='computeLabel'></span>
+          <span class='ir' id='computeTime'></span>
+        </li>
+      </ul>
+    </div>
+    <div class='shoulddisplay tab-content clearfix text-center' style='display: none;'>
+      <div class='col mb-3'>
+        <span id='fps' class="badge badge-pill badge-success"></span>
+      </div>
+      <div class='col mb-3'>
+      <canvas id='outputCanvas' width='480' height='360'></canvas>
+    </div>
+    </div>
+    <div class='tab-content clearfix row'>
+      <div class='tab-pane text-center active col-sm' id='imagetab'>
+        <div class='icdisplay'>
+          <div class='col-lg-12 col-xs-12 text-center'>
+            <div class='row'>
+              <div class='col mb-2' style='display: flex;'>
+                <div id='div-photos' style='margin: auto; display: flex;' title='Original image'>
+                  <img id='feedElement' hidden crossorigin='anonymous' class='img-fluid' alt='Responsive image'>
+                </div>
+              </div>
+            </div>
+            <div class='row'>
+              <div class='col'>
+                <label class='btn btn-outline-info btn-lg shoulddisplay' style='display: none;'>
+                  <input type='file' id='imageFile' accept='image/*' hidden />
+                  <span>Pick Image</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class='tab-pane text-center col-sm' id='cameratab'>
+        <div class='icdisplay'>
+          <div class='row'>
+            <div class='col mb-2' style='display: flex;'>
+              <div id='div-photos' style='margin: auto; display: flex;'>
+              </div>
+            </div>
+            <video id='feedMediaElement' autoplay playsinline style='display: none;'></video>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer class="text-muted text-center text-small mt-5">
+    <div id="badge"></div>
+    <p>&copy;2022 <a href="https://webmachinelearning.github.io/">WebNN API</a></p>
+  </footer>
+  <script src="../sw.js"></script>
+  <script>
+    // This workaround is to fix jquery loading issue in electron.
+    // Refer to https://stackoverflow.com/questions/32621988/electron-jquery-is-not-defined.
+    if (typeof module === "object") {
+      window.tempModule = module;
+      module = undefined;
+    }
+  </script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+    integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+    integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.9.0/dist/tf.min.js"
+    integrity="sha256-28ZvjeNGrGNEIj9/2D8YAPE6Vm5JSvvDs+LI4ED31x8="
+    crossorigin="anonymous"></script>
+  <script>
+    // To restore module after loading 3rd-party libraries.
+    if (window.tempModule) module = window.tempModule;
+  </script>
+  <script type="module" src='./main.js'></script>
+  <script type="module" src="../common/component/component.js"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6TK7JD3KKY"></script>
+  <script src="../common/libs/gtag.js"></script>
+</body>
+
+</html>
