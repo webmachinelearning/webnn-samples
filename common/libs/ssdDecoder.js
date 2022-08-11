@@ -335,3 +335,84 @@ export function drawBoxes(
     }
   }
 }
+
+export function drawFaceRectangles(image, canvas, faceRects, texts, canvasH) {
+  if (typeof canvasH !== 'undefined') {
+    canvas.height = canvasH;
+  }
+
+  canvas.width = image.width / image.height * canvas.height;
+  // draw image
+  let ctx = canvas.getContext('2d');
+  ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+  // draw face rectangles
+  faceRects.forEach((rect, i) => {
+    let x = rect[0] / image.height * canvas.height;
+    let y = rect[1] / image.height * canvas.height;
+    let w = rect[2] / image.height * canvas.height;
+    let h = rect[3] / image.height * canvas.height;
+    ctx.strokeStyle = "#009bea";
+    ctx.fillStyle = "#009bea";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x, y, w, h);
+    ctx.font = "20px Arial";
+    let text = texts[i];
+    let width = ctx.measureText(text).width;
+    if (x >= 2 && y >= parseInt(ctx.font, 10)) {
+      ctx.fillRect(x - 2, y - parseInt(ctx.font, 10), width + 4, parseInt(ctx.font, 10));
+      ctx.fillStyle = "white";
+      ctx.textAlign = 'start';
+      ctx.fillText(text, x, y - 3);
+    } else {
+      ctx.fillRect(x + 2, y, width + 4, parseInt(ctx.font, 10));
+      ctx.fillStyle = "white";
+      ctx.textAlign = 'start';
+      ctx.fillText(text, x + 2, y + 15);
+    }
+  });
+}
+
+// Process SSD MobileNet V2 Face model's output tensor
+export function processSsdOutputTensor(outputSsdTensor, inputOptions, outputsInfo) {
+  const numBoxes = inputOptions.numBoxes;
+  const boxSize = inputOptions.boxSize;
+  const numClasses = inputOptions.numClasses;
+  const totalBoxes = numBoxes.reduce((a, b) => a + b);
+  const boxTensorLen = totalBoxes * boxSize;
+  const classTensorLen = totalBoxes * numClasses;
+  const outputBoxTensor = new Float32Array(boxTensorLen);
+  const outputClassScoresTensor = new Float32Array(classTensorLen);
+
+  let boxOffset = 0;
+  let classOffset = 0;
+  let boxTensor;
+  let classTensor;
+
+  for (let i = 0; i < numBoxes.length; ++i) {
+    // Transpose 'nchw' output to 'nhwc' for postprocessing
+    if (inputOptions.inputLayout === 'nchw') {
+      boxTensor = tf.tidy(() => {
+        const a = tf.tensor(outputSsdTensor[2 * i],
+            Object.entries(outputsInfo)[2 * i][1], 'float32');
+        const b = tf.transpose(a, [0, 2, 3, 1]);
+        return b.dataSync();
+      });
+      classTensor = tf.tidy(() => {
+        const a = tf.tensor(outputSsdTensor[2 * i + 1],
+            Object.entries(outputsInfo)[2 * i + 1][1], 'float32');
+        const b = tf.transpose(a, [0, 2, 3, 1]);
+        return b.dataSync();
+      });
+    } else {
+      boxTensor = outputSsdTensor[2 * i];
+      classTensor = outputSsdTensor[2 * i + 1];
+    }
+    outputBoxTensor.set(boxTensor, boxOffset);
+    outputClassScoresTensor.set(classTensor, classOffset);
+    boxOffset += boxSize * numBoxes[i];
+    classOffset += numClasses * numBoxes[i];
+  }
+
+  return {outputBoxTensor, outputClassScoresTensor};
+}

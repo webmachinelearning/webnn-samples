@@ -117,7 +117,7 @@ body {
 #logosvg svg {
   width: 200px;
   height: 40px;
-  pointer-events: none; 
+  pointer-events: none;
 }
 
 .navbar-brand {
@@ -787,4 +787,9 @@ a:hover {
 
 .text-info {
   color: #3666b0 !important;
+}
+
+.wider-col {
+  flex: 0 0 13%;
+  max-width: 13%;
 }
