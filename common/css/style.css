@@ -488,6 +488,14 @@ a:hover {
   color: #17a2b8;
 }
 
+#facerecognition canvas {
+  width: 480px;
+}
+
+#facerecognition span.desc {
+  font-size: 0.8rem;
+}
+
 #semanticsegmentation #feedElement {
   display: none;
 }
