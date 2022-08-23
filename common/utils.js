@@ -194,11 +194,23 @@ export async function setPolyfillBackend(device) {
       throw new Error(`Failed to set tf.js backend ${backend}.`);
     }
     await tf.ready();
+    let backendInfo = backend == 'wasm' ? 'WASM' : 'WebGL';
+    if (backendInfo == 'WASM') {
+      const hasSimd = tf.env().features['WASM_HAS_SIMD_SUPPORT'];
+      const hasThreads = tf.env().features['WASM_HAS_MULTITHREAD_SUPPORT'];
+      if (hasThreads && hasSimd) {
+        backendInfo += ' (SIMD + threads)';
+      } else if (hasThreads && !hasSimd) {
+        backendInfo += ' (threads)';
+      } else if (!hasThreads && hasSimd) {
+        backendInfo += ' (SIMD)';
+      }
+    }
     addAlert(
         `This sample is running on ` +
         `<a href='https://github.com/webmachinelearning/webnn-polyfill'>` +
         `WebNN-polyfill</a> with tf.js ${tf.version_core} ` +
-        `<b>${tf.getBackend()}</b> backend.`, 'info');
+        `<b>${backendInfo}</b> backend.`, 'info');
   }
 }
 
