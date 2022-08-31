@@ -149,11 +149,11 @@ async function renderCamStream() {
   rafReq = requestAnimationFrame(renderCamStream);
 }
 
-function getEmbeddings(inputElem) {
+async function getEmbeddings(inputElem) {
   const fdInputBuffer = utils.getInputTensor(inputElem, fdInputOptions);
   let totalComputeTime = 0;
   let start = performance.now();
-  fdInstance.compute(fdInputBuffer, fdOutputs);
+  await fdInstance.compute(fdInputBuffer, fdOutputs);
   totalComputeTime = performance.now() - start;
   const strokedRects = [];
   const embeddings = [];
@@ -194,7 +194,7 @@ function getEmbeddings(inputElem) {
     frInputOptions.drawOptions = drawOptions;
     const frInputBuffer = utils.getInputTensor(inputElem, frInputOptions);
     start = performance.now();
-    frInstance.compute(frInputBuffer, frOutputs);
+    await frInstance.compute(frInputBuffer, frOutputs);
     totalComputeTime += performance.now() - start;
     const [...normEmbedding] = Float32Array.from(frOutputs.output);
     embeddings.push(normEmbedding);
@@ -206,11 +206,11 @@ async function predict(targetElem, searchElem) {
   let flag1 = false;
   let flag2 = false;
   if (targetEmbeddings == null) {
-    targetEmbeddings = getEmbeddings(targetElem);
+    targetEmbeddings = await getEmbeddings(targetElem);
     flag1 = true;
   }
   if (searchEmbeddings == null) {
-    searchEmbeddings = getEmbeddings(searchElem);
+    searchEmbeddings = await getEmbeddings(searchElem);
     flag2 = true;
   }
 
@@ -326,8 +326,8 @@ async function main() {
       await ui.showProgressComponent('done', 'current', 'pending');
       console.log('- Building... ');
       start = performance.now();
-      fdInstance.build(fdOutputOperand);
-      frInstance.build(frOutputOperand);
+      await fdInstance.build(fdOutputOperand);
+      await frInstance.build(frOutputOperand);
       buildTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${buildTime} ms.`);
     }
@@ -338,9 +338,9 @@ async function main() {
       let medianComputeTime;
       console.log('- Computing... ');
       // Do warm up
-      fdInstance.compute(new Float32Array(
+      await fdInstance.compute(new Float32Array(
           utils.sizeOfShape(fdInputOptions.inputDimensions)), fdOutputs);
-      frInstance.compute(new Float32Array(
+      await frInstance.compute(new Float32Array(
           utils.sizeOfShape(frInputOptions.inputDimensions)), frOutputs);
 
       for (let i = 0; i < numRuns; i++) {
