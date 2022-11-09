@@ -34,8 +34,8 @@ let buildTime = 0;
 let computeTime = 0;
 let fdOutputs;
 let frOutputs;
-let devicePreference = '';
-let lastDevicePreference = '';
+let deviceType = '';
+let lastdeviceType = '';
 let backend = '';
 let lastBackend = '';
 const disabledSelectors = ['#tabs > li', '.btn'];
@@ -271,7 +271,7 @@ function constructNetObject(type) {
 async function main() {
   try {
     if (fdModelName === '') return;
-    [backend, devicePreference] =
+    [backend, deviceType] =
         $('input[name="backend"]:checked').attr('id').split('_');
     ui.handleClick(disabledSelectors, true);
     if (isFirstTimeLoad) $('#hint').hide();
@@ -280,12 +280,12 @@ async function main() {
     // Only do load() and build() when model first time loads,
     // there's new model choosed, backend changed or device changed
     if (isFirstTimeLoad || fdInstanceType !== fdModelName + layout ||
-        lastDevicePreference != devicePreference || lastBackend != backend) {
-      if (lastDevicePreference != devicePreference || lastBackend != backend) {
+        lastdeviceType != deviceType || lastBackend != backend) {
+      if (lastdeviceType != deviceType || lastBackend != backend) {
         // Set backend and device
-        await utils.setBackend(backend, devicePreference);
-        lastDevicePreference = lastDevicePreference != devicePreference ?
-                               devicePreference : lastDevicePreference;
+        await utils.setBackend(backend, deviceType);
+        lastdeviceType = lastdeviceType != deviceType ?
+                               deviceType : lastdeviceType;
         lastBackend = lastBackend != backend ? backend : lastBackend;
       }
       if (frInstance !== null) {
@@ -313,7 +313,7 @@ async function main() {
       // UI shows model loading progress
       await ui.showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');
-      const contextOptions = {devicePreference};
+      const contextOptions = {deviceType};
       if (powerPreference) {
         contextOptions['powerPreference'] = powerPreference;
       }

@@ -59,16 +59,16 @@ function clearResult() {
 }
 
 async function main() {
-  const [backend, devicePreference] =
+  const [backend, deviceType] =
       $('input[name="backend"]:checked').attr('id').split('_');
-  await utils.setBackend(backend, devicePreference);
+  await utils.setBackend(backend, deviceType);
   drawNextDigitFromMnist();
   const pen = new Pen(visualCanvas);
   const weightUrl = '../test-data/models/lenet_nchw/weights/lenet.bin';
   const lenet = new LeNet(weightUrl);
   const [numRuns, powerPreference] = utils.getUrlParams();
   try {
-    const contextOptions = {devicePreference};
+    const contextOptions = {deviceType};
     if (powerPreference) {
       contextOptions['powerPreference'] = powerPreference;
     }

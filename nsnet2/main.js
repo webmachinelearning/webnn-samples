@@ -144,9 +144,9 @@ browseButton.onclick = () => {
 
 export async function main() {
   try {
-    const [backend, devicePreference] =
+    const [backend, deviceType] =
         $('input[name="backend"]:checked').attr('id').split('_');
-    await setBackend(backend, devicePreference);
+    await setBackend(backend, deviceType);
     // Handle frames parameter.
     const searchParams = new URLSearchParams(location.search);
     let frames = parseInt(searchParams.get('frames'));
@@ -159,7 +159,7 @@ export async function main() {
     denoiser.logger = document.getElementById('info');
     denoiser.logger.innerHTML = `Creating NSNet2 with input shape ` +
         `[${batchSize} (batch_size) x ${frames} (frames) x 161].<br>`;
-    await denoiser.prepare(devicePreference);
+    await denoiser.prepare(deviceType);
     denoiser.logger.innerHTML += 'NSNet2 is <b>ready</b>.';
     denoiser.logger = document.getElementById('denoise-info');
     chooseAudio.removeAttribute('disabled');

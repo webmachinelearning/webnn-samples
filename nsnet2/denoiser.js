@@ -25,13 +25,13 @@ export class Denoiser {
     }
   }
 
-  async prepare(devicePreference) {
+  async prepare(deviceType) {
     return new Promise((resolve, reject) => {
       this.log(' - Loading weights... ');
       const start = performance.now();
       const weightsUrl = '../test-data/models/nsnet2/weights/';
       const powerPreference = getUrlParams()[1];
-      const contextOptions = {devicePreference};
+      const contextOptions = {deviceType};
       if (powerPreference) {
         contextOptions['powerPreference'] = powerPreference;
       }
