@@ -26,8 +26,8 @@ let inputOptions;
 let outputBuffer;
 let renderer;
 let hoverPos = null;
-let devicePreference = '';
-let lastDevicePreference = '';
+let deviceType = '';
+let lastdeviceType = '';
 let backend = '';
 let lastBackend = '';
 const disabledSelectors = ['#tabs > li', '.btn'];
@@ -240,7 +240,7 @@ async function renderCamStream() {
   const inputCanvas = utils.getVideoFrame(camElement);
   console.log('- Computing... ');
   const start = performance.now();
-  netInstance.compute(inputBuffer, outputBuffer);
+  await netInstance.compute(inputBuffer, outputBuffer);
   computeTime = (performance.now() - start).toFixed(2);
   console.log(`  done in ${computeTime} ms.`);
   showPerfResult();
@@ -304,7 +304,7 @@ function constructNetObject(type) {
 export async function main() {
   try {
     if (modelName === '') return;
-    [backend, devicePreference] =
+    [backend, deviceType] =
         $('input[name="backend"]:checked').attr('id').split('_');
     ui.handleClick(disabledSelectors, true);
     if (isFirstTimeLoad) $('#hint').hide();
@@ -314,12 +314,12 @@ export async function main() {
     // Only do load() and build() when model first time loads,
     // there's new model choosed, backend changed or device changed
     if (isFirstTimeLoad || instanceType !== modelName + layout ||
-        lastDevicePreference != devicePreference || lastBackend != backend) {
-      if (lastDevicePreference != devicePreference || lastBackend != backend) {
+        lastdeviceType != deviceType || lastBackend != backend) {
+      if (lastdeviceType != deviceType || lastBackend != backend) {
         // Set backend and device
-        await utils.setBackend(backend, devicePreference);
-        lastDevicePreference = lastDevicePreference != devicePreference ?
-                              devicePreference : lastDevicePreference;
+        await utils.setBackend(backend, deviceType);
+        lastdeviceType = lastdeviceType != deviceType ?
+                              deviceType : lastdeviceType;
         lastBackend = lastBackend != backend ? backend : lastBackend;
       }
       if (netInstance !== null) {
@@ -337,7 +337,7 @@ export async function main() {
       // UI shows model loading progress
       await ui.showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');
-      const contextOptions = {devicePreference};
+      const contextOptions = {deviceType};
       if (powerPreference) {
         contextOptions['powerPreference'] = powerPreference;
       }
@@ -349,7 +349,7 @@ export async function main() {
       await ui.showProgressComponent('done', 'current', 'pending');
       console.log('- Building... ');
       start = performance.now();
-      netInstance.build(outputOperand);
+      await netInstance.build(outputOperand);
       buildTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${buildTime} ms.`);
     }
@@ -362,11 +362,11 @@ export async function main() {
       let medianComputeTime;
 
       // Do warm up
-      netInstance.compute(inputBuffer, outputBuffer);
+      await netInstance.compute(inputBuffer, outputBuffer);
 
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
-        netInstance.compute(inputBuffer, outputBuffer);
+        await netInstance.compute(inputBuffer, outputBuffer);
         computeTime = (performance.now() - start).toFixed(2);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);
         computeTimeArray.push(Number(computeTime));

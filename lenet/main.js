@@ -59,16 +59,16 @@ function clearResult() {
 }
 
 async function main() {
-  const [backend, devicePreference] =
+  const [backend, deviceType] =
       $('input[name="backend"]:checked').attr('id').split('_');
-  await utils.setBackend(backend, devicePreference);
+  await utils.setBackend(backend, deviceType);
   drawNextDigitFromMnist();
   const pen = new Pen(visualCanvas);
   const weightUrl = '../test-data/models/lenet_nchw/weights/lenet.bin';
   const lenet = new LeNet(weightUrl);
   const [numRuns, powerPreference] = utils.getUrlParams();
   try {
-    const contextOptions = {devicePreference};
+    const contextOptions = {deviceType};
     if (powerPreference) {
       contextOptions['powerPreference'] = powerPreference;
     }
@@ -78,7 +78,7 @@ async function main() {
         `loading elapsed time: ${(performance.now() - start).toFixed(2)} ms`);
 
     start = performance.now();
-    lenet.build(outputOperand);
+    await lenet.build(outputOperand);
     const buildTime = performance.now() - start;
     console.log(`build elapsed time: ${buildTime.toFixed(2)} ms`);
     buildTimeElement.innerHTML = 'Build Time: ' +
@@ -98,11 +98,11 @@ async function main() {
       const outputBuffer = new Float32Array(utils.sizeOfShape([1, 10]));
 
       // Do warm up
-      lenet.predict(input, outputBuffer);
+      await lenet.compute(input, outputBuffer);
 
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
-        lenet.predict(input, outputBuffer);
+        await lenet.compute(input, outputBuffer);
         inferenceTime = performance.now() - start;
         console.log(`execution elapsed time: ${inferenceTime.toFixed(2)} ms`);
         console.log(`execution result: ${outputBuffer}`);

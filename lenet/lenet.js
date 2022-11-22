@@ -5,6 +5,7 @@ import {getBufferFromUrl, sizeOfShape} from '../common/utils.js';
 
 export class LeNet {
   constructor(url) {
+    this.context_ = null;
     this.url_ = url;
     this.graph_ = null;
     this.builder_ = null;
@@ -17,8 +18,8 @@ export class LeNet {
       throw new Error('Incorrect weights file');
     }
 
-    const context = navigator.ml.createContext(contextOptions);
-    this.builder_ = new MLGraphBuilder(context);
+    this.context_ = await navigator.ml.createContext(contextOptions);
+    this.builder_ = new MLGraphBuilder(this.context_);
     const inputShape = [1, 1, 28, 28];
     const input =
         this.builder_.input('input', {type: 'float32', dimensions: inputShape});
@@ -113,13 +114,13 @@ export class LeNet {
     return this.builder_.softmax(add4);
   }
 
-  build(outputOperand) {
-    this.graph_ = this.builder_.build({'output': outputOperand});
+  async build(outputOperand) {
+    this.graph_ = await this.builder_.build({'output': outputOperand});
   }
 
-  predict(inputBuffer, outputBuffer) {
+  async compute(inputBuffer, outputBuffer) {
     const inputs = {'input': inputBuffer};
     const outputs = {'output': outputBuffer};
-    this.graph_.compute(inputs, outputs);
+    await this.context_.compute(this.graph_, inputs, outputs);
   }
 }

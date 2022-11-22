@@ -5,6 +5,7 @@ import {buildConstantByNpy} from '../common/utils.js';
 // SSD MobileNet V1 model with 'nchw' layout, trained on the COCO dataset.
 export class SsdMobilenetV1Nchw {
   constructor() {
+    this.context_ = null;
     this.model_ = null;
     this.builder_ = null;
     this.graph_ = null;
@@ -66,8 +67,8 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
   }
 
   async load(contextOptions) {
-    const context = navigator.ml.createContext(contextOptions);
-    this.builder_ = new MLGraphBuilder(context);
+    this.context_ = await navigator.ml.createContext(contextOptions);
+    this.builder_ = new MLGraphBuilder(this.context_);
     const input = this.builder_.input('input',
         {type: 'float32', dimensions: this.inputOptions.inputDimensions});
     const strides = [2, 2];
@@ -233,8 +234,8 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     return {'boxes': concat0, 'scores': concat1};
   }
 
-  build(outputOperand) {
-    this.graph_ = this.builder_.build(outputOperand);
+  async build(outputOperand) {
+    this.graph_ = await this.builder_.build(outputOperand);
   }
 
   // Release the constant tensors of a model
@@ -245,8 +246,8 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     }
   }
 
-  compute(inputBuffer, outputs) {
+  async compute(inputBuffer, outputs) {
     const inputs = {'input': inputBuffer};
-    this.graph_.compute(inputs, outputs);
+    await this.context_.compute(this.graph_, inputs, outputs);
   }
 }

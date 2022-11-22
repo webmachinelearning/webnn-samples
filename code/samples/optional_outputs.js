@@ -1,4 +1,4 @@
-const context = navigator.ml.createContext();
+const context = await navigator.ml.createContext();
 
 // Build a graph with two outputs.
 const builder = new MLGraphBuilder(context);
@@ -12,17 +12,17 @@ const bufferC = new Float32Array(sizeOfShape(descC.dimensions)).fill(1);
 const c = builder.constant(descC, bufferC);
 const d = builder.matmul(a, b);
 const e = builder.add(d, c);
-const graph = builder.build({'d': d, 'e': e});
+const graph = await builder.build({'d': d, 'e': e});
 
 const bufferA = new Float32Array(sizeOfShape(descA.dimensions)).fill(0.5);
 const inputs = {'a': bufferA};
 
 // Compute d.
 const bufferD = new Float32Array(sizeOfShape([3, 3]));
-graph.compute(inputs, {'d': bufferD});
+await context.compute(graph, inputs, {'d': bufferD});
 console.log(`values: ${bufferD}`);
 
 // Compute e.
 const bufferE = new Float32Array(sizeOfShape([3, 3]));
-graph.compute(inputs, {'e': bufferE});
+await context.compute(graph, inputs, {'e': bufferE});
 console.log(`values: ${bufferE}`);
