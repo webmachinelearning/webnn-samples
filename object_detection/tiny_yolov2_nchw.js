@@ -5,6 +5,7 @@ import {buildConstantByNpy} from '../common/utils.js';
 // Tiny Yolo V2 model with 'nchw' layout, trained on the Pascal VOC dataset.
 export class TinyYoloV2Nchw {
   constructor() {
+    this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.weightsUrl_ = '../test-data/models/tiny_yolov2_nchw/weights/';
@@ -53,8 +54,8 @@ export class TinyYoloV2Nchw {
   }
 
   async load(contextOptions) {
-    const context = navigator.ml.createContext(contextOptions);
-    this.builder_ = new MLGraphBuilder(context);
+    this.context_ = await navigator.ml.createContext(contextOptions);
+    this.builder_ = new MLGraphBuilder(this.context_);
     const image = this.builder_.input('input',
         {type: 'float32', dimensions: this.inputOptions.inputDimensions});
 
@@ -88,8 +89,8 @@ export class TinyYoloV2Nchw {
     return conv;
   }
 
-  build(outputOperand) {
-    this.graph_ = this.builder_.build({'output': outputOperand});
+  async build(outputOperand) {
+    this.graph_ = await this.builder_.build({'output': outputOperand});
   }
 
   // Release the constant tensors of a model
@@ -100,8 +101,8 @@ export class TinyYoloV2Nchw {
     }
   }
 
-  compute(inputBuffer, outputs) {
+  async compute(inputBuffer, outputs) {
     const inputs = {'input': inputBuffer};
-    this.graph_.compute(inputs, outputs);
+    await this.context_.compute(this.graph_, inputs, outputs);
   }
 }

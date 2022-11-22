@@ -25,13 +25,13 @@ export class Denoiser {
     }
   }
 
-  async prepare(devicePreference) {
+  async prepare(deviceType) {
     return new Promise((resolve, reject) => {
       this.log(' - Loading weights... ');
       const start = performance.now();
       const weightsUrl = '../test-data/models/nsnet2/weights/';
       const powerPreference = getUrlParams()[1];
-      const contextOptions = {devicePreference};
+      const contextOptions = {deviceType};
       if (powerPreference) {
         contextOptions['powerPreference'] = powerPreference;
       }
@@ -44,7 +44,7 @@ export class Denoiser {
         setTimeout(async () => {
           try {
             const start = performance.now();
-            this.nsnet.build(outputOperand);
+            await this.nsnet.build(outputOperand);
             const modelBuildTime = performance.now() - start;
             this.log(`done in <span class='text-primary'>` +
                 `${modelBuildTime.toFixed(2)}</span> ms.`, true);
@@ -119,7 +119,7 @@ export class Denoiser {
       inputFeature.dispose();
       const calcFeatTime = (performance.now() - start).toFixed(2);
       start = performance.now();
-      const outputs = this.nsnet.compute(
+      const outputs = await this.nsnet.compute(
           inputData, initialHiddenState92Buffer, initialHiddenState155Buffer,
           outputBuffer, gru94Buffer, gru157Buffer);
       const computeTime = (performance.now() - start).toFixed(2);

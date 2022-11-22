@@ -5,6 +5,7 @@ import {buildConstantByNpy} from '../common/utils.js';
 // SqueezeNet 1.1 model with 'nchw' input layout
 export class SqueezeNetNchw {
   constructor() {
+    this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.weightsUrl_ = '../test-data/models/squeezenet1.1_nchw/weights/';
@@ -39,8 +40,8 @@ export class SqueezeNetNchw {
   }
 
   async load(contextOptions) {
-    const context = navigator.ml.createContext(contextOptions);
-    this.builder_ = new MLGraphBuilder(context);
+    this.context_ = await navigator.ml.createContext(contextOptions);
+    this.builder_ = new MLGraphBuilder(this.context_);
     const data = this.builder_.input('input',
         {type: 'float32', dimensions: this.inputOptions.inputDimensions});
     const conv0 = await this.buildConv_(data, 'conv0', {strides: [2, 2]});
@@ -65,8 +66,8 @@ export class SqueezeNetNchw {
     return this.builder_.softmax(reshape0);
   }
 
-  build(outputOperand) {
-    this.graph_ = this.builder_.build({'output': outputOperand});
+  async build(outputOperand) {
+    this.graph_ = await this.builder_.build({'output': outputOperand});
   }
 
   // Release the constant tensors of a model
@@ -77,9 +78,9 @@ export class SqueezeNetNchw {
     }
   }
 
-  compute(inputBuffer, outputBuffer) {
+  async compute(inputBuffer, outputBuffer) {
     const inputs = {'input': inputBuffer};
     const outputs = {'output': outputBuffer};
-    this.graph_.compute(inputs, outputs);
+    await this.context_.compute(this.graph_, inputs, outputs);
   }
 }

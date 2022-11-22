@@ -143,7 +143,7 @@ async function denoise() {
     const preProcessingTime = (performance.now() - start).toFixed(2);
     inputs.input = new Float32Array(features);
     start = performance.now();
-    rnnoise.compute( inputs, outputs);
+    await rnnoise.compute( inputs, outputs);
     const executionTime = (performance.now() - start).toFixed(2);
     inputs.vadGruInitialH = outputs.vadGruYH;
     inputs.noiseGruInitialH = outputs.noiseGruYH;
@@ -212,15 +212,15 @@ fileInput.addEventListener('input', (event) => {
 
 export async function main() {
   try {
-    const [backend, devicePreference] =
+    const [backend, deviceType] =
         $('input[name="backend"]:checked').attr('id').split('_');
-    await utils.setBackend(backend, devicePreference);
+    await utils.setBackend(backend, deviceType);
     modelInfo.innerHTML = '';
     await log(modelInfo, `Creating RNNoise with input shape ` +
       `[${batchSize} (batch_size) x 100 (frames) x 42].`, true);
     await log(modelInfo, '- Loading model...');
     const powerPreference = utils.getUrlParams()[1];
-    const contextOptions = {devicePreference};
+    const contextOptions = {deviceType};
     if (powerPreference) {
       contextOptions['powerPreference'] = powerPreference;
     }
@@ -232,7 +232,7 @@ export async function main() {
         `done in <span class='text-primary'>${loadingTime}</span> ms.`, true);
     await log(modelInfo, '- Building model...');
     start = performance.now();
-    rnnoise.build(outputOperand);
+    await rnnoise.build(outputOperand);
     const buildTime = (performance.now() - start).toFixed(2);
     console.log(`build elapsed time: ${buildTime} ms`);
     await log(modelInfo,

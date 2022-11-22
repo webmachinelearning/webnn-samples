@@ -1,4 +1,4 @@
-const context = navigator.ml.createContext();
+const context = await navigator.ml.createContext();
 
 // The following code multiplies matrix a [3, 4] with matrix b [4, 3]
 // into matrix c [3, 3].
@@ -10,10 +10,10 @@ const bufferB = new Float32Array(sizeOfShape(descB.dimensions)).fill(0.5);
 const b = builder.constant(descB, bufferB);
 const c = builder.matmul(a, b);
 
-const graph = builder.build({c});
+const graph = await builder.build({c});
 const bufferA = new Float32Array(sizeOfShape(descA.dimensions)).fill(0.5);
 const bufferC = new Float32Array(sizeOfShape([3, 3]));
 const inputs = {'a': bufferA};
 const outputs = {'c': bufferC};
-graph.compute(inputs, outputs);
+await context.compute(graph, inputs, outputs);
 console.log(`values: ${bufferC}`);

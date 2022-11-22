@@ -5,6 +5,7 @@ import {buildConstantByNpy} from '../common/utils.js';
 // DeepLab V3 MobileNet V2 model with 'nhwc' input layout
 export class DeepLabV3MNV2Nhwc {
   constructor() {
+    this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.weightsUrl_ = '../test-data/models/deeplabv3_mnv2_nhwc/weights/';
@@ -71,8 +72,8 @@ export class DeepLabV3MNV2Nhwc {
   }
 
   async load(contextOptions) {
-    const context = navigator.ml.createContext(contextOptions);
-    this.builder_ = new MLGraphBuilder(context);
+    this.context_ = await navigator.ml.createContext(contextOptions);
+    this.builder_ = new MLGraphBuilder(this.context_);
     const strides = [2, 2];
     const input = this.builder_.input('input',
         {type: 'float32', dimensions: this.inputOptions.inputDimensions});
@@ -132,8 +133,8 @@ export class DeepLabV3MNV2Nhwc {
         resample1, {sizes: [513, 513], mode: 'linear', axes: [1, 2]});
   }
 
-  build(outputOperand) {
-    this.graph_ = this.builder_.build({'output': outputOperand});
+  async build(outputOperand) {
+    this.graph_ = await this.builder_.build({'output': outputOperand});
   }
 
   // Release the constant tensors of a model
@@ -144,9 +145,9 @@ export class DeepLabV3MNV2Nhwc {
     }
   }
 
-  compute(inputBuffer, outputBuffer) {
+  async compute(inputBuffer, outputBuffer) {
     const inputs = {'input': inputBuffer};
     const outputs = {'output': outputBuffer};
-    this.graph_.compute(inputs, outputs);
+    await this.context_.compute(this.graph_, inputs, outputs);
   }
 }

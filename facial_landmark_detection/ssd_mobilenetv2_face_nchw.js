@@ -5,7 +5,7 @@ import {buildConstantByNpy} from '../common/utils.js';
 // SSD MobileNet V2 Face model with 'nchw' layout.
 export class SsdMobilenetV2FaceNchw {
   constructor() {
-    this.model_ = null;
+    this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.weightsUrl_ = '../test-data/models/ssd_mobilenetv2_face_nchw/weights/';
@@ -109,8 +109,8 @@ ${nameArray[1]}`;
 
 
   async load(contextOptions) {
-    const context = navigator.ml.createContext(contextOptions);
-    this.builder_ = new MLGraphBuilder(context);
+    this.context_ = await navigator.ml.createContext(contextOptions);
+    this.builder_ = new MLGraphBuilder(this.context_);
     const input = this.builder_.input('input',
         {type: 'float32', dimensions: this.inputOptions.inputDimensions});
 
@@ -209,8 +209,8 @@ ${nameArray[1]}`;
       biasAdd18, biasAdd21, biasAdd24, biasAdd27, biasAdd30, biasAdd33};
   }
 
-  build(outputOperand) {
-    this.graph_ = this.builder_.build(outputOperand);
+  async build(outputOperand) {
+    this.graph_ = await this.builder_.build(outputOperand);
   }
 
   // Release the constant tensors of a model
@@ -221,8 +221,8 @@ ${nameArray[1]}`;
     }
   }
 
-  compute(inputBuffer, outputs) {
+  async compute(inputBuffer, outputs) {
     const inputs = {'input': inputBuffer};
-    this.graph_.compute(inputs, outputs);
+    await this.context_.compute(this.graph_, inputs, outputs);
   }
 }

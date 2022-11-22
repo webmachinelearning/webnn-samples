@@ -9,6 +9,7 @@ const layout = 'nhwc';
 // ResNet 50 V2 model with 'nhwc' layout
 export class ResNet50V2Nhwc {
   constructor() {
+    this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.weightsUrl_ = '../test-data/models/resnet50v2_nhwc/weights/';
@@ -98,8 +99,8 @@ export class ResNet50V2Nhwc {
   }
 
   async load(contextOptions) {
-    const context = navigator.ml.createContext(contextOptions);
-    this.builder_ = new MLGraphBuilder(context);
+    this.context_ = await navigator.ml.createContext(contextOptions);
+    this.builder_ = new MLGraphBuilder(this.context_);
     const padding = this.builder_.constant(
         {type: 'int32', dimensions: [4, 2]},
         new Int32Array([0, 0, 3, 3, 3, 3, 0, 0]));
@@ -162,8 +163,8 @@ export class ResNet50V2Nhwc {
     return this.builder_.softmax(reshape);
   }
 
-  build(outputOperand) {
-    this.graph_ = this.builder_.build({'output': outputOperand});
+  async build(outputOperand) {
+    this.graph_ = await this.builder_.build({'output': outputOperand});
   }
 
   // Release the constant tensors of a model
@@ -174,9 +175,9 @@ export class ResNet50V2Nhwc {
     }
   }
 
-  compute(inputBuffer, outputBuffer) {
+  async compute(inputBuffer, outputBuffer) {
     const inputs = {'input': inputBuffer};
     const outputs = {'output': outputBuffer};
-    this.graph_.compute(inputs, outputs);
+    await this.context_.compute(this.graph_, inputs, outputs);
   }
 }

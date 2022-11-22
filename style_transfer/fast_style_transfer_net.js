@@ -7,6 +7,7 @@ import {buildConstantByNpy} from '../common/utils.js';
 // Fast Style Transfer Baseline Model
 export class FastStyleTransferNet {
   constructor() {
+    this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.constPow_ = null;
@@ -33,8 +34,8 @@ export class FastStyleTransferNet {
   }
 
   async load(contextOptions, modelId) {
-    const context = navigator.ml.createContext(contextOptions);
-    this.builder_ = new MLGraphBuilder(context);
+    this.context_ = await navigator.ml.createContext(contextOptions);
+    this.builder_ = new MLGraphBuilder(this.context_);
     const baseUrl = this.weightsUrl_ + modelId + '/';
 
     // Create constants by loading pre-trained data from .npy files.
@@ -171,8 +172,8 @@ export class FastStyleTransferNet {
     return this.builder_.add(this.builder_.mul(this.builder_.tanh(add20), constMul0), constAdd0);
   }
 
-  build(outputOperand) {
-    this.graph_ = this.builder_.build({'output': outputOperand});
+  async build(outputOperand) {
+    this.graph_ = await this.builder_.build({'output': outputOperand});
   }
 
   // Release the constant tensors of a model
@@ -183,9 +184,9 @@ export class FastStyleTransferNet {
     }
   }
 
-  compute(inputBuffer, outputBuffer) {
+  async compute(inputBuffer, outputBuffer) {
     const inputs = {'input': inputBuffer};
     const outputs = {'output': outputBuffer};
-    this.graph_.compute(inputs, outputs);
+    await this.context_.compute(this.graph_, inputs, outputs);
   }
 }

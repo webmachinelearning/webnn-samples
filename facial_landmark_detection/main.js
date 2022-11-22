@@ -30,8 +30,8 @@ let buildTime = 0;
 let computeTime = 0;
 let fdOutputs;
 let fldOutputs;
-let devicePreference = '';
-let lastDevicePreference = '';
+let deviceType = '';
+let lastdeviceType = '';
 let backend = '';
 let lastBackend = '';
 const disabledSelectors = ['#tabs > li', '.btn'];
@@ -117,7 +117,8 @@ async function renderCamStream() {
   }
   const inputCanvas = utils.getVideoFrame(camElement);
   console.log('- Computing... ');
-  const [totalComputeTime, strokedRects, keyPoints] = predict(camElement);
+  const [totalComputeTime, strokedRects, keyPoints] =
+      await predict(camElement);
   console.log(`  done in ${totalComputeTime} ms.`);
   computeTime = totalComputeTime;
   showPerfResult();
@@ -126,11 +127,11 @@ async function renderCamStream() {
   rafReq = requestAnimationFrame(renderCamStream);
 }
 
-function predict(inputElement) {
+async function predict(inputElement) {
   const fdInputBuffer = utils.getInputTensor(inputElement, fdInputOptions);
   let totalComputeTime = 0;
   let start = performance.now();
-  fdInstance.compute(fdInputBuffer, fdOutputs);
+  await fdInstance.compute(fdInputBuffer, fdOutputs);
   totalComputeTime += performance.now() - start;
   const strokedRects = [];
   const keyPoints = [];
@@ -171,7 +172,7 @@ function predict(inputElement) {
     fldInputOptions.drawOptions = drawOptions;
     const fldInputBuffer = utils.getInputTensor(inputElement, fldInputOptions);
     start = performance.now();
-    fldInstance.compute(fldInputBuffer, fldOutputs);
+    await fldInstance.compute(fldInputBuffer, fldOutputs);
     totalComputeTime += performance.now() - start;
     keyPoints.push(fldOutputs.output.slice());
   }
@@ -214,7 +215,7 @@ function constructNetObject(type) {
 async function main() {
   try {
     if (fdModelName === '') return;
-    [backend, devicePreference] =
+    [backend, deviceType] =
         $('input[name="backend"]:checked').attr('id').split('_');
     ui.handleClick(disabledSelectors, true);
     if (isFirstTimeLoad) $('#hint').hide();
@@ -223,12 +224,12 @@ async function main() {
     // Only do load() and build() when model first time loads,
     // there's new model choosed, backend changed or device changed
     if (isFirstTimeLoad || fdInstanceType !== fdModelName + layout ||
-        lastDevicePreference != devicePreference || lastBackend != backend) {
-      if (lastDevicePreference != devicePreference || lastBackend != backend) {
+        lastdeviceType != deviceType || lastBackend != backend) {
+      if (lastdeviceType != deviceType || lastBackend != backend) {
         // Set backend and device
-        await utils.setBackend(backend, devicePreference);
-        lastDevicePreference = lastDevicePreference != devicePreference ?
-                               devicePreference : lastDevicePreference;
+        await utils.setBackend(backend, deviceType);
+        lastdeviceType = lastdeviceType != deviceType ?
+                               deviceType : lastdeviceType;
         lastBackend = lastBackend != backend ? backend : lastBackend;
       }
       if (fldInstance !== null) {
@@ -256,7 +257,7 @@ async function main() {
       // UI shows model loading progress
       await ui.showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');
-      const contextOptions = {devicePreference};
+      const contextOptions = {deviceType};
       if (powerPreference) {
         contextOptions['powerPreference'] = powerPreference;
       }
@@ -269,8 +270,8 @@ async function main() {
       await ui.showProgressComponent('done', 'current', 'pending');
       console.log('- Building... ');
       start = performance.now();
-      fdInstance.build(fdOutputOperand);
-      fldInstance.build(fldOutputOperand);
+      await fdInstance.build(fdOutputOperand);
+      await fldInstance.build(fldOutputOperand);
       buildTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${buildTime} ms.`);
     }
@@ -283,13 +284,13 @@ async function main() {
       let medianComputeTime;
       console.log('- Computing... ');
       // Do warm up
-      fdInstance.compute(new Float32Array(
+      await fdInstance.compute(new Float32Array(
           utils.sizeOfShape(fdInputOptions.inputDimensions)), fdOutputs);
-      fldInstance.compute(new Float32Array(
+      await fldInstance.compute(new Float32Array(
           utils.sizeOfShape(fldInputOptions.inputDimensions)), fldOutputs);
 
       for (let i = 0; i < numRuns; i++) {
-        [computeTime, strokedRects, keyPoints] = predict(imgElement);
+        [computeTime, strokedRects, keyPoints] = await predict(imgElement);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);
         computeTimeArray.push(Number(computeTime));
       }
