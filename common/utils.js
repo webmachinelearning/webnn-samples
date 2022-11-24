@@ -70,6 +70,26 @@ export function getVideoFrame(videoElement) {
   return canvasElement;
 }
 
+// Get media stream from camera
+export async function getMediaStream() {
+  // Support 'user' facing mode at present
+  const constraints = {audio: false, video: {facingMode: 'user'}};
+  const stream = await navigator.mediaDevices.getUserMedia(constraints);
+  return stream;
+}
+
+// Stop camera stream and cancel animation frame
+export function stopCameraStream(id, stream) {
+  cancelAnimationFrame(id);
+  if (stream) {
+    stream.getTracks().forEach((track) => {
+      if (track.readyState === 'live' && track.kind === 'video') {
+        track.stop();
+      }
+    });
+  }
+}
+
 /**
  * This method is used to covert input element to tensor data.
  * @param {Object} inputElement, an object of HTML [<img> | <video>] element.

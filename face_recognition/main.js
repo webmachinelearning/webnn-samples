@@ -50,26 +50,35 @@ $(document).ready(() => {
 });
 
 $('#backendBtns .btn').on('change', async () => {
-  if (inputType === 'camera') cancelAnimationFrame(rafReq);
+  if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
   await main();
 });
 
 $('#fdModelBtns .btn').on('change', async (e) => {
   fdModelName = $(e.target).attr('id');
-  if (inputType === 'camera') cancelAnimationFrame(rafReq);
+  if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
   await main();
 });
 
 $('#layoutBtns .btn').on('change', async (e) => {
   layout = $(e.target).attr('id');
-  if (inputType === 'camera') cancelAnimationFrame(rafReq);
+  if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
   await main();
 });
 
 // Click trigger to do inference with <img> element
 $('#img').click(async () => {
-  if (inputType === 'camera') cancelAnimationFrame(rafReq);
-  if (stream !== null) stopCamera();
+  if (inputType === 'camera') {
+    utils.stopCameraStream(rafReq, stream);
+    // Set timeout to leave more time to make sure searchEmbeddings
+    // is clear after switching from camera tab to image tab
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        searchEmbeddings = null;
+        resolve();
+      }, 1000);
+    });
+  }
   inputType = 'image';
   $('.shoulddisplay').hide();
   searchEmbeddings = null;
@@ -113,24 +122,11 @@ $('#cam').click(async () => {
   await main();
 });
 
-async function getMediaStream() {
-  // Support 'user' facing mode at present
-  const constraints = {audio: false, video: {facingMode: 'user'}};
-  stream = await navigator.mediaDevices.getUserMedia(constraints);
-}
-
-function stopCamera() {
-  stream.getTracks().forEach((track) => {
-    if (track.readyState === 'live' && track.kind === 'video') {
-      track.stop();
-    }
-  });
-}
-
 /**
  * This method is used to render live camera tab.
  */
 async function renderCamStream() {
+  if (!stream.active) return;
   // If the video element's readyState is 0, the video's width and height are 0.
   // So check the readState here to make sure it is greater than 0.
   if (camElem.readyState === 0) {
@@ -213,7 +209,6 @@ async function predict(targetElem, searchElem) {
     searchEmbeddings = await getEmbeddings(searchElem);
     flag2 = true;
   }
-
   if (flag1 && flag2) {
     computeTime = targetEmbeddings.computeTime + searchEmbeddings.computeTime;
   } else if (flag1 && !flag2) {
@@ -364,7 +359,7 @@ async function main() {
       await drawOutput(searchImgElem, searchCanvasShowElem);
       showPerfResult(medianComputeTime);
     } else if (inputType === 'camera') {
-      await getMediaStream();
+      stream = await utils.getMediaStream();
       camElem.srcObject = stream;
       camElem.onloadeddata = await renderCamStream();
       await ui.showProgressComponent('done', 'done', 'done');
