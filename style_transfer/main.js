@@ -39,14 +39,13 @@ $(document).ready(() => {
 $('#backendBtns .btn').on('change', async (e) => {
   [backend, deviceType] =
       $('input[name="backend"]:checked').attr('id').split('_');
-  if (inputType === 'camera') cancelAnimationFrame(rafReq);
+  if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
   await main();
 });
 
 // Click trigger to do inference with <img> element
 $('#img').click(async () => {
-  if (inputType === 'camera') cancelAnimationFrame(rafReq);
-  if (stream !== null) stopCamera();
+  if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
   inputType = 'image';
   $('.shoulddisplay').hide();
   await main();
@@ -64,7 +63,7 @@ $('#gallery .gallery-image').hover((e) => {
 // Click trigger to do inference with switched <img> element
 $('#gallery .gallery-item').click(async (e) => {
   const newModelId = $(e.target).attr('id');
-  if (inputType === 'camera') cancelAnimationFrame(rafReq);
+  if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
   if (newModelId !== modelId) {
     isModelChanged = true;
     modelId = newModelId;
@@ -98,24 +97,11 @@ $('#cam').click(async () => {
   await main();
 });
 
-async function getMediaStream() {
-  // Support 'user' facing mode at present
-  const constraints = {audio: false, video: {facingMode: 'user'}};
-  stream = await navigator.mediaDevices.getUserMedia(constraints);
-}
-
-function stopCamera() {
-  stream.getTracks().forEach((track) => {
-    if (track.readyState === 'live' && track.kind === 'video') {
-      track.stop();
-    }
-  });
-}
-
 /**
  * This method is used to render live camera tab.
  */
 async function renderCamStream() {
+  if (!stream.active) return;
   // If the video element's readyState is 0, the video's width and height are 0.
   // So check the readState here to make sure it is greater than 0.
   if (camElement.readyState === 0) {
@@ -277,7 +263,7 @@ export async function main() {
       drawOutput('inputCanvas', 'outputCanvas');
       showPerfResult(medianComputeTime);
     } else if (inputType === 'camera') {
-      await getMediaStream();
+      stream = await utils.getMediaStream();
       camElement.srcObject = stream;
       camElement.onloadeddata = await renderCamStream();
       await ui.showProgressComponent('done', 'done', 'done');
