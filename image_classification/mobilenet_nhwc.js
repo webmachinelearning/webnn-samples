@@ -111,7 +111,7 @@ export class MobileNetV2Nhwc {
         conv3, {windowDimensions: [7, 7], layout: 'nhwc'});
     const conv4 = await this.buildConv_(
         averagePool2d, '222', 'Logits_Conv2d_1c_1x1_Conv2D', false, {autoPad, filterLayout});
-    const reshape = this.builder_.reshape(conv4, [1, -1]);
+    const reshape = this.builder_.reshape(conv4, [1, null]);
     return this.builder_.softmax(reshape);
   }
 

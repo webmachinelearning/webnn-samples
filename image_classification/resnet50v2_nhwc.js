@@ -159,7 +159,7 @@ export class ResNet50V2Nhwc {
         fusedBn, {keepDimensions: true, axes: [1, 2]});
     const conv2 = await this.buildConv_(
         mean, ['', '', 'logits'], {autoPad}, false);
-    const reshape = this.builder_.reshape(conv2, [1, -1]);
+    const reshape = this.builder_.reshape(conv2, [1, null]);
     return this.builder_.softmax(reshape);
   }
 

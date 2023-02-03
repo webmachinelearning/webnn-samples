@@ -62,7 +62,7 @@ export class ResNet50V2Nchw {
     const weight = await buildConstantByNpy(this.builder_, weightName);
     const biasName = prefix + '_bias.npy';
     const bias = await buildConstantByNpy(this.builder_, biasName);
-    const options = {c: this.builder_.reshape(bias, [1, -1]), bTranspose: true};
+    const options = {c: this.builder_.reshape(bias, [1, null]), bTranspose: true};
     return this.builder_.gemm(input, weight, options);
   }
 
@@ -144,7 +144,7 @@ export class ResNet50V2Nchw {
 
     const bn3 = await this.buildBatchNorm_(bottleneck16, '2', '');
     const pool2 = await this.builder_.averagePool2d(bn3);
-    const reshape = this.builder_.reshape(pool2, [1, -1]);
+    const reshape = this.builder_.reshape(pool2, [1, null]);
     const gemm = await this.buildGemm_(reshape, '0');
     return this.builder_.softmax(gemm);
   }
