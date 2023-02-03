@@ -50,7 +50,7 @@ export class FaceLandmarkNchw {
     if (reshapeSize !== undefined) {
       gemm = this.builder_.gemm(this.builder_.reshape(
           this.builder_.transpose(input, {permutation: [0, 2, 3, 1]}),
-          [-1, reshapeSize]), weights, options);
+          [null, reshapeSize]), weights, options);
     } else {
       gemm = this.builder_.gemm(input, weights, options);
     }
