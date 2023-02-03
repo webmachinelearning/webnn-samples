@@ -71,7 +71,7 @@ export class LeNet {
         this.builder_.maxPool2d(add2, {windowDimensions: pool2WindowShape,
           strides: pool2Strides});
 
-    const reshape1Shape = [1, -1];
+    const reshape1Shape = [1, null];
     const reshape1 = this.builder_.reshape(pool2, reshape1Shape);
 
     // skip the new shape, 2 int64 values
@@ -94,7 +94,7 @@ export class LeNet {
 
     const relu = this.builder_.relu(add3);
 
-    const reshape2Shape = [1, -1];
+    const reshape2Shape = [1, null];
     const reshape2 = this.builder_.reshape(relu, reshape2Shape);
 
     const matmul2Shape = [10, 500];

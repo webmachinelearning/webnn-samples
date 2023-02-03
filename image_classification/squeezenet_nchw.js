@@ -62,7 +62,7 @@ export class SqueezeNetNchw {
     const conv25 = await this.buildConv_(fire7, 'conv25');
     const pool3 = this.builder_.averagePool2d(
         conv25, {windowDimensions: [13, 13], strides: [13, 13]});
-    const reshape0 = this.builder_.reshape(pool3, [1, -1]);
+    const reshape0 = this.builder_.reshape(pool3, [1, null]);
     return this.builder_.softmax(reshape0);
   }
 
