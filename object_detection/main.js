@@ -107,7 +107,8 @@ async function renderCamStream() {
   const inputCanvas = utils.getVideoFrame(camElement);
   console.log('- Computing... ');
   const start = performance.now();
-  await netInstance.compute(inputBuffer, outputs);
+  const results = await netInstance.compute(inputBuffer, outputs);
+  outputs = results.outputs;
   computeTime = (performance.now() - start).toFixed(2);
   console.log(`  done in ${computeTime} ms.`);
   showPerfResult();
@@ -243,11 +244,12 @@ async function main() {
       let medianComputeTime;
 
       // Do warm up
-      await netInstance.compute(inputBuffer, outputs);
+      let results = await netInstance.compute(inputBuffer, outputs);
 
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
-        await netInstance.compute(inputBuffer, outputs);
+        results = await netInstance.compute(
+            results.inputs.input, outputs);
         computeTime = (performance.now() - start).toFixed(2);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);
         computeTimeArray.push(Number(computeTime));
@@ -257,6 +259,7 @@ async function main() {
         medianComputeTime = medianComputeTime.toFixed(2);
         console.log(`  median compute time: ${medianComputeTime} ms`);
       }
+      outputs = results.outputs;
       console.log('output: ', outputs);
       await ui.showProgressComponent('done', 'done', 'done');
       $('#fps').hide();

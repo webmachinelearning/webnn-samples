@@ -149,8 +149,9 @@ async function getEmbeddings(inputElem) {
   const fdInputBuffer = utils.getInputTensor(inputElem, fdInputOptions);
   let totalComputeTime = 0;
   let start = performance.now();
-  await fdInstance.compute(fdInputBuffer, fdOutputs);
+  const results = await fdInstance.compute(fdInputBuffer, fdOutputs);
   totalComputeTime = performance.now() - start;
+  fdOutputs = results.outputs;
   const strokedRects = [];
   const embeddings = [];
   const height = inputElem.naturalHeight || inputElem.height;
@@ -190,8 +191,9 @@ async function getEmbeddings(inputElem) {
     frInputOptions.drawOptions = drawOptions;
     const frInputBuffer = utils.getInputTensor(inputElem, frInputOptions);
     start = performance.now();
-    await frInstance.compute(frInputBuffer, frOutputs);
+    const results = await frInstance.compute(frInputBuffer, frOutputs);
     totalComputeTime += performance.now() - start;
+    frOutputs = results.outputs;
     const [...normEmbedding] = Float32Array.from(frOutputs.output);
     embeddings.push(normEmbedding);
   }
@@ -333,11 +335,12 @@ async function main() {
       let medianComputeTime;
       console.log('- Computing... ');
       // Do warm up
-      await fdInstance.compute(new Float32Array(
+      const fdResults = await fdInstance.compute(new Float32Array(
           utils.sizeOfShape(fdInputOptions.inputDimensions)), fdOutputs);
-      await frInstance.compute(new Float32Array(
+      const frResults = await frInstance.compute(new Float32Array(
           utils.sizeOfShape(frInputOptions.inputDimensions)), frOutputs);
-
+      fdOutputs = fdResults.outputs;
+      frOutputs = frResults.outputs;
       for (let i = 0; i < numRuns; i++) {
         if (numRuns > 1) {
           // clear all predicted embeddings for benckmarking

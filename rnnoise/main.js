@@ -109,7 +109,7 @@ async function denoise() {
   const denoiseGruYHBuffer = new Float32Array(
       rnnoise.denoiseGruNumDirections * batchSize *
       rnnoise.denoiseGruHiddenSize);
-  const outputs = {
+  let outputs = {
     'denoiseOutput': outputBuffer,
     'vadGruYH': vadGruYHBuffer,
     'noiseGruYH': noiseGruYHBuffer,
@@ -143,7 +143,7 @@ async function denoise() {
     const preProcessingTime = (performance.now() - start).toFixed(2);
     inputs.input = new Float32Array(features);
     start = performance.now();
-    await rnnoise.compute( inputs, outputs);
+    outputs = await rnnoise.compute(inputs, outputs);
     const executionTime = (performance.now() - start).toFixed(2);
     inputs.vadGruInitialH = outputs.vadGruYH;
     inputs.noiseGruInitialH = outputs.noiseGruYH;

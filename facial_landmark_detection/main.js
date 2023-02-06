@@ -117,8 +117,9 @@ async function predict(inputElement) {
   const fdInputBuffer = utils.getInputTensor(inputElement, fdInputOptions);
   let totalComputeTime = 0;
   let start = performance.now();
-  await fdInstance.compute(fdInputBuffer, fdOutputs);
+  const results = await fdInstance.compute(fdInputBuffer, fdOutputs);
   totalComputeTime += performance.now() - start;
+  fdOutputs = results.outputs;
   const strokedRects = [];
   const keyPoints = [];
   const height = inputElement.naturalHeight || inputElement.height;
@@ -158,8 +159,9 @@ async function predict(inputElement) {
     fldInputOptions.drawOptions = drawOptions;
     const fldInputBuffer = utils.getInputTensor(inputElement, fldInputOptions);
     start = performance.now();
-    await fldInstance.compute(fldInputBuffer, fldOutputs);
+    const results = await fldInstance.compute(fldInputBuffer, fldOutputs);
     totalComputeTime += performance.now() - start;
+    fldOutputs = results.outputs;
     keyPoints.push(fldOutputs.output.slice());
   }
   return [totalComputeTime.toFixed(2), strokedRects, keyPoints];
@@ -270,11 +272,12 @@ async function main() {
       let medianComputeTime;
       console.log('- Computing... ');
       // Do warm up
-      await fdInstance.compute(new Float32Array(
+      const fdResults = await fdInstance.compute(new Float32Array(
           utils.sizeOfShape(fdInputOptions.inputDimensions)), fdOutputs);
-      await fldInstance.compute(new Float32Array(
+      const fldResults = await fldInstance.compute(new Float32Array(
           utils.sizeOfShape(fldInputOptions.inputDimensions)), fldOutputs);
-
+      fdOutputs = fdResults.outputs;
+      fldOutputs = fldResults.outputs;
       for (let i = 0; i < numRuns; i++) {
         [computeTime, strokedRects, keyPoints] = await predict(imgElement);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);

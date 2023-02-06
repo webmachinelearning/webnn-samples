@@ -95,17 +95,17 @@ async function main() {
       let inferenceTime;
       const inferenceTimeArray = [];
       const input = getInputFromCanvas();
-      const outputBuffer = new Float32Array(utils.sizeOfShape([1, 10]));
+      let outputBuffer = new Float32Array(utils.sizeOfShape([1, 10]));
 
       // Do warm up
-      await lenet.compute(input, outputBuffer);
+      let results = await lenet.compute(input, outputBuffer);
 
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
-        await lenet.compute(input, outputBuffer);
+        results = await lenet.compute(
+            results.inputs.input, results.outputs.output);
         inferenceTime = performance.now() - start;
         console.log(`execution elapsed time: ${inferenceTime.toFixed(2)} ms`);
-        console.log(`execution result: ${outputBuffer}`);
         inferenceTimeArray.push(inferenceTime);
       }
 
@@ -121,6 +121,7 @@ async function main() {
             `${medianInferenceTime.toFixed(2)}</span> ms`;
       }
 
+      outputBuffer = results.outputs.output;
       const classes = topK(Array.from(outputBuffer));
       classes.forEach((c, i) => {
         console.log(`\tlabel: ${c.label}, probability: ${c.prob}%`);

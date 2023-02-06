@@ -71,7 +71,7 @@ export class NSNet2 {
       'gru94': gru94Buffer,
       'gru157': gru157Buffer,
     };
-    await this.context_.compute(this.graph_, inputs, outputs);
-    return outputs;
+    const results = await this.context_.compute(this.graph_, inputs, outputs);
+    return results.outputs;
   }
 }

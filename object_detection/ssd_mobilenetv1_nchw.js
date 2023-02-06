@@ -248,6 +248,7 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
 
   async compute(inputBuffer, outputs) {
     const inputs = {'input': inputBuffer};
-    await this.context_.compute(this.graph_, inputs, outputs);
+    const results = await this.context_.compute(this.graph_, inputs, outputs);
+    return results;
   }
 }
