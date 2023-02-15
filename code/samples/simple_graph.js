@@ -58,7 +58,7 @@ const inputs = {
   'input2': inputBuffer2,
 };
 const outputs = {'output': outputBuffer};
-await context.compute(graph, inputs, outputs);
+const results = await context.compute(graph, inputs, outputs);
 
-console.log('Output value: ' + outputBuffer);
+console.log('Output value: ' + results.outputs.output);
 // Output value: 2.25,2.25,2.25,2.25,2.25,2.25,2.25,2.25
