@@ -144,6 +144,7 @@ export class RNNoise {
   }
 
   async compute(inputs, outputs) {
-    await this.context_.compute(this.graph_, inputs, outputs);
+    const results = await this.context_.compute(this.graph_, inputs, outputs);
+    return results.outputs;
   }
 }

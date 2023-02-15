@@ -15,5 +15,5 @@ const bufferA = new Float32Array(sizeOfShape(descA.dimensions)).fill(0.5);
 const bufferC = new Float32Array(sizeOfShape([3, 3]));
 const inputs = {'a': bufferA};
 const outputs = {'c': bufferC};
-await context.compute(graph, inputs, outputs);
-console.log(`values: ${bufferC}`);
+const results = await context.compute(graph, inputs, outputs);
+console.log(`values: ${results.outputs.c}`);

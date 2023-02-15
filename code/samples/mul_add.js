@@ -14,7 +14,7 @@ const bufferB = new Float32Array(4).fill(0.8);
 const bufferC = new Float32Array(4);
 const inputs = {'A': bufferA, 'B': bufferB};
 const outputs = {'C': bufferC};
-await context.compute(graph, inputs, outputs);
+const results = await context.compute(graph, inputs, outputs);
 // The computed result of [[1, 1], [1, 1]] is in the buffer associated with
 // the output operand.
-console.log('Output value: ' + bufferC);
+console.log('Output value: ' + results.outputs.C);

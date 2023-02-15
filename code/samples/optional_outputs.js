@@ -19,10 +19,10 @@ const inputs = {'a': bufferA};
 
 // Compute d.
 const bufferD = new Float32Array(sizeOfShape([3, 3]));
-await context.compute(graph, inputs, {'d': bufferD});
-console.log(`values: ${bufferD}`);
+const resultsD = await context.compute(graph, inputs, {'d': bufferD});
+console.log(`values: ${resultsD.outputs.d}`);
 
 // Compute e.
 const bufferE = new Float32Array(sizeOfShape([3, 3]));
-await context.compute(graph, inputs, {'e': bufferE});
-console.log(`values: ${bufferE}`);
+const resultsE = await context.compute(graph, inputs, {'e': bufferE});
+console.log(`values: ${resultsE.outputs.e}`);
