@@ -13,7 +13,7 @@ const imgElement = document.getElementById('feedElement');
 imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
 let modelName = '';
-let layout = 'nchw';
+let layout = 'nhwc';
 let instanceType = modelName + layout;
 let rafReq;
 let isFirstTimeLoad = true;
@@ -43,7 +43,7 @@ $(document).ready(() => {
   if (utils.isWebNN()) {
     $('#webnn_cpu').click();
   } else {
-    $('#polyfill_gpu').click();
+    $('#polyfill_cpu').click();
   }
 });
 
