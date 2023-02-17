@@ -14,7 +14,7 @@ imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
 let fdModelName = '';
 const fldModelName = 'facelandmark';
-let layout = 'nchw';
+let layout = 'nhwc';
 let fdInstanceType = fdModelName + layout;
 let fldInstanceType = fldModelName + layout;
 let rafReq;
@@ -41,7 +41,7 @@ $(document).ready(() => {
   if (utils.isWebNN()) {
     $('#webnn_cpu').click();
   } else {
-    $('#polyfill_gpu').click();
+    $('#polyfill_cpu').click();
   }
 });
 

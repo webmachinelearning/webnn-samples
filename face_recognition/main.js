@@ -18,7 +18,7 @@ let targetEmbeddings = null;
 let searchEmbeddings = null;
 let fdModelName = '';
 const frModelName = 'facenet';
-let layout = 'nchw';
+let layout = 'nhwc';
 let fdInstanceType = fdModelName + layout;
 let frInstanceType = frModelName + layout;
 let rafReq;
@@ -45,7 +45,7 @@ $(document).ready(() => {
   if (utils.isWebNN()) {
     $('#webnn_cpu').click();
   } else {
-    $('#polyfill_gpu').click();
+    $('#polyfill_cpu').click();
   }
 });
 
