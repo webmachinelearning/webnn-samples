@@ -52,11 +52,11 @@
           </div>
           <div class="col-md-auto">
             <div class="btn-group-toggle" data-toggle="buttons" id="layoutBtns">
-              <label class="btn btn-outline-info btn-sm active">
-                <input type="radio" name="layout" id="nchw" autocomplete="off" checked>NCHW
-              </label>
               <label class="btn btn-outline-info btn-sm">
-                <input type="radio" name="layout" id="nhwc" autocomplete="off">NHWC
+                <input type="radio" name="layout" id="nchw" autocomplete="off">NCHW
+              </label>
+              <label class="btn btn-outline-info btn-sm active">
+                <input type="radio" name="layout" id="nhwc" autocomplete="off" checked>NHWC
               </label>
             </div>
           </div>
@@ -240,7 +240,6 @@
     // To restore module after loading 3rd-party libraries.
     if (window.tempModule) module = window.tempModule;
   </script>
-  <script src="../sw.js"></script>
   <script type="module" src="./main.js"></script>
   <script type="module" src="../common/component/component.js"></script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-6TK7JD3KKY"></script>

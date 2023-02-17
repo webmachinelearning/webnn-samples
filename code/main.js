@@ -8,7 +8,7 @@ export async function main() {
   if (utils.isWebNN()) {
     await utils.setBackend('webnn', 'cpu');
   } else {
-    await utils.setBackend('polyfill', 'gpu');
+    await utils.setBackend('polyfill', 'cpu');
   }
   const selectElement = document.getElementById('example-select');
   for (const name of samplesRepo.names()) {
