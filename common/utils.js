@@ -213,8 +213,8 @@ export async function setPolyfillBackend(device) {
   // Note: 'wasm' backend may run failed on some samples since
   // some ops aren't supported on 'wasm' backend at present
   const backend = device === 'cpu' ? 'wasm' : 'webgl';
-  const ml = await navigator.ml.createContext();
-  const tf = ml.tf;
+  const context = await navigator.ml.createContext();
+  const tf = context.tf;
   if (tf) {
     if (!(await tf.setBackend(backend))) {
       throw new Error(`Failed to set tf.js backend ${backend}.`);
