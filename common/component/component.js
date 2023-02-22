@@ -590,6 +590,10 @@ $(document).ready(function () {
                 $('label[name="polyfill"]').addClass('btn-outline-secondary');
                 $('label[name="polyfill"]').removeClass('btn-outline-info');
                 $('label[name="polyfill"]').attr('title', 'WebNN is supported, disable WebNN Polyfill.');
+                $('label:contains("WebNN (GPU)")').addClass('disabled');
+                $('label:contains("WebNN (GPU)")').addClass('btn-outline-secondary');
+                $('label:contains("WebNN (GPU)")').removeClass('btn-outline-info');
+                $('label:contains("WebNN (GPU)")').attr('title', 'WebNN GPU backend is not supported.');
             }
         }
         $('#webnnstatus').html('supported').addClass('webnn-status-true');
