@@ -1,0 +1,1 @@
+Resources under `helpers` and `webgl2` foloders are used for postprocessing and referred from https://github.com/Volcomix/virtual-background/tree/main/src/pipelines/ under the license of Apache License 2.0.
