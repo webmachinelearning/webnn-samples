@@ -84,7 +84,8 @@ export class ResNet50V2Nhwc {
     if (!downsample && shortcut) {
       residual = this.builder_.maxPool2d(
           input, {windowDimensions: [2, 2], strides, layout, autoPad});
-      conv2 = await this.buildConv_(conv1, nameIndices.concat(['2']), {strides, padding: [1, 1, 1, 1]});
+      conv2 = await this.buildConv_(
+          conv1, nameIndices.concat(['2']), {strides, padding: [1, 1, 1, 1]});
     } else {
       conv2 = await this.buildConv_(
           conv1, nameIndices.concat(['2']), {autoPad});
@@ -99,7 +100,8 @@ export class ResNet50V2Nhwc {
     this.builder_ = new MLGraphBuilder(this.context_);
     const input = this.builder_.input('input',
         {type: 'float32', dimensions: this.inputOptions.inputDimensions});
-    const conv1 = await this.buildConv_(input, ['', '', '1'], {strides, padding: [3, 3, 3, 3]}, false);
+    const conv1 = await this.buildConv_(
+        input, ['', '', '1'], {strides, padding: [3, 3, 3, 3]}, false);
     const pool = this.builder_.maxPool2d(
         conv1, {windowDimensions: [3, 3], strides, layout, autoPad});
     // Block 1
