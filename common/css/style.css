@@ -496,6 +496,21 @@ a:hover {
   font-size: 0.8rem;
 }
 
+#selfiesegmentation #outputCanvas {
+  width: 100%;
+  max-width: 1539px;
+  max-height: 1539px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.2), inset 0 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+@media (max-width: 768px) {
+  #selfiesegmentation #outputCanvas {
+    max-width: 1539px;
+    max-height: 1539px;
+  }
+}
+
 #semanticsegmentation #feedElement {
   display: none;
 }
