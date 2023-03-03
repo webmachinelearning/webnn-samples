@@ -26,23 +26,19 @@
     <div class="card mt-2 mb-2">
       <div class="card-body">
         <div class="row mb-2 align-items-center justify-content-md-left">
-          <div class="col col-md-1">
-            <span>Delegate</span>
+          <div class="col-1 col-md-2">
+            <span>TFLite Wasm Runtime</span>
           </div>
           <div class="col-md-auto">
-            <div class="btn-group-toggle" data-toggle="buttons" id="delegateBtns">
-              <label class="btn btn-outline-info custom active">
-                <input type="radio" name="delegate" id="xnnpack" autocomplete="off" checked>XNNPACK (SIMD)
-              </label>
-              <label class="btn btn-outline-info custom">
-                <input type="radio" name="delegate" id="webnn" autocomplete="off">WebNN (CPU)
-              </label>
+            <div class="custom-control custom-switch">
+              <input type="checkbox" class="custom-control-input" id="webnnDelegate">
+              <label class="custom-control-label" for="webnnDelegate">Enable WebNN Delegate</label>
             </div>
           </div>
         </div>
         <div class="row align-items-center">
-          <div class="col-1 col-md-1">
-            <span>Model</span>
+          <div class="col-1 col-md-2">
+            <span><a href="https://google.github.io/mediapipe/solutions/selfie_segmentation#models">MediaPipe Model</a></span>
           </div>
           <div class="col-md-auto">
             <div class="btn-group-toggle" data-toggle="buttons" id="modelBtns">

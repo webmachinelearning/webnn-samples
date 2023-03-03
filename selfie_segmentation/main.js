@@ -26,7 +26,7 @@ const inputOptions = {
   scaledFlag: false,
   inputLayout: 'nhwc',
 };
-let delegateName = 'xnnpack';
+let enableWebnnDelegate = false;
 const disabledSelectors = ['#tabs > li', '.btn'];
 
 $(document).ready(() => {
@@ -47,9 +47,10 @@ $('#modelBtns .btn').on('change', async (e) => {
   await main();
 });
 
-$('#delegateBtns .btn').on('change', async (e) => {
+$('#webnnDelegate').on('change', async (e) => {
   modelChanged = true;
-  delegateName = $(e.target).attr('id');
+  console.log($(e.target));
+  enableWebnnDelegate = $(e.target)[0].checked;
   if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
   await main();
 });
@@ -185,7 +186,7 @@ export async function main() {
       const options = {
         action: 'load',
         modelPath: `https://storage.googleapis.com/mediapipe-assets/${modelName}.tflite`,
-        enableWebNNDelegate: delegateName == 'webnn',
+        enableWebNNDelegate: enableWebnnDelegate,
         webNNDevicePreference: 0,
       };
       loadTime = await postAndListenMessage(options);
