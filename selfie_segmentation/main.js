@@ -49,7 +49,6 @@ $('#modelBtns .btn').on('change', async (e) => {
 
 $('#webnnDelegate').on('change', async (e) => {
   modelChanged = true;
-  console.log($(e.target));
   enableWebnnDelegate = $(e.target)[0].checked;
   if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
   await main();
@@ -105,6 +104,14 @@ $('#gallery .gallery-item').click(async (e) => {
  * This method is used to render live camera tab.
  */
 async function renderCamStream() {
+  if (!stream.active) return;
+  // If the video element's readyState is 0, the video's width and height are 0.
+  // So check the readState here to make sure it is greater than 0.
+  if (camElement.readyState === 0) {
+    rafReq = requestAnimationFrame(renderCamStream);
+    return;
+  }
+  const inputCanvas = utils.getVideoFrame(camElement);
   const inputBuffer = utils.getInputTensor(camElement, inputOptions);
   console.log('- Computing... ');
   const start = performance.now();
@@ -114,14 +121,14 @@ async function renderCamStream() {
   outputBuffer = result.outputBuffer;
   console.log(`  done in ${computeTime} ms.`);
   showPerfResult();
-  await drawOutput(outputBuffer, camElement);
+  await drawOutput(outputBuffer, inputCanvas);
   $('#fps').text(`${(1000/computeTime).toFixed(0)} FPS`);
   rafReq = requestAnimationFrame(renderCamStream);
 }
 
 async function drawOutput(outputBuffer, srcElement) {
-  outputCanvas.width = srcElement.naturalWidth | srcElement.videoWidth;
-  outputCanvas.height = srcElement.naturalHeight | srcElement.videoHeight;
+  outputCanvas.width = srcElement.width;
+  outputCanvas.height = srcElement.height;
   const pipeline = buildWebGL2Pipeline(
       srcElement,
       backgroundImageSource,
