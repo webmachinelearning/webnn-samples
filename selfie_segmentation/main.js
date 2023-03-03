@@ -160,7 +160,7 @@ async function postAndListenMessage(postedMessage) {
     worker.postMessage(postedMessage);
   }
 
-  const result = await new Promise(resolve => {
+  const result = await new Promise((resolve) => {
     worker.onmessage = (event) => {
       resolve(event.data);
     };
