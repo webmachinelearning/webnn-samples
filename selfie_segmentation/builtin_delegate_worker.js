@@ -13,6 +13,9 @@ onmessage = async (message) => {
     // Load model or infer depends on the first data
     switch (message.data.action) {
       case 'load': {
+        if (modelRunner) {
+          modelRunner.delete();
+        }
         const loadStart = performance.now();
         const modelPath = message.data.modelPath;
         // Load WASM module and model.
