@@ -36,17 +36,29 @@
             </div>
           </div>
         </div>
-        <div class="row align-items-center">
+        <div class="row mb-2 align-items-center">
           <div class="col-1 col-md-4">
             <span><a href="https://google.github.io/mediapipe/solutions/selfie_segmentation#models">MediaPipe Selfie Segmentation Model</a></span>
           </div>
           <div class="col-md-auto">
-            <div class="btn-group-toggle" data-toggle="buttons" id="modelBtns">
+            <div class="btn-group-toggle" data-toggle="buttons" id="ssModelsBtns">
               <label class="btn btn-outline-info">
                 <input type="radio" name="model" id="selfie_segmentation" autocomplete="off">General
               </label>
               <label class="btn btn-outline-info">
                 <input type="radio" name="model" id="selfie_segmentation_landscape" autocomplete="off">Landscape
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="row align-items-center">
+          <div class="col-1 col-md-4">
+            <span><a href="https://tfhub.dev/tensorflow/lite-model/deeplabv3/1/default/1">TFLite DeepLabV3 Model</a></span>
+          </div>
+          <div class="col-md-auto">
+            <div class="btn-group-toggle" data-toggle="buttons" id="deeplabModelBtns">
+              <label class="btn btn-outline-info">
+                <input type="radio" name="model" id="deeplabv3" autocomplete="off">DeepLabV3 (257 x 257)
               </label>
             </div>
           </div>
@@ -165,6 +177,11 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
     integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
     crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.9.0/dist/tf.min.js"
+    integrity="sha256-28ZvjeNGrGNEIj9/2D8YAPE6Vm5JSvvDs+LI4ED31x8="
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@3.9.0/dist/tf-backend-wasm.js"
+    integrity="sha256-WDuM/pwY9LHIgbEZ6YvEIVh2dpX+u9ebFPQK5v1K2Wk=" crossorigin="anonymous"></script>
   <script type="module" src="./main.js"></script>
   <script type="module" src="../common/component/component.js"></script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-6TK7JD3KKY"></script>

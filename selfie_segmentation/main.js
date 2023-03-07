@@ -26,23 +26,42 @@ const inputOptions = {
   scaledFlag: false,
   inputLayout: 'nhwc',
 };
+const modelConfigs = {
+  'selfie_segmentation': {
+    inputDimensions: [1, 256, 256, 3],
+    inputResolution: [256, 256],
+    modelPath: 'https://storage.googleapis.com/mediapipe-assets/selfie_segmentation.tflite',
+  },
+  'selfie_segmentation_landscape': {
+    inputDimensions: [1, 144, 256, 3],
+    inputResolution: [256, 144],
+    modelPath: 'https://storage.googleapis.com/mediapipe-assets/selfie_segmentation_landscape.tflite',
+  },
+  'deeplabv3': {
+    inputDimensions: [1, 257, 257, 3],
+    inputResolution: [257, 257],
+    modelPath: 'https://tfhub.dev/tensorflow/lite-model/deeplabv3/1/metadata/2?lite-format=tflite',
+  },
+};
 let enableWebnnDelegate = false;
 const disabledSelectors = ['#tabs > li', '.btn'];
 
-$(document).ready(() => {
+$(document).ready(async () => {
+  await tf.setBackend('wasm');
+  await tf.ready();
   $('.icdisplay').hide();
 });
 
-$('#modelBtns .btn').on('change', async (e) => {
+$('input[name="model"]').on('change', async (e) => {
   modelChanged = true;
   modelName = $(e.target).attr('id');
-  if (modelName.includes('landscape')) {
-    inputOptions.inputDimensions = [1, 144, 256, 3];
-    inputOptions.inputResolution = [256, 144];
+  if (modelName.startsWith('selfie')) {
+    $('#deeplabModelBtns .btn').removeClass('active');
   } else {
-    inputOptions.inputDimensions = [1, 256, 256, 3];
-    inputOptions.inputResolution = [256, 256];
+    $('#ssModelsBtns .btn').removeClass('active');
   }
+  inputOptions.inputDimensions = modelConfigs[modelName].inputDimensions;
+  inputOptions.inputResolution = modelConfigs[modelName].inputResolution;
   if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
   await main();
 });
@@ -127,6 +146,15 @@ async function renderCamStream() {
 }
 
 async function drawOutput(outputBuffer, srcElement) {
+  if (modelName.startsWith('deeplab')) {
+    // Do additional `argMax` for DeepLabV3 model
+    outputBuffer = tf.tidy(() => {
+      const a = tf.tensor(outputBuffer, [1, 257, 257, 21], 'float32');
+      const b = tf.argMax(a, 3);
+      const c = tf.tensor(b.dataSync(), b.shape, 'float32');
+      return c.dataSync();
+    });
+  }
   outputCanvas.width = srcElement.width;
   outputCanvas.height = srcElement.height;
   const pipeline = buildWebGL2Pipeline(
@@ -192,7 +220,7 @@ export async function main() {
       console.log('- Loading model... ');
       const options = {
         action: 'load',
-        modelPath: `https://storage.googleapis.com/mediapipe-assets/${modelName}.tflite`,
+        modelPath: modelConfigs[modelName].modelPath,
         enableWebNNDelegate: enableWebnnDelegate,
         webNNDevicePreference: 0,
       };
