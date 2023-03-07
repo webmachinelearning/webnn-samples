@@ -46,7 +46,9 @@ const modelConfigs = {
 let enableWebnnDelegate = false;
 const disabledSelectors = ['#tabs > li', '.btn'];
 
-$(document).ready(() => {
+$(document).ready(async () => {
+  await tf.setBackend('wasm');
+  await tf.ready();
   $('.icdisplay').hide();
 });
 
