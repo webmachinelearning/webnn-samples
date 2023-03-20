@@ -216,6 +216,11 @@ export async function setPolyfillBackend(device) {
   const context = await navigator.ml.createContext();
   const tf = context.tf;
   if (tf) {
+    if (backend == 'wasm') {
+      const wasm = context.wasm;
+      // Force to use Wasm SIMD only
+      wasm.setWasmPath(`https://unpkg.com/@tensorflow/tfjs-backend-wasm@${tf.version_core}/dist/tfjs-backend-wasm-simd.wasm`);
+    }
     if (!(await tf.setBackend(backend))) {
       throw new Error(`Failed to set tf.js backend ${backend}.`);
     }
