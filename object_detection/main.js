@@ -249,7 +249,7 @@ async function main() {
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
         results = await netInstance.compute(
-            results.inputs.input, outputs);
+            results.inputs.input, results.outputs);
         computeTime = (performance.now() - start).toFixed(2);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);
         computeTimeArray.push(Number(computeTime));
