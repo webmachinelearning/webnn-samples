@@ -192,8 +192,9 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     const conv27 = await this.buildConv_(
         conv21, ['BoxEncoding', '5', '', '167__cf__170'], false);
     const reshape5 = this.builder_.reshape(conv27, [1, 6, 1, 4]);
-    const concat0 = this.builder_.concat(
-        [reshape0, reshape1, reshape2, reshape3, reshape4, reshape5], 1);
+    // XNNPACK doesn't support concat inputs size > 4.
+    const concat_reshape0_3 = this.builder_.concat([reshape0, reshape1, reshape2, reshape3], 1);
+    const concat0 = this.builder_.concat([concat_reshape0_3, reshape4, reshape5], 1);
 
     // Second concatenation
     const conv28 = await this.buildConv_(
@@ -214,8 +215,9 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     const conv33 = await this.buildConv_(
         conv21, ['Class', '5', '', '41__cf__44'], false);
     const reshape11 = this.builder_.reshape(conv33, [1, 6, 91]);
-    const concat1 = this.builder_.concat(
-        [reshape6, reshape7, reshape8, reshape9, reshape10, reshape11], 1);
+    // XNNPACK doesn't support concat inputs size > 4.
+    const concat_reshape6_9 = this.builder_.concat([reshape6, reshape7, reshape8, reshape9], 1);
+    const concat1 = this.builder_.concat([concat_reshape6_9, reshape10, reshape11], 1);
 
     return {'boxes': concat0, 'scores': concat1};
   }
