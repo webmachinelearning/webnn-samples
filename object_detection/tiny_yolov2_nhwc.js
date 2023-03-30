@@ -32,11 +32,12 @@ export class TinyYoloV2Nhwc {
       autoPad: 'same-upper',
     };
     options.bias = bias;
+    let conv = this.builder_.conv2d(input, weights, options);
     if (leakyRelu) {
-      options.activation =
-          this.builder_.leakyRelu({alpha: 0.10000000149011612});
+      // Fused leakyRelu is not supported by XNNPACK.
+      conv = this.builder_.leakyRelu(conv, {alpha: 0.10000000149011612});
     }
-    return this.builder_.conv2d(input, weights, options);
+    return conv;
   }
 
   async load(contextOptions) {
