@@ -576,11 +576,11 @@ const webnnbadge = () => {
   return nnbadge;
 };
 
-$(document).ready(function () {
+$(document).ready(async () => {
   $("nav ul.navbar-nav").html(webnnsamplenav());
   $("#logosvg").html(webnnlogo());
   $("#badge").html(webnnbadge());
-  if (isWebNN()) {
+  if (await isWebNN()) {
     if ($("#backendBtns")) {
       if (!isElectron()) {
         $('label[name="polyfill"]').addClass("disabled");

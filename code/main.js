@@ -5,7 +5,7 @@ window.sizeOfShape = utils.sizeOfShape;
 
 export async function main() {
   // Set backend
-  if (utils.isWebNN()) {
+  if (await utils.isWebNN()) {
     await utils.setBackend('webnn', 'cpu');
   } else {
     await utils.setBackend('polyfill', 'cpu');
