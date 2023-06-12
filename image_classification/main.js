@@ -40,9 +40,9 @@ async function fetchLabels(url) {
   return data.split('\n');
 }
 
-$(document).ready(() => {
+$(document).ready(async () => {
   $('.icdisplay').hide();
-  if (utils.isWebNN()) {
+  if (await utils.isWebNN()) {
     $('#webnn_cpu').click();
   } else {
     $('#polyfill_cpu').click();

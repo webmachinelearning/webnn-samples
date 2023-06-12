@@ -315,7 +315,7 @@ export async function setBackend(backend, device) {
           ` backend.`, 'info');
     } else {
       // For Browser
-      if (!isWebNN()) {
+      if (!await isWebNN()) {
         addAlert(`WebNN is not supported!`, 'warning');
       }
     }
@@ -344,7 +344,7 @@ export function isElectron() {
   return userAgent.indexOf(' electron/') > -1;
 }
 
-export function isWebNN() {
+export async function isWebNN() {
   // This would be used in
   // https://github.com/webmachinelearning/webnn-native/tree/main/node/examples/electron/webnn-samples,
   // where WebNN is enabled by default.
@@ -352,7 +352,8 @@ export function isWebNN() {
     return true;
   } else {
     if (typeof MLGraphBuilder !== 'undefined') {
-      return !navigator.ml.createContext().tf;
+      const context = await navigator.ml.createContext();
+      return !context.tf;
     } else {
       return false;
     }
