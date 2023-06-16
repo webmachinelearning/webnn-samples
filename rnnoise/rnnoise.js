@@ -60,9 +60,11 @@ export class RNNoise {
     const vadGruX = this.builder_.transpose(
         inputDenseTanh0, {permutation: [1, 0, 2]});
     const vadGruB = this.builder_.slice(
-        vadGruBData, [0], [3 * this.vadGruHiddenSize], {axes: [1]});
+        vadGruBData, [0, 0], [1, 3 * this.vadGruHiddenSize]);
     const vadGruRB = this.builder_.slice(
-        vadGruBData, [3 * this.vadGruHiddenSize], [-1], {axes: [1]});
+        vadGruBData,
+        [0, 3 * this.vadGruHiddenSize],
+        [1, 3 * this.vadGruHiddenSize]);
     const vadGruInitialH = this.builder_.input('vadGruInitialH', {
       type: 'float32',
       dimensions: [1, this.batchSize_, this.vadGruHiddenSize],
@@ -85,9 +87,11 @@ export class RNNoise {
     const noiseGruX = this.builder_.transpose(
         concatenate1, {permutation: [1, 0, 2]});
     const noiseGruB = this.builder_.slice(
-        noiseGruBData, [0], [3 * this.noiseGruHiddenSize], {axes: [1]});
+        noiseGruBData, [0, 0], [1, 3 * this.noiseGruHiddenSize]);
     const noiseGruRB = this.builder_.slice(
-        noiseGruBData, [3 * this.noiseGruHiddenSize], [-1], {axes: [1]});
+        noiseGruBData,
+        [0, 3 * this.noiseGruHiddenSize],
+        [1, 3 * this.noiseGruHiddenSize]);
     const noiseGruInitialH = this.builder_.input( 'noiseGruInitialH', {
       type: 'float32',
       dimensions: [1, this.batchSize_, this.noiseGruHiddenSize],
@@ -110,9 +114,11 @@ export class RNNoise {
     const denoiseGruX = this.builder_.transpose(
         concatenate2, {permutation: [1, 0, 2]});
     const denoiseGruB = this.builder_.slice(
-        denoiseGruBData, [0], [3 * this.denoiseGruHiddenSize], {axes: [1]});
+        denoiseGruBData, [0, 0], [1, 3 * this.denoiseGruHiddenSize]);
     const denoiseGruRB = this.builder_.slice(
-        denoiseGruBData, [3 * this.denoiseGruHiddenSize], [-1], {axes: [1]});
+        denoiseGruBData,
+        [0, 3 * this.denoiseGruHiddenSize],
+        [1, 3 * this.denoiseGruHiddenSize]);
     const denoiseGruInitialH = this.builder_.input('denoiseGruInitialH', {
       type: 'float32',
       dimensions: [1, this.batchSize_, this.denoiseGruHiddenSize],
