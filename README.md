@@ -2,24 +2,67 @@
 [![deploy](https://github.com/webmachinelearning/webnn-samples/workflows/deploy/badge.svg)](https://github.com/webmachinelearning/webnn-samples/actions)
 
 # WebNN API Samples
+This repository contains a collection of samples and examples demonstrating Web Neural Network API (WebNN) usage in web applications. Web Neural Network API (WebNN) is a JavaScript API that provides a high-level interface for performing machine learning computations on neural networks in web applications. With WebNN, developers can leverage hardware acceleration to efficiently run inference tasks on various devices, including CPUs, GPUs, and dedicated AI accelerators. It simplifies the integration of machine learning models into web apps, opening up new possibilities for interactive experiences and intelligent applications right in the browser.
 
+## Repository Structure
+This repository hosts a wide range of samples and examples that showcase different use cases and functionalities of WebNN. Here's an overview of the directory structure:    
+
+* [/face_recognition](https://github.com/webmachinelearning/webnn-samples/tree/master/face_recognition): This directory contains examples of SSD MobileNet V2 Face and Face Landmark (SimpleCNN) model implementation.
+* [/facial_landmark_detection](https://github.com/webmachinelearning/webnn-samples/tree/master/facial_landmark_detection): This directory contains examples of SSD MobileNet V2 Face and Face Landmark (SimpleCNN) model implementation.
+* [/image-classification](https://github.com/webmachinelearning/webnn-samples/tree/master/image_classification): This directory contains examples demonstrating image classification using pre-trained models with WebNN.
+* [/lenet](https://github.com/webmachinelearning/webnn-samples/tree/master/lenet): This example showcases the LeNet-based handwritten digits classification by WebNN API.
+* [/nsnet2](https://github.com/webmachinelearning/webnn-samples/tree/master/nsnet2): This example shows how to implement the NSNet2 baseline implementation of a deep learning-based noise suppression model.
+* [/object-detection](https://github.com/webmachinelearning/webnn-samples/tree/master/object_detection): Samples showcasing object detection tasks using WebNN with pre-trained models.
+* [/rnnoise](https://github.com/webmachinelearning/webnn-samples/tree/master/rnnoise): This example shows the RNNoise baseline implementation of a deep learning-based noise suppression model.
+* [/selfie_segmentation](https://github.com/webmachinelearning/webnn-samples/tree/master/selfie_segmentation): This example demonstrates the MediaPipe Selfie Segmentation using the TFLite Web XNNPACK delegate and WebNN delegate, built by tflite-support.
+* [/semantic_segmentation](https://github.com/webmachinelearning/webnn-samples/tree/master/semantic_segmentation): This directory contains examples of how to implement the DeepLab V3 MobileNet V2, from TFLite models.
+* [/style-transfer](https://github.com/webmachinelearning/webnn-samples/tree/master/style_transfer): Explore examples that highlight the artistic possibilities of WebNN by applying style-transfer techniques to images.
+
+## Getting Started
+To get started, follow these steps:    
+1. Clone the repository to your local machine and navigate to it:
+ ```bash
+> git clone --recurse-submodules https://github.com/webmachinelearning/webnn-samples
+> cd webnn-samples & npm install
+> npm start
+```
+2. Navigate to the desired sample directory that you want to explore.
+3. Read the accompanying README.md file for the sample to understand its purpose, requirements, and implementation details.
+4. Follow the instructions provided in the README to set up the necessary dependencies and run the sample.
+5. Experiment with the code and explore how WebNN can enhance machine learning tasks in the browser, navigating to http://localhost:8080.
+
+## Requirements
+You will require a compatible browser that supports Web Neural Network API (WebNN) to run the samples in this repository. Currently, Chrome and Edge browsers provide support for WebNN.
+
+## Support and Feedback
+If you encounter any issues or have feedback on the WebNN Samples, please open an issue on the repository. We appreciate your input and will strive to address any problems as quickly as possible.
+
+You can also join our [community forum](https://webmachinelearning.github.io/) for general questions and discussions about WebNN.
+
+## Contributing
+We welcome contributions from the community to make webnn-samples even better! If you have an idea for a new sample, an improvement to an existing one, or any other enhancement, please feel free to submit a pull request.
+
+## Resources
+### WebNN Resources
+To learn more about Web Neural Network API (WebNN) and its capabilities, check out the following resources:
+* [Web Neural Network API Specification](https://webmachinelearning.github.io/webnn/)
+* [WebNN Polyfill](https://github.com/webmachinelearning/webnn-polyfill)
+* [WebNN Community Group](https://webmachinelearning.github.io/)
+
+### WebNN API Samples
 * [WebNN code editor](https://webmachinelearning.github.io/webnn-samples/code/)
 * [Handwritten digits classification](https://webmachinelearning.github.io/webnn-samples/lenet/)
 * Noise suppression:
   * [NSNet2](https://webmachinelearning.github.io/webnn-samples/nsnet2/)
   * [RNNoise](https://webmachinelearning.github.io/webnn-samples/rnnoise/)
 * [Fast style transfer](https://webmachinelearning.github.io/webnn-samples/style_transfer/)
-* [Image classification](https://webmachinelearning.github.io/webnn-samples/image_classification/)
-* [Object detection](https://webmachinelearning.github.io/webnn-samples/object_detection/)
 * [Semantic segmentation](https://webmachinelearning.github.io/webnn-samples/semantic_segmentation/)
 * [Facial Landmark Detection](https://webmachinelearning.github.io/webnn-samples/facial_landmark_detection/)
 
-### Setup & Run
+## Acknowledgements
+We thank the entire WebNN community for their valuable contributions and feedback. Your support and enthusiasm have been instrumental in making WebNN a robust and accessible tool for machine learning in the web ecosystem.
 
-```sh
->  git clone --recurse-submodules https://github.com/webmachinelearning/webnn-samples
-> cd webnn-samples & npm install
-> npm start
-```
+We also want to thank the developers and researchers behind the underlying technologies that power WebNN, including the Web Neural Network API and related frameworks. Their efforts have paved the way for seamless machine-learning experiences in web browsers.
 
-Open the web browser and navigate to http://localhost:8080
+We appreciate your interest in WebNN Samples! We hope you find these examples inspiring and educational. Happy coding with Web Neural Networks!
+
