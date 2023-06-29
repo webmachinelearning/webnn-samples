@@ -109,6 +109,7 @@ export class FaceNetNhwc {
   }
 
   async buildFullyConnected_(input) {
+    input = this.builder_.reshape(input, [1, null]);
     const weights = await buildConstantByNpy(this.builder_,
         `${this.weightsUrl_}/Bottleneck_kernel_transpose.npy`);
     const bias = await buildConstantByNpy(this.builder_,
@@ -199,7 +200,7 @@ export class FaceNetNhwc {
     const block8_5 = await this.buildBlock8_(block8_4, 5);
     const block8_6 = await this.buildBlock8_(block8_5, 6, false);
 
-    const mean = this.builder_.reduceMean(block8_6, {axes: [1, 2]});
+    const mean = this.builder_.averagePool2d(block8_6, {layout: 'nhwc'});
     const fc = await this.buildFullyConnected_(mean);
     // L2Normalization will be handled in post-processing
     return fc;
