@@ -66,11 +66,14 @@ async function main() {
   const pen = new Pen(visualCanvas);
   const weightUrl = '../test-data/models/lenet_nchw/weights/lenet.bin';
   const lenet = new LeNet(weightUrl);
-  const [numRuns, powerPreference] = utils.getUrlParams();
+  const [numRuns, powerPreference, numThreads] = utils.getUrlParams();
   try {
     const contextOptions = {deviceType};
     if (powerPreference) {
       contextOptions['powerPreference'] = powerPreference;
+    }
+    if (numThreads) {
+      contextOptions['numThreads'] = numThreads;
     }
     let start = performance.now();
     const outputOperand = await lenet.load(contextOptions);

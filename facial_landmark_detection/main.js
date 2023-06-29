@@ -207,7 +207,7 @@ async function main() {
         $('input[name="backend"]:checked').attr('id').split('_');
     ui.handleClick(disabledSelectors, true);
     if (isFirstTimeLoad) $('#hint').hide();
-    const [numRuns, powerPreference] = utils.getUrlParams();
+    const [numRuns, powerPreference, numThreads] = utils.getUrlParams();
     let start;
     // Only do load() and build() when model first time loads,
     // there's new model choosed, backend changed or device changed
@@ -248,6 +248,9 @@ async function main() {
       const contextOptions = {deviceType};
       if (powerPreference) {
         contextOptions['powerPreference'] = powerPreference;
+      }
+      if (numThreads) {
+        contextOptions['numThreads'] = numThreads;
       }
       start = performance.now();
       const fdOutputOperand = await fdInstance.load(contextOptions);
