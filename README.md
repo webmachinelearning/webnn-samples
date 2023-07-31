@@ -7,16 +7,19 @@ This repository contains a collection of samples and examples demonstrating Web 
 ## Repository Structure
 This repository hosts a wide range of samples and examples that showcase different use cases and functionalities of WebNN. Here's an overview of the directory structure:    
 
-* [/face_recognition](https://github.com/webmachinelearning/webnn-samples/tree/master/face_recognition): This directory contains examples of SSD MobileNet V2 Face and Face Landmark (SimpleCNN) model implementation.
-* [/facial_landmark_detection](https://github.com/webmachinelearning/webnn-samples/tree/master/facial_landmark_detection): This directory contains examples of SSD MobileNet V2 Face and Face Landmark (SimpleCNN) model implementation.
-* [/image-classification](https://github.com/webmachinelearning/webnn-samples/tree/master/image_classification): This directory contains examples demonstrating image classification using pre-trained models with WebNN.
-* [/lenet](https://github.com/webmachinelearning/webnn-samples/tree/master/lenet): This example showcases the LeNet-based handwritten digits classification by WebNN API.
-* [/nsnet2](https://github.com/webmachinelearning/webnn-samples/tree/master/nsnet2): This example shows how to implement the NSNet2 baseline implementation of a deep learning-based noise suppression model.
-* [/object-detection](https://github.com/webmachinelearning/webnn-samples/tree/master/object_detection): Samples showcasing object detection tasks using WebNN with pre-trained models.
-* [/rnnoise](https://github.com/webmachinelearning/webnn-samples/tree/master/rnnoise): This example shows the RNNoise baseline implementation of a deep learning-based noise suppression model.
-* [/selfie_segmentation](https://github.com/webmachinelearning/webnn-samples/tree/master/selfie_segmentation): This example demonstrates the MediaPipe Selfie Segmentation using the TFLite Web XNNPACK delegate and WebNN delegate, built by tflite-support.
-* [/semantic_segmentation](https://github.com/webmachinelearning/webnn-samples/tree/master/semantic_segmentation): This directory contains examples of how to implement the DeepLab V3 MobileNet V2, from TFLite models.
-* [/style-transfer](https://github.com/webmachinelearning/webnn-samples/tree/master/style_transfer): Explore examples that highlight the artistic possibilities of WebNN by applying style-transfer techniques to images.
+* [Face recognition](/face_recognition): This directory contains examples of SSD MobileNet V2 Face and Face Landmark (SimpleCNN) model implementation.
+* [Facial landmark detection](/facial_landmark_detection): This directory contains examples of SSD MobileNet V2 Face and Face Landmark (SimpleCNN) model implementation.
+* [Image classification](/image_classification): This directory contains examples demonstrating image classification using pre-trained models with WebNN.
+* [LeNet](/lenet): This example showcases the LeNet-based handwritten digits classification by WebNN API.
+* [NSNet2](/nsnet2): This example shows how to implement the NSNet2 baseline implementation of a deep learning-based noise suppression model.
+* [Object detection](/object_detection): Samples showcasing object detection tasks using WebNN with pre-trained models.
+* [RNNoise](/rnnoise): This example shows the RNNoise baseline implementation of a deep learning-based noise suppression model.
+* [Selfie segmentation](/selfie_segmentation): This example demonstrates the MediaPipe Selfie Segmentation using the TFLite Web XNNPACK delegate and WebNN delegate, built by tflite-support.
+* [Semantic segmentation](/semantic_segmentation): This directory contains examples of implementing the DeepLab V3 MobileNet V2, from TFLite models.
+* [Style transfer](/style_transfer): Explore examples highlighting the artistic possibilities of WebNN by applying style-transfer techniques to images.
+
+## Requirements
+You will require a compatible browser that supports Web Neural Network API (WebNN) to run the samples in this repository. Currently, Chrome and Edge browsers provide support for WebNN.
 
 ## Getting Started
 To get started, follow these steps:    
@@ -29,10 +32,15 @@ To get started, follow these steps:
 2. Navigate to the desired sample directory that you want to explore.
 3. Read the accompanying README.md file for the sample to understand its purpose, requirements, and implementation details.
 4. Follow the instructions provided in the README to set up the necessary dependencies and run the sample.
-5. Experiment with the code and explore how WebNN can enhance machine learning tasks in the browser, navigating to http://localhost:8080.
+5. Keep in mind that WebNN currently supports the CPU backend only on Chrome or Edge browsers, and it requires enabling the experimental web platform features flag (see below). Ensure you have this flag enabled in your browser to fully experience WebNN functionality.
+6. Experiment with the code and explore how WebNN can enhance machine learning tasks in the browser, navigating to http://localhost:8080.
 
-## Requirements
-You will require a compatible browser that supports Web Neural Network API (WebNN) to run the samples in this repository. Currently, Chrome and Edge browsers provide support for WebNN.
+### Enabling Experimental Features Flag
+1. In Chrome navigate to `chrome://flags/`. in Edge navigate to `edge://flags/`.
+1. Search for the **#enable-experimental-web-platform-features** flag.
+1. Enable the feature: Toggle the corresponding switch or checkbox to turn it on.  
+   **Note:** Enabling experimental features may lead to unexpected behavior, so proceed with caution.
+1. Restart the browser: If prompted, restart your browser after enabling the feature.
 
 ## Support and Feedback
 If you encounter any issues or have feedback on the WebNN Samples, please open an issue on the repository. We appreciate your input and will strive to address any problems as quickly as possible.
@@ -58,6 +66,8 @@ To learn more about Web Neural Network API (WebNN) and its capabilities, check o
 * [Fast style transfer](https://webmachinelearning.github.io/webnn-samples/style_transfer/)
 * [Semantic segmentation](https://webmachinelearning.github.io/webnn-samples/semantic_segmentation/)
 * [Facial Landmark Detection](https://webmachinelearning.github.io/webnn-samples/facial_landmark_detection/)
+* [Image classification](https://webmachinelearning.github.io/webnn-samples/image_classification/)
+* [Object detection](https://webmachinelearning.github.io/webnn-samples/object_detection/)
 
 ## Acknowledgements
 We thank the entire WebNN community for their valuable contributions and feedback. Your support and enthusiasm have been instrumental in making WebNN a robust and accessible tool for machine learning in the web ecosystem.
