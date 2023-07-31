@@ -36,7 +36,7 @@ To get started, follow these steps:
 6. Experiment with the code and explore how WebNN can enhance machine learning tasks in the browser, navigating to http://localhost:8080.
 
 ### Enabling Experimental Features Flag
-1. In Chrome navigate to `chrome://flags/`. in Edge navigate to `edge://flags/`.
+1. In Chrome navigate to `chrome://flags/`. In Edge navigate to `edge://flags/`.
 1. Search for the **#enable-experimental-web-platform-features** flag.
 1. Enable the feature: Toggle the corresponding switch or checkbox to turn it on.  
    **Note:** Enabling experimental features may lead to unexpected behavior, so proceed with caution.
