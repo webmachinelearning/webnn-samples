@@ -30,12 +30,12 @@ const modelConfigs = {
   'selfie_segmentation': {
     inputDimensions: [1, 256, 256, 3],
     inputResolution: [256, 256],
-    modelPath: 'https://storage.googleapis.com/mediapipe-assets/selfie_segmentation.tflite',
+    modelPath: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite',
   },
   'selfie_segmentation_landscape': {
     inputDimensions: [1, 144, 256, 3],
     inputResolution: [256, 144],
-    modelPath: 'https://storage.googleapis.com/mediapipe-assets/selfie_segmentation_landscape.tflite',
+    modelPath: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter_landscape/float16/latest/selfie_segmenter_landscape.tflite',
   },
   'deeplabv3': {
     inputDimensions: [1, 257, 257, 3],
