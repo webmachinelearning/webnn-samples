@@ -8,6 +8,7 @@ import {buildConstantByNpy} from '../common/utils.js';
 export class DeepLabV3MNV2Nchw {
   constructor() {
     this.context_ = null;
+    this.devicePreference_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.weightsUrl_ = '../test-data/models/deeplabv3_mnv2_nchw/weights/';
@@ -43,8 +44,16 @@ export class DeepLabV3MNV2Nchw {
 
     options.bias = bias;
     if (activation === 'relu6') {
-      // implement `relu6` by `clamp` of  WebNN API
-      options.activation = this.builder_.clamp({minValue: 0, maxValue: 6});
+      // TODO: Set clamp activation to options once it's supported in
+      // WebNN DML backend.
+      // Implement `clip` by `clamp` of  WebNN API
+      if (this.devicePreference_ == 'gpu') {
+        return this.builder_.clamp(
+            this.builder_.conv2d(input, weights, options),
+            {minValue: 0, maxValue: 6});
+      } else {
+        options.activation = this.builder_.clamp({minValue: 0, maxValue: 6});
+      }
     } else if (activation === 'relu') {
       options.activation = this.builder_.relu();
     } else {
@@ -82,6 +91,7 @@ export class DeepLabV3MNV2Nchw {
 
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
+    this.devicePreference_ = contextOptions.devicePreference;
     this.builder_ = new MLGraphBuilder(this.context_);
     const strides = [2, 2];
 

@@ -6,6 +6,7 @@ import {buildConstantByNpy} from '../common/utils.js';
 export class MobileNetV2Nchw {
   constructor() {
     this.context_ = null;
+    this.devicePreference_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.weightsUrl_ = '../test-data/models/mobilenetv2_nchw/weights/';
@@ -30,10 +31,16 @@ export class MobileNetV2Nchw {
         await buildConstantByNpy(this.builder_, biasName);
     options.bias = bias;
     if (relu6) {
-      // implement `relu6` by `clamp` of  WebNN API
-      options.activation = this.builder_.clamp({minValue: 0, maxValue: 6});
-    } else {
-      options.activation = undefined;
+      // TODO: Set clamp activation to options once it's supported in
+      // WebNN DML backend.
+      // Implement `clip` by `clamp` of  WebNN API
+      if (this.devicePreference_ == 'gpu') {
+        return this.builder_.clamp(
+            this.builder_.conv2d(input, weights, options),
+            {minValue: 0, maxValue: 6});
+      } else {
+        options.activation = this.builder_.clamp({minValue: 0, maxValue: 6});
+      }
     }
     return this.builder_.conv2d(input, weights, options);
   }
@@ -69,6 +76,7 @@ export class MobileNetV2Nchw {
 
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
+    this.devicePreference_ = contextOptions.devicePreference;
     this.builder_ = new MLGraphBuilder(this.context_);
     const data = this.builder_.input('input',
         {type: 'float32', dimensions: this.inputOptions.inputDimensions});
