@@ -47,8 +47,15 @@ $(window).on('load', () => {
   loadRenderUI();
 });
 
-$('#backendBtns .btn').on('change', async () => {
+$('#backendBtns .btn').on('change', async (e) => {
   if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
+  if ($(e.target).attr('id').indexOf('cpu') != -1) {
+    layout = 'nhwc';
+  } else if (($(e.target).attr('id').indexOf('gpu') != -1)) {
+    layout = 'nchw';
+  } else {
+    throw new Error('Unknown backend');
+  }
   await main();
 });
 
@@ -58,11 +65,11 @@ $('#modelBtns .btn').on('change', async (e) => {
   await main();
 });
 
-$('#layoutBtns .btn').on('change', async (e) => {
-  layout = $(e.target).attr('id');
-  if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
-  await main();
-});
+// $('#layoutBtns .btn').on('change', async (e) => {
+//   layout = $(e.target).attr('id');
+//   if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
+//   await main();
+// });
 
 // Click trigger to do inference with <img> element
 $('#img').click(async () => {
