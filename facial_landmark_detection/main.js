@@ -245,7 +245,7 @@ async function main() {
       // UI shows model loading progress
       await ui.showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');
-      const contextOptions = {deviceType};
+      const contextOptions = {'devicePreference': deviceType};
       if (powerPreference) {
         contextOptions['powerPreference'] = powerPreference;
       }
