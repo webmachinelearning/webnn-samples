@@ -54,6 +54,8 @@ export class DeepLabV3MNV2Nhwc {
       } else {
         options.activation = this.builder_.clamp({minValue: 0, maxValue: 6});
       }
+    } else {
+      options.activation = undefined;
     }
     return this.builder_.conv2d(input, weights, options);
   }
