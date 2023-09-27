@@ -50,14 +50,13 @@ export class MobileNetV2Nhwc {
 
     dwiseOptions.autoPad = autoPad;
     dwiseOptions.filterLayout = 'ihwo';
-    const convOptions = {autoPad, filterLayout: 'ohwi'};
 
     const conv1x1Relu6 = await this.buildConv_(
-        input, weightsNameArray[0], `${biasPrefix}_expand_Conv2D`, true, convOptions);
+        input, weightsNameArray[0], `${biasPrefix}_expand_Conv2D`, true, {autoPad, filterLayout: 'ohwi'});
     const dwise3x3Relu6 = await this.buildConv_(
         conv1x1Relu6, weightsNameArray[1], `${biasPrefix}_depthwise_depthwise`, true, dwiseOptions);
     const conv1x1Linear = await this.buildConv_(
-        dwise3x3Relu6, weightsNameArray[2], `${biasPrefix}_project_Conv2D`, false, convOptions);
+        dwise3x3Relu6, weightsNameArray[2], `${biasPrefix}_project_Conv2D`, false, {autoPad, filterLayout: 'ohwi'});
 
     if (shortcut) {
       return this.builder_.add(input, conv1x1Linear);
