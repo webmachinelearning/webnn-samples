@@ -8,7 +8,7 @@ import {buildConstantByNpy} from '../common/utils.js';
 export class MobileNetV2Nhwc {
   constructor() {
     this.context_ = null;
-    this.devicePreference_ = null;
+    this.deviceType_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.weightsUrl_ = '../test-data/models/mobilenetv2_nhwc/weights/';
@@ -33,7 +33,7 @@ export class MobileNetV2Nhwc {
       // TODO: Set clamp activation to options once it's supported in
       // WebNN DML backend.
       // Implement `clip` by `clamp` of  WebNN API
-      if (this.devicePreference_ == 'gpu') {
+      if (this.deviceType_ == 'gpu') {
         return this.builder_.clamp(
             this.builder_.conv2d(input, weights, options),
             {minValue: 0, maxValue: 6});
@@ -66,7 +66,7 @@ export class MobileNetV2Nhwc {
 
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
-    this.devicePreference_ = contextOptions.devicePreference;
+    this.deviceType_ = contextOptions.deviceType;
     this.builder_ = new MLGraphBuilder(this.context_);
     const strides = [2, 2];
     const autoPad = 'same-upper';
