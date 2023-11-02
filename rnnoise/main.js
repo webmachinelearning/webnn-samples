@@ -220,7 +220,7 @@ export async function main() {
       `[${batchSize} (batch_size) x 100 (frames) x 42].`, true);
     await log(modelInfo, '- Loading model...');
     const powerPreference = utils.getUrlParams()[1];
-    const contextOptions = {'devicePreference': deviceType};
+    const contextOptions = {deviceType};
     if (powerPreference) {
       contextOptions['powerPreference'] = powerPreference;
     }

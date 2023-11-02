@@ -31,7 +31,7 @@ export class Denoiser {
       const start = performance.now();
       const weightsUrl = '../test-data/models/nsnet2/weights/';
       const powerPreference = getUrlParams()[1];
-      const contextOptions = {'devicePreference': deviceType};
+      const contextOptions = {deviceType};
       if (powerPreference) {
         contextOptions['powerPreference'] = powerPreference;
       }
