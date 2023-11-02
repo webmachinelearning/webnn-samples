@@ -68,7 +68,7 @@ async function main() {
   const lenet = new LeNet(weightUrl);
   const [numRuns, powerPreference, numThreads] = utils.getUrlParams();
   try {
-    const contextOptions = {'devicePreference': deviceType};
+    const contextOptions = {deviceType};
     if (powerPreference) {
       contextOptions['powerPreference'] = powerPreference;
     }
