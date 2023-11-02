@@ -56,13 +56,20 @@ export class TinyYoloV2Nchw {
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(this.context_);
-    const image = this.builder_.input('input',
-        {type: 'float32', dimensions: this.inputOptions.inputDimensions});
+    const image = this.builder_.input('input', {
+      type: 'float32',
+      dataType: 'float32',
+      dimensions: this.inputOptions.inputDimensions,
+    });
 
-    const mulScale = this.builder_.constant({type: 'float32',
-      dimensions: [1]}, new Float32Array([0.003921568859368563]));
-    const addBias = this.builder_.constant({type: 'float32',
-      dimensions: [3, 1, 1]}, new Float32Array([0, 0, 0]));
+    const mulScale = this.builder_.constant(
+        {type: 'float32', dataType: 'float32', dimensions: [1]},
+        new Float32Array([0.003921568859368563]),
+    );
+    const addBias = this.builder_.constant(
+        {type: 'float32', dataType: 'float32', dimensions: [3, 1, 1]},
+        new Float32Array([0, 0, 0]),
+    );
     const poolOptions = {
       windowDimensions: [2, 2],
       strides: [2, 2],

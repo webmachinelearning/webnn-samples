@@ -21,15 +21,18 @@ export class LeNet {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(this.context_);
     const inputShape = [1, 1, 28, 28];
-    const input =
-        this.builder_.input('input', {type: 'float32', dimensions: inputShape});
+    const input = this.builder_.input('input', {
+      type: 'float32',
+      dataType: 'float32',
+      dimensions: inputShape,
+    });
 
     const conv1FitlerShape = [20, 1, 5, 5];
     let byteOffset = 0;
     const conv1FilterData = new Float32Array(
         arrayBuffer, byteOffset, sizeOfShape(conv1FitlerShape));
     const conv1Filter = this.builder_.constant(
-        {type: 'float32', dimensions: conv1FitlerShape},
+        {type: 'float32', dataType: 'float32', dimensions: conv1FitlerShape},
         conv1FilterData);
     byteOffset +=
         sizeOfShape(conv1FitlerShape) * Float32Array.BYTES_PER_ELEMENT;
@@ -39,7 +42,9 @@ export class LeNet {
     const add1BiasData =
         new Float32Array(arrayBuffer, byteOffset, sizeOfShape(add1BiasShape));
     const add1Bias = this.builder_.constant(
-        {type: 'float32', dimensions: add1BiasShape}, add1BiasData);
+        {type: 'float32', dataType: 'float32', dimensions: add1BiasShape},
+        add1BiasData,
+    );
     byteOffset += sizeOfShape(add1BiasShape) * Float32Array.BYTES_PER_ELEMENT;
     const add1 = this.builder_.add(conv1, add1Bias);
 
@@ -51,16 +56,17 @@ export class LeNet {
 
     const conv2FilterShape = [50, 20, 5, 5];
     const conv2Filter = this.builder_.constant(
-        {type: 'float32', dimensions: conv2FilterShape},
+        {type: 'float32', dataType: 'float32', dimensions: conv2FilterShape},
         new Float32Array(
-            arrayBuffer, byteOffset, sizeOfShape(conv2FilterShape)));
+            arrayBuffer, byteOffset, sizeOfShape(conv2FilterShape)),
+    );
     byteOffset +=
         sizeOfShape(conv2FilterShape) * Float32Array.BYTES_PER_ELEMENT;
     const conv2 = this.builder_.conv2d(pool1, conv2Filter);
 
     const add2BiasShape = [1, 50, 1, 1];
     const add2Bias = this.builder_.constant(
-        {type: 'float32', dimensions: add2BiasShape},
+        {type: 'float32', dataType: 'float32', dimensions: add2BiasShape},
         new Float32Array(arrayBuffer, byteOffset, sizeOfShape(add2BiasShape)));
     byteOffset += sizeOfShape(add2BiasShape) * Float32Array.BYTES_PER_ELEMENT;
     const add2 = this.builder_.add(conv2, add2Bias);
@@ -79,7 +85,7 @@ export class LeNet {
 
     const matmul1Shape = [500, 800];
     const matmul1Weights = this.builder_.constant(
-        {type: 'float32', dimensions: matmul1Shape},
+        {type: 'float32', dataType: 'float32', dimensions: matmul1Shape},
         new Float32Array(arrayBuffer, byteOffset, sizeOfShape(matmul1Shape)));
     byteOffset += sizeOfShape(matmul1Shape) * Float32Array.BYTES_PER_ELEMENT;
     const matmul1WeightsTransposed = this.builder_.transpose(matmul1Weights);
@@ -87,7 +93,7 @@ export class LeNet {
 
     const add3BiasShape = [1, 500];
     const add3Bias = this.builder_.constant(
-        {type: 'float32', dimensions: add3BiasShape},
+        {type: 'float32', dataType: 'float32', dimensions: add3BiasShape},
         new Float32Array(arrayBuffer, byteOffset, sizeOfShape(add3BiasShape)));
     byteOffset += sizeOfShape(add3BiasShape) * Float32Array.BYTES_PER_ELEMENT;
     const add3 = this.builder_.add(matmul1, add3Bias);
@@ -99,7 +105,7 @@ export class LeNet {
 
     const matmul2Shape = [10, 500];
     const matmul2Weights = this.builder_.constant(
-        {type: 'float32', dimensions: matmul2Shape},
+        {type: 'float32', dataType: 'float32', dimensions: matmul2Shape},
         new Float32Array(arrayBuffer, byteOffset, sizeOfShape(matmul2Shape)));
     byteOffset += sizeOfShape(matmul2Shape) * Float32Array.BYTES_PER_ELEMENT;
     const matmul2WeightsTransposed = this.builder_.transpose(matmul2Weights);
@@ -107,7 +113,7 @@ export class LeNet {
 
     const add4BiasShape = [1, 10];
     const add4Bias = this.builder_.constant(
-        {type: 'float32', dimensions: add4BiasShape},
+        {type: 'float32', dataType: 'float32', dimensions: add4BiasShape},
         new Float32Array(arrayBuffer, byteOffset, sizeOfShape(add4BiasShape)));
     const add4 = this.builder_.add(matmul2, add4Bias);
 

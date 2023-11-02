@@ -78,8 +78,11 @@ export class MobileNetV2Nchw {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.deviceType_ = contextOptions.deviceType;
     this.builder_ = new MLGraphBuilder(this.context_);
-    const data = this.builder_.input('input',
-        {type: 'float32', dimensions: this.inputOptions.inputDimensions});
+    const data = this.builder_.input('input', {
+      type: 'float32',
+      dataType: 'float32',
+      dimensions: this.inputOptions.inputDimensions,
+    });
     const conv0 = await this.buildConv_(
         data, '0', true, {padding: [1, 1, 1, 1], strides: [2, 2]});
     const conv1 = await this.buildConv_(

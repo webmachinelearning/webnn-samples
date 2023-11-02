@@ -71,8 +71,11 @@ export class MobileNetV2Nhwc {
     const strides = [2, 2];
     const autoPad = 'same-upper';
     const filterLayout = 'ohwi';
-    const input = this.builder_.input(
-        'input', {type: 'float32', dimensions: this.inputOptions.inputDimensions});
+    const input = this.builder_.input('input', {
+      type: 'float32',
+      dataType: 'float32',
+      dimensions: this.inputOptions.inputDimensions,
+    });
     const conv0 = await this.buildConv_(
         input, '90', 'Conv_Conv2D', true, {strides, autoPad, filterLayout});
     const conv1 = await this.buildConv_(
