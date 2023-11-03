@@ -209,6 +209,7 @@ export async function main() {
     ui.handleClick(disabledSelectors, true);
     if (isFirstTimeLoad) $('#hint').hide();
     const numRuns = utils.getUrlParams()[0];
+    const numThreads = utils.getUrlParams()[2];
     // Only do load() when model first time loads and
     // there's new model or delegate choosed
     if (isFirstTimeLoad || modelChanged) {
@@ -223,6 +224,7 @@ export async function main() {
         modelPath: modelConfigs[modelName].modelPath,
         enableWebNNDelegate: enableWebnnDelegate,
         webNNDevicePreference: 0,
+        webNNNumThreads: numThreads,
       };
       loadTime = await postAndListenMessage(options);
       console.log(`  done in ${loadTime} ms.`);
