@@ -37,6 +37,7 @@ onmessage = async (message) => {
                 numThreads: 1,
                 enableWebNNDelegate: message.data.enableWebNNDelegate,
                 webNNDevicePreference: parseInt(message.data.webNNDevicePreference),
+                webNNNumThreads: parseInt(message.data.webNNNumThreads),
               },
           );
 
