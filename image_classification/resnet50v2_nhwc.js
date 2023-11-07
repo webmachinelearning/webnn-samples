@@ -98,8 +98,11 @@ export class ResNet50V2Nhwc {
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(this.context_);
-    const input = this.builder_.input('input',
-        {type: 'float32', dimensions: this.inputOptions.inputDimensions});
+    const input = this.builder_.input('input', {
+      type: 'float32',
+      dataType: 'float32',
+      dimensions: this.inputOptions.inputDimensions,
+    });
     const conv1 = await this.buildConv_(
         input, ['', '', '1'], {strides, padding: [3, 3, 3, 3]}, false);
     const pool = this.builder_.maxPool2d(

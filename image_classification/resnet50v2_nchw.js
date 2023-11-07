@@ -94,8 +94,11 @@ export class ResNet50V2Nchw {
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(this.context_);
-    const data = this.builder_.input('input',
-        {type: 'float32', dimensions: this.inputOptions.inputDimensions});
+    const data = this.builder_.input('input', {
+      type: 'float32',
+      dataType: 'float32',
+      dimensions: this.inputOptions.inputDimensions,
+    });
     const bn1 = await this.buildBatchNorm_(data, '0', '', false);
     const conv0 = await this.buildConv_(
         bn1, '0', '', {padding: [3, 3, 3, 3], strides: [2, 2]});

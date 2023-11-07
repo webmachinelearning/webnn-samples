@@ -45,8 +45,11 @@ export class SqueezeNetNhwc {
     this.builder_ = new MLGraphBuilder(this.context_);
     const strides = [2, 2];
     const layout = 'nhwc';
-    const placeholder = this.builder_.input('input',
-        {type: 'float32', dimensions: this.inputOptions.inputDimensions});
+    const placeholder = this.builder_.input('input', {
+      type: 'float32',
+      dataType: 'float32',
+      dimensions: this.inputOptions.inputDimensions,
+    });
     const conv1 = await this.buildConv_(
         placeholder, 'conv1', {strides, autoPad: 'same-upper'});
     const maxpool1 = this.builder_.maxPool2d(

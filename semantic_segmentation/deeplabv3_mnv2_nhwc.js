@@ -83,8 +83,11 @@ export class DeepLabV3MNV2Nhwc {
     this.deviceType_ = contextOptions.deviceType;
     this.builder_ = new MLGraphBuilder(this.context_);
     const strides = [2, 2];
-    const input = this.builder_.input('input',
-        {type: 'float32', dimensions: this.inputOptions.inputDimensions});
+    const input = this.builder_.input('input', {
+      type: 'float32',
+      dataType: 'float32',
+      dimensions: this.inputOptions.inputDimensions,
+    });
     const conv0 = await this.buildConv_(
         input, 'MobilenetV2_Conv_Conv2D', '', true, {strides});
     const conv1 = await this.buildConv_(

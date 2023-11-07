@@ -42,8 +42,11 @@ export class SqueezeNetNchw {
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(this.context_);
-    const data = this.builder_.input('input',
-        {type: 'float32', dimensions: this.inputOptions.inputDimensions});
+    const data = this.builder_.input('input', {
+      type: 'float32',
+      dataType: 'float32',
+      dimensions: this.inputOptions.inputDimensions,
+    });
     const conv0 = await this.buildConv_(data, 'conv0', {strides: [2, 2]});
     const pool0 = this.builder_.maxPool2d(
         conv0, {windowDimensions: [3, 3], strides: [2, 2]});
