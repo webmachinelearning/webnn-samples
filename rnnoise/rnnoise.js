@@ -51,9 +51,11 @@ export class RNNoise {
     const denoiseOutputBias0 = await buildConstantByNpy(this.builder_,
         this.baseUrl_ + 'denoise_output_bias_0.npy');
     // Build up the network.
-    const input = this.builder_.input(
-        'input', {type: 'float32', dimensions: [this.batchSize_,
-          this.frames_, this.featureSize]});
+    const input = this.builder_.input('input', {
+      type: 'float32',
+      dataType: 'float32',
+      dimensions: [this.batchSize_, this.frames_, this.featureSize],
+    });
     const inputDense0 = this.builder_.matmul(input, inputDenseKernel0);
     const biasedTensorName2 = this.builder_.add(inputDense0, inputDenseBias0);
     const inputDenseTanh0 = this.builder_.tanh(biasedTensorName2);
@@ -67,6 +69,7 @@ export class RNNoise {
         [1, 3 * this.vadGruHiddenSize]);
     const vadGruInitialH = this.builder_.input('vadGruInitialH', {
       type: 'float32',
+      dataType: 'float32',
       dimensions: [1, this.batchSize_, this.vadGruHiddenSize],
     });
     const [vadGruYH, vadGruY] = this.builder_.gru(vadGruX,
@@ -92,8 +95,9 @@ export class RNNoise {
         noiseGruBData,
         [0, 3 * this.noiseGruHiddenSize],
         [1, 3 * this.noiseGruHiddenSize]);
-    const noiseGruInitialH = this.builder_.input( 'noiseGruInitialH', {
+    const noiseGruInitialH = this.builder_.input('noiseGruInitialH', {
       type: 'float32',
+      dataType: 'float32',
       dimensions: [1, this.batchSize_, this.noiseGruHiddenSize],
     });
     const [noiseGruYH, noiseGruY] = this.builder_.gru(noiseGruX,
@@ -121,6 +125,7 @@ export class RNNoise {
         [1, 3 * this.denoiseGruHiddenSize]);
     const denoiseGruInitialH = this.builder_.input('denoiseGruInitialH', {
       type: 'float32',
+      dataType: 'float32',
       dimensions: [1, this.batchSize_, this.denoiseGruHiddenSize],
     });
     const [denoiseGruYH, denoiseGruY] = this.builder_.gru(denoiseGruX,

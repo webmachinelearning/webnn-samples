@@ -52,7 +52,7 @@ export async function buildConstantByNpy(builder, url) {
   const dataView = new Uint8Array(npArray.data.buffer);
   const dataView2 = dataView.slice();
   const typedArray = new TypedArrayConstructor(dataView2.buffer);
-  return builder.constant({type, dimensions}, typedArray);
+  return builder.constant({dataType: type, type, dimensions}, typedArray);
 }
 
 // Convert video frame to a canvas element

@@ -1,4 +1,4 @@
-const operandType = {type: 'float32', dimensions: [2, 2]};
+const operandType = {type: 'float32', dataType: 'float32', dimensions: [2, 2]};
 const context = await navigator.ml.createContext();
 const builder = new MLGraphBuilder(context);
 // 1. Create a computational graph 'C = 0.2 * A + B'.
