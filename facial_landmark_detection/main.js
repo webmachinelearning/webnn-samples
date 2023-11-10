@@ -260,16 +260,20 @@ async function main() {
         contextOptions['numThreads'] = numThreads;
       }
       start = performance.now();
-      const fdOutputOperand = await fdInstance.load(contextOptions);
-      const fldOutputOperand = await fldInstance.load(contextOptions);
+      const [fdOutputOperand, fldOutputOperand] = await Promise.all([
+          fdInstance.load(contextOptions),
+          fldInstance.load(contextOptions)
+      ]);
       loadTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${loadTime} ms.`);
       // UI shows model building progress
       await ui.showProgressComponent('done', 'current', 'pending');
       console.log('- Building... ');
       start = performance.now();
-      await fdInstance.build(fdOutputOperand);
-      await fldInstance.build(fldOutputOperand);
+      await Promise.all([
+          fdInstance.build(fdOutputOperand),
+          fldInstance.build(fldOutputOperand)
+      ]);
       buildTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${buildTime} ms.`);
     }
