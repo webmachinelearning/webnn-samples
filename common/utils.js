@@ -202,13 +202,14 @@ export function getMedianValue(array) {
 // Set tf.js backend based WebNN's 'MLDeviceType' option
 export async function setPolyfillBackend(device) {
   // Simulate WebNN's device selection using various tf.js backends.
-  // MLDeviceType: ['default', 'gpu', 'cpu']
-  // 'default' or 'gpu': tfjs-backend-webgl, 'cpu': tfjs-backend-wasm
-  if (!device) device = 'gpu';
+  // MLDeviceType: ['default', 'webgl', 'webgpu', 'cpu']
+  // 'default' or 'webgl': tfjs-backend-webgl, 'webgpu': tfjs-backend-webgpu,
+  // 'cpu': tfjs-backend-wasm
+  if (!device) device = 'webgpu';
   // Use 'webgl' by default for better performance.
   // Note: 'wasm' backend may run failed on some samples since
   // some ops aren't supported on 'wasm' backend at present
-  const backend = device === 'cpu' ? 'wasm' : 'webgl';
+  const backend = device === 'cpu' ? 'wasm' : device;
   const context = await navigator.ml.createContext();
   const tf = context.tf;
   if (tf) {
@@ -221,8 +222,8 @@ export async function setPolyfillBackend(device) {
       throw new Error(`Failed to set tf.js backend ${backend}.`);
     }
     await tf.ready();
-    let backendInfo = backend == 'wasm' ? 'WASM' : 'WebGL';
-    if (backendInfo == 'WASM') {
+    let backendInfo = tf.getBackend();
+    if (backendInfo == 'wasm') {
       const hasSimd = tf.env().features['WASM_HAS_SIMD_SUPPORT'];
       const hasThreads = tf.env().features['WASM_HAS_MULTITHREAD_SUPPORT'];
       if (hasThreads && hasSimd) {
@@ -238,6 +239,13 @@ export async function setPolyfillBackend(device) {
         `<a href='https://github.com/webmachinelearning/webnn-polyfill'>` +
         `WebNN-polyfill</a> with tf.js ${tf.version_core} ` +
         `<b>${backendInfo}</b> backend.`, 'info');
+  }
+  switch (device) {
+    case 'webgl':
+    case 'webgpu':
+      return 'gpu';
+    default:
+      return 'cpu';
   }
 }
 
@@ -304,7 +312,7 @@ export async function setBackend(backend, device) {
       // Create WebNN-polyfill script
       await loadScript(webnnPolyfillUrl, webnnPolyfillId);
     }
-    await setPolyfillBackend(device);
+    return await setPolyfillBackend(device);
   } else if (backend === 'webnn') {
     // For Electron
     if (isElectron()) {
@@ -326,8 +334,9 @@ export async function setBackend(backend, device) {
         addAlert(`WebNN is not supported!`, 'warning');
       }
     }
+    return device;
   } else {
-    addAlert(`Unknow backend: ${backend}`, 'warning');
+    addAlert(`Unknown backend: ${backend}`, 'warning');
   }
 }
 
