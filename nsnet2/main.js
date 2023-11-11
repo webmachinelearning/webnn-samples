@@ -144,9 +144,9 @@ browseButton.onclick = () => {
 
 export async function main() {
   try {
-    let [backend, deviceType] =
+    let [backend, deviceType, polyfillType] =
         $('input[name="backend"]:checked').attr('id').split('_');
-    deviceType = await setBackend(backend, deviceType);
+    deviceType = await setBackend(backend, deviceType, polyfillType);
     // Handle frames parameter.
     const searchParams = new URLSearchParams(location.search);
     let frames = parseInt(searchParams.get('frames'));

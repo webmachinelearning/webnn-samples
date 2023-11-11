@@ -212,11 +212,11 @@ fileInput.addEventListener('input', (event) => {
 
 export async function main() {
   try {
-    const [backend, deviceType] =
+    const [backend, deviceType, polyfillType] =
         $('input[name="backend"]:checked').attr('id').split('_');
     const contextOptions = {};
     contextOptions['deviceType'] =
-        await utils.setBackend(backend, deviceType);
+        await utils.setBackend(backend, deviceType, polyfillType);
     modelInfo.innerHTML = '';
     await log(modelInfo, `Creating RNNoise with input shape ` +
       `[${batchSize} (batch_size) x 100 (frames) x 42].`, true);

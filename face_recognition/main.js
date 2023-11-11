@@ -34,10 +34,9 @@ let buildTime = 0;
 let computeTime = 0;
 let fdOutputs;
 let frOutputs;
-let deviceType = '';
-let lastdeviceType = '';
 let backend = '';
 let lastBackend = '';
+let deviceType = '';
 const disabledSelectors = ['#tabs > li', '.btn'];
 
 $(document).ready(async () => {
@@ -45,7 +44,7 @@ $(document).ready(async () => {
   if (await utils.isWebNN()) {
     $('#webnn_cpu').click();
   } else {
-    $('#polyfill_cpu').click();
+    $('#polyfill_cpu_wasm').click();
   }
 });
 
@@ -275,8 +274,7 @@ function constructNetObject(type) {
 async function main() {
   try {
     if (fdModelName === '') return;
-    [backend, deviceType] =
-        $('input[name="backend"]:checked').attr('id').split('_');
+    backend = $('input[name="backend"]:checked').attr('id');
     ui.handleClick(disabledSelectors, true);
     if (isFirstTimeLoad) $('#hint').hide();
     const [numRuns, powerPreference, numThreads] = utils.getUrlParams();
@@ -284,13 +282,13 @@ async function main() {
     // Only do load() and build() when model first time loads,
     // there's new model choosed, backend changed or device changed
     if (isFirstTimeLoad || fdInstanceType !== fdModelName + layout ||
-        lastdeviceType != deviceType || lastBackend != backend) {
-      if (lastdeviceType != deviceType || lastBackend != backend) {
-        // Set backend and device
-        await utils.setBackend(backend, deviceType);
-        lastdeviceType = lastdeviceType != deviceType ?
-                               deviceType : lastdeviceType;
-        lastBackend = lastBackend != backend ? backend : lastBackend;
+        lastBackend != backend) {
+      if (lastBackend != backend) {
+        let backendType;
+        let polyfillType;
+        [backendType, deviceType, polyfillType] = backend.split('_');
+        await utils.setBackend(backendType, deviceType, polyfillType);
+        lastBackend = backend;
       }
       if (frInstance !== null) {
         // Call dispose() to and avoid memory leak

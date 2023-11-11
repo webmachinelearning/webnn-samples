@@ -20,10 +20,9 @@ let loadTime = 0;
 let buildTime = 0;
 let computeTime = 0;
 let outputBuffer;
-let deviceType = '';
-let lastdeviceType = '';
 let backend = '';
 let lastBackend = '';
+let deviceType = '';
 const disabledSelectors = [
   '#tabs > li',
   '#gallery',
@@ -37,8 +36,7 @@ $(document).ready(() => {
 });
 
 $('#backendBtns .btn').on('change', async (e) => {
-  [backend, deviceType] =
-      $('input[name="backend"]:checked').attr('id').split('_');
+  backend = $('input[name="backend"]:checked').attr('id');
   if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
   await main();
 });
@@ -195,14 +193,13 @@ export async function main() {
 
     // Only do load() and build() when model first time loads,
     // there's new model choosed, backend changed or device changed
-    if (isFirstTimeLoad || isModelChanged ||
-      lastdeviceType != deviceType || lastBackend != backend) {
-      if (lastdeviceType != deviceType || lastBackend != backend) {
-        // Set backend and device
-        await utils.setBackend(backend, deviceType);
-        lastdeviceType = lastdeviceType != deviceType ?
-                                deviceType : lastdeviceType;
-        lastBackend = lastBackend != backend ? backend : lastBackend;
+    if (isFirstTimeLoad || isModelChanged || lastBackend != backend) {
+      if (lastBackend != backend) {
+        let backendType;
+        let polyfillType;
+        [backendType, deviceType, polyfillType] = backend.split('_');
+        await utils.setBackend(backendType, deviceType, polyfillType);
+        lastBackend = backend;
       }
       if (fastStyleTransferNet !== undefined) {
         // Call dispose() to and avoid memory leak
