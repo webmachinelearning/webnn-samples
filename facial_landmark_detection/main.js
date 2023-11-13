@@ -261,8 +261,8 @@ async function main() {
       }
       start = performance.now();
       const [fdOutputOperand, fldOutputOperand] = await Promise.all([
-          fdInstance.load(contextOptions),
-          fldInstance.load(contextOptions)
+        fdInstance.load(contextOptions),
+        fldInstance.load(contextOptions),
       ]);
       loadTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${loadTime} ms.`);
@@ -271,8 +271,8 @@ async function main() {
       console.log('- Building... ');
       start = performance.now();
       await Promise.all([
-          fdInstance.build(fdOutputOperand),
-          fldInstance.build(fldOutputOperand)
+        fdInstance.build(fdOutputOperand),
+        fldInstance.build(fldOutputOperand),
       ]);
       buildTime = (performance.now() - start).toFixed(2);
       console.log(`  done in ${buildTime} ms.`);

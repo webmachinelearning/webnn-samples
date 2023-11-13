@@ -16,7 +16,7 @@ export class FaceLandmarkNchw {
   }
 
   async buildMaxPool2d(input, options) {
-    return this.builder_.maxPool2d(await input, options)
+    return this.builder_.maxPool2d(await input, options);
   }
 
   async buildConv_(input, indice) {

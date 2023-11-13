@@ -237,7 +237,7 @@ ${nameArray[1]}`;
       biasAdd24: await biasAdd24,
       biasAdd27: await biasAdd27,
       biasAdd30: await biasAdd30,
-      biasAdd33: await biasAdd33
+      biasAdd33: await biasAdd33,
     };
   }
 
