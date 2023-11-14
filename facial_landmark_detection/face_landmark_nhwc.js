@@ -15,6 +15,10 @@ export class FaceLandmarkNhwc {
     };
   }
 
+  async buildMaxPool2d(input, options) {
+    return this.builder_.maxPool2d(await input, options);
+  }
+
   async buildConv_(input, indice) {
     const prefix = `${this.weightsUrl_}/conv2d`;
     let weightSuffix = '_kernel.npy';
@@ -26,34 +30,34 @@ export class FaceLandmarkNhwc {
     }
 
     const weightsName = prefix + weightSuffix;
-    const weights = await buildConstantByNpy(this.builder_, weightsName);
+    const weights = buildConstantByNpy(this.builder_, weightsName);
     const biasName = prefix + biasSuffix;
-    const bias = await buildConstantByNpy(this.builder_, biasName);
+    const bias = buildConstantByNpy(this.builder_, biasName);
     const options = {
       inputLayout: 'nhwc',
       filterLayout: 'ohwi',
-      bias: bias,
+      bias: await bias,
       activation: this.builder_.relu(),
     };
-    return this.builder_.conv2d(input, weights, options);
+    return this.builder_.conv2d(await input, await weights, options);
   }
 
   async buildFullyConnected_(input, namePrefix, relu = false, reshapeSize) {
-    const weights = await buildConstantByNpy(this.builder_,
+    const weights = buildConstantByNpy(this.builder_,
         `${this.weightsUrl_}/${namePrefix}_kernel_transpose.npy`);
-    const bias = await buildConstantByNpy(this.builder_,
+    const bias = buildConstantByNpy(this.builder_,
         `${this.weightsUrl_}/${namePrefix}_MatMul_bias.npy`);
     const options = {
       aTranspose: false,
       bTranspose: true,
-      c: bias,
+      c: await bias,
     };
     let fc;
     if (reshapeSize !== undefined) {
       fc = this.builder_.gemm(this.builder_.reshape(
-          input, [null, reshapeSize]), weights, options);
+          await input, [null, reshapeSize]), await weights, options);
     } else {
-      fc = this.builder_.gemm(input, weights, options);
+      fc = this.builder_.gemm(await input, await weights, options);
     }
     if (relu) {
       fc = this.builder_.relu(fc);
@@ -74,28 +78,28 @@ export class FaceLandmarkNhwc {
     const poolOptions =
         {windowDimensions: [2, 2], strides: [2, 2], layout: 'nhwc'};
 
-    const conv0 = await this.buildConv_(input, 0);
-    const pool0 = await this.builder_.maxPool2d(conv0, poolOptions);
+    const conv0 = this.buildConv_(input, 0);
+    const pool0 = this.buildMaxPool2d(conv0, poolOptions);
 
-    const conv1 = await this.buildConv_(pool0, 1);
-    const conv2 = await this.buildConv_(conv1, 2);
-    const pool1 = await this.builder_.maxPool2d(conv2, poolOptions);
+    const conv1 = this.buildConv_(pool0, 1);
+    const conv2 = this.buildConv_(conv1, 2);
+    const pool1 = this.buildMaxPool2d(conv2, poolOptions);
 
-    const conv3 = await this.buildConv_(pool1, 3);
-    const conv4 = await this.buildConv_(conv3, 4);
-    const pool2 = await this.builder_.maxPool2d(conv4, poolOptions);
+    const conv3 = this.buildConv_(pool1, 3);
+    const conv4 = this.buildConv_(conv3, 4);
+    const pool2 = this.buildMaxPool2d(conv4, poolOptions);
 
-    const conv5 = await this.buildConv_(pool2, 5);
-    const conv6 = await this.buildConv_(conv5, 6);
-    const pool3 = await this.builder_.maxPool2d(
+    const conv5 = this.buildConv_(pool2, 5);
+    const conv6 = this.buildConv_(conv5, 6);
+    const pool3 = this.buildMaxPool2d(
         conv6, {windowDimensions: [2, 2], layout: 'nhwc'});
 
-    const conv7 = await this.buildConv_(pool3, 7);
-    const fc0 = await this.buildFullyConnected_(
+    const conv7 = this.buildConv_(pool3, 7);
+    const fc0 = this.buildFullyConnected_(
         conv7, 'dense', true, 6400);
-    const fc1 = await this.buildFullyConnected_(fc0, 'logits');
+    const fc1 = this.buildFullyConnected_(fc0, 'logits');
 
-    return fc1;
+    return await fc1;
   }
 
   async build(outputOperand) {
