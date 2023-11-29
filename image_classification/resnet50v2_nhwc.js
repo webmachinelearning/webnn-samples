@@ -154,7 +154,7 @@ export class ResNet50V2Nhwc {
     const mean = this.builder_.averagePool2d(fusedBn, {layout});
     const conv2 = await this.buildConv_(
         mean, ['', '', 'logits'], {autoPad}, false);
-    const reshape = this.builder_.reshape(conv2, [1, null]);
+    const reshape = this.builder_.reshape(conv2, [1, 1001]);
     return this.builder_.softmax(reshape);
   }
 

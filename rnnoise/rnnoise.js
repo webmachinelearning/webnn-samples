@@ -84,7 +84,7 @@ export class RNNoise {
     const vadGruYTransposed = this.builder_.transpose(
         vadGruY, {permutation: [2, 0, 1, 3]});
     const vadGruTranspose1 = this.builder_.reshape(
-        vadGruYTransposed, [null, this.frames_, this.vadGruHiddenSize]);
+        vadGruYTransposed, [1, this.frames_, this.vadGruHiddenSize]);
     const concatenate1 = this.builder_.concat(
         [inputDenseTanh0, vadGruTranspose1, input], 2);
     const noiseGruX = this.builder_.transpose(
@@ -112,7 +112,7 @@ export class RNNoise {
     const noiseGruYTransposed = this.builder_.transpose(
         noiseGruY, {permutation: [2, 0, 1, 3]});
     const noiseGruTranspose1 = this.builder_.reshape(
-        noiseGruYTransposed, [null, this.frames_, this.noiseGruHiddenSize]);
+        noiseGruYTransposed, [1, this.frames_, this.noiseGruHiddenSize]);
     const concatenate2 = this.builder_.concat(
         [vadGruTranspose1, noiseGruTranspose1, input], 2);
     const denoiseGruX = this.builder_.transpose(
@@ -140,7 +140,7 @@ export class RNNoise {
     const denoiseGruYTransposed = this.builder_.transpose(
         denoiseGruY, {permutation: [2, 0, 1, 3]});
     const denoiseGruTranspose1 = this.builder_.reshape(
-        denoiseGruYTransposed, [null, this.frames_, this.denoiseGruHiddenSize]);
+        denoiseGruYTransposed, [1, this.frames_, this.denoiseGruHiddenSize]);
     const denoiseOutput0 = this.builder_.matmul(
         denoiseGruTranspose1, denoiseOutputKernel0);
     const biasedTensorName = this.builder_.add(
