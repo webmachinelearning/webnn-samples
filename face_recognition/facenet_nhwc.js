@@ -109,7 +109,7 @@ export class FaceNetNhwc {
   }
 
   async buildFullyConnected_(input) {
-    input = this.builder_.reshape(input, [1, null]);
+    input = this.builder_.reshape(input, [1, 1792]);
     const weights = await buildConstantByNpy(this.builder_,
         `${this.weightsUrl_}/Bottleneck_kernel_transpose.npy`);
     const bias = await buildConstantByNpy(this.builder_,
