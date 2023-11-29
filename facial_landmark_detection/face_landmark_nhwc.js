@@ -55,7 +55,7 @@ export class FaceLandmarkNhwc {
     let fc;
     if (reshapeSize !== undefined) {
       fc = this.builder_.gemm(this.builder_.reshape(
-          await input, [null, reshapeSize]), await weights, options);
+          await input, [1, reshapeSize]), await weights, options);
     } else {
       fc = this.builder_.gemm(await input, await weights, options);
     }

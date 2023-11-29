@@ -123,7 +123,7 @@ export class MobileNetV2Nchw {
 
     const conv3 = await this.buildConv_(bottleneck15, '95', true);
     const pool = this.builder_.averagePool2d(conv3);
-    const reshape = this.builder_.reshape(pool, [1, null]);
+    const reshape = this.builder_.reshape(pool, [1, 1280]);
     const gemm = await this.buildGemm_(reshape, '104');
     return this.builder_.softmax(gemm);
   }
