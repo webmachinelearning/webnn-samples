@@ -3,7 +3,6 @@ const samples = [
   'mul_add.js',
   'simple_graph.js',
   'matmul.js',
-  'optional_outputs.js',
 ];
 
 class SamplesRepository {
