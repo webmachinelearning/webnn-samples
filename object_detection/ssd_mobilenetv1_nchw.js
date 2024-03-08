@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy} from '../common/utils.js';
+import {buildConstantByNpy, computePadding2DForAutoPad} from '../common/utils.js';
 
 // SSD MobileNet V1 model with 'nchw' layout, trained on the COCO dataset.
 export class SsdMobilenetV1Nchw {
@@ -58,7 +58,10 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     const weights = await buildConstantByNpy(this.builder_, weightsName);
     const biasName = this.biasUrl_ + prefix + biasSuffix;
     const bias = await buildConstantByNpy(this.builder_, biasName);
-    options.autoPad = 'same-upper';
+    options.padding = computePadding2DForAutoPad(
+        /* nchw */[input.shape()[2], input.shape()[3]],
+        /* oihw */[weights.shape()[2], weights.shape()[3]],
+        options.strides, options.dilations, 'same-upper');
     options.bias = bias;
     if (relu6) {
       // TODO: Set clamp activation to options once it's supported in

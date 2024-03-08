@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy} from '../common/utils.js';
+import {buildConstantByNpy, computePadding2DForAutoPad} from '../common/utils.js';
 
 // SSD MobileNet V2 Face model with 'nchw' layout.
 export class SsdMobilenetV2FaceNchw {
@@ -36,7 +36,7 @@ export class SsdMobilenetV2FaceNchw {
     };
   }
 
-  async buildConv_(input, nameArray, clip = true, options = undefined) {
+  async buildConv_(input, nameArray, clip = true, options = {}) {
     // nameArray: 0: keyword, 1: indice or suffix
     let prefix = this.weightsUrl_;
     const weightSuffix = '_weights.npy';
@@ -66,13 +66,12 @@ ${nameArray[1]}`;
     const weights = buildConstantByNpy(this.builder_, weightsName);
     const biasName = prefix + biasSuffix;
     const bias = buildConstantByNpy(this.builder_, biasName);
-    if (options !== undefined) {
-      options.autoPad = 'same-upper';
-    } else {
-      options = {
-        autoPad: 'same-upper',
-      };
-    }
+    const inputShape = (await input).shape();
+    const weightsShape = (await weights).shape();
+    options.padding = computePadding2DForAutoPad(
+        /* nchw */[inputShape[2], inputShape[3]],
+        /* oihw */[weightsShape[2], weightsShape[3]],
+        options.strides, options.dilations, 'same-upper');
     options.bias = await bias;
     if (clip) {
       // TODO: Set clamp activation to options once it's supported in

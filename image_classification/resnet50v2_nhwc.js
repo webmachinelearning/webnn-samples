@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy} from '../common/utils.js';
+import {buildConstantByNpy, computePadding2DForAutoPad} from '../common/utils.js';
 
 const autoPad = 'same-upper';
 const strides = [2, 2];
@@ -49,6 +49,14 @@ export class ResNet50V2Nhwc {
     options.bias = bias;
     if (relu) {
       options.activation = this.builder_.relu();
+    }
+    // WebNN spec drops autoPad support, compute the explicit padding instead.
+    if (options.autoPad == 'same-upper') {
+      options.padding =
+        computePadding2DForAutoPad(
+            /* nwhc */[input.shape()[1], input.shape()[2]],
+            /* ohwi */[weights.shape()[1], weights.shape()[2]],
+            options.strides, options.dilations, options.autoPad);
     }
     return this.builder_.conv2d(input, weights, options);
   }
@@ -105,8 +113,13 @@ export class ResNet50V2Nhwc {
     });
     const conv1 = await this.buildConv_(
         input, ['', '', '1'], {strides, padding: [3, 3, 3, 3]}, false);
+    const windowDimensions = [3, 3];
     const pool = this.builder_.maxPool2d(
-        conv1, {windowDimensions: [3, 3], strides, layout, autoPad});
+        conv1, {windowDimensions, strides, layout,
+          padding: computePadding2DForAutoPad(
+              /* nhwc */ [conv1.shape()[1], conv1.shape()[2]],
+              windowDimensions, strides, /* dilations */ undefined,
+              'same-upper')});
     // Block 1
     const bottleneck1 = await this.buildBottleneckV2_(pool, ['1', '1'], true);
     const bottleneck2 = await this.buildBottleneckV2_(

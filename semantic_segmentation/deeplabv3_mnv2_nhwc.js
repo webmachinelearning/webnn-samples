@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy} from '../common/utils.js';
+import {buildConstantByNpy, computePadding2DForAutoPad} from '../common/utils.js';
 
 // DeepLab V3 MobileNet V2 model with 'nhwc' input layout
 export class DeepLabV3MNV2Nhwc {
@@ -36,12 +36,15 @@ export class DeepLabV3MNV2Nhwc {
     const weights = await buildConstantByNpy(this.builder_, weightsName);
     const bias = await buildConstantByNpy(this.builder_, biasName);
     options.inputLayout = 'nhwc';
-    options.autoPad = 'same-upper';
     if (namePrefix.includes('depthwise')) {
       options.filterLayout = 'ihwo';
     } else {
       options.filterLayout = 'ohwi';
     }
+    options.padding = computePadding2DForAutoPad(
+        /* nhwc */[input.shape()[1], input.shape()[2]],
+        /* ohwi or ihwo */[weights.shape()[1], weights.shape()[2]],
+        options.strides, options.dilations, 'same-upper');
     options.bias = bias;
     if (relu6) {
       // TODO: Set clamp activation to options once it's supported in
