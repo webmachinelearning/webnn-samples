@@ -366,3 +366,69 @@ export async function isWebNN() {
     }
   }
 }
+
+// Derive from
+// https://github.com/webmachinelearning/webnn-baseline/blob/main/src/lib/compute-padding.js
+/**
+ * Compute the beginning and ending pad given input, filter and stride sizes.
+ * @param {String} autoPad
+ * @param {Number} inputSize
+ * @param {Number} effectiveFilterSize
+ * @param {Number} stride
+ * @param {Number} outputPadding
+ * @return {Array} [paddingBegin, paddingEnd]
+ */
+function computePadding1DForAutoPad(
+    autoPad, inputSize, effectiveFilterSize, stride, outputPadding) {
+  let totalPadding;
+  if (outputPadding === undefined) {
+    // for conv2d
+    const outSize = Math.ceil(inputSize / stride);
+    const neededInput = (outSize - 1) * stride + effectiveFilterSize;
+    totalPadding = neededInput > inputSize ? neededInput - inputSize : 0;
+  } else {
+    // for convTranspose2d
+    // totalPadding = beginning padding + ending padding
+    // SAME_UPPER or SAME_LOWER mean pad the input so that
+    //   output size = input size * strides
+    // output size = (input size - 1) * stride + effectiveFilterSize
+    //     - beginning padding - ending padding + output padding
+    totalPadding = (inputSize - 1) * stride + effectiveFilterSize +
+        outputPadding - inputSize * stride;
+  }
+  let paddingBegin;
+  let paddingEnd;
+  switch (autoPad) {
+    case 'same-upper':
+      paddingBegin = Math.floor(totalPadding / 2);
+      paddingEnd = Math.floor((totalPadding + 1) / 2);
+      break;
+    case 'same-lower':
+      paddingBegin = Math.floor((totalPadding + 1) / 2);
+      paddingEnd = Math.floor(totalPadding / 2);
+      break;
+    default:
+      throw new Error('The autoPad is invalid.');
+  }
+  return [paddingBegin, paddingEnd];
+}
+
+// Compute explicit padding given input sizes, filter sizes, strides, dilations
+// and auto pad mode 'same-upper' or 'same-lower'.
+export function computePadding2DForAutoPad(
+    inputSizes, filterSizes, strides, dilations, autoPad) {
+  const [inputHeight, inputWidth] = inputSizes;
+  const [filterHeight, filterWidth] = filterSizes;
+  const [strideHeight, strideWidth] = strides ? strides : [1, 1];
+  const [dilationHeight, dilationWidth] = dilations ? dilations: [1, 1];
+  const effectiveFilterHeight = (filterHeight - 1) * dilationHeight + 1;
+  const effectiveFilterWidth = (filterWidth - 1) * dilationWidth + 1;
+  const [beginningPaddingHeight, endingPaddingHeight] =
+      computePadding1DForAutoPad(
+          autoPad, inputHeight, effectiveFilterHeight, strideHeight);
+  const [beginningPaddingWidth, endingPaddingWidth] =
+      computePadding1DForAutoPad(
+          autoPad, inputWidth, effectiveFilterWidth, strideWidth);
+  return [beginningPaddingHeight, endingPaddingHeight,
+    beginningPaddingWidth, endingPaddingWidth];
+}
