@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy} from '../common/utils.js';
+import {buildConstantByNpy, computePadding2DForAutoPad} from '../common/utils.js';
 
 /* eslint max-len: ["error", {"code": 120}] */
 
@@ -29,6 +29,14 @@ export class MobileNetV2Nhwc {
     const bias = await buildConstantByNpy(this.builder_, biasName);
     options.inputLayout = 'nhwc';
     options.bias = bias;
+    // WebNN spec drops autoPad support, compute the explicit padding instead.
+    if (options.autoPad == 'same-upper') {
+      options.padding =
+        computePadding2DForAutoPad(
+            /* nwhc */[input.shape()[1], input.shape()[2]],
+            /* ohwi or ihwo */[weights.shape()[1], weights.shape()[2]],
+            options.strides, options.dilations, options.autoPad);
+    }
     if (relu6) {
       // TODO: Set clamp activation to options once it's supported in
       // WebNN DML backend.

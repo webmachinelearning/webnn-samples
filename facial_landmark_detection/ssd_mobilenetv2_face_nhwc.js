@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy} from '../common/utils.js';
+import {buildConstantByNpy, computePadding2DForAutoPad} from '../common/utils.js';
 
 // SSD MobileNet V2 Face model with 'nhwc' layout.
 export class SsdMobilenetV2FaceNhwc {
@@ -69,18 +69,22 @@ ${nameArray[1]}`;
     if (options !== undefined) {
       options.inputLayout = 'nhwc';
       options.filterLayout = 'ohwi';
-      options.autoPad = 'same-upper';
     } else {
       options = {
         inputLayout: 'nhwc',
         filterLayout: 'ohwi',
-        autoPad: 'same-upper',
       };
     }
     if (nameArray[0].includes('depthwise')) {
       options.filterLayout = 'ihwo';
     }
     options.bias = await bias;
+    const inputShape = (await input).shape();
+    const weightsShape = (await weights).shape();
+    options.padding = computePadding2DForAutoPad(
+        /* nhwc */[inputShape[1], inputShape[2]],
+        /* ohwi or ihwo */[weightsShape[1], weightsShape[2]],
+        options.strides, options.dilations, 'same-upper');
     if (relu6) {
       // TODO: Set clamp activation to options once it's supported in
       // WebNN DML backend.

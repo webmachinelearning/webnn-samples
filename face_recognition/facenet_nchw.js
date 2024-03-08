@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy} from '../common/utils.js';
+import {buildConstantByNpy, computePadding2DForAutoPad} from '../common/utils.js';
 const strides = [2, 2];
 const autoPad = 'same-upper';
 
@@ -42,6 +42,14 @@ export class FaceNetNchw {
     }
     if (relu) {
       options.activation = this.builder_.relu();
+    }
+    // WebNN spec drops autoPad support, compute the explicit padding instead.
+    if (options.autoPad == 'same-upper') {
+      options.padding =
+        computePadding2DForAutoPad(
+            /* nchw */[input.shape()[2], input.shape()[3]],
+            /* oihw */[weights.shape()[2], weights.shape()[3]],
+            options.strides, options.dilations, options.autoPad);
     }
     return this.builder_.conv2d(input, weights, options);
   }
