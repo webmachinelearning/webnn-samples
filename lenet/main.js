@@ -59,9 +59,9 @@ function clearResult() {
 }
 
 async function main() {
-  const [backend, deviceType] =
+  const [backend, deviceType, polyfillType] =
       $('input[name="backend"]:checked').attr('id').split('_');
-  await utils.setBackend(backend, deviceType);
+  await utils.setBackend(backend, deviceType, polyfillType);
   drawNextDigitFromMnist();
   const pen = new Pen(visualCanvas);
   const weightUrl = '../test-data/models/lenet_nchw/weights/lenet.bin';

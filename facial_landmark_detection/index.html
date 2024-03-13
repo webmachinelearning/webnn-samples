@@ -32,10 +32,13 @@
           <div class="col-md-auto">
             <div class="btn-group-toggle" data-toggle="buttons" id="backendBtns">
               <label class="btn btn-outline-info custom" name="polyfill">
-                <input type="radio" name="backend" id="polyfill_cpu" autocomplete="off">Wasm (CPU)
+                <input type="radio" name="backend" id="polyfill_cpu_wasm" autocomplete="off">Wasm (CPU)
               </label>
               <label class="btn btn-outline-info custom" name="polyfill">
-                <input type="radio" name="backend" id="polyfill_gpu" autocomplete="off">WebGL (GPU)
+                <input type="radio" name="backend" id="polyfill_gpu_webgl" autocomplete="off">WebGL (GPU)
+              </label>
+              <label class="btn btn-outline-info custom" name="polyfill">
+                <input type="radio" name="backend" id="polyfill_gpu_webgpu" autocomplete="off">WebGPU (GPU)
               </label>
               <label class="btn btn-outline-info custom" name="webnn">
                 <input type="radio" name="backend" id="webnn_cpu" autocomplete="off">WebNN (CPU)
