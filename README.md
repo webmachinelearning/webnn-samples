@@ -26,7 +26,9 @@ To get started, follow these steps:
 1. Clone the repository to your local machine and navigate to it:
  ```bash
 > git clone --recurse-submodules https://github.com/webmachinelearning/webnn-samples
-> cd webnn-samples & npm install
+> cd webnn-samples
+> openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem
+> npm install
 > npm start
 ```
 2. Navigate to the desired sample directory that you want to explore.
