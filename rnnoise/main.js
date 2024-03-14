@@ -7,7 +7,10 @@ const batchSize = 1;
 const frames = 100; // Frames is fixed at 100
 const frameSize = 480;
 const gainsSize = 22;
-const weightsUrl = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/rnnoise/weights/';
+let weightsUrl = '../test-data/models/rnnoise/weights/';
+if (location.hostname.toLowerCase().indexOf('github.io') > -1) {
+  weightsUrl = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/rnnoise/weights/';
+}
 const rnnoise = new RNNoise(weightsUrl, batchSize, frames);
 
 $('#backendBtns .btn').on('change', async () => {

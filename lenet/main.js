@@ -64,7 +64,10 @@ async function main() {
   await utils.setBackend(backend, deviceType);
   drawNextDigitFromMnist();
   const pen = new Pen(visualCanvas);
-  const weightUrl = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/lenet_nchw/weights/lenet.bin';
+  let weightUrl = '../test-data/models/lenet_nchw/weights/lenet.bin';
+  if (location.hostname.toLowerCase().indexOf('github.io') > -1) {
+    weightUrl = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/lenet_nchw/weights/lenet.bin';
+  }
   const lenet = new LeNet(weightUrl);
   const [numRuns, powerPreference, numThreads] = utils.getUrlParams();
   try {

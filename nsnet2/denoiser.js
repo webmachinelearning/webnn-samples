@@ -29,7 +29,10 @@ export class Denoiser {
     return new Promise((resolve, reject) => {
       this.log(' - Loading weights... ');
       const start = performance.now();
-      const weightsUrl = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/nsnet2/weights/';
+      let weightsUrl = '../test-data/models/nsnet2/weights/';
+      if (location.hostname.toLowerCase().indexOf('github.io') > -1) {
+        weightsUrl = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/nsnet2/weights/';
+      }
       const powerPreference = getUrlParams()[1];
       const contextOptions = {deviceType};
       if (powerPreference) {
