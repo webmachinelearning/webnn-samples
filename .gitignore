@@ -7,3 +7,5 @@ node_modules/
 **/*.ark
 .DS_Store
 package-lock.json
+cert.pem
+key.pem

@@ -12,7 +12,7 @@ export class ResNet50V2Nhwc {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
-    this.weightsUrl_ = '../test-data/models/resnet50v2_nhwc/weights/';
+    this.weightsUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/resnet50v2_nhwc/weights/';
     this.inputOptions = {
       mean: [127.5, 127.5, 127.5],
       std: [127.5, 127.5, 127.5],
