@@ -8,7 +8,10 @@ export class FaceLandmarkNhwc {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
-    this.weightsUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/face_landmark_nhwc/weights';
+    this.weightsUrl_ = '../test-data/models/face_landmark_nhwc/weights';
+    if (location.hostname.toLowerCase().indexOf('github.io') > -1) {
+      this.weightsUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/face_landmark_nhwc/weights';
+    }
     this.inputOptions = {
       inputLayout: 'nhwc',
       inputDimensions: [1, 128, 128, 3],

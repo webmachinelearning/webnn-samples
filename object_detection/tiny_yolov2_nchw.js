@@ -8,7 +8,10 @@ export class TinyYoloV2Nchw {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
-    this.weightsUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/tiny_yolov2_nchw/weights/';
+    this.weightsUrl_ = '../test-data/models/tiny_yolov2_nchw/weights/';
+    if (location.hostname.toLowerCase().indexOf('github.io') > -1) {
+      this.weightsUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/tiny_yolov2_nchw/weights/';
+    }
     this.inputOptions = {
       inputLayout: 'nchw',
       labelUrl: './labels/pascal_classes.txt',
