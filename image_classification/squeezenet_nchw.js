@@ -8,7 +8,10 @@ export class SqueezeNetNchw {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
-    this.weightsUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/squeezenet1.1_nchw/weights/';
+    this.weightsUrl_ = '../test-data/models/squeezenet1.1_nchw/weights/';
+    if (location.hostname.toLowerCase().indexOf('github.io') > -1) {
+      this.weightsUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/squeezenet1.1_nchw/weights/';
+    }
     this.inputOptions = {
       mean: [0.485, 0.456, 0.406],
       std: [0.229, 0.224, 0.225],
