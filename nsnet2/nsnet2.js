@@ -51,9 +51,9 @@ export class NSNet2 {
     const [gru94, gru93] = this.builder_.gru(transpose31, weight192, recurrentWeight193, frames, this.hiddenSize,
         {bias: bias194, recurrentBias: recurrentBias194, initialHiddenState: initialState92, returnSequence: true});
     // Use reshape to implement squeeze(gru93, {axes: [1]});
-    const squeezed95_shape = gru93.shape();
-    squeezed95_shape.splice(1, 1);
-    const squeeze95 = this.builder_.reshape(gru93, squeezed95_shape);
+    const squeeze95Shape = gru93.shape();
+    squeeze95Shape.splice(1, 1);
+    const squeeze95 = this.builder_.reshape(gru93, squeeze95Shape);
     const initialState155 = this.builder_.input('initialState155', {
       type: 'float32',
       dataType: 'float32',
@@ -62,9 +62,9 @@ export class NSNet2 {
     const [gru157, gru156] = this.builder_.gru(squeeze95, weight212, recurrentWeight213, frames, this.hiddenSize,
         {bias: bias214, recurrentBias: recurrentBias214, initialHiddenState: initialState155, returnSequence: true});
     // Use reshape to implement squeeze(gru156, {axes: [1]});
-    const squeeze158_shape = gru156.shape();
-    squeeze158_shape.splice(1, 1);
-    const squeeze158 = this.builder_.reshape(gru156, squeeze158_shape);
+    const squeeze158Shape = gru156.shape();
+    squeeze158Shape.splice(1, 1);
+    const squeeze158 = this.builder_.reshape(gru156, squeeze158Shape);
     const transpose159 = this.builder_.transpose(squeeze158, {permutation: [1, 0, 2]});
     const relu163 = this.builder_.relu(this.builder_.add(this.builder_.matmul(transpose159, weight215), biasFcOut0));
     const relu167 = this.builder_.relu(this.builder_.add(this.builder_.matmul(relu163, weight216), biasFcOut2));

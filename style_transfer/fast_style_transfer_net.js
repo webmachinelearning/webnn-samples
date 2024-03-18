@@ -26,13 +26,11 @@ export class FastStyleTransferNet {
   buildInstanceNormalization_(conv2D, variableMul, variableAdd) {
     if ('instanceNormalization' in this.builder_) {
       // Use reshape to implement squeeze(variableMul); and squeeze(variableAdd);
-      const mul_shape = variableMul.shape();
-      const add_shape = variableAdd.shape();
-      const squeezed_mul_shape = mul_shape.filter(dim => dim !==1);
-      const squeezed_add_shape = add_shape.filter(dim => dim !==1);
-      const mul_squeeze = this.builder_.reshape(variableMul, squeezed_mul_shape);
-      const add_squeeze = this.builder_.reshape(variableAdd, squeezed_add_shape);
-      return this.builder_.instanceNormalization(conv2D, {scale: mul_squeeze, bias: add_squeeze});
+      const mulShape = variableMul.shape().filter((dim) => dim !==1);
+      const addShape = variableAdd.shape().filter((dim) => dim !==1);
+      const mulSqueeze = this.builder_.reshape(variableMul, mulShape);
+      const addSqueeze = this.builder_.reshape(variableAdd, addShape);
+      return this.builder_.instanceNormalization(conv2D, {scale: mulSqueeze, bias: addSqueeze});
     } else {
       const sub = this.builder_.sub(conv2D, this.builder_.reduceMean(conv2D, {axes: [2, 3], keepDimensions: true}));
       const reduceMean = this.builder_.reduceMean(this.builder_.mul(sub, sub), {axes: [2, 3], keepDimensions: true});
