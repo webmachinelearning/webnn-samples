@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy, computePadding2DForAutoPad} from '../common/utils.js';
+import {buildConstantByNpy, computePadding2DForAutoPad, weightsOrigin} from '../common/utils.js';
 
 // SSD MobileNet V1 model with 'nchw' layout, trained on the COCO dataset.
 export class SsdMobilenetV1Nchw {
@@ -10,15 +10,11 @@ export class SsdMobilenetV1Nchw {
     this.model_ = null;
     this.builder_ = null;
     this.graph_ = null;
-    this.weightsUrl_ = '../test-data/models/ssd_mobilenetv1_nchw/weights/';
-    if (location.hostname.toLowerCase().indexOf('github.io') > -1) {
-      this.weightsUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/ssd_mobilenetv1_nchw/weights/';
-    }
+    this.weightsUrl_ = weightsOrigin() +
+      '/test-data/models/ssd_mobilenetv1_nchw/weights/';
     // Shares the same bias files with 'nhwc' layout
-    this.biasUrl_ = '../test-data/models/ssd_mobilenetv1_nhwc/weights/';
-    if (location.hostname.toLowerCase().indexOf('github.io') > -1) {
-      this.biasUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/ssd_mobilenetv1_nhwc/weights/';
-    }
+    this.biasUrl_ = weightsOrigin() +
+      '/test-data/models/ssd_mobilenetv1_nhwc/weights/';
     this.inputOptions = {
       inputLayout: 'nchw',
       labelUrl: './labels/coco_classes.txt',

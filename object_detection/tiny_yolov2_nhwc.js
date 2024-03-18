@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy, computePadding2DForAutoPad} from '../common/utils.js';
+import {buildConstantByNpy, computePadding2DForAutoPad, weightsOrigin} from '../common/utils.js';
 
 // Tiny Yolo V2 model with 'nhwc' layout, trained on the Pascal VOC dataset.
 export class TinyYoloV2Nhwc {
@@ -8,10 +8,8 @@ export class TinyYoloV2Nhwc {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
-    this.weightsUrl_ = '../test-data/models/tiny_yolov2_nhwc/weights/';
-    if (location.hostname.toLowerCase().indexOf('github.io') > -1) {
-      this.weightsUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/tiny_yolov2_nhwc/weights/';
-    }
+    this.weightsUrl_ = weightsOrigin() +
+      '/test-data/models/tiny_yolov2_nhwc/weights/';
     this.inputOptions = {
       inputLayout: 'nhwc',
       labelUrl: './labels/pascal_classes.txt',

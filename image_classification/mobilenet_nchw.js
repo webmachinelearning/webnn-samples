@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy} from '../common/utils.js';
+import {buildConstantByNpy, weightsOrigin} from '../common/utils.js';
 
 // MobileNet V2 model with 'nchw' input layout
 export class MobileNetV2Nchw {
@@ -9,10 +9,8 @@ export class MobileNetV2Nchw {
     this.deviceType_ = null;
     this.builder_ = null;
     this.graph_ = null;
-    this.weightsUrl_ = '../test-data/models/mobilenetv2_nchw/weights/';
-    if (location.hostname.toLowerCase().indexOf('github.io') > -1) {
-      this.weightsUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/mobilenetv2_nchw/weights/';
-    }
+    this.weightsUrl_ = weightsOrigin() +
+      '/test-data/models/mobilenetv2_nchw/weights/';
     this.inputOptions = {
       mean: [0.485, 0.456, 0.406],
       std: [0.229, 0.224, 0.225],

@@ -3,6 +3,14 @@
 import {numpy} from './libs/numpy.js';
 import {addAlert} from './ui.js';
 
+export function weightsOrigin() {
+  if (location.hostname.toLowerCase().indexOf('github.io') > -1) {
+    return 'https://d3i5xkfad89fac.cloudfront.net';
+  } else {
+    return '..';
+  }
+}
+
 export function sizeOfShape(shape) {
   return shape.reduce((a, b) => {
     return a * b;

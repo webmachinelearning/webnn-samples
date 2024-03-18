@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy, computePadding2DForAutoPad} from '../common/utils.js';
+import {buildConstantByNpy, computePadding2DForAutoPad, weightsOrigin} from '../common/utils.js';
 const strides = [2, 2];
 const autoPad = 'same-upper';
 
@@ -12,10 +12,8 @@ export class FaceNetNchw {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
-    this.weightsUrl_ = '../test-data/models/facenet_nchw/weights';
-    if (location.hostname.toLowerCase().indexOf('github.io') > -1) {
-      this.weightsUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/facenet_nchw/weights';
-    }
+    this.weightsUrl_ = weightsOrigin() +
+      '/test-data/models/facenet_nchw/weights';
     this.inputOptions = {
       mean: [127.5, 127.5, 127.5, 127.5],
       std: [127.5, 127.5, 127.5, 127.5],
