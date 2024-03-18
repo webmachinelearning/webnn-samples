@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy} from '../common/utils.js';
+import {buildConstantByNpy, weightsOrigin} from '../common/utils.js';
 
 /* eslint max-len: ["error", {"code": 130}] */
 
@@ -12,10 +12,8 @@ export class FastStyleTransferNet {
     this.graph_ = null;
     this.constPow_ = null;
     this.constAdd_ = null;
-    this.weightsUrl_ = '../test-data/models/fast_style_transfer_nchw/weights/';
-    if (location.hostname.toLowerCase().indexOf('github.io') > -1) {
-      this.weightsUrl_ = 'https://d3i5xkfad89fac.cloudfront.net/test-data/models/fast_style_transfer_nchw/weights/';
-    }
+    this.weightsUrl_ = weightsOrigin() +
+      '/test-data/models/fast_style_transfer_nchw/weights/';
     this.inputOptions = {
       inputDimensions: [1, 3, 540, 540],
       inputLayout: 'nchw',
