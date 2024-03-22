@@ -44,10 +44,10 @@ export class ResNet50V2Nhwc {
     const weightsName = prefix + '_weights.npy';
     const weights = await buildConstantByNpy(this.builder_, weightsName);
     const biasName = prefix + '_Conv2D_bias.npy';
-    const bias = await buildConstantByNpy(this.builder_, biasName);
+    const bias = buildConstantByNpy(this.builder_, biasName);
     options.inputLayout = layout;
     options.filterLayout = 'ohwi';
-    options.bias = bias;
+    options.bias = await bias;
     if (relu) {
       options.activation = this.builder_.relu();
     }
@@ -55,11 +55,11 @@ export class ResNet50V2Nhwc {
     if (options.autoPad == 'same-upper') {
       options.padding =
         computePadding2DForAutoPad(
-            /* nwhc */[input.shape()[1], input.shape()[2]],
+            /* nwhc */[await input.shape()[1], await input.shape()[2]],
             /* ohwi */[weights.shape()[1], weights.shape()[2]],
             options.strides, options.dilations, options.autoPad);
     }
-    return this.builder_.conv2d(input, weights, options);
+    return this.builder_.conv2d(await input, weights, options);
   }
 
   async buildFusedBatchNorm_(input, nameIndices) {
@@ -71,37 +71,52 @@ export class ResNet50V2Nhwc {
           `block${nameIndices[0]}_unit_${nameIndices[1]}_bottleneck_v2_preact`;
     }
     const mulParamName = prefix + '_FusedBatchNorm_mul_0_param.npy';
-    const mulParam = await buildConstantByNpy(this.builder_, mulParamName);
+    const mulParam = buildConstantByNpy(this.builder_, mulParamName);
     const addParamName = prefix + '_FusedBatchNorm_add_param.npy';
-    const addParam = await buildConstantByNpy(this.builder_, addParamName);
+    const addParam = buildConstantByNpy(this.builder_, addParamName);
     return this.builder_.relu(
-        this.builder_.add(this.builder_.mul(input, mulParam), addParam));
+        this.builder_.add(
+            this.builder_.mul(await input, await mulParam),
+            await addParam,
+        ),
+    );
   }
 
   async buildBottleneckV2_(
       input, nameIndices, downsample = false, shortcut = true) {
-    let residual = input;
+    let residual = await input;
 
-    const fusedBn = await this.buildFusedBatchNorm_(input, nameIndices);
-    const conv1 = await this.buildConv_(
-        fusedBn, nameIndices.concat(['1']), {autoPad});
+    const fusedBn = this.buildFusedBatchNorm_(await input, nameIndices);
+    const conv1 = this.buildConv_(
+        await fusedBn, nameIndices.concat(['1']), {autoPad});
     let conv2;
     if (downsample) {
-      residual = await this.buildConv_(
-          fusedBn, nameIndices.concat(['shortcut']), {autoPad}, false);
+      residual = this.buildConv_(
+          await fusedBn, nameIndices.concat(['shortcut']), {autoPad}, false);
     }
     if (!downsample && shortcut) {
       residual = this.builder_.maxPool2d(
-          input, {windowDimensions: [2, 2], strides, layout, autoPad});
-      conv2 = await this.buildConv_(
-          conv1, nameIndices.concat(['2']), {strides, padding: [1, 1, 1, 1]});
+          await input, {
+            windowDimensions: [2, 2],
+            strides,
+            layout,
+            autoPad,
+          },
+      );
+      conv2 = this.buildConv_(
+          await conv1, nameIndices.concat(['2']), {
+            strides,
+            padding: [1, 1, 1, 1],
+          },
+      );
     } else {
-      conv2 = await this.buildConv_(
-          conv1, nameIndices.concat(['2']), {autoPad});
+      conv2 = this.buildConv_(
+          await conv1, nameIndices.concat(['2']), {autoPad},
+      );
     }
-    const conv3 = await this.buildConv_(
-        conv2, nameIndices.concat(['3']), {autoPad}, false);
-    return this.builder_.add(conv3, residual);
+    const conv3 = this.buildConv_(
+        await conv2, nameIndices.concat(['3']), {autoPad}, false);
+    return this.builder_.add(await conv3, await residual);
   }
 
   async load(contextOptions) {
@@ -122,72 +137,69 @@ export class ResNet50V2Nhwc {
               windowDimensions, strides, /* dilations */ undefined,
               'same-upper')});
     // Block 1
-    const bottleneck1 = await this.buildBottleneckV2_(pool, ['1', '1'], true);
-    const bottleneck2 = await this.buildBottleneckV2_(
+    const bottleneck1 = this.buildBottleneckV2_(pool, ['1', '1'], true);
+    const bottleneck2 = this.buildBottleneckV2_(
         bottleneck1, ['1', '2'], false, false);
-    const bottleneck3 = await this.buildBottleneckV2_(
+    const bottleneck3 = this.buildBottleneckV2_(
         bottleneck2, ['1', '3']);
 
     // Block 2
-    const bottleneck4 = await this.buildBottleneckV2_(
+    const bottleneck4 = this.buildBottleneckV2_(
         bottleneck3, ['2', '1'], true);
-    const bottleneck5 = await this.buildBottleneckV2_(
+    const bottleneck5 = this.buildBottleneckV2_(
         bottleneck4, ['2', '2'], false, false);
-    const bottleneck6 = await this.buildBottleneckV2_(
+    const bottleneck6 = this.buildBottleneckV2_(
         bottleneck5, ['2', '3'], false, false);
-    const bottleneck7 = await this.buildBottleneckV2_(
+    const bottleneck7 = this.buildBottleneckV2_(
         bottleneck6, ['2', '4']);
 
     // Block 3
-    const bottleneck8 = await this.buildBottleneckV2_(
+    const bottleneck8 = this.buildBottleneckV2_(
         bottleneck7, ['3', '1'], true);
     const loop = async (node, num) => {
       if (num > 5) {
         return node;
       } else {
-        const newNode = await this.buildBottleneckV2_(
+        const newNode = this.buildBottleneckV2_(
             node, ['3', num.toString()], false, false);
         num++;
         return loop(newNode, num);
       }
     };
-    const bottleneck9 = await loop(bottleneck8, 2);
-    const bottleneck10 = await this.buildBottleneckV2_(
+    const bottleneck9 = loop(bottleneck8, 2);
+    const bottleneck10 = this.buildBottleneckV2_(
         bottleneck9, ['3', '6']);
 
     // Block 4
-    const bottleneck11 = await this.buildBottleneckV2_(
+    const bottleneck11 = this.buildBottleneckV2_(
         bottleneck10, ['4', '1'], true);
-    const bottleneck12 = await this.buildBottleneckV2_(
+    const bottleneck12 = this.buildBottleneckV2_(
         bottleneck11, ['4', '2'], false, false);
-    const bottleneck13 = await this.buildBottleneckV2_(
+    const bottleneck13 = this.buildBottleneckV2_(
         bottleneck12, ['4', '3'], false, false);
 
     const fusedBn =
-        await this.buildFusedBatchNorm_(bottleneck13, ['postnorm']);
-    const mean = this.builder_.averagePool2d(fusedBn, {layout});
-    const conv2 = await this.buildConv_(
+        this.buildFusedBatchNorm_(bottleneck13, ['postnorm']);
+    const mean = this.builder_.averagePool2d(await fusedBn, {layout});
+    const conv2 = this.buildConv_(
         mean, ['', '', 'logits'], {autoPad}, false);
-    const reshape = this.builder_.reshape(conv2, [1, 1001]);
+    const reshape = this.builder_.reshape(await conv2, [1, 1001]);
     return this.builder_.softmax(reshape);
   }
 
   async build(outputOperand) {
-    this.graph_ = await this.builder_.build({'output': outputOperand});
+    this.graph_ = this.builder_.build({'output': outputOperand});
   }
 
   // Release the constant tensors of a model
-  dispose() {
-    // dispose() is only available in webnn-polyfill
-    if (this.graph_ !== null && 'dispose' in this.graph_) {
-      this.graph_.dispose();
-    }
-  }
-
   async compute(inputBuffer, outputBuffer) {
     const inputs = {'input': inputBuffer};
     const outputs = {'output': outputBuffer};
-    const results = await this.context_.compute(this.graph_, inputs, outputs);
+    const results = await this.context_.compute(
+        await this.graph_,
+        inputs,
+        outputs,
+    );
     return results;
   }
 }
