@@ -38,7 +38,7 @@ export class TinyYoloV2Nchw {
 
   buildMaxPool2d_(input, options) {
     options.padding = computePadding2DForAutoPad(
-        /* nhwc */[input.shape()[1], input.shape()[2]],
+        /* nchw */[input.shape()[2], input.shape()[3]],
         options.windowDimensions,
         options.strides, options.dilations, 'same-upper');
     return this.builder_.maxPool2d(input, options);
