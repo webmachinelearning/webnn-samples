@@ -440,3 +440,47 @@ export function computePadding2DForAutoPad(
   return [beginningPaddingHeight, endingPaddingHeight,
     beginningPaddingWidth, endingPaddingWidth];
 }
+
+// This function derives from Transformer.js `permute_data()` function:
+// https://github.com/xenova/transformers.js/blob/main/src/utils/maths.js#L98
+// which is in Apache License 2.0
+// https://github.com/xenova/transformers.js/blob/main/LICENSE
+/**
+ * Helper method to permute a `AnyTypedArray` directly
+ * @template {AnyTypedArray} T
+ * @param {T} array
+ * @param {number[]} dims
+ * @param {number[]} axes
+ * @return {[T, number[]]} The permuted array and the new shape.
+ */
+export function permuteData(array, dims, axes) {
+  // Calculate the new shape of the permuted array
+  // and the stride of the original array
+  const shape = new Array(axes.length);
+  const stride = new Array(axes.length);
+
+  for (let i = axes.length - 1, s = 1; i >= 0; --i) {
+    stride[i] = s;
+    shape[i] = dims[axes[i]];
+    s *= shape[i];
+  }
+
+  // Precompute inverse mapping of stride
+  const invStride = axes.map((_, i) => stride[axes.indexOf(i)]);
+
+  // Create the permuted array with the new shape
+  // @ts-ignore
+  const permutedData = new array.constructor(array.length);
+
+  // Permute the original array to the new array
+  for (let i = 0; i < array.length; ++i) {
+    let newIndex = 0;
+    for (let j = dims.length - 1, k = i; j >= 0; --j) {
+      newIndex += (k % dims[j]) * invStride[j];
+      k = Math.floor(k / dims[j]);
+    }
+    permutedData[newIndex] = array[i];
+  }
+
+  return [permutedData, shape];
+}
