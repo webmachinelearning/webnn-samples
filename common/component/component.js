@@ -576,10 +576,23 @@ const webnnbadge = () => {
   return nnbadge;
 };
 
+const footer = () => {
+    const footerlink = `
+        <p>
+          &copy;2024 
+          <a href="https://webmachinelearning.github.io/">WebNN API</a> ·
+          <a href="https://github.com/webmachinelearning/webnn-samples#webnn-installation-guides">Installation Guides</a> · 
+          <a href="https://webmachinelearning.github.io/webnn-status/">Implementation Status</a>
+        </p>
+    `;
+    return footerlink;
+}
+
 $(document).ready(async () => {
   $("nav ul.navbar-nav").html(webnnsamplenav());
   $("#logosvg").html(webnnlogo());
   $("#badge").html(webnnbadge());
+  $("#footer").html(footer());
   if (await isWebNN()) {
     if ($("#backendBtns")) {
       if (!isElectron()) {

@@ -816,3 +816,11 @@ a:hover {
   flex: 0 0 13%;
   max-width: 13%;
 }
+
+#footer {
+  font-size: 0.8rem;
+}
+
+#footer a {
+  display: inline-block;
+}
