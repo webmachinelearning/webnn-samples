@@ -39,7 +39,7 @@ To get started, follow these steps:
 
 ### WebNN Installation Guides
 
-WebNN requires a compatible browser to run, and Windows 11 v21H2 (DML 1.6.0) or higher for GPU and NPU. Try the latest Google Chrome* Canary or Microsoft Edge Canary, which requires enabling WebNN functionality in the settings.
+WebNN requires a compatible browser to run, and Windows 11 v21H2 (DML 1.6.0) or higher for GPU. Try the latest Google Chrome* Canary or Microsoft Edge Canary, which requires enabling WebNN functionality in the settings.
 
 1. Download the latest [Google Chrome Canary](https://www.google.com/chrome/canary/) or [Microsoft Edge Canary](https://www.microsoft.com/en-us/edge/download/insider) browser. 
 2. To enable WebNN, in your browser address bar, `enter chrome://flags`, and then press `Enter`. An Experiments page opens. 
