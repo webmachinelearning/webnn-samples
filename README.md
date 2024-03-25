@@ -37,12 +37,15 @@ To get started, follow these steps:
 5. Keep in mind that WebNN currently supports the CPU backend only on Chrome or Edge browsers, and it requires enabling the experimental web platform features flag (see below). Ensure you have this flag enabled in your browser to fully experience WebNN functionality.
 6. Experiment with the code and explore how WebNN can enhance machine learning tasks in the browser, navigating to http://localhost:8080.
 
-### Enabling Experimental Features Flag
-1. In Chrome navigate to `chrome://flags/`. In Edge navigate to `edge://flags/`.
-1. Search for the **#enable-experimental-web-platform-features** flag.
-1. Enable the feature: Toggle the corresponding switch or checkbox to turn it on.  
-   **Note:** Enabling experimental features may lead to unexpected behavior, so proceed with caution.
-1. Restart the browser: If prompted, restart your browser after enabling the feature.
+### WebNN Installation Guides
+
+WebNN requires a compatible browser to run, and Windows 11 v21H2 (DML 1.6.0) or higher for GPU. Try the latest Google Chrome* Canary or Microsoft Edge Canary, which requires enabling WebNN functionality in the settings.
+
+1. Download the latest [Google Chrome Canary](https://www.google.com/chrome/canary/) or [Microsoft Edge Canary](https://www.microsoft.com/en-us/edge/download/insider) browser. 
+2. To enable WebNN, in your browser address bar, `enter chrome://flags`, and then press `Enter`. An Experiments page opens. 
+3. In the Search flags box, enter `webnn`. `Enables WebNN API` appears. 
+4. In the drop-down menu, select `Enabled`. 
+5. Relaunch your browser.
 
 ## Support and Feedback
 If you encounter any issues or have feedback on the WebNN Samples, please open an issue on the repository. We appreciate your input and will strive to address any problems as quickly as possible.
