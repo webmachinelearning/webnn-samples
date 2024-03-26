@@ -9,7 +9,7 @@ export class FaceLandmarkNchw {
     this.builder_ = null;
     this.graph_ = null;
     this.weightsUrl_ = weightsOrigin() +
-      '/test-data/models/face_landmark_nchw/weights/';
+      '/test-data/models/face_landmark_nchw/weights';
     this.inputOptions = {
       inputLayout: 'nchw',
       inputDimensions: [1, 3, 128, 128],
