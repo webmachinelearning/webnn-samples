@@ -11,10 +11,10 @@ export class SsdMobilenetV1Nchw {
     this.builder_ = null;
     this.graph_ = null;
     this.weightsUrl_ = weightsOrigin() +
-      '/test-data/models/ssd_mobilenetv1_nchw/weights/';
+      '/test-data/models/ssd_mobilenetv1_nchw/weights';
     // Shares the same bias files with 'nhwc' layout
     this.biasUrl_ = weightsOrigin() +
-      '/test-data/models/ssd_mobilenetv1_nhwc/weights/';
+      '/test-data/models/ssd_mobilenetv1_nhwc/weights';
     this.inputOptions = {
       inputLayout: 'nchw',
       labelUrl: './labels/coco_classes.txt',
