@@ -579,6 +579,9 @@ const webnnbadge = () => {
 const footer = () => {
     const footerlink = `
         <p>
+          The WebNN API is under active development within W3C Web Machine Learning Working Group, please <a href="https://github.com/webmachinelearning/webnn-samples/issues" title="File a bug report for WebNN Samples">file a bug report</a> if the WebNN sample doesn't work in the latest versions of Chrome or Edge.
+        </p>
+        <p>
           &copy;2024 
           <a href="https://webmachinelearning.github.io/">WebNN API</a> ·
           <a href="https://github.com/webmachinelearning/webnn-samples#webnn-installation-guides">Installation Guides</a> · 
