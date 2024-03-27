@@ -50,14 +50,7 @@ $(document).ready(async () => {
 });
 
 $('#backendBtns .btn').on('change', async (e) => {
-  if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
-  if ($(e.target).attr('id').indexOf('cpu') != -1) {
-    layout = 'nhwc';
-  } else if (($(e.target).attr('id').indexOf('gpu') != -1)) {
-    layout = 'nchw';
-  } else {
-    throw new Error('Unknown backend');
-  }
+  layout = utils.getDefaultLayout($(e.target).attr('id'));
   await main();
 });
 
