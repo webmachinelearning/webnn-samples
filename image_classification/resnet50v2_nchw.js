@@ -164,6 +164,14 @@ export class ResNet50V2Nchw {
   }
 
   // Release the constant tensors of a model
+  dispose() {
+    // dispose() is only available in webnn-polyfill
+    if (this.graph_ !== null && 'dispose' in this.graph_) {
+      this.graph_.dispose();
+    }
+  }
+
+  // Release the constant tensors of a model
   async compute(inputBuffer, outputBuffer) {
     const inputs = {'input': inputBuffer};
     const outputs = {'output': outputBuffer};
