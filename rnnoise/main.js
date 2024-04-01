@@ -146,9 +146,9 @@ async function denoise() {
     start = performance.now();
     outputs = await rnnoise.compute(inputs, outputs);
     const executionTime = (performance.now() - start).toFixed(2);
-    inputs.vadGruInitialH = outputs.vadGruYH;
-    inputs.noiseGruInitialH = outputs.noiseGruYH;
-    inputs.denoiseGruInitialH = outputs.denoiseGruYH;
+    inputs.vadGruInitialH = outputs.vadGruYH.slice();
+    inputs.noiseGruInitialH = outputs.noiseGruYH.slice();
+    inputs.denoiseGruInitialH = outputs.denoiseGruYH.slice();
 
     start = performance.now();
     const output = analyser.postProcessing(outputs.denoiseOutput);
