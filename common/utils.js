@@ -484,3 +484,18 @@ export function permuteData(array, dims, axes) {
 
   return [permutedData, shape];
 }
+
+export function getDefaultLayout(deviceType) {
+  const userAgent = navigator.userAgent;
+  if (userAgent.indexOf('Linux') != -1 || userAgent.indexOf('Android') != -1 ||
+      userAgent.indexOf('CrOS') != -1) {
+    return 'nhwc';
+  } else {
+    // Windows or Mac platform.
+    if (deviceType.indexOf('cpu') != -1) {
+      return 'nhwc';
+    } else if (deviceType.indexOf('gpu') != -1) {
+      return 'nchw';
+    }
+  }
+}
