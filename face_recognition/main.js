@@ -50,6 +50,7 @@ $(document).ready(async () => {
 });
 
 $('#backendBtns .btn').on('change', async (e) => {
+  if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
   layout = utils.getDefaultLayout($(e.target).attr('id'));
   await main();
 });
