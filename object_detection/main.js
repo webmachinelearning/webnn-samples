@@ -30,6 +30,8 @@ let deviceType = '';
 let lastdeviceType = '';
 let backend = '';
 let lastBackend = '';
+let stopRender = true;
+let isRendering = false;
 const disabledSelectors = ['#tabs > li', '.btn'];
 
 async function fetchLabels(url) {
@@ -48,20 +50,28 @@ $(document).ready(async () => {
 });
 
 $('#backendBtns .btn').on('change', async (e) => {
-  if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
+  if (inputType === 'camera') {
+    await stopCamRender();
+  }
   layout = utils.getDefaultLayout($(e.target).attr('id'));
   await main();
 });
 
 $('#modelBtns .btn').on('change', async (e) => {
+  if (inputType === 'camera') {
+    await stopCamRender();
+  }
   modelName = $(e.target).attr('id');
-  if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
   await main();
 });
 
 // Click trigger to do inference with <img> element
 $('#img').click(async () => {
-  if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
+  if (inputType === 'camera') {
+    await stopCamRender();
+  } else {
+    return;
+  }
   inputType = 'image';
   $('.shoulddisplay').hide();
   await main();
@@ -82,22 +92,38 @@ $('#feedElement').on('load', async () => {
 
 // Click trigger to do inference with <video> media element
 $('#cam').click(async () => {
+  if (inputType == 'camera') return;
   inputType = 'camera';
   $('.shoulddisplay').hide();
   await main();
 });
 
+function stopCamRender() {
+  stopRender = true;
+  utils.stopCameraStream(rafReq, stream);
+  return new Promise((resolve) => {
+    // if the rendering is not stopped, check it every 100ms
+    setInterval(() => {
+      // resolve when the rendering is stopped
+      if (!isRendering) {
+        resolve();
+      }
+    }, 100);
+  });
+}
+
 /**
  * This method is used to render live camera tab.
  */
 async function renderCamStream() {
-  if (!stream.active) return;
+  if (!stream.active || stopRender) return;
   // If the video element's readyState is 0, the video's width and height are 0.
   // So check the readState here to make sure it is greater than 0.
   if (camElement.readyState === 0) {
     rafReq = requestAnimationFrame(renderCamStream);
     return;
   }
+  isRendering = true;
   const inputBuffer = utils.getInputTensor(camElement, inputOptions);
   const inputCanvas = utils.getVideoFrame(camElement);
   console.log('- Computing... ');
@@ -109,7 +135,10 @@ async function renderCamStream() {
   showPerfResult();
   await drawOutput(inputCanvas, outputs, labels);
   $('#fps').text(`${(1000/computeTime).toFixed(0)} FPS`);
-  rafReq = requestAnimationFrame(renderCamStream);
+  isRendering = false;
+  if (!stopRender) {
+    rafReq = requestAnimationFrame(renderCamStream);
+  }
 }
 
 async function drawOutput(inputElement, outputs, labels) {
@@ -267,6 +296,7 @@ async function main() {
     } else if (inputType === 'camera') {
       stream = await utils.getMediaStream();
       camElement.srcObject = stream;
+      stopRender = false;
       camElement.onloadeddata = await renderCamStream();
       await ui.showProgressComponent('done', 'done', 'done');
       $('#fps').show();

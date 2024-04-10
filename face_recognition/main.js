@@ -38,6 +38,8 @@ let deviceType = '';
 let lastdeviceType = '';
 let backend = '';
 let lastBackend = '';
+let stopRender = true;
+let isRendering = false;
 const disabledSelectors = ['#tabs > li', '.btn'];
 
 $(document).ready(async () => {
@@ -50,27 +52,34 @@ $(document).ready(async () => {
 });
 
 $('#backendBtns .btn').on('change', async (e) => {
-  if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
+  if (inputType === 'camera') {
+    await stopCamRender();
+  }
   layout = utils.getDefaultLayout($(e.target).attr('id'));
   await main();
 });
 
 $('#fdModelBtns .btn').on('change', async (e) => {
+  if (inputType === 'camera') {
+    await stopCamRender();
+  }
   fdModelName = $(e.target).attr('id');
-  if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
   await main();
 });
 
 // $('#layoutBtns .btn').on('change', async (e) => {
+//   if (inputType === 'camera') {
+//     await stopCamRender();
+//   }
 //   layout = $(e.target).attr('id');
-//   if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
 //   await main();
 // });
 
 // Click trigger to do inference with <img> element
 $('#img').click(async () => {
   if (inputType === 'camera') {
-    utils.stopCameraStream(rafReq, stream);
+    await ui.showProgressComponent('current', 'pending', 'pending');
+    await stopCamRender();
     // Set timeout to leave more time to make sure searchEmbeddings
     // is clear after switching from camera tab to image tab
     await new Promise((resolve) => {
@@ -79,9 +88,10 @@ $('#img').click(async () => {
         resolve();
       }, 1000);
     });
+  } else {
+    return;
   }
   inputType = 'image';
-  $('.shoulddisplay').hide();
   searchEmbeddings = null;
   await main();
 });
@@ -118,22 +128,38 @@ $('#searchImage').on('load', async () => {
 
 // Click trigger to do inference with <video> media element
 $('#cam').click(async () => {
+  if (inputType == 'camera') return;
   inputType = 'camera';
   $('.shoulddisplay').hide();
   await main();
 });
 
+function stopCamRender() {
+  stopRender = true;
+  utils.stopCameraStream(rafReq, stream);
+  return new Promise((resolve) => {
+    // if the rendering is not stopped, check it every 100ms
+    setInterval(() => {
+      // resolve when the rendering is stopped
+      if (!isRendering) {
+        resolve();
+      }
+    }, 100);
+  });
+}
+
 /**
  * This method is used to render live camera tab.
  */
 async function renderCamStream() {
-  if (!stream.active) return;
+  if (!stream.active || stopRender) return;
   // If the video element's readyState is 0, the video's width and height are 0.
   // So check the readState here to make sure it is greater than 0.
   if (camElem.readyState === 0) {
     rafReq = requestAnimationFrame(renderCamStream);
     return;
   }
+  isRendering = true;
   // Clear search embeddings for each frame
   searchEmbeddings = null;
   const inputCanvas = utils.getVideoFrame(camElem);
@@ -143,7 +169,10 @@ async function renderCamStream() {
   showPerfResult();
   await drawOutput(inputCanvas, searchCanvasCamShowElem);
   $('#fps').text(`${(1000/computeTime).toFixed(0)} FPS`);
-  rafReq = requestAnimationFrame(renderCamStream);
+  isRendering = false;
+  if (!stopRender) {
+    rafReq = requestAnimationFrame(renderCamStream);
+  }
 }
 
 async function getEmbeddings(inputElem) {
@@ -373,6 +402,7 @@ async function main() {
     } else if (inputType === 'camera') {
       stream = await utils.getMediaStream();
       camElem.srcObject = stream;
+      stopRender = false;
       camElem.onloadeddata = await renderCamStream();
       await ui.showProgressComponent('done', 'done', 'done');
       $('#fps').show();
