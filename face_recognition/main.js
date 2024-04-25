@@ -106,10 +106,11 @@ $('#targetImgFile').change((e) => {
 });
 
 $('#targetImage').on('load', async () => {
-  targetEmbeddings = null;
-  if (inputType === 'image') {
-    await main();
+  if (inputType === 'camera') {
+    await stopCamRender();
   }
+  targetEmbeddings = null;
+  await main();
 });
 
 $('#searchImgFile').change((e) => {
