@@ -7,6 +7,7 @@ export class Pen {
     this.canvas.style.cursor = 'crosshair';
     this.context = cavans.getContext('2d');
     this.down = false;
+    this.isCleared = false;
     this.start = {};
     const self = this;
     this.canvas.addEventListener('mousedown', (e) => {
@@ -33,6 +34,7 @@ export class Pen {
   }
 
   draw(start, end) {
+    this.isCleared = false;
     this.context.strokeStyle = 'white';
     this.context.lineJoin = 'round';
     this.context.lineWidth = 20;
@@ -44,7 +46,12 @@ export class Pen {
     this.context.stroke();
   }
 
+  setIsCleared(isCleared) {
+    this.isCleared = isCleared;
+  }
+
   clear() {
+    this.isCleared = true;
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 }

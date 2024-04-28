@@ -36,6 +36,7 @@ $('#backendBtns .btn').on('change', async () => {
 });
 
 function drawNextDigitFromMnist() {
+  pen.setIsCleared(false);
   const n = Math.floor(Math.random() * 10);
   const digit = mnist[n].get();
   mnist.draw(digit, digitContext);
@@ -105,6 +106,10 @@ async function main() {
 
 predictButton.addEventListener('click', async function(e) {
   clearInferenceResult();
+  if (pen.isCleared) {
+    addAlert('Please draw a digit first.');
+    return;
+  }
   predictButton.setAttribute('disabled', true);
   try {
     let start;
