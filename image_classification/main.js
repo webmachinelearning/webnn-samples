@@ -1,5 +1,7 @@
 'use strict';
 
+import {ResNet50V1FP16Nchw} from './resnet50v1_fp16_nchw.js';
+import {EfficientNetFP16Nchw} from './efficientnet_fp16_nchw.js';
 import {MobileNetV2Nchw} from './mobilenet_nchw.js';
 import {MobileNetV2Nhwc} from './mobilenet_nhwc.js';
 import {SqueezeNetNchw} from './squeezenet_nchw.js';
@@ -56,6 +58,22 @@ $('#backendBtns .btn').on('change', async (e) => {
     await stopCamRender();
   }
   layout = utils.getDefaultLayout($(e.target).attr('id'));
+
+  // Only show the supported models for each backend. Now fp16 nchw models
+  // are only supported on webnn_gpu/webnn_npu backend.
+  const fp16ModelElement = document.getElementById('fp16ModelBtns');
+  const fp32ModelElement = document.getElementById('fp32ModelBtns');
+  if (($(e.target).attr('id') === 'webnn_gpu')) {
+    fp16ModelElement.removeAttribute('hidden');
+    fp32ModelElement.removeAttribute('hidden');
+  } else if (($(e.target).attr('id') === 'webnn_npu')) {
+    fp16ModelElement.removeAttribute('hidden');
+    fp32ModelElement.setAttribute('hidden', '');
+  } else {
+    fp16ModelElement.setAttribute('hidden', '');
+    fp32ModelElement.removeAttribute('hidden');
+  }
+
   await main();
 });
 
@@ -154,7 +172,31 @@ async function renderCamStream() {
 
 // Get top 3 classes of labels from output buffer
 function getTopClasses(buffer, labels) {
-  const probs = Array.from(buffer);
+  let float32Buffer = buffer;
+  // Currently we need to fallback softmax to tf.softmax because
+  // NPU dosen't support softmax.
+  // Convert output buffer from float16 to float32, because
+  // tf.tensor/tf.softmax doesn't support float16 data type
+  // according to https://js.tensorflow.org/api/latest/#tensor.
+  // TODO: Remove this workaround once NPU supports softmax.
+  if (inputOptions.dataType === 'float16') {
+    const elementsCount = utils.sizeOfShape(netInstance.outputDimensions);
+    const float32Array = new Float32Array(elementsCount);
+    for (let i = 0; i < elementsCount; ++i) {
+      float32Array[i] = utils.float16ToNumber(buffer[i]);
+    }
+    float32Buffer = float32Array;
+
+    // Softmax
+    float32Buffer = tf.tidy(() => {
+      const a =
+        tf.tensor(float32Buffer, netInstance.outputDimensions, 'float32');
+      const b = tf.softmax(a);
+      return b.dataSync();
+    });
+  }
+
+  const probs = Array.from(float32Buffer);
   const indexes = probs.map((prob, index) => [prob, index]);
   const sorted = indexes.sort((a, b) => {
     if (a[0] === b[0]) {
@@ -216,6 +258,9 @@ function showPerfResult(medianComputeTime = undefined) {
 
 function constructNetObject(type) {
   const netObject = {
+    'mobilenetv27fp16nchw': new MobileNetV2Nchw('float16'),
+    'resnet50v1fp16nchw': new ResNet50V1FP16Nchw(),
+    'efficientnetfp16nchw': new EfficientNetFP16Nchw(),
     'mobilenetnchw': new MobileNetV2Nchw(),
     'mobilenetnhwc': new MobileNetV2Nhwc(),
     'squeezenetnchw': new SqueezeNetNchw(),
@@ -245,7 +290,7 @@ async function main() {
         // Set backend and device
         await utils.setBackend(backend, deviceType);
         lastdeviceType = lastdeviceType != deviceType ?
-                               deviceType : lastdeviceType;
+            deviceType : lastdeviceType;
         lastBackend = lastBackend != backend ? backend : lastBackend;
       }
       if (netInstance !== null) {
@@ -256,8 +301,14 @@ async function main() {
       netInstance = constructNetObject(instanceType);
       inputOptions = netInstance.inputOptions;
       labels = await fetchLabels(inputOptions.labelUrl);
-      outputBuffer =
+      if (inputOptions.dataType === 'float16') {
+        outputBuffer =
+          new Uint16Array(utils.sizeOfShape(netInstance.outputDimensions));
+      } else {
+        outputBuffer =
           new Float32Array(utils.sizeOfShape(netInstance.outputDimensions));
+      }
+
       isFirstTimeLoad = false;
       console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
       // UI shows model loading progress

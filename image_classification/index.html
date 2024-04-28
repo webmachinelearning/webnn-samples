@@ -30,7 +30,7 @@
             <span>Backend</span>
           </div>
           <div class="col-md-auto">
-            <div class="btn-group-toggle" data-toggle="buttons" id="backendBtns">
+            <div class="btn-group-toggle" data-toggle="buttons" id="backendBtns" onChange=>
               <label class="btn btn-outline-info custom" name="polyfill">
                 <input type="radio" name="backend" id="polyfill_cpu" autocomplete="off">Wasm (CPU)
               </label>
@@ -42,6 +42,9 @@
               </label>
               <label class="btn btn-outline-info custom" name="webnn">
                 <input type="radio" name="backend" id="webnn_gpu" autocomplete="off">WebNN (GPU)
+              </label>
+              <label class="btn btn-outline-info custom" name="webnn">
+                <input type="radio" name="backend" id="webnn_npu" autocomplete="off">WebNN (NPU)
               </label>
             </div>
           </div>
@@ -67,15 +70,28 @@
           </div>
           <div class="col-md-auto">
             <div class="btn-group-toggle" data-toggle="buttons" id="modelBtns">
-              <label class="btn btn-outline-info">
-                <input type="radio" name="model" id="mobilenet" autocomplete="off">MobileNet V2
-              </label>
-              <label class="btn btn-outline-info">
-                <input type="radio" name="model" id="squeezenet" autocomplete="off">SqueezeNet
-              </label>
-              <label class="btn btn-outline-info">
-                <input type="radio" name="model" id="resnet50" autocomplete="off">ResNet V2 50
-              </label>
+              <div class="btn-group-toggle" data-toggle="buttons" id="fp16ModelBtns" hidden>
+                <label class="btn btn-outline-info">
+                  <input type="radio" name="model" id="mobilenetv27fp16" autocomplete="off">MobileNet V2 FP16
+                </label>
+                <label class="btn btn-outline-info">
+                  <input type="radio" name="model" id="resnet50v1fp16" autocomplete="off">ResNet 50 V1 FP16
+                </label>
+                <label class="btn btn-outline-info">
+                  <input type="radio" name="model" id="efficientnetfp16" autocomplete="off">EfficientNet FP16
+                </label>
+              </div>
+              <div class="btn-group-toggle" data-toggle="buttons" id="fp32ModelBtns">
+                <label class="btn btn-outline-info">
+                  <input type="radio" name="model" id="mobilenet" autocomplete="off">MobileNet V2
+                </label>
+                <label class="btn btn-outline-info">
+                  <input type="radio" name="model" id="squeezenet" autocomplete="off">SqueezeNet
+                </label>
+                <label class="btn btn-outline-info">
+                  <input type="radio" name="model" id="resnet50" autocomplete="off">ResNet V2 50
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -212,6 +228,9 @@
     crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
     integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.9.0/dist/tf.min.js"
+    integrity="sha256-28ZvjeNGrGNEIj9/2D8YAPE6Vm5JSvvDs+LI4ED31x8="
     crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
     integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
