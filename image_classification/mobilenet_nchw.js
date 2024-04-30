@@ -9,12 +9,15 @@ export class MobileNetV2Nchw {
     this.deviceType_ = null;
     this.builder_ = null;
     this.graph_ = null;
-    if (dataType !== 'float32' && dataType !== 'float16') {
+    this.weightsUrl_ = weightsOrigin();
+    if (dataType == 'float32') {
+      this.weightsUrl_ += '/test-data/models/mobilenetv2_nchw/weights/';
+    } else if (dataType == 'float16') {
+      this.weightsUrl_ +=
+          '/test-data/models/mobilenetv2_fp16_nchw_optimized/weights/';
+    } else {
       throw new Error(`Unsupported dataType: ${dataType}`);
     }
-    this.weightsUrl_ = weightsOrigin() + dataType === 'float32' ?
-        '/test-data/models/mobilenetv2_nchw/weights/'
-        : '/test-data/models/mobilenetv2_fp16_nchw_optimized/weights/';
     this.inputOptions = {
       mean: [0.485, 0.456, 0.406],
       std: [0.229, 0.224, 0.225],
@@ -33,7 +36,7 @@ export class MobileNetV2Nchw {
       weights = buildConstantByNpy(this.builder_,
           `${this.weightsUrl_}conv_${name}_weight.npy`);
       options.bias = await buildConstantByNpy(this.builder_,
-          `${this.weightsUrl_}conv_${name}_bias.npy`);;
+          `${this.weightsUrl_}conv_${name}_bias.npy`);
     } else {
       weights = buildConstantByNpy(this.builder_,
           `${this.weightsUrl_}w${name}.npy`);
@@ -142,7 +145,7 @@ export class MobileNetV2Nchw {
       return this.builder_.softmax(await gemm);
     } else {
       const conv4 = this.buildConv_(await conv3, '97', false,
-      {groups: 1280, strides: [7, 7]});
+          {groups: 1280, strides: [7, 7]});
       const conv5 = this.buildConv_(await conv4, '104', false);
       return this.builder_.reshape(await conv5, [1, 1000]);
     }

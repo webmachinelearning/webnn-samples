@@ -30,7 +30,7 @@
             <span>Backend</span>
           </div>
           <div class="col-md-auto">
-            <div class="btn-group-toggle" data-toggle="buttons" id="backendBtns" onChange=>
+            <div class="btn-group-toggle" data-toggle="buttons" id="backendBtns">
               <label class="btn btn-outline-info custom" name="polyfill">
                 <input type="radio" name="backend" id="polyfill_cpu" autocomplete="off">Wasm (CPU)
               </label>
@@ -64,24 +64,27 @@
             </div>
           </div>
         </div> -->
+        <div class="row mb-2 align-items-center">
+          <div class="col-1 col-md-1">
+            <span>Data Type</span>
+          </div>
+          <div class="col-md-auto">
+            <div class="btn-group-toggle" data-toggle="buttons" id="dataTypeBtns">
+              <label class="btn btn-outline-info" id="float32Label" active>
+                <input type="radio" name="layout" id="float32" autocomplete="off" checked>Float32
+              </label>
+              <label class="btn btn-outline-info" id="float16Label">
+                <input type="radio" name="layout" id="float16" autocomplete="off">Float16
+              </label>
+            </div>
+          </div>
+        </div>
         <div class="row align-items-center">
           <div class="col col-md-1">
             <span>Model</span>
           </div>
           <div class="col-md-auto">
             <div class="btn-group-toggle" data-toggle="buttons" id="modelBtns">
-              <div class="btn-group-toggle" data-toggle="buttons" id="fp16ModelBtns" hidden>
-                <label class="btn btn-outline-info">
-                  <input type="radio" name="model" id="mobilenetv27fp16" autocomplete="off">MobileNet V2 FP16
-                </label>
-                <label class="btn btn-outline-info">
-                  <input type="radio" name="model" id="resnet50v1fp16" autocomplete="off">ResNet 50 V1 FP16
-                </label>
-                <label class="btn btn-outline-info">
-                  <input type="radio" name="model" id="efficientnetfp16" autocomplete="off">EfficientNet FP16
-                </label>
-              </div>
-              <div class="btn-group-toggle" data-toggle="buttons" id="fp32ModelBtns">
                 <label class="btn btn-outline-info">
                   <input type="radio" name="model" id="mobilenet" autocomplete="off">MobileNet V2
                 </label>
@@ -91,7 +94,13 @@
                 <label class="btn btn-outline-info">
                   <input type="radio" name="model" id="resnet50" autocomplete="off">ResNet V2 50
                 </label>
-              </div>
+                <label class="btn btn-outline-info">
+                  <input type="radio" name="model" id="resnet50v1" autocomplete="off">ResNet 50 V1
+                </label>
+                <label class="btn btn-outline-info">
+                  <input type="radio" name="model" id="efficientnet" autocomplete="off">EfficientNet
+                </label>
+
             </div>
           </div>
         </div>

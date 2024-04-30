@@ -73,8 +73,8 @@ export class EfficientNetFP16Nchw {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(this.context_);
     const data = this.builder_.input('input', {
-        dataType: this.inputOptions.dataType,
-        dimensions: this.inputOptions.inputDimensions
+      dataType: this.inputOptions.dataType,
+      dimensions: this.inputOptions.inputDimensions,
     });
     // Block 0
     const conv1 = this.buildConv_(

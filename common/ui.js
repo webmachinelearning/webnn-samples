@@ -98,6 +98,23 @@ export function handleClick(cssSelectors, disabled = true) {
 }
 
 /**
+ * Handle button UI, disable or enable the button.
+ * @param {String} selector, css selector.
+ * @param {Boolean} disabled, disable or enable the button.
+ */
+export function handleBtnUI(selector, disabled = true) {
+  if (disabled) {
+    $(selector).addClass('disabled');
+    $(selector).addClass('btn-outline-secondary');
+    $(selector).removeClass('btn-outline-info');
+  } else {
+    $(selector).removeClass('disabled');
+    $(selector).removeClass('btn-outline-secondary');
+    $(selector).addClass('btn-outline-info');
+  }
+}
+
+/**
  * Show flexible alert messages
  * @param {String} msg, alert message.
  * @param {String} type, one of ["info", "warning"], type of message,

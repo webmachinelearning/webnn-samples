@@ -59,8 +59,8 @@ export class ResNet50V1FP16Nchw {
       strides = [stride, stride];
     }
     const conv1 = this.buildConv_(input, nameIndex,
-      stageName, true, {strides});
-    const conv2 =  this.buildConv_(conv1, parseInt(nameIndex) + 1,
+        stageName, true, {strides});
+    const conv2 = this.buildConv_(conv1, parseInt(nameIndex) + 1,
         stageName, true, {padding: [1, 1, 1, 1]});
     const conv3 = this.buildConv_(conv2,
         parseInt(nameIndex) + 2, stageName, false, {});
@@ -76,8 +76,8 @@ export class ResNet50V1FP16Nchw {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(this.context_);
     const data = this.builder_.input('input', {
-        dataType: this.inputOptions.dataType,
-        dimensions: this.inputOptions.inputDimensions
+      dataType: this.inputOptions.dataType,
+      dimensions: this.inputOptions.inputDimensions,
     });
     const conv1 = await this.buildConv_(
         data, '0', '', true, {padding: [3, 3, 3, 3], strides: [2, 2]});

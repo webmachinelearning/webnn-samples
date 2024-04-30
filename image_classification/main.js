@@ -17,7 +17,9 @@ const imgElement = document.getElementById('feedElement');
 imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
 let modelName = '';
+let modelId = '';
 let layout = 'nhwc';
+let dataType = 'float32';
 let instanceType = modelName + layout;
 let rafReq;
 let isFirstTimeLoad = true;
@@ -37,11 +39,66 @@ let lastBackend = '';
 let stopRender = true;
 let isRendering = false;
 const disabledSelectors = ['#tabs > li', '.btn'];
+const modelIds = [
+  'mobilenet',
+  'squeezenet',
+  'resnet50',
+  'resnet50v1',
+  'efficientnet',
+];
+const modelList = {
+  'cpu': {
+    'float32': [
+      'mobilenet',
+      'squeezenet',
+      'resnet50',
+    ],
+  },
+  'gpu': {
+    'float32': [
+      'mobilenet',
+      'squeezenet',
+      'resnet50',
+    ],
+    'float16': [
+      'efficientnet',
+      'mobilenet',
+      'resnet50v1',
+    ],
+  },
+  'npu': {
+    'float16': [
+      'efficientnet',
+      'mobilenet',
+      'resnet50v1',
+    ],
+  },
+};
 
 async function fetchLabels(url) {
   const response = await fetch(url);
   const data = await response.text();
   return data.split('\n');
+}
+
+function displayAvailableModels(modelList, deviceType, dataType) {
+  let models = [];
+  if (dataType == '') {
+    models = models.concat(modelList[deviceType]['float32']);
+    models = models.concat(modelList[deviceType]['float16']);
+  } else {
+    models = models.concat(modelList[deviceType][dataType]);
+  }
+  // Remove duplicate ids.
+  models = [...new Set(models)];
+  // Display available models.
+  for (const model of modelIds) {
+    if (models.includes(model)) {
+      $(`#${model}`).parent().show();
+    } else {
+      $(`#${model}`).parent().hide();
+    }
+  }
 }
 
 $(document).ready(async () => {
@@ -58,30 +115,39 @@ $('#backendBtns .btn').on('change', async (e) => {
     await stopCamRender();
   }
   layout = utils.getDefaultLayout($(e.target).attr('id'));
-
-  // Only show the supported models for each backend. Now fp16 nchw models
-  // are only supported on webnn_gpu/webnn_npu backend.
-  const fp16ModelElement = document.getElementById('fp16ModelBtns');
-  const fp32ModelElement = document.getElementById('fp32ModelBtns');
-  if (($(e.target).attr('id') === 'webnn_gpu')) {
-    fp16ModelElement.removeAttribute('hidden');
-    fp32ModelElement.removeAttribute('hidden');
-  } else if (($(e.target).attr('id') === 'webnn_npu')) {
-    fp16ModelElement.removeAttribute('hidden');
-    fp32ModelElement.setAttribute('hidden', '');
+  [backend, deviceType] = $(e.target).attr('id').split('_');
+  // Only show the supported models for each deviceType. Now fp16 nchw models
+  // are only supported on gpu/npu.
+  if (deviceType == 'gpu') {
+    ui.handleBtnUI('#float16Label', false);
+    ui.handleBtnUI('#float32Label', false);
+    displayAvailableModels(modelList, deviceType, dataType);
+  } else if (deviceType == 'npu') {
+    ui.handleBtnUI('#float16Label', false);
+    ui.handleBtnUI('#float32Label', true);
+    displayAvailableModels(modelList, deviceType, 'float16');
   } else {
-    fp16ModelElement.setAttribute('hidden', '');
-    fp32ModelElement.removeAttribute('hidden');
+    ui.handleBtnUI('#float16Label', true);
+    ui.handleBtnUI('#float32Label', false);
+    displayAvailableModels(modelList, deviceType, 'float32');
   }
 
-  await main();
+  // Uncheck selected model
+  if (modelId != '') {
+    $(`#${modelId}`).parent().removeClass('active');
+  }
 });
 
 $('#modelBtns .btn').on('change', async (e) => {
   if (inputType === 'camera') {
     await stopCamRender();
   }
-  modelName = $(e.target).attr('id');
+  modelId = $(e.target).attr('id');
+  modelName = modelId;
+  if (dataType == 'float16') {
+    modelName += 'fp16';
+  }
+
   await main();
 });
 
@@ -92,6 +158,16 @@ $('#modelBtns .btn').on('change', async (e) => {
 //   layout = $(e.target).attr('id');
 //   await main();
 // });
+
+$('#dataTypeBtns .btn').on('change', async (e) => {
+  dataType = $(e.target).attr('id');
+  displayAvailableModels(modelList, deviceType, dataType);
+  // Uncheck selected model
+  if (modelId != '') {
+    $(`#${modelId}`).parent().removeClass('active');
+  }
+});
+
 
 // Click trigger to do inference with <img> element
 $('#img').click(async () => {
@@ -258,7 +334,7 @@ function showPerfResult(medianComputeTime = undefined) {
 
 function constructNetObject(type) {
   const netObject = {
-    'mobilenetv27fp16nchw': new MobileNetV2Nchw('float16'),
+    'mobilenetfp16nchw': new MobileNetV2Nchw('float16'),
     'resnet50v1fp16nchw': new ResNet50V1FP16Nchw(),
     'efficientnetfp16nchw': new EfficientNetFP16Nchw(),
     'mobilenetnchw': new MobileNetV2Nchw(),
@@ -275,8 +351,6 @@ function constructNetObject(type) {
 async function main() {
   try {
     if (modelName === '') return;
-    [backend, deviceType] =
-        $('input[name="backend"]:checked').attr('id').split('_');
     ui.handleClick(disabledSelectors, true);
     if (isFirstTimeLoad) $('#hint').hide();
     let start;
