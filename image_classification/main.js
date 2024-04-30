@@ -42,7 +42,7 @@ const disabledSelectors = ['#tabs > li', '.btn'];
 const modelIds = [
   'mobilenet',
   'squeezenet',
-  'resnet50',
+  'resnet50v2',
   'resnet50v1',
   'efficientnet',
 ];
@@ -51,14 +51,14 @@ const modelList = {
     'float32': [
       'mobilenet',
       'squeezenet',
-      'resnet50',
+      'resnet50v2',
     ],
   },
   'gpu': {
     'float32': [
       'mobilenet',
       'squeezenet',
-      'resnet50',
+      'resnet50v2',
     ],
     'float16': [
       'efficientnet',
