@@ -341,8 +341,8 @@ function constructNetObject(type) {
     'mobilenetnhwc': new MobileNetV2Nhwc(),
     'squeezenetnchw': new SqueezeNetNchw(),
     'squeezenetnhwc': new SqueezeNetNhwc(),
-    'resnet50nchw': new ResNet50V2Nchw(),
-    'resnet50nhwc': new ResNet50V2Nhwc(),
+    'resnet50v2nchw': new ResNet50V2Nchw(),
+    'resnet50v2nhwc': new ResNet50V2Nhwc(),
   };
 
   return netObject[type];
