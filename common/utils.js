@@ -118,7 +118,8 @@ export async function buildConstantByNpy(builder, url, targetType) {
     typedArray = uint16Array;
     type = targetType;
   } else if (type !== targetType) {
-    throw new Error(`Conversion from ${npArray.dataType} to ${targetType} is not supported.`);
+    throw new Error(`Conversion from ${npArray.dataType} ` +
+        `to ${targetType} is not supported.`);
   }
   return builder.constant({dataType: type, type, dimensions}, typedArray);
 }
@@ -554,7 +555,8 @@ export function getDefaultLayout(deviceType) {
     // Windows or Mac platform.
     if (deviceType.indexOf('cpu') != -1) {
       return 'nhwc';
-    } else if (deviceType.indexOf('gpu') != -1 || deviceType.indexOf('npu') != -1) {
+    } else if (deviceType.indexOf('gpu') != -1 ||
+               deviceType.indexOf('npu') != -1) {
       return 'nchw';
     }
   }

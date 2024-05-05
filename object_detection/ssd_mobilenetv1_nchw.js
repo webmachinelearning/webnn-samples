@@ -58,9 +58,11 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     }
 
     const weightsName = this.weightsUrl_ + prefix + weightSuffix;
-    const weights = await buildConstantByNpy(this.builder_, weightsName, this.targetDataType_);
+    const weights = await buildConstantByNpy(
+        this.builder_, weightsName, this.targetDataType_);
     const biasName = this.biasUrl_ + prefix + biasSuffix;
-    const bias = await buildConstantByNpy(this.builder_, biasName, this.targetDataType_);
+    const bias = await buildConstantByNpy(
+        this.builder_, biasName, this.targetDataType_);
     options.padding = computePadding2DForAutoPad(
         /* nchw */[input.shape()[2], input.shape()[3]],
         /* oihw */[weights.shape()[2], weights.shape()[3]],
@@ -85,7 +87,7 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.deviceType_ = contextOptions.deviceType;
     if (this.deviceType_ == 'gpu' || this.deviceType_ == 'npu') {
-        this.targetDataType_ = 'float16';
+      this.targetDataType_ = 'float16';
     }
     this.builder_ = new MLGraphBuilder(this.context_);
     let input = this.builder_.input('input', {
@@ -93,7 +95,7 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
       dimensions: this.inputOptions.inputDimensions,
     });
     if (this.targetDataType_ === 'float16') {
-        input = this.builder_.cast(input, 'float16');
+      input = this.builder_.cast(input, 'float16');
     }
     const strides = [2, 2];
     const conv0 = await this.buildConv_(
