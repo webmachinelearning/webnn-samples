@@ -262,7 +262,7 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
 
     if (this.targetDataType_ === 'float16') {
       boxes = this.builder_.cast(boxes, 'float32');
-      scores = this.builder_.cast(boxes, 'float32');
+      scores = this.builder_.cast(scores, 'float32');
     }
     return {boxes, scores};
   }
