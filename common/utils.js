@@ -84,7 +84,7 @@ export const toHalf = (function() {
 
 // Convert npy data in original data type to `targetType`, only support
 // 'float32' to 'float16' conversion currently.
-export async function buildConstantByNpy(builder, url, targetType) {
+export async function buildConstantByNpy(builder, url, targetType = 'float32') {
   const dataTypeMap = new Map([
     ['f2', {type: 'float16', array: Uint16Array}],
     ['f4', {type: 'float32', array: Float32Array}],
