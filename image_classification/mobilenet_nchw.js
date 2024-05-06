@@ -4,19 +4,20 @@ import {buildConstantByNpy, weightsOrigin} from '../common/utils.js';
 
 // MobileNet V2 model with 'nchw' input layout
 export class MobileNetV2Nchw {
-  constructor(dataType = 'float32') {
+  constructor(targetDataType = 'float32') {
     this.context_ = null;
     this.deviceType_ = null;
     this.builder_ = null;
     this.graph_ = null;
+    this.targetDataType_ = targetDataType;
     this.weightsUrl_ = weightsOrigin();
-    if (dataType == 'float32') {
+    if (this.targetDataType_ === 'float32') {
       this.weightsUrl_ += '/test-data/models/mobilenetv2_nchw/weights/';
-    } else if (dataType == 'float16') {
+    } else if (this.targetDataType_ === 'float16') {
       this.weightsUrl_ +=
           '/test-data/models/mobilenetv2_fp16_nchw_optimized/weights/';
     } else {
-      throw new Error(`Unsupported dataType: ${dataType}`);
+      throw new Error(`Unsupported dataType: ${this.targetDataType_}`);
     }
     this.inputOptions = {
       mean: [0.485, 0.456, 0.406],
@@ -25,25 +26,25 @@ export class MobileNetV2Nchw {
       inputLayout: 'nchw',
       labelUrl: './labels/labels1000.txt',
       inputDimensions: [1, 3, 224, 224],
-      dataType: dataType,
+      dataType: 'float32',
     };
     this.outputDimensions = [1, 1000];
   }
 
   async buildConv_(input, name, relu6 = true, options = {}) {
     let weights;
-    if (this.inputOptions.dataType==='float32') {
+    if (this.targetDataType_==='float32') {
       weights = buildConstantByNpy(this.builder_,
-          `${this.weightsUrl_}conv_${name}_weight.npy`);
+          `${this.weightsUrl_}conv_${name}_weight.npy`, this.targetDataType_);
       options.bias = await buildConstantByNpy(this.builder_,
-          `${this.weightsUrl_}conv_${name}_bias.npy`);
+          `${this.weightsUrl_}conv_${name}_bias.npy`, this.targetDataType_);
     } else {
       weights = buildConstantByNpy(this.builder_,
-          `${this.weightsUrl_}w${name}.npy`);
+          `${this.weightsUrl_}w${name}.npy`, this.targetDataType_);
       // Only node 97 has no bias input
       if (name !== '97') {
         options.bias = await buildConstantByNpy(this.builder_,
-            `${this.weightsUrl_}b${name}.npy`);
+            `${this.weightsUrl_}b${name}.npy`, this.targetDataType_);
       }
     }
 
@@ -65,9 +66,11 @@ export class MobileNetV2Nchw {
   async buildGemm_(input, name) {
     const prefix = this.weightsUrl_ + 'gemm_' + name;
     const weightsName = prefix + '_weight.npy';
-    const weights = buildConstantByNpy(this.builder_, weightsName);
+    const weights = buildConstantByNpy(this.builder_, weightsName,
+        this.targetDataType_);
     const biasName = prefix + '_bias.npy';
-    const bias = buildConstantByNpy(this.builder_, biasName);
+    const bias = buildConstantByNpy(this.builder_, biasName,
+        this.targetDataType_);
     const options = {c: await bias, bTranspose: true};
     return this.builder_.gemm(await input, await weights, options);
   }
@@ -95,10 +98,13 @@ export class MobileNetV2Nchw {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.deviceType_ = contextOptions.deviceType;
     this.builder_ = new MLGraphBuilder(this.context_);
-    const data = this.builder_.input('input', {
+    let data = this.builder_.input('input', {
       dataType: this.inputOptions.dataType,
       dimensions: this.inputOptions.inputDimensions,
     });
+    if (this.targetDataType_ === 'float16') {
+      data = this.builder_.cast(data, 'float16');
+    }
     const conv0 = this.buildConv_(
         data, '0', true, {padding: [1, 1, 1, 1], strides: [2, 2]});
     const conv1 = this.buildConv_(
@@ -138,7 +144,7 @@ export class MobileNetV2Nchw {
         bottleneck14, ['90', '92', '94'], 960, 1, false);
 
     const conv3 = this.buildConv_(bottleneck15, '95', true);
-    if (this.inputOptions.dataType == 'float32') {
+    if (this.targetDataType_ == 'float32') {
       const pool = this.builder_.averagePool2d(await conv3);
       const reshape = this.builder_.reshape(pool, [1, 1280]);
       const gemm = this.buildGemm_(reshape, '104');
@@ -147,7 +153,13 @@ export class MobileNetV2Nchw {
       const conv4 = this.buildConv_(await conv3, '97', false,
           {groups: 1280, strides: [7, 7]});
       const conv5 = this.buildConv_(await conv4, '104', false);
-      return this.builder_.reshape(await conv5, [1, 1000]);
+      const reshape = this.builder_.reshape(await conv5, [1, 1000]);
+      if (contextOptions.deviceType === 'npu') {
+        return this.builder_.cast(reshape, 'float32');
+      } else {
+        const softmax = this.builder_.softmax(reshape);
+        return this.builder_.cast(softmax, 'float32');
+      }
     }
   }
 

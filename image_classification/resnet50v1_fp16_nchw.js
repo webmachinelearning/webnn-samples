@@ -8,6 +8,7 @@ export class ResNet50V1FP16Nchw {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
+    this.targetDataType_ = 'float16';
     this.weightsUrl_ = weightsOrigin() +
     '/test-data/models/resnet50v1_fp16_nchw_optimized/weights/';
     this.inputOptions = {
@@ -17,7 +18,7 @@ export class ResNet50V1FP16Nchw {
       inputLayout: 'nchw',
       labelUrl: './labels/labels1000.txt',
       inputDimensions: [1, 3, 224, 224],
-      dataType: 'float16',
+      dataType: 'float32',
     };
     this.outputDimensions = [1, 1000];
   }
@@ -30,8 +31,10 @@ export class ResNet50V1FP16Nchw {
     } else {
       prefix = this.weightsUrl_ + 'conv' + name;
     }
-    const weight = buildConstantByNpy(this.builder_, prefix + '_w.npy');
-    options.bias = await buildConstantByNpy(this.builder_, prefix + '_b.npy');
+    const weight = buildConstantByNpy(this.builder_, prefix + '_w.npy',
+        this.targetDataType_);
+    options.bias = await buildConstantByNpy(this.builder_, prefix + '_b.npy',
+        this.targetDataType_);
     if (relu) {
       options.activation = this.builder_.relu();
     }
@@ -42,9 +45,11 @@ export class ResNet50V1FP16Nchw {
   async buildGemm_(input, name) {
     const prefix = this.weightsUrl_ + 'dense' + name;
     const weightName = prefix + '_w.npy';
-    const weight = buildConstantByNpy(this.builder_, weightName);
+    const weight = buildConstantByNpy(this.builder_, weightName,
+        this.targetDataType_);
     const biasName = prefix + '_b.npy';
-    const bias = buildConstantByNpy(this.builder_, biasName);
+    const bias = buildConstantByNpy(this.builder_, biasName,
+        this.targetDataType_);
     const options =
         {c: this.builder_.reshape(await bias, [1, 1000]), bTranspose: true};
     return this.builder_.gemm(await input, await weight, options);
@@ -75,10 +80,11 @@ export class ResNet50V1FP16Nchw {
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(this.context_);
-    const data = this.builder_.input('input', {
+    let data = this.builder_.input('input', {
       dataType: this.inputOptions.dataType,
       dimensions: this.inputOptions.inputDimensions,
     });
+    data = this.builder_.cast(data, 'float16');
     const conv1 = await this.buildConv_(
         data, '0', '', true, {padding: [3, 3, 3, 3], strides: [2, 2]});
     const pool1 = this.builder_.maxPool2d(conv1,
@@ -113,7 +119,13 @@ export class ResNet50V1FP16Nchw {
 
     const pool2 = this.builder_.averagePool2d(await bottleneck16);
     const reshape = this.builder_.reshape(pool2, [1, 2048]);
-    return this.buildGemm_(reshape, '0');
+    const gemm = this.buildGemm_(reshape, '0');
+    if (contextOptions.deviceType === 'npu') {
+      return this.builder_.cast(await gemm, 'float32');
+    } else {
+      const softmax = this.builder_.softmax(await gemm);
+      return this.builder_.cast(softmax, 'float32');
+    }
   }
 
   async build(outputOperand) {

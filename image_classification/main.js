@@ -248,31 +248,19 @@ async function renderCamStream() {
 
 // Get top 3 classes of labels from output buffer
 function getTopClasses(buffer, labels) {
-  let float32Buffer = buffer;
   // Currently we need to fallback softmax to tf.softmax because
   // NPU dosen't support softmax.
-  // Convert output buffer from float16 to float32, because
-  // tf.tensor/tf.softmax doesn't support float16 data type
-  // according to https://js.tensorflow.org/api/latest/#tensor.
   // TODO: Remove this workaround once NPU supports softmax.
-  if (inputOptions.dataType === 'float16') {
-    const elementsCount = utils.sizeOfShape(netInstance.outputDimensions);
-    const float32Array = new Float32Array(elementsCount);
-    for (let i = 0; i < elementsCount; ++i) {
-      float32Array[i] = utils.float16ToNumber(buffer[i]);
-    }
-    float32Buffer = float32Array;
-
+  if (deviceType === 'npu') {
     // Softmax
-    float32Buffer = tf.tidy(() => {
+    buffer = tf.tidy(() => {
       const a =
-        tf.tensor(float32Buffer, netInstance.outputDimensions, 'float32');
+        tf.tensor(buffer, netInstance.outputDimensions, 'float32');
       const b = tf.softmax(a);
       return b.dataSync();
     });
   }
-
-  const probs = Array.from(float32Buffer);
+  const probs = Array.from(buffer);
   const indexes = probs.map((prob, index) => [prob, index]);
   const sorted = indexes.sort((a, b) => {
     if (a[0] === b[0]) {
@@ -375,14 +363,8 @@ async function main() {
       netInstance = constructNetObject(instanceType);
       inputOptions = netInstance.inputOptions;
       labels = await fetchLabels(inputOptions.labelUrl);
-      if (inputOptions.dataType === 'float16') {
-        outputBuffer =
-          new Uint16Array(utils.sizeOfShape(netInstance.outputDimensions));
-      } else {
-        outputBuffer =
+      outputBuffer =
           new Float32Array(utils.sizeOfShape(netInstance.outputDimensions));
-      }
-
       isFirstTimeLoad = false;
       console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
       // UI shows model loading progress

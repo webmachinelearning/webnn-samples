@@ -8,6 +8,7 @@ export class EfficientNetFP16Nchw {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
+    this.targetDataType_ = 'float16';
     this.weightsUrl_ = weightsOrigin() +
     '/test-data/models/efficientnet_fp16_nchw_optimized/weights/';
     this.inputOptions = {
@@ -17,7 +18,7 @@ export class EfficientNetFP16Nchw {
       inputLayout: 'nchw',
       labelUrl: './labels/labels1000.txt',
       inputDimensions: [1, 3, 224, 224],
-      dataType: 'float16',
+      dataType: 'float32',
     };
     this.outputDimensions = [1, 1000];
   }
@@ -30,8 +31,10 @@ export class EfficientNetFP16Nchw {
     } else {
       prefix = this.weightsUrl_ + 'conv' + name;
     }
-    const weight = buildConstantByNpy(this.builder_, prefix + '_w.npy');
-    options.bias = await buildConstantByNpy(this.builder_, prefix + '_b.npy');
+    const weight = buildConstantByNpy(this.builder_, prefix + '_w.npy',
+        this.targetDataType_ = 'float16');
+    options.bias = await buildConstantByNpy(this.builder_, prefix + '_b.npy',
+        this.targetDataType_ = 'float16');
     if (clip) {
       return this.builder_.clamp(
           this.builder_.conv2d(await input, await weight, options),
@@ -43,9 +46,11 @@ export class EfficientNetFP16Nchw {
   async buildGemm_(input, name) {
     const prefix = this.weightsUrl_ + 'dense' + name;
     const weightName = prefix + '_w.npy';
-    const weight = buildConstantByNpy(this.builder_, weightName);
+    const weight = buildConstantByNpy(this.builder_, weightName,
+        this.targetDataType_ = 'float16');
     const biasName = prefix + '_b.npy';
-    const bias = buildConstantByNpy(this.builder_, biasName);
+    const bias = buildConstantByNpy(this.builder_, biasName,
+        this.targetDataType_ = 'float16');
     const options =
         {c: this.builder_.reshape(await bias, [1, 1000])};
     return this.builder_.gemm(await input, await weight, options);
@@ -72,10 +77,11 @@ export class EfficientNetFP16Nchw {
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(this.context_);
-    const data = this.builder_.input('input', {
+    let data = this.builder_.input('input', {
       dataType: this.inputOptions.dataType,
       dimensions: this.inputOptions.inputDimensions,
     });
+    data = this.builder_.cast(data, 'float16');
     // Block 0
     const conv1 = this.buildConv_(
         data, '0', '0', true, {padding: [0, 1, 0, 1], strides: [2, 2]});
@@ -142,7 +148,13 @@ export class EfficientNetFP16Nchw {
     const conv22 = this.buildConv_(conv21, '0', '', true);
     const pool1 = this.builder_.averagePool2d(await conv22);
     const reshape = this.builder_.reshape(pool1, [1, 1280]);
-    return this.buildGemm_(reshape, '0');
+    const gemm = this.buildGemm_(reshape, '0');
+    if (contextOptions.deviceType === 'npu') {
+      return this.builder_.cast(await gemm, 'float32');
+    } else {
+      const softmax = this.builder_.softmax(await gemm);
+      return this.builder_.cast(softmax, 'float32');
+    }
   }
 
   async build(outputOperand) {
