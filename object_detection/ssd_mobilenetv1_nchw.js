@@ -7,6 +7,7 @@ export class SsdMobilenetV1Nchw {
   constructor() {
     this.context_ = null;
     this.deviceType_ = null;
+    this.targetDataType_ = 'float32';
     this.model_ = null;
     this.builder_ = null;
     this.graph_ = null;
@@ -57,9 +58,11 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     }
 
     const weightsName = this.weightsUrl_ + prefix + weightSuffix;
-    const weights = await buildConstantByNpy(this.builder_, weightsName);
+    const weights = await buildConstantByNpy(
+        this.builder_, weightsName, this.targetDataType_);
     const biasName = this.biasUrl_ + prefix + biasSuffix;
-    const bias = await buildConstantByNpy(this.builder_, biasName);
+    const bias = await buildConstantByNpy(
+        this.builder_, biasName, this.targetDataType_);
     options.padding = computePadding2DForAutoPad(
         /* nchw */[input.shape()[2], input.shape()[3]],
         /* oihw */[weights.shape()[2], weights.shape()[3]],
@@ -69,7 +72,7 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
       // TODO: Set clamp activation to options once it's supported in
       // WebNN DML backend.
       // Implement `clip` by `clamp` of  WebNN API
-      if (this.deviceType_ == 'gpu') {
+      if (this.deviceType_ == 'gpu' || this.deviceType_ == 'npu') {
         return this.builder_.clamp(
             this.builder_.conv2d(input, weights, options),
             {minValue: 0, maxValue: 6});
@@ -83,12 +86,17 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.deviceType_ = contextOptions.deviceType;
+    if (this.deviceType_ == 'gpu' || this.deviceType_ == 'npu') {
+      this.targetDataType_ = 'float16';
+    }
     this.builder_ = new MLGraphBuilder(this.context_);
-    const input = this.builder_.input('input', {
-      type: 'float32',
+    let input = this.builder_.input('input', {
       dataType: 'float32',
       dimensions: this.inputOptions.inputDimensions,
     });
+    if (this.targetDataType_ === 'float16') {
+      input = this.builder_.cast(input, 'float16');
+    }
     const strides = [2, 2];
     const conv0 = await this.buildConv_(
         input, ['', '0', '', '165__cf__168'],
@@ -249,7 +257,14 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     const concat1 = this.builder_.concat(
         [reshape6, reshape7, reshape8, reshape9, reshape10, reshape11], 1);
 
-    return {'boxes': concat0, 'scores': concat1};
+    let boxes = concat0;
+    let scores = concat1;
+
+    if (this.targetDataType_ === 'float16') {
+      boxes = this.builder_.cast(boxes, 'float32');
+      scores = this.builder_.cast(boxes, 'float32');
+    }
+    return {boxes, scores};
   }
 
   async build(outputOperand) {
