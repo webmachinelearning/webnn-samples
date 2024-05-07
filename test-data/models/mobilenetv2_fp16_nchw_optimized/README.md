@@ -1,0 +1,2 @@
+`.npy` files under this folder are downloaded from an optimized model of [MobileNet V2 7](https://github.com/onnx/models/blob/main/validated/vision/classification/mobilenet/model/mobilenetv2-7.onnx),
+which is licensed under the Apache 2.0.

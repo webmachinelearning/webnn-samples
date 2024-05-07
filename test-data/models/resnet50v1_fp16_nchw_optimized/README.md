@@ -1,0 +1,1 @@
+`.npy` files under this folder are downloaded from an optimized model of [ResNet50 V1 12](https://github.com/onnx/models/blob/main/validated/vision/classification/resnet/model/resnet50-v1-12.onnx), which is licensed under the Apache 2.0.
