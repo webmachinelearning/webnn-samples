@@ -1,6 +1,6 @@
 'use strict';
 
-import {buildConstantByNpy, computePadding2DForAutoPad, weightsOrigin, toHalf} from '../common/utils.js';
+import {buildConstantByNpy, computePadding2DForAutoPad, weightsOrigin} from '../common/utils.js';
 
 // Tiny Yolo V2 model with 'nchw' layout, trained on the Pascal VOC dataset.
 export class TinyYoloV2Nchw {
@@ -23,20 +23,24 @@ export class TinyYoloV2Nchw {
   }
 
   async buildConv_(input, name) {
-    let biasName = `${this.weightsUrl_}ConvBnFusion_BN_B_BatchNormalization_B${name}.npy`;
-    let weightName = `${this.weightsUrl_}ConvBnFusion_W_convolution${name}_W.npy`;
+    let biasName =
+        `${this.weightsUrl_}ConvBnFusion_BN_B_BatchNormalization_B${name}.npy`;
+    let weightName =
+        `${this.weightsUrl_}ConvBnFusion_W_convolution${name}_W.npy`;
     if (name === '8') {
       biasName = `${this.weightsUrl_}convolution8_B.npy`;
       weightName = `${this.weightsUrl_}convolution8_W.npy`;
     }
 
-    const weight = await buildConstantByNpy(this.builder_, weightName, this.targetDataType_);
+    const weight = await buildConstantByNpy(
+        this.builder_, weightName, this.targetDataType_);
     const options = {autoPad: 'same-upper'};
     options.padding = computePadding2DForAutoPad(
         /* nchw */[input.shape()[2], input.shape()[3]],
         /* oihw */[weight.shape()[2], weight.shape()[3]],
         options.strides, options.dilations, 'same-upper');
-    options.bias = await buildConstantByNpy(this.builder_, biasName, this.targetDataType_);
+    options.bias = await buildConstantByNpy(
+        this.builder_, biasName, this.targetDataType_);
     const conv = this.builder_.conv2d(input, weight, options);
     if (name === '8') {
       return conv;
@@ -92,7 +96,8 @@ export class TinyYoloV2Nchw {
     const conv6 = await this.buildConv_(pool5, '6');
     const conv7 = await this.buildConv_(conv6, '7');
     const conv = await this.buildConv_(conv7, '8');
-    const transpose = this.builder_.transpose(conv, {permutation: [0, 2, 3, 1]});
+    const transpose = this.builder_.transpose(
+        conv, {permutation: [0, 2, 3, 1]});
     if (this.targetDataType_ === 'float16') {
       return this.builder_.cast(transpose, 'float32');
     } else {
