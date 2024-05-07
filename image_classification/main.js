@@ -1,5 +1,7 @@
 'use strict';
 
+import {ResNet50V1FP16Nchw} from './resnet50v1_fp16_nchw.js';
+import {EfficientNetFP16Nchw} from './efficientnet_fp16_nchw.js';
 import {MobileNetV2Nchw} from './mobilenet_nchw.js';
 import {MobileNetV2Nhwc} from './mobilenet_nhwc.js';
 import {SqueezeNetNchw} from './squeezenet_nchw.js';
@@ -15,7 +17,9 @@ const imgElement = document.getElementById('feedElement');
 imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
 let modelName = '';
+let modelId = '';
 let layout = 'nhwc';
+let dataType = 'float32';
 let instanceType = modelName + layout;
 let rafReq;
 let isFirstTimeLoad = true;
@@ -35,11 +39,66 @@ let lastBackend = '';
 let stopRender = true;
 let isRendering = false;
 const disabledSelectors = ['#tabs > li', '.btn'];
+const modelIds = [
+  'mobilenet',
+  'squeezenet',
+  'resnet50v2',
+  'resnet50v1',
+  'efficientnet',
+];
+const modelList = {
+  'cpu': {
+    'float32': [
+      'mobilenet',
+      'squeezenet',
+      'resnet50v2',
+    ],
+  },
+  'gpu': {
+    'float32': [
+      'mobilenet',
+      'squeezenet',
+      'resnet50v2',
+    ],
+    'float16': [
+      'efficientnet',
+      'mobilenet',
+      'resnet50v1',
+    ],
+  },
+  'npu': {
+    'float16': [
+      'efficientnet',
+      'mobilenet',
+      'resnet50v1',
+    ],
+  },
+};
 
 async function fetchLabels(url) {
   const response = await fetch(url);
   const data = await response.text();
   return data.split('\n');
+}
+
+function displayAvailableModels(modelList, deviceType, dataType) {
+  let models = [];
+  if (dataType == '') {
+    models = models.concat(modelList[deviceType]['float32']);
+    models = models.concat(modelList[deviceType]['float16']);
+  } else {
+    models = models.concat(modelList[deviceType][dataType]);
+  }
+  // Remove duplicate ids.
+  models = [...new Set(models)];
+  // Display available models.
+  for (const model of modelIds) {
+    if (models.includes(model)) {
+      $(`#${model}`).parent().show();
+    } else {
+      $(`#${model}`).parent().hide();
+    }
+  }
 }
 
 $(document).ready(async () => {
@@ -56,14 +115,39 @@ $('#backendBtns .btn').on('change', async (e) => {
     await stopCamRender();
   }
   layout = utils.getDefaultLayout($(e.target).attr('id'));
-  await main();
+  [backend, deviceType] = $(e.target).attr('id').split('_');
+  // Only show the supported models for each deviceType. Now fp16 nchw models
+  // are only supported on gpu/npu.
+  if (deviceType == 'gpu') {
+    ui.handleBtnUI('#float16Label', false);
+    ui.handleBtnUI('#float32Label', false);
+    displayAvailableModels(modelList, deviceType, dataType);
+  } else if (deviceType == 'npu') {
+    ui.handleBtnUI('#float16Label', false);
+    ui.handleBtnUI('#float32Label', true);
+    displayAvailableModels(modelList, deviceType, 'float16');
+  } else {
+    ui.handleBtnUI('#float16Label', true);
+    ui.handleBtnUI('#float32Label', false);
+    displayAvailableModels(modelList, deviceType, 'float32');
+  }
+
+  // Uncheck selected model
+  if (modelId != '') {
+    $(`#${modelId}`).parent().removeClass('active');
+  }
 });
 
 $('#modelBtns .btn').on('change', async (e) => {
   if (inputType === 'camera') {
     await stopCamRender();
   }
-  modelName = $(e.target).attr('id');
+  modelId = $(e.target).attr('id');
+  modelName = modelId;
+  if (dataType == 'float16') {
+    modelName += 'fp16';
+  }
+
   await main();
 });
 
@@ -74,6 +158,16 @@ $('#modelBtns .btn').on('change', async (e) => {
 //   layout = $(e.target).attr('id');
 //   await main();
 // });
+
+$('#dataTypeBtns .btn').on('change', async (e) => {
+  dataType = $(e.target).attr('id');
+  displayAvailableModels(modelList, deviceType, dataType);
+  // Uncheck selected model
+  if (modelId != '') {
+    $(`#${modelId}`).parent().removeClass('active');
+  }
+});
+
 
 // Click trigger to do inference with <img> element
 $('#img').click(async () => {
@@ -154,6 +248,18 @@ async function renderCamStream() {
 
 // Get top 3 classes of labels from output buffer
 function getTopClasses(buffer, labels) {
+  // Currently we need to fallback softmax to tf.softmax because
+  // NPU dosen't support softmax.
+  // TODO: Remove this workaround once NPU supports softmax.
+  if (deviceType === 'npu') {
+    // Softmax
+    buffer = tf.tidy(() => {
+      const a =
+        tf.tensor(buffer, netInstance.outputDimensions, 'float32');
+      const b = tf.softmax(a);
+      return b.dataSync();
+    });
+  }
   const probs = Array.from(buffer);
   const indexes = probs.map((prob, index) => [prob, index]);
   const sorted = indexes.sort((a, b) => {
@@ -216,12 +322,15 @@ function showPerfResult(medianComputeTime = undefined) {
 
 function constructNetObject(type) {
   const netObject = {
+    'mobilenetfp16nchw': new MobileNetV2Nchw('float16'),
+    'resnet50v1fp16nchw': new ResNet50V1FP16Nchw(),
+    'efficientnetfp16nchw': new EfficientNetFP16Nchw(),
     'mobilenetnchw': new MobileNetV2Nchw(),
     'mobilenetnhwc': new MobileNetV2Nhwc(),
     'squeezenetnchw': new SqueezeNetNchw(),
     'squeezenetnhwc': new SqueezeNetNhwc(),
-    'resnet50nchw': new ResNet50V2Nchw(),
-    'resnet50nhwc': new ResNet50V2Nhwc(),
+    'resnet50v2nchw': new ResNet50V2Nchw(),
+    'resnet50v2nhwc': new ResNet50V2Nhwc(),
   };
 
   return netObject[type];
@@ -230,8 +339,6 @@ function constructNetObject(type) {
 async function main() {
   try {
     if (modelName === '') return;
-    [backend, deviceType] =
-        $('input[name="backend"]:checked').attr('id').split('_');
     ui.handleClick(disabledSelectors, true);
     if (isFirstTimeLoad) $('#hint').hide();
     let start;
@@ -245,7 +352,7 @@ async function main() {
         // Set backend and device
         await utils.setBackend(backend, deviceType);
         lastdeviceType = lastdeviceType != deviceType ?
-                               deviceType : lastdeviceType;
+            deviceType : lastdeviceType;
         lastBackend = lastBackend != backend ? backend : lastBackend;
       }
       if (netInstance !== null) {

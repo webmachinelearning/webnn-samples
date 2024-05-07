@@ -606,6 +606,18 @@ $(document).ready(async () => {
           "title",
           "WebNN is supported, disable WebNN Polyfill."
         );
+        // Disable WebNN NPU backend if failed to find a capable NPU adapter.
+        try {
+          await navigator.ml.createContext({deviceType: 'npu'});
+        } catch (error) {
+          $('#webnn_npu').parent().addClass('disabled');
+          $('#webnn_npu').parent().addClass('btn-outline-secondary');
+          $('#webnn_npu').parent().removeClass('btn-outline-info');
+          $('#webnn_npu').parent().attr(
+            "title",
+            "Unable to find a capable NPU adapter."
+          );
+        }
       }
     }
     $("#webnnstatus").html("supported").addClass("webnn-status-true");
