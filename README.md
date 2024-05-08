@@ -55,9 +55,9 @@ Running WebNN on NPU requires capable NPU hardware e.g. Intel® AI Boost NPU fro
 Download the latest redistributable DirectML package from [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/), extract the package and copy the DirectML.dll (e.g. \bin\x64-win\DirectML.dll) to the Chrome canary’s directory (e.g. C:\Users\\"username"\AppData\Local\Google\Chrome SxS\Application\\"version number"\).
 3. Launch your browser in Windows Command Line:
 * Google Chrome Canary:
-> "C:\Users\\"username"\AppData\Local\Google\Chrome SxS\Application\chrome.exe" --disable-gpu-sandbox
+> "C:\Users\\"username"\AppData\Local\Google\Chrome SxS\Application\chrome.exe" --use-redist-dml
 * Microsoft Edge Canary:
-> "C:\Users\\"username"\AppData\Local\Microsoft\Edge SxS\Application\msedge.exe" --disable-gpu-sandbox
+> "C:\Users\\"username"\AppData\Local\Microsoft\Edge SxS\Application\msedge.exe"
 
 ## Support and Feedback
 If you encounter any issues or have feedback on the WebNN Samples, please open an issue on the repository. We appreciate your input and will strive to address any problems as quickly as possible.
