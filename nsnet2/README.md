@@ -1,5 +1,5 @@
 ## WebNN NSNet2 Example
-This example shows how the [NSNet2](https://github.com/microsoft/DNS-Challenge/tree/master/NSNet2-baseline) baseline implementation of deep learning-based noise suppression model may be implemented using the WebNN API.
+This example shows how the [NSNet2](https://github.com/microsoft/DNS-Challenge/tree/a052ad5a7714bcc6069b515666e837bf973099de/NSNet2-baseline) baseline implementation of deep learning-based noise suppression model may be implemented using the WebNN API.
 
 ### Usage
 
