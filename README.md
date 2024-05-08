@@ -52,7 +52,7 @@ Running WebNN on NPU requires capable NPU hardware e.g. Intel® AI Boost NPU fro
 
 1. Download and install the [latest Intel NPU driver](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html).
 2. Microsoft Edge browser will download the latest DirectML.dll automatically when WebNN is enabled. Apply the latest redistributable DirectML.dll for Google Chrome Canary:
-Download the latest redistributable DirectML package from [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/), extract the package and copy the DirectML.dll (e.g. \bin\x64-win\DirectML.dll) to the Chrome canary’s directory (e.g. C:\Users\\"username"\AppData\Local\Google\Chrome SxS\Application\\"version number"\).
+Download the latest redistributable [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/), extract the package and copy the DirectML.dll (e.g. \bin\x64-win\DirectML.dll) to the Chrome Canary’s directory (e.g. C:\Users\"username"\AppData\Local\Google\Chrome SxS\Application\"version number").
 3. Launch your browser in Windows Command Line:
 * Google Chrome Canary:
 > "C:\Users\\"username"\AppData\Local\Google\Chrome SxS\Application\chrome.exe" --use-redist-dml
