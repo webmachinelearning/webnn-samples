@@ -125,10 +125,12 @@ $('#backendBtns .btn').on('change', async (e) => {
   } else if (deviceType == 'npu') {
     ui.handleBtnUI('#float16Label', false);
     ui.handleBtnUI('#float32Label', true);
+    $('#float16').click();
     displayAvailableModels(modelList, deviceType, 'float16');
   } else {
     ui.handleBtnUI('#float16Label', true);
     ui.handleBtnUI('#float32Label', false);
+    $('#float32').click();
     displayAvailableModels(modelList, deviceType, 'float32');
   }
 
