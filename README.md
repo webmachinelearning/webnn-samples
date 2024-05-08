@@ -50,14 +50,17 @@ WebNN requires a compatible browser to run, and Windows 11 v21H2 (DML 1.6.0) or 
 #### Running WebNN on NPU
 Running WebNN on NPU requires capable NPU hardware e.g. Intel® AI Boost NPU from Intel® Core™ Ultra processors.
 
-1. Download and install the [latest Intel NPU driver](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html).
-2. Microsoft Edge browser will download the latest DirectML.dll automatically when WebNN is enabled. Apply the latest redistributable DirectML.dll for Google Chrome Canary:
-Download the latest redistributable [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/), extract the package and copy the DirectML.dll (e.g. \bin\x64-win\DirectML.dll) to the Chrome Canary’s directory (e.g. C:\Users\"username"\AppData\Local\Google\Chrome SxS\Application\"version number").
-3. Launch your browser in Windows Command Line:
 * Google Chrome Canary:
-> "C:\Users\\"username"\AppData\Local\Google\Chrome SxS\Application\chrome.exe" --use-redist-dml
+1. Download and install the [latest Intel NPU driver](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html).
+2. Download the latest redistributable [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/), extract the package and copy the DirectML.dll (e.g. \bin\x64-win\DirectML.dll) to the Chrome Canary’s directory (e.g. C:\Users\"username"\AppData\Local\Google\Chrome SxS\Application\"version number").
+3. Launch your browser in Windows Command Line:
+```bash
+"C:\Users\\"username"\AppData\Local\Google\Chrome SxS\Application\chrome.exe" --use-redist-dml
+```
+
 * Microsoft Edge Canary:
-> "C:\Users\\"username"\AppData\Local\Microsoft\Edge SxS\Application\msedge.exe"
+1. Download and install the [latest Intel NPU driver](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html).
+2. Launch your browser.
 
 ## Support and Feedback
 If you encounter any issues or have feedback on the WebNN Samples, please open an issue on the repository. We appreciate your input and will strive to address any problems as quickly as possible.
