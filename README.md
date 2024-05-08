@@ -48,7 +48,7 @@ WebNN requires a compatible browser to run, and Windows 11 v21H2 (DML 1.6.0) or 
 5. Relaunch your browser.
 
 #### Running WebNN on NPU
-Running WebNN on NPU requires capable NPU hardware e.g. Intel® AI Boost NPU from Intel® Core™ Ultra processors.
+Running WebNN on NPU requires capable NPU hardware e.g. Intel® AI Boost NPU of Intel® Core™ Ultra processors.
 
 * Google Chrome Canary:
 1. Download and install the [latest Intel NPU driver](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html).
