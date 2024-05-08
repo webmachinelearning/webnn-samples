@@ -47,19 +47,16 @@ WebNN requires a compatible browser to run, and Windows 11 v21H2 (DML 1.6.0) or 
 4. In the drop-down menu, select `Enabled`. 
 5. Relaunch your browser.
 
-#### Running NPU Guides on Windows
-Running WebNN NPU requires devices with capable NPU hardware e.g. Intel NPU hardware. Based on the steps 1~4 of WebNN Installation Guides above, some other steps are required:
+#### Running WebNN on NPU
+Running WebNN on NPU requires capable NPU hardware e.g. Intel® AI Boost NPU from Intel® Core™ Ultra processors.
 
-1. Download and install the latest Intel NPU driver according to this [Guides Documentation](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html).
-2. Apply the latest redistributable DirectML.dll:
-* For Google Chrome Canary:
+1. Download and install the [latest Intel NPU driver](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html).
+2. Microsoft Edge browser will download the latest DirectML.dll automatically when WebNN is enabled. Apply the latest redistributable DirectML.dll for Google Chrome Canary:
 Download the latest redistributable DirectML package from [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/), extract the package and copy the DirectML.dll (e.g. \bin\x64-win\DirectML.dll) to the Chrome canary’s directory (e.g. C:\Users\\"username"\AppData\Local\Google\Chrome SxS\Application\\"version number"\).
-* For Microsoft Edge Canary:
-Edge browser will download the latest DirectML.dll automatically when WebNN is enabled.
 3. Launch your browser in Windows Command Line:
-* For Google Chrome Canary:
+* Google Chrome Canary:
 > "C:\Users\\"username"\AppData\Local\Google\Chrome SxS\Application\chrome.exe" --disable-gpu-sandbox
-* For Microsoft Edge Canary:
+* Microsoft Edge Canary:
 > "C:\Users\\"username"\AppData\Local\Microsoft\Edge SxS\Application\msedge.exe" --disable-gpu-sandbox
 
 ## Support and Feedback
