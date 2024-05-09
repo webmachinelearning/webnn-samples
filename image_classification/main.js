@@ -81,26 +81,6 @@ async function fetchLabels(url) {
   return data.split('\n');
 }
 
-function displayAvailableModels(modelList, deviceType, dataType) {
-  let models = [];
-  if (dataType == '') {
-    models = models.concat(modelList[deviceType]['float32']);
-    models = models.concat(modelList[deviceType]['float16']);
-  } else {
-    models = models.concat(modelList[deviceType][dataType]);
-  }
-  // Remove duplicate ids.
-  models = [...new Set(models)];
-  // Display available models.
-  for (const model of modelIds) {
-    if (models.includes(model)) {
-      $(`#${model}`).parent().show();
-    } else {
-      $(`#${model}`).parent().hide();
-    }
-  }
-}
-
 $(document).ready(async () => {
   $('.icdisplay').hide();
   if (await utils.isWebNN()) {
@@ -114,24 +94,25 @@ $('#backendBtns .btn').on('change', async (e) => {
   if (inputType === 'camera') {
     await stopCamRender();
   }
-  layout = utils.getDefaultLayout($(e.target).attr('id'));
-  [backend, deviceType] = $(e.target).attr('id').split('_');
+  const backendId = $(e.target).attr('id');
+  layout = utils.getDefaultLayout(backendId);
+  [backend, deviceType] = backendId.split('_');
   // Only show the supported models for each deviceType. Now fp16 nchw models
   // are only supported on gpu/npu.
-  if (deviceType == 'gpu') {
+  if (backendId == 'webnn_gpu') {
     ui.handleBtnUI('#float16Label', false);
     ui.handleBtnUI('#float32Label', false);
-    displayAvailableModels(modelList, deviceType, dataType);
-  } else if (deviceType == 'npu') {
+    utils.displayAvailableModels(modelList, modelIds, deviceType, dataType);
+  } else if (backendId == 'webnn_npu') {
     ui.handleBtnUI('#float16Label', false);
     ui.handleBtnUI('#float32Label', true);
     $('#float16').click();
-    displayAvailableModels(modelList, deviceType, 'float16');
+    utils.displayAvailableModels(modelList, modelIds, deviceType, 'float16');
   } else {
     ui.handleBtnUI('#float16Label', true);
     ui.handleBtnUI('#float32Label', false);
     $('#float32').click();
-    displayAvailableModels(modelList, deviceType, 'float32');
+    utils.displayAvailableModels(modelList, modelIds, deviceType, 'float32');
   }
 
   // Uncheck selected model
@@ -163,7 +144,7 @@ $('#modelBtns .btn').on('change', async (e) => {
 
 $('#dataTypeBtns .btn').on('change', async (e) => {
   dataType = $(e.target).attr('id');
-  displayAvailableModels(modelList, deviceType, dataType);
+  utils.displayAvailableModels(modelList, modelIds, deviceType, dataType);
   // Uncheck selected model
   if (modelId != '') {
     $(`#${modelId}`).parent().removeClass('active');
