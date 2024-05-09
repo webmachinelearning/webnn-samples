@@ -561,3 +561,32 @@ export function getDefaultLayout(deviceType) {
     }
   }
 }
+
+/**
+ * Display available models based on device type and data type.
+ * @param {Object} modelList list of available models.
+ * @param {Array} modelIds list of model ids.
+ * @param {String} deviceType 'cpu', 'gpu' or 'npu'.
+ * @param {String} dataType 'float32', 'float16', or ''.
+ */
+export function displayAvailableModels(
+    modelList, modelIds, deviceType, dataType) {
+  let models = [];
+  if (dataType == '') {
+    models = models.concat(modelList[deviceType]['float32']);
+    models = models.concat(modelList[deviceType]['float16']);
+  } else {
+    models = models.concat(modelList[deviceType][dataType]);
+  }
+  // Remove duplicate ids.
+  models = [...new Set(models)];
+  // Display available models.
+  // eslint-disable-next-line no-unused-vars
+  for (const modelId of modelIds) {
+    if (models.includes(modelId)) {
+      $(`#${modelId}`).parent().show();
+    } else {
+      $(`#${modelId}`).parent().hide();
+    }
+  }
+}

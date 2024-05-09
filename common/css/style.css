@@ -824,3 +824,7 @@ a:hover {
 #footer a {
   display: inline-block;
 }
+
+.nowrap {
+  white-space: nowrap;
+}
