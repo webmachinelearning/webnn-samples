@@ -13,7 +13,9 @@ const imgElement = document.getElementById('feedElement');
 imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
 let modelName = '';
+let modelId = '';
 let layout = 'nhwc';
+let dataType = 'float32';
 let instanceType = modelName + layout;
 let rafReq;
 let isFirstTimeLoad = true;
@@ -33,6 +35,19 @@ let lastBackend = '';
 let stopRender = true;
 let isRendering = false;
 const disabledSelectors = ['#tabs > li', '.btn'];
+const modelIds = ['ssdmobilenetv1', 'tinyyolov2'];
+const modelList = {
+  'cpu': {
+    'float32': modelIds,
+  },
+  'gpu': {
+    'float32': modelIds,
+    'float16': modelIds,
+  },
+  'npu': {
+    'float16': ['ssdmobilenetv1'],
+  },
+};
 
 async function fetchLabels(url) {
   const response = await fetch(url);
@@ -53,16 +68,54 @@ $('#backendBtns .btn').on('change', async (e) => {
   if (inputType === 'camera') {
     await stopCamRender();
   }
-  layout = utils.getDefaultLayout($(e.target).attr('id'));
-  await main();
+  const backendId = $(e.target).attr('id');
+  layout = utils.getDefaultLayout(backendId);
+  [backend, deviceType] = backendId.split('_');
+  // Only show the supported models for each deviceType. Now fp16 nchw models
+  // are only supported on gpu/npu.
+  if (backendId == 'webnn_gpu') {
+    ui.handleBtnUI('#float16Label', false);
+    ui.handleBtnUI('#float32Label', false);
+    utils.displayAvailableModels(modelList, modelIds, deviceType, dataType);
+  } else if (backendId == 'webnn_npu') {
+    ui.handleBtnUI('#float16Label', false);
+    ui.handleBtnUI('#float32Label', true);
+    $('#float16').click();
+    utils.displayAvailableModels(modelList, modelIds, deviceType, 'float16');
+  } else {
+    ui.handleBtnUI('#float16Label', true);
+    ui.handleBtnUI('#float32Label', false);
+    $('#float32').click();
+    utils.displayAvailableModels(modelList, modelIds, deviceType, 'float32');
+  }
+
+  // Uncheck selected model
+  if (modelId != '') {
+    $(`#${modelId}`).parent().removeClass('active');
+  }
 });
 
 $('#modelBtns .btn').on('change', async (e) => {
   if (inputType === 'camera') {
     await stopCamRender();
   }
-  modelName = $(e.target).attr('id');
+
+  modelId = $(e.target).attr('id');
+  modelName = modelId;
+  if (dataType == 'float16') {
+    modelName += 'fp16';
+  }
+
   await main();
+});
+
+$('#dataTypeBtns .btn').on('change', async (e) => {
+  dataType = $(e.target).attr('id');
+  utils.displayAvailableModels(modelList, modelIds, deviceType, dataType);
+  // Uncheck selected model
+  if (modelId != '') {
+    $(`#${modelId}`).parent().removeClass('active');
+  }
 });
 
 // Click trigger to do inference with <img> element
@@ -146,7 +199,7 @@ async function drawOutput(inputElement, outputs, labels) {
   $('#inferenceresult').show();
 
   // Draw output for SSD Mobilenet V1 model
-  if (modelName === 'ssdmobilenetv1') {
+  if (modelName.includes('ssdmobilenetv1')) {
     const anchors = SsdDecoder.generateAnchors({});
     SsdDecoder.decodeOutputBoxTensor({}, outputs.boxes, anchors);
     let [totalDetections, boxesList, scoresList, classesList] =
@@ -181,8 +234,10 @@ function showPerfResult(medianComputeTime = undefined) {
 function constructNetObject(type) {
   const netObject = {
     'tinyyolov2nchw': new TinyYoloV2Nchw(),
+    'tinyyolov2fp16nchw': new TinyYoloV2Nchw('float16'),
     'tinyyolov2nhwc': new TinyYoloV2Nhwc(),
     'ssdmobilenetv1nchw': new SsdMobilenetV1Nchw(),
+    'ssdmobilenetv1fp16nchw': new SsdMobilenetV1Nchw('float16'),
     'ssdmobilenetv1nhwc': new SsdMobilenetV1Nhwc(),
   };
 
@@ -192,8 +247,6 @@ function constructNetObject(type) {
 async function main() {
   try {
     if (modelName === '') return;
-    [backend, deviceType] =
-        $('input[name="backend"]:checked').attr('id').split('_');
     ui.handleClick(disabledSelectors, true);
     if (isFirstTimeLoad) $('#hint').hide();
     let start;
@@ -218,7 +271,7 @@ async function main() {
       netInstance = constructNetObject(instanceType);
       inputOptions = netInstance.inputOptions;
       labels = await fetchLabels(inputOptions.labelUrl);
-      if (modelName === 'tinyyolov2') {
+      if (modelName.includes('tinyyolov2')) {
         outputs = {
           'output': new Float32Array(
               utils.sizeOfShape(netInstance.outputDimensions)),
