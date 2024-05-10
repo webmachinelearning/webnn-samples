@@ -4,10 +4,10 @@ import {buildConstantByNpy, computePadding2DForAutoPad, weightsOrigin} from '../
 
 // SSD MobileNet V1 model with 'nchw' layout, trained on the COCO dataset.
 export class SsdMobilenetV1Nchw {
-  constructor() {
+  constructor(dataType = 'float32') {
     this.context_ = null;
     this.deviceType_ = null;
-    this.targetDataType_ = 'float32';
+    this.targetDataType_ = dataType;
     this.model_ = null;
     this.builder_ = null;
     this.graph_ = null;
@@ -86,9 +86,6 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.deviceType_ = contextOptions.deviceType;
-    if (this.deviceType_ == 'gpu' || this.deviceType_ == 'npu') {
-      this.targetDataType_ = 'float16';
-    }
     this.builder_ = new MLGraphBuilder(this.context_);
     let input = this.builder_.input('input', {
       dataType: 'float32',

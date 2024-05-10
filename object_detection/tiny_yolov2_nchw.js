@@ -4,12 +4,12 @@ import {buildConstantByNpy, computePadding2DForAutoPad, weightsOrigin} from '../
 
 // Tiny Yolo V2 model with 'nchw' layout, trained on the Pascal VOC dataset.
 export class TinyYoloV2Nchw {
-  constructor() {
+  constructor(dataType = 'float32') {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.deviceType_ = null;
-    this.targetDataType_ = 'float32';
+    this.targetDataType_ = dataType;
     this.weightsUrl_ = weightsOrigin() +
       '/test-data/models/tiny_yolov2_nchw/weights/';
     this.inputOptions = {
@@ -60,9 +60,6 @@ export class TinyYoloV2Nchw {
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.deviceType_ = contextOptions.deviceType;
-    if (this.deviceType_ == 'gpu' || this.deviceType_ == 'npu') {
-      this.targetDataType_ = 'float16';
-    }
     this.builder_ = new MLGraphBuilder(this.context_);
     let image = this.builder_.input('input', {
       dataType: 'float32',
