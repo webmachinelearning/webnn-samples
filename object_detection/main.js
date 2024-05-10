@@ -158,16 +158,7 @@ async function drawOutput(inputElement, outputs, labels) {
         boxesList, scoresList, classesList, labels);
   } else {
     // Draw output for Tiny Yolo V2 model
-    // Transpose 'nchw' output to 'nhwc' for postprocessing
-    let outputBuffer = outputs.output;
-    if (layout === 'nchw') {
-      outputBuffer = tf.tidy(() => {
-        const a =
-            tf.tensor(outputBuffer, netInstance.outputDimensions, 'float32');
-        const b = tf.transpose(a, [0, 2, 3, 1]);
-        return b.dataSync();
-      });
-    }
+    const outputBuffer = outputs.output;
     const decodeOut = Yolo2Decoder.decodeYOLOv2({numClasses: 20},
         outputBuffer, inputOptions.anchors);
     const boxes = Yolo2Decoder.getBoxes(decodeOut, inputOptions.margin);

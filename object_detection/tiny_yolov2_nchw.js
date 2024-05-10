@@ -8,6 +8,8 @@ export class TinyYoloV2Nchw {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
+    this.deviceType_ = null;
+    this.targetDataType_ = 'float32';
     this.weightsUrl_ = weightsOrigin() +
       '/test-data/models/tiny_yolov2_nchw/weights/';
     this.inputOptions = {
@@ -20,20 +22,31 @@ export class TinyYoloV2Nchw {
     this.outputDimensions = [1, 125, 13, 13];
   }
 
-  async buildConv_(input, name, useBias = false) {
-    const prefix = this.weightsUrl_ + 'convolution' + name;
-    const weightName = prefix + '_W.npy';
-    const weight = await buildConstantByNpy(this.builder_, weightName);
+  async buildConv_(input, name) {
+    let biasName =
+        `${this.weightsUrl_}ConvBnFusion_BN_B_BatchNormalization_B${name}.npy`;
+    let weightName =
+        `${this.weightsUrl_}ConvBnFusion_W_convolution${name}_W.npy`;
+    if (name === '8') {
+      biasName = `${this.weightsUrl_}convolution8_B.npy`;
+      weightName = `${this.weightsUrl_}convolution8_W.npy`;
+    }
+
+    const weight = await buildConstantByNpy(
+        this.builder_, weightName, this.targetDataType_);
     const options = {autoPad: 'same-upper'};
     options.padding = computePadding2DForAutoPad(
         /* nchw */[input.shape()[2], input.shape()[3]],
         /* oihw */[weight.shape()[2], weight.shape()[3]],
         options.strides, options.dilations, 'same-upper');
-    if (useBias) {
-      const biasName = prefix + '_B.npy';
-      options.bias = await buildConstantByNpy(this.builder_, biasName);
+    options.bias = await buildConstantByNpy(
+        this.builder_, biasName, this.targetDataType_);
+    const conv = this.builder_.conv2d(input, weight, options);
+    if (name === '8') {
+      return conv;
+    } else {
+      return this.builder_.leakyRelu(conv, {alpha: 0.10000000149011612});
     }
-    return this.builder_.conv2d(input, weight, options);
   }
 
   buildMaxPool2d_(input, options) {
@@ -44,68 +57,52 @@ export class TinyYoloV2Nchw {
     return this.builder_.maxPool2d(input, options);
   }
 
-  async buildBatchNorm_(input, name) {
-    const prefix = this.weightsUrl_ + 'BatchNormalization';
-    const scaleName = `${prefix}_scale${name}.npy`;
-    const biasName = `${prefix}_B${name}.npy`;
-    const meanName = `${prefix}_mean${name}.npy`;
-    const varName = `${prefix}_variance${name}.npy`;
-    const scale = await buildConstantByNpy(this.builder_, scaleName);
-    const bias = await buildConstantByNpy(this.builder_, biasName);
-    const mean = await buildConstantByNpy(this.builder_, meanName);
-    const variance = await buildConstantByNpy(this.builder_, varName);
-
-    const batchNorm = this.builder_.batchNormalization(
-        input, mean, variance, {scale: scale, bias: bias,
-          activation: this.builder_.leakyRelu({alpha: 0.10000000149011612})});
-    return batchNorm;
-  }
-
-  async buildConvolutional_(input, name) {
-    const conv = await this.buildConv_(input, name);
-    return await this.buildBatchNorm_(conv, name);
-  }
-
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
+    this.deviceType_ = contextOptions.deviceType;
+    if (this.deviceType_ == 'gpu' || this.deviceType_ == 'npu') {
+      this.targetDataType_ = 'float16';
+    }
     this.builder_ = new MLGraphBuilder(this.context_);
-    const image = this.builder_.input('input', {
-      type: 'float32',
+    let image = this.builder_.input('input', {
       dataType: 'float32',
       dimensions: this.inputOptions.inputDimensions,
     });
-
-    const mulScale = this.builder_.constant(
-        {type: 'float32', dataType: 'float32', dimensions: [1]},
+    let mulScale = this.builder_.constant(
+        {dataType: 'float32', dimensions: [1]},
         new Float32Array([0.003921568859368563]),
-    );
-    const addBias = this.builder_.constant(
-        {type: 'float32', dataType: 'float32', dimensions: [3, 1, 1]},
-        new Float32Array([0, 0, 0]),
     );
     const poolOptions = {
       windowDimensions: [2, 2],
       strides: [2, 2],
     };
+    if (this.targetDataType_ === 'float16') {
+      image = this.builder_.cast(image, 'float16');
+      mulScale = this.builder_.cast(mulScale, 'float16');
+    }
     const mul = this.builder_.mul(image, mulScale);
-    const add = this.builder_.add(mul, addBias);
-    const conv0 = await this.buildConvolutional_(add, '');
+    const conv0 = await this.buildConv_(mul, '');
     const pool0 = this.buildMaxPool2d_(conv0, poolOptions);
-    const conv1 = await this.buildConvolutional_(pool0, '1');
+    const conv1 = await this.buildConv_(pool0, '1');
     const pool1 = this.buildMaxPool2d_(conv1, poolOptions);
-    const conv2 = await this.buildConvolutional_(pool1, '2');
+    const conv2 = await this.buildConv_(pool1, '2');
     const pool2 = this.buildMaxPool2d_(conv2, poolOptions);
-    const conv3 = await this.buildConvolutional_(pool2, '3');
+    const conv3 = await this.buildConv_(pool2, '3');
     const pool3 = this.buildMaxPool2d_(conv3, poolOptions);
-    const conv4 = await this.buildConvolutional_(pool3, '4');
+    const conv4 = await this.buildConv_(pool3, '4');
     const pool4 = this.buildMaxPool2d_(conv4, poolOptions);
-    const conv5 = await this.buildConvolutional_(pool4, '5');
-    const pool5 = this.buildMaxPool2d_(conv5,
-        {windowDimensions: [2, 2]});
-    const conv6 = await this.buildConvolutional_(pool5, '6');
-    const conv7 = await this.buildConvolutional_(conv6, '7');
-    const conv = await this.buildConv_(conv7, '8', true);
-    return conv;
+    const conv5 = await this.buildConv_(pool4, '5');
+    const pool5 = this.buildMaxPool2d_(conv5, {windowDimensions: [2, 2]});
+    const conv6 = await this.buildConv_(pool5, '6');
+    const conv7 = await this.buildConv_(conv6, '7');
+    const conv = await this.buildConv_(conv7, '8');
+    const transpose = this.builder_.transpose(
+        conv, {permutation: [0, 2, 3, 1]});
+    if (this.targetDataType_ === 'float16') {
+      return this.builder_.cast(transpose, 'float32');
+    } else {
+      return transpose;
+    }
   }
 
   async build(outputOperand) {
