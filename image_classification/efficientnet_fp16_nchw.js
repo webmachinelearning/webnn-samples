@@ -147,12 +147,9 @@ export class EfficientNetFP16Nchw {
     const pool1 = this.builder_.averagePool2d(await conv22);
     const reshape = this.builder_.reshape(pool1, [1, 1280]);
     const gemm = this.buildGemm_(reshape, '0');
-    if (contextOptions.deviceType === 'npu') {
-      return this.builder_.cast(await gemm, 'float32');
-    } else {
-      const softmax = this.builder_.softmax(await gemm);
-      return this.builder_.cast(softmax, 'float32');
-    }
+    const softmax = this.builder_.softmax(await gemm);
+
+    return this.builder_.cast(softmax, 'float32');
   }
 
   async build(outputOperand) {

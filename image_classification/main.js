@@ -231,18 +231,6 @@ async function renderCamStream() {
 
 // Get top 3 classes of labels from output buffer
 function getTopClasses(buffer, labels) {
-  // Currently we need to fallback softmax to tf.softmax because
-  // NPU dosen't support softmax.
-  // TODO: Remove this workaround once NPU supports softmax.
-  if (deviceType === 'npu') {
-    // Softmax
-    buffer = tf.tidy(() => {
-      const a =
-        tf.tensor(buffer, netInstance.outputDimensions, 'float32');
-      const b = tf.softmax(a);
-      return b.dataSync();
-    });
-  }
   const probs = Array.from(buffer);
   const indexes = probs.map((prob, index) => [prob, index]);
   const sorted = indexes.sort((a, b) => {
