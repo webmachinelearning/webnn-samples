@@ -153,12 +153,8 @@ export class MobileNetV2Nchw {
           {groups: 1280, strides: [7, 7]});
       const conv5 = this.buildConv_(await conv4, '104', false);
       const reshape = this.builder_.reshape(await conv5, [1, 1000]);
-      if (contextOptions.deviceType === 'npu') {
-        return this.builder_.cast(reshape, 'float32');
-      } else {
-        const softmax = this.builder_.softmax(reshape);
-        return this.builder_.cast(softmax, 'float32');
-      }
+      const softmax = this.builder_.softmax(reshape);
+      return this.builder_.cast(softmax, 'float32');
     }
   }
 
