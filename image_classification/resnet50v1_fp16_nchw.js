@@ -118,12 +118,8 @@ export class ResNet50V1FP16Nchw {
     const pool2 = this.builder_.averagePool2d(await bottleneck16);
     const reshape = this.builder_.reshape(pool2, [1, 2048]);
     const gemm = this.buildGemm_(reshape, '0');
-    if (contextOptions.deviceType === 'npu') {
-      return this.builder_.cast(await gemm, 'float32');
-    } else {
-      const softmax = this.builder_.softmax(await gemm);
-      return this.builder_.cast(softmax, 'float32');
-    }
+    const softmax = this.builder_.softmax(await gemm);
+    return this.builder_.cast(softmax, 'float32');
   }
 
   async build(outputOperand) {
