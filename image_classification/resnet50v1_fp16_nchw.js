@@ -123,7 +123,7 @@ export class ResNet50V1FP16Nchw {
   }
 
   async build(outputOperand) {
-    this.graph_ = this.builder_.build({'output': outputOperand});
+    this.graph_ = await this.builder_.build({'output': outputOperand});
   }
 
   // Release the constant tensors of a model
