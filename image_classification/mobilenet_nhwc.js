@@ -96,7 +96,6 @@ export class MobileNetV2Nhwc {
     const autoPad = 'same-upper';
     const filterLayout = 'ohwi';
     const input = this.builder_.input('input', {
-      type: 'float32',
       dataType: 'float32',
       dimensions: this.inputOptions.inputDimensions,
     });

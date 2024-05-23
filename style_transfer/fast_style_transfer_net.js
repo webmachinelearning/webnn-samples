@@ -96,24 +96,23 @@ export class FastStyleTransferNet {
     const padding1 = [0, 0, 1, 1];
     const padding4 = [0, 0, 4, 4];
     this.constAdd_ = this.builder_.constant(
-        {type: 'float32', dataType: 'float32', dimensions: [1]},
+        {dataType: 'float32', dimensions: [1]},
         new Float32Array([9.999999717180685e-10]),
     );
     this.constPow_ = this.builder_.constant(
-        {type: 'float32', dataType: 'float32', dimensions: [1]},
+        {dataType: 'float32', dimensions: [1]},
         new Float32Array([0.5]),
     );
     const constMul0 = this.builder_.constant(
-        {type: 'float32', dataType: 'float32', dimensions: [1]},
+        {dataType: 'float32', dimensions: [1]},
         new Float32Array([150]),
     );
     const constAdd0 = this.builder_.constant(
-        {type: 'float32', dataType: 'float32', dimensions: [1]},
+        {dataType: 'float32', dimensions: [1]},
         new Float32Array([127.5]),
     );
     // Build up the network.
     const input = this.builder_.input('input', {
-      type: 'float32',
       dataType: 'float32',
       dimensions: this.inputOptions.inputDimensions,
     });

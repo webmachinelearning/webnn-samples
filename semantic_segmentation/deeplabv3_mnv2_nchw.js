@@ -98,7 +98,6 @@ export class DeepLabV3MNV2Nchw {
     const strides = [2, 2];
 
     const input = this.builder_.input('input', {
-      type: 'float32',
       dataType: 'float32',
       dimensions: this.inputOptions.inputDimensions,
     });
