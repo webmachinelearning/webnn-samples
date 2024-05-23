@@ -52,7 +52,6 @@ export class RNNoise {
         this.baseUrl_ + 'denoise_output_bias_0.npy');
     // Build up the network.
     const input = this.builder_.input('input', {
-      type: 'float32',
       dataType: 'float32',
       dimensions: [this.batchSize_, this.frames_, this.featureSize],
     });
@@ -68,7 +67,6 @@ export class RNNoise {
         [0, 3 * this.vadGruHiddenSize],
         [1, 3 * this.vadGruHiddenSize]);
     const vadGruInitialH = this.builder_.input('vadGruInitialH', {
-      type: 'float32',
       dataType: 'float32',
       dimensions: [1, this.batchSize_, this.vadGruHiddenSize],
     });
@@ -96,7 +94,6 @@ export class RNNoise {
         [0, 3 * this.noiseGruHiddenSize],
         [1, 3 * this.noiseGruHiddenSize]);
     const noiseGruInitialH = this.builder_.input('noiseGruInitialH', {
-      type: 'float32',
       dataType: 'float32',
       dimensions: [1, this.batchSize_, this.noiseGruHiddenSize],
     });
@@ -124,7 +121,6 @@ export class RNNoise {
         [0, 3 * this.denoiseGruHiddenSize],
         [1, 3 * this.denoiseGruHiddenSize]);
     const denoiseGruInitialH = this.builder_.input('denoiseGruInitialH', {
-      type: 'float32',
       dataType: 'float32',
       dimensions: [1, this.batchSize_, this.denoiseGruHiddenSize],
     });
