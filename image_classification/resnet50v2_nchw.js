@@ -101,7 +101,6 @@ export class ResNet50V2Nchw {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(this.context_);
     const data = this.builder_.input('input', {
-      type: 'float32',
       dataType: 'float32',
       dimensions: this.inputOptions.inputDimensions,
     });

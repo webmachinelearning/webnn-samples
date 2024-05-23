@@ -37,14 +37,12 @@ export class NSNet2 {
     const biasFcOut4 = await buildConstantByNpy(this.builder_, baseUrl + 'fc_out_4_bias.npy');
     // Build up the network.
     const input = this.builder_.input('input', {
-      type: 'float32',
       dataType: 'float32',
       dimensions: [batchSize, frames, this.frameSize],
     });
     const relu20 = this.builder_.relu(this.builder_.add(this.builder_.matmul(input, weight172), biasFcIn0));
     const transpose31 = this.builder_.transpose(relu20, {permutation: [1, 0, 2]});
     const initialState92 = this.builder_.input('initialState92', {
-      type: 'float32',
       dataType: 'float32',
       dimensions: [1, batchSize, this.hiddenSize],
     });
@@ -55,7 +53,6 @@ export class NSNet2 {
     squeeze95Shape.splice(1, 1);
     const squeeze95 = this.builder_.reshape(gru93, squeeze95Shape);
     const initialState155 = this.builder_.input('initialState155', {
-      type: 'float32',
       dataType: 'float32',
       dimensions: [1, batchSize, this.hiddenSize],
     });
