@@ -1,8 +1,8 @@
 // The samples under ./samples folder
 const samples = [
+  'matmul.js',
   'mul_add.js',
   'simple_graph.js',
-  'matmul.js',
 ];
 
 class SamplesRepository {
