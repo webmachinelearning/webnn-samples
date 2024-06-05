@@ -1,14 +1,12 @@
-class Util { // eslint-disable-line no-unused-vars
+export class Util {
   static debounce(func, delay) {
     let timeoutId = 0;
-    return function() {
-      const $this = this; // eslint-disable-line no-invalid-this
-      const $arguments = arguments; // eslint-disable-line prefer-rest-params
+    return function(...args) {
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
       timeoutId = setTimeout(() => {
-        func.apply($this, $arguments);
+        func.apply(this, ...args);
         timeoutId = 0;
       }, delay);
     };

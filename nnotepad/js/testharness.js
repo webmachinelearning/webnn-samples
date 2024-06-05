@@ -6,7 +6,7 @@
 // Harness.ok(message) - add a success to current section
 // Harness.error(message) - add a failure to current section
 
-class Harness { // eslint-disable-line no-unused-vars
+export class Harness {
   static section(s) {
     Harness.current = {
       details: document.createElement('details'),

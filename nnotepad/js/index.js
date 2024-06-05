@@ -1,6 +1,5 @@
-/* global Util, NNotepad, ParseError */
-
-'use strict';
+import {Util} from './util.js';
+import {NNotepad, ParseError} from './nnotepad.js';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];

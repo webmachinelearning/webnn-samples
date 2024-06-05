@@ -2,7 +2,6 @@
 
 ## Basics
 
-* Convert source to JS modules.
 * Style to match rest of webnn-samples.
 * Improve default text.
 * Consider incorporating [WebNN Polyfill](https://github.com/webmachinelearning/webnn-polyfill).

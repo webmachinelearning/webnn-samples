@@ -1,25 +1,26 @@
 /* global BigInt64Array, BigUint64Array, Float16Array */
-/* global Util */
+
+import {Util} from './util.js';
 
 // ============================================================
 // General Utilities
 // ============================================================
 
-class ParseError extends Error {
+export class ParseError extends Error {
   constructor(message) {
     super(message);
     this.name = 'ParseError';
   }
 }
 
-class BuildError extends Error {
+export class BuildError extends Error {
   constructor(message) {
     super(message);
     this.name = 'build()';
   }
 }
 
-class ComputeError extends Error {
+export class ComputeError extends Error {
   constructor(message) {
     super(message);
     this.name = 'compute()';
@@ -34,7 +35,7 @@ class WebNNUtil {
   static bufferForOperand(operand) {
     const size = [...operand.shape()].reduce((a, b) => a * b, 1);
     const ctor = WebNNUtil.dataTypeToBufferType(operand.dataType());
-    return new ctor(size); // eslint-disable-line new-cap
+    return Reflect.construct(ctor, [size]);
   }
 
   static dataTypeToBufferType(type) {
@@ -77,7 +78,7 @@ class WebNNUtil {
   }
 }
 
-class NNotepad { // eslint-disable-line no-unused-vars
+export class NNotepad {
   // ============================================================
   // Script Converter
   // ============================================================

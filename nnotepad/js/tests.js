@@ -1,4 +1,5 @@
-/* global Harness, NNotepad */
+import {Harness} from './testharness.js';
+import {NNotepad} from './nnotepad.js';
 
 // ============================================================
 // Helper for NNotepad-specific tests
