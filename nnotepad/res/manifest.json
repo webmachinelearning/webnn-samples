@@ -1,0 +1,15 @@
+{
+    "name": "NNotepad",
+    "short_name": "NNotepad",
+    "start_url": "..",
+    "display": "standalone",
+    "background-color": "#fff",
+    "icons": [
+        {
+            "src": "webml.png",
+            "sizes": "200x200",
+            "type": "image/png"
+        }
+    ],
+    "description": "A playground for WebNN expressions."
+}

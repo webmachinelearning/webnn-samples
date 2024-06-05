@@ -1,0 +1,128 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>NNotepad</title>
+<link rel=icon href="res/webml.png">
+<link rel=manifest href="res/manifest.json">
+<style>
+html { height: 100%; }
+body {
+  margin: 0; padding: 0;
+  width: 100%; height: 100%;
+  overflow: hidden;
+}
+pre {
+  white-space: pre-wrap;
+}
+#input {
+  box-sizing: border-box;
+  position: absolute;
+  margin: 0;
+  left: 0; right: 0; top: 0; bottom: 200px;
+  padding: 10px;
+  border: none;
+  outline: none;
+  resize: none;
+}
+#output {
+  box-sizing: border-box;
+  position: absolute;
+  margin: 0;
+  left: 0; right: 0; height: 200px; bottom: 0;
+  padding: 10px;
+  border: none;
+  background-color: #eee;
+  overflow: auto;
+}
+#watermark {
+  position: absolute;
+  right: 15px; top: 5px;
+  color: #61BAFB;
+  color: #4777C0;
+  font-family: sans-serif;
+  font-size: 32px;
+  font-style: italic;
+  font-weight: bold;
+  user-select: none;
+}
+#watermark img {
+  height: 40px;
+  vertical-align: bottom;
+}
+#toolbar {
+  position: absolute;
+  right: 15px;
+  top: 50px;
+}
+#toolbar button {
+  background-color: transparent;
+  border: none;
+  font-size: 40px;
+}
+
+#srcDialog {
+  max-width: calc(100vw - 80px);
+  max-height: calc(100vh - 80px);
+}
+#srcText {
+  position: relative;
+  box-sizing: border-box;
+  border: 20px solid #eee;
+  max-height: calc(100vh - 200px);
+  overflow: auto;
+  background-image: linear-gradient(#eee 50%, #e4e4e4 50%);
+  background-size: 100% 2lh;
+}
+dialog {
+  font-family: sans-serif;
+}
+code {
+  font-family: "Consolas", "Lucida Console", monospace;
+  background-color: #eee;
+  border-radius: 0.25lh;
+  padding: 0.25lh;
+}
+#helpDialog {
+  max-width: calc(100vw - 80px);
+  max-height: calc(100vh - 80px);
+}
+#helpText {
+  position: relative;
+  box-sizing: border-box;
+  border: none;
+  width: calc(100vw - 200px);
+  height: calc(100vh - 200px);
+}
+</style>
+
+<script src="js/float16arraypolyfill.js"></script>
+<script src="js/util.js"></script>
+<script src="js/nnotepad.js"></script>
+<script src="js/index.js"></script>
+
+<textarea id=input autofocus cols=80 rows=24 placeholder="Enter code here..." spellcheck="false">
+</textarea>
+
+<pre id=output>
+Results will show here
+</pre>
+
+<div id=watermark>
+  <img src="res/webml.png" alt="">NNotepad
+</div>
+
+<div id=toolbar>
+  <button id=peek title="Show generated code">&#x1F50E;</button><br>
+  <button id=help title="Show documentation">&#x1F6C8;</button><br>
+  <select id=device title="MLContext deviceType hint"><option value=cpu>CPU</option><option value=gpu>GPU</option><option value=npu>NPU</option></select>
+</div>
+
+<dialog id=srcDialog>
+  An <code>MLGraphBuilder</code> is passed as <code>_</code>
+  <pre id=srcText></pre>
+  <button id=srcClose autofocus>Close</button>
+</dialog>
+
+<dialog id=helpDialog>
+  <iframe id=helpText src="res/docs.html"></iframe><br>
+  <button id=helpClose autofocus>Close</button>
+</dialog>
