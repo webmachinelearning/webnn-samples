@@ -6,7 +6,7 @@ export class Util {
         clearTimeout(timeoutId);
       }
       timeoutId = setTimeout(() => {
-        func.apply(this, ...args);
+        func.apply(this, ...args); // eslint-disable-line no-invalid-this
         timeoutId = 0;
       }, delay);
     };
