@@ -1,10 +1,12 @@
-class Util {
+class Util { // eslint-disable-line no-unused-vars
   static debounce(func, delay) {
     let timeoutId = 0;
     return function() {
-      const $this = this, $arguments = arguments;
-      if (timeoutId)
+      const $this = this; // eslint-disable-line no-invalid-this
+      const $arguments = arguments; // eslint-disable-line prefer-rest-params
+      if (timeoutId) {
         clearTimeout(timeoutId);
+      }
       timeoutId = setTimeout(() => {
         func.apply($this, $arguments);
         timeoutId = 0;
@@ -14,17 +16,22 @@ class Util {
 
   // Like JSON.stringify(), but handles BigInts, NaN, +/-Infinity, and -0
   static stringify(value) {
-    let json = JSON.stringify(value, (k, v) => {
-      if (typeof v === 'bigint')
+    const json = JSON.stringify(value, (k, v) => {
+      if (typeof v === 'bigint') {
         return 'ℝ:' + String(v) + 'n';
-      if (Object.is(v, NaN))
+      }
+      if (Object.is(v, NaN)) {
         return 'ℝ:NaN';
-      if (Object.is(v, Infinity))
+      }
+      if (Object.is(v, Infinity)) {
         return 'ℝ:Infinity';
-      if (Object.is(v, -Infinity))
+      }
+      if (Object.is(v, -Infinity)) {
         return 'ℝ:-Infinity';
-      if (Object.is(v, -0))
+      }
+      if (Object.is(v, -0)) {
         return 'ℝ:-0';
+      }
       return v;
     });
     return json.replaceAll(/"ℝ:(.*?)"/g, '$1');
@@ -39,8 +46,9 @@ class Util {
 
   static async loadBuffer(url) {
     const request = await fetch(url);
-    if (!request.ok)
+    if (!request.ok) {
       throw new Error(`load failed ${request.statusText}`);
+    }
     return await request.arrayBuffer();
   }
 }

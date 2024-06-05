@@ -34,7 +34,7 @@ class WebNNUtil {
   static bufferForOperand(operand) {
     const size = [...operand.shape()].reduce((a, b) => a * b, 1);
     const ctor = WebNNUtil.dataTypeToBufferType(operand.dataType());
-    return new ctor(size);
+    return new ctor(size); // eslint-disable-line new-cap
   }
 
   static dataTypeToBufferType(type) {
@@ -61,23 +61,23 @@ class WebNNUtil {
 
   static isNonOperandArg(name, index) {
     return ({
-             concat: [0, 1],
-             expand: [1],
-             gru: [3, 4],
-             gruCell: [4],
-             lstm: [3, 4],
-             lstmCell: [5],
-             pad: [1, 2],
-             reshape: [1],
-             slice: [1, 2],
-             softmax: [1], // TODO: Distinguish overloads
-             split: [1],
-           })[name]
+      concat: [0, 1],
+      expand: [1],
+      gru: [3, 4],
+      gruCell: [4],
+      lstm: [3, 4],
+      lstmCell: [5],
+      pad: [1, 2],
+      reshape: [1],
+      slice: [1, 2],
+      softmax: [1], // TODO: Distinguish overloads
+      split: [1],
+    })[name]
         ?.includes(index);
   }
 }
 
-class NNotepad {
+class NNotepad { // eslint-disable-line no-unused-vars
   // ============================================================
   // Script Converter
   // ============================================================
@@ -113,8 +113,8 @@ class NNotepad {
     const kUnaryOperators = {
       '-': 'neg',
       '!':
-          'logicalNot',  // See
-                         // https://github.com/webmachinelearning/webnn/issues/496#issuecomment-2123895106
+          'logicalNot', // See
+      // https://github.com/webmachinelearning/webnn/issues/496#issuecomment-2123895106
     };
 
     const kDefaultDataType = 'float32';
@@ -144,8 +144,8 @@ class NNotepad {
     const kSuffixPattern = `u8|u32|u64|i8|i32|i64|f16|f32`;
     const kIdentifierPattern = '[A-Za-z]\\w*';
 
-    const rescape = s => s.replace(/[\\^$*+?.()|[\]{}]/g, '\\$&');
-    const longest_first = (a, b) => b.length - a.length;
+    const rescape = (s) => s.replace(/[\\^$*+?.()|[\]{}]/g, '\\$&');
+    const longestFirst = (a, b) => b.length - a.length;
     const kTokenRegEx = new RegExp(
         [
           kCommentPattern,
@@ -154,28 +154,28 @@ class NNotepad {
           kBooleanPattern,
           kSuffixPattern,
           kIdentifierPattern,
-          ...Object.keys(kOperators).sort(longest_first).map(rescape),
+          ...Object.keys(kOperators).sort(longestFirst).map(rescape),
           '.',
         ].join('|'),
         'g');
 
-    const to_regex = p => new RegExp('^(' + p + ')$');
-    const kCommentRegEx = to_regex(kCommentPattern);
-    const kNumberRegEx = to_regex(kNumberPattern);
-    const kStringRegEx = to_regex(kStringPattern);
-    const kBooleanRegEx = to_regex(kBooleanPattern);
-    const kSuffixRegEx = to_regex(kSuffixPattern);
-    const kIdentifierRegEx = to_regex(kIdentifierPattern);
-    const isComment = token => token && token.match(kCommentRegEx);
-    const isNumber = token => token && token.match(kNumberRegEx);
-    const isString = token => token && token.match(kStringRegEx);
-    const isBoolean = token => token && token.match(kBooleanRegEx);
-    const isSuffix = token => token && token.match(kSuffixRegEx);
-    const isIdentifier = token => token && token.match(kIdentifierRegEx);
+    const toRegEx = (p) => new RegExp('^(' + p + ')$');
+    const kCommentRegEx = toRegEx(kCommentPattern);
+    const kNumberRegEx = toRegEx(kNumberPattern);
+    const kStringRegEx = toRegEx(kStringPattern);
+    const kBooleanRegEx = toRegEx(kBooleanPattern);
+    const kSuffixRegEx = toRegEx(kSuffixPattern);
+    const kIdentifierRegEx = toRegEx(kIdentifierPattern);
+    const isComment = (token) => token && token.match(kCommentRegEx);
+    const isNumber = (token) => token && token.match(kNumberRegEx);
+    const isString = (token) => token && token.match(kStringRegEx);
+    const isBoolean = (token) => token && token.match(kBooleanRegEx);
+    const isSuffix = (token) => token && token.match(kSuffixRegEx);
+    const isIdentifier = (token) => token && token.match(kIdentifierRegEx);
 
     const tokens = text.match(kTokenRegEx)
-                       .map(s => s.trim())
-                       .filter(s => s.length && !isComment(s));
+        .map((s) => s.trim())
+        .filter((s) => s.length && !isComment(s));
     // console.log('tokens: ', tokens);
 
     // ------------------------------------------------------------
@@ -185,181 +185,171 @@ class NNotepad {
     // `lines` is populated with AST
 
     const lines = [];
-    {
-      while (tokens.length) {
-        lines.push(parseLine());
+    while (tokens.length) {
+      lines.push(parseLine());
+    }
+
+    function peek(n) {
+      n = n || 0;
+      return tokens[n];
+    }
+    function take() {
+      return tokens.shift();
+    }
+    function expect(expected) {
+      const token = take();
+      if (token !== expected) {
+        throw new ParseError(`Expected '${expected}', saw '${token}'`);
+      }
+    }
+    function parseLine() {
+      if (isIdentifier(peek()) && peek(1) === '=') {
+        const identifier = take();
+        take();
+        return {type: 'assignment', identifier, expr: parseExpr()};
       }
 
-      function peek(n) {
-        n = n || 0;
-        return tokens[n];
+      return {type: 'expression', expr: parseExpr()};
+    }
+    function parseExpr() {
+      return parseRelExpr();
+    }
+    function parseRelExpr() {
+      let lhs = parseAddExpr();
+      while (Object.keys(kRelationalOperators).includes(peek())) {
+        const op = take();
+        const rhs = parseAddExpr();
+        lhs = {lhs, op, rhs};
       }
-      function take() {
-        return tokens.shift();
+      return lhs;
+    }
+    function parseAddExpr() {
+      let lhs = parseMulExpr();
+      while (Object.keys(kAdditiveOperators).includes(peek())) {
+        const op = take();
+        const rhs = parseMulExpr();
+        lhs = {lhs, op, rhs};
       }
-      function expect(expected) {
-        const token = take();
-        if (token !== expected)
-          throw new ParseError(`Expected '${expected}', saw '${token}'`);
+      return lhs;
+    }
+    function parseMulExpr() {
+      let lhs = parsePowExpr();
+      while (Object.keys(kMultiplicativeOperators).includes(peek())) {
+        const op = take();
+        const rhs = parsePowExpr();
+        lhs = {lhs, op, rhs};
       }
-      function parseLine() {
-        if (isIdentifier(peek()) && peek(1) === '=') {
-          const identifier = take();
-          take();
-          return {type: 'assignment', identifier, expr: parseExpr()};
-        }
-
-        return {type: 'expression', expr: parseExpr()};
+      return lhs;
+    }
+    function parsePowExpr() {
+      let lhs = parseUnaryExpr();
+      while (Object.keys(kPowerOperators).includes(peek())) {
+        const op = take();
+        const rhs = parseUnaryExpr();
+        lhs = {lhs, op, rhs};
       }
-      function parseExpr() {
-        return parseRelExpr();
+      return lhs;
+    }
+    function parseUnaryExpr() {
+      if (Object.keys(kUnaryOperators).includes(peek())) {
+        const op = take();
+        const rhs = parseUnaryExpr();
+        return {op, rhs};
       }
-      function parseRelExpr() {
-        let lhs = parseAddExpr();
-        while (Object.keys(kRelationalOperators).includes(peek())) {
-          const op = take();
-          const rhs = parseAddExpr();
-          lhs = {lhs, op, rhs};
+      return parseFinalExpr();
+    }
+    function parseFinalExpr() {
+      const token = take();
+      if (isNumber(token)) {
+        let dataType = kDefaultDataType;
+        if (isSuffix(peek())) {
+          dataType = suffixToDataType(take());
         }
-        return lhs;
+        return {type: 'number', value: Number(token), dataType};
       }
-      function parseAddExpr() {
-        let lhs = parseMulExpr();
-        while (Object.keys(kAdditiveOperators).includes(peek())) {
-          const op = take();
-          const rhs = parseMulExpr();
-          lhs = {lhs, op, rhs};
-        }
-        return lhs;
+      if (isString(token)) {
+        return {type: 'string', value: eval(token)};
       }
-      function parseMulExpr() {
-        let lhs = parsePowExpr();
-        while (Object.keys(kMultiplicativeOperators).includes(peek())) {
-          const op = take();
-          const rhs = parsePowExpr();
-          lhs = {lhs, op, rhs};
-        }
-        return lhs;
+      if (isBoolean(token)) {
+        return {type: 'boolean', value: token === 'true'};
       }
-      function parsePowExpr() {
-        let lhs = parseUnaryExpr();
-        while (Object.keys(kPowerOperators).includes(peek())) {
-          const op = take();
-          const rhs = parseUnaryExpr();
-          lhs = {lhs, op, rhs};
+      if (token === '[') {
+        const value = parseArray();
+        let dataType = kDefaultDataType;
+        if (isSuffix(peek())) {
+          dataType = suffixToDataType(take());
         }
-        return lhs;
+        return {type: 'array', value, dataType};
       }
-      function parseUnaryExpr() {
-        if (Object.keys(kUnaryOperators).includes(peek())) {
-          const op = take();
-          const rhs = parseUnaryExpr();
-          return {op, rhs};
-        }
-        return parseFinalExpr();
+      if (token === '{') {
+        const dict = parseDict();
+        return {type: 'dict', dict};
       }
-      function parseFinalExpr() {
-        const token = take();
-        if (isNumber(token)) {
-          let dataType = kDefaultDataType;
-          if (isSuffix(peek())) {
-            dataType = suffixToDataType(take());
-          }
-          return {type: 'number', value: Number(token), dataType};
+      if (isIdentifier(token)) {
+        if (peek() !== '(') {
+          return {type: 'identifier', value: token};
         }
-        if (isString(token)) {
-          return {type: 'string', value: eval(token)};
-        }
-        if (isBoolean(token)) {
-          return {type: 'boolean', value: token === 'true'};
-        }
-        if (token === '[') {
-          const value = parseArray();
-          let dataType = kDefaultDataType;
-          if (isSuffix(peek())) {
-            dataType = suffixToDataType(take());
-          }
-          return {type: 'array', value, dataType};
-        }
-        if (token === '{') {
-          const dict = parseDict();
-          return {type: 'dict', dict};
-        }
-        if (isIdentifier(token)) {
-          if (peek() !== '(') {
-            return {type: 'identifier', value: token};
-          }
-          take();
-          const args = [];
-          if (peek() !== ')') {
+        take();
+        const args = [];
+        if (peek() !== ')') {
+          args.push(parseExpr());
+          while (peek() === ',') {
+            take();
             args.push(parseExpr());
-            while (peek() === ',') {
-              take();
-              args.push(parseExpr());
-            }
-          }
-          expect(')');
-          return {type: 'call', identifier: token, args};
-        }
-        if (token === '(') {
-          const expr = parseExpr();
-          expect(')');
-          return expr;
-        }
-        throw new ParseError(`Expected expression, saw '${token}'`);
-      }
-      function parseArray() {
-        const array = [];
-        if (peek() !== ']') {
-          const expr = parseExpr();
-          array.push(expr);
-          while (peek() === ',') {
-            take();
-            const expr = parseExpr();
-            array.push(expr);
           }
         }
-        expect(']');
-        return array;
+        expect(')');
+        return {type: 'call', identifier: token, args};
       }
-      function parseDict() {
-        const dict = {};
-        if (isIdentifier(peek()) || isString(peek())) {
-          const [key, value] = parsePropDef();
-          dict[key] = value;
-          while (peek() === ',') {
-            take();
-            if (peek() === '}')
-              break;
-            if (!(isIdentifier(peek()) || isString(peek())))
-              throw new ParseError(`Expected identifier, saw '${peek()}'`);
-            const [key, value] = parsePropDef();
-            dict[key] = value;
-          }
-        }
-        expect('}');
-        return dict;
-
-        function parsePropDef() {
-          let key = take();
-          if (isString(key))
-            key = eval(key);
-          expect(':');
-          const expr = parseExpr();
-          return [key, expr];
-        }
-      }
-      function parseList() {
-        const list = [];
+      if (token === '(') {
         const expr = parseExpr();
-        list.push(expr);
+        expect(')');
+        return expr;
+      }
+      throw new ParseError(`Expected expression, saw '${token}'`);
+    }
+    function parseArray() {
+      const array = [];
+      if (peek() !== ']') {
+        const expr = parseExpr();
+        array.push(expr);
         while (peek() === ',') {
           take();
           const expr = parseExpr();
-          list.push(expr);
+          array.push(expr);
         }
-        expect('>>');
-        return list;
+      }
+      expect(']');
+      return array;
+    }
+    function parseDict() {
+      const dict = {};
+      if (isIdentifier(peek()) || isString(peek())) {
+        const [key, value] = parsePropDef();
+        dict[key] = value;
+        while (peek() === ',') {
+          take();
+          if (peek() === '}') {
+            break;
+          }
+          if (!(isIdentifier(peek()) || isString(peek()))) {
+            throw new ParseError(`Expected identifier, saw '${peek()}'`);
+          }
+          const [key, value] = parsePropDef();
+          dict[key] = value;
+        }
+      }
+      expect('}');
+      return dict;
+
+      function parsePropDef() {
+        let key = take();
+        if (isString(key)) {
+          key = eval(key);
+        }
+        expect(':');
+        const expr = parseExpr();
+        return [key, expr];
       }
     }
 
@@ -370,14 +360,14 @@ class NNotepad {
     // `MLGraphBuilder`. The output of the last expression is returned.
 
     const src = lines
-                    .map(
-                        (line, index) =>
-                            serializeLine(line, index === lines.length - 1))
-                    .map(line => line + ';\n')
-                    .join('');
+        .map(
+            (line, index) =>
+              serializeLine(line, index === lines.length - 1))
+        .map((line) => line + ';\n')
+        .join('');
 
     const AsyncFunction = async function() {}.constructor;
-    return [AsyncFunction(['_'], src), src];
+    return [new AsyncFunction(['_'], src), src];
 
     function serializeLine(line, last) {
       const expr = serializeExpr(line.expr);
@@ -393,7 +383,7 @@ class NNotepad {
       if (expr.op) {
         if (expr.lhs) {
           return `_.${kBinaryOperators[expr.op]}(${serializeExpr(expr.lhs)}, ${
-              serializeExpr(expr.rhs)})`;
+            serializeExpr(expr.rhs)})`;
         } else {
           return `_.${kUnaryOperators[expr.op]}(${serializeExpr(expr.rhs)})`;
         }
@@ -421,7 +411,7 @@ class NNotepad {
     function serializeDict(dict) {
       return '{' +
           Object.keys(dict)
-              .map(k => {
+              .map((k) => {
                 const v = dict[k];
                 k = Util.stringify(k);
                 return `${k}: ${serializeExpr(v, true)}`;
@@ -433,7 +423,7 @@ class NNotepad {
     function serializeScalar(number, dataType) {
       const ctor = WebNNUtil.dataTypeToBufferType(dataType);
       return `_.constant({dataType:"${dataType}"}, new ${ctor.name}([${
-          Util.stringifyNumber(number, dataType)}]))`;
+        Util.stringifyNumber(number, dataType)}]))`;
     }
     function suffixToDataType(suffix) {
       return {
@@ -457,7 +447,7 @@ class NNotepad {
         } else if (dimensions[d] !== t.length) {
           throw new Error('Invalid tensor: inconsistent dimensions');
         }
-        t.forEach(e => {
+        t.forEach((e) => {
           if (e.type === 'array') {
             measure(e.value, d + 1);
           } else if (e.type !== 'number') {
@@ -471,34 +461,37 @@ class NNotepad {
       }(tensor, 0));
       const ctor = WebNNUtil.dataTypeToBufferType(dataType);
       return `_.constant({dataType: "${dataType}", dimensions: ${
-          Util.stringify(dimensions)}}, new ${ctor.name}([${
-          elements.map(n => Util.stringifyNumber(n, dataType)).join(',')}]))`;
+        Util.stringify(dimensions)}}, new ${ctor.name}([${
+        elements.map((n) => Util.stringifyNumber(n, dataType)).join(',')}]))`;
     }
 
     function serializeArray(array) {
-      return '[' + array.map(expr => serializeExpr(expr)).join(', ') + ']';
+      return '[' + array.map((expr) => serializeExpr(expr)).join(', ') + ']';
     }
 
     function serializeCall(name, args) {
       if (name === 'load') {
         const [url, shape, dataType] = args;
-        if (url.type !== 'string')
+        if (url.type !== 'string') {
           throw new TypeError('load(): expected string');
-        if (shape.type !== 'tensor')
+        }
+        if (shape.type !== 'tensor') {
           throw new TypeError('load(): expected array');
-        if (dataType.type !== 'string')
+        }
+        if (dataType.type !== 'string') {
           throw new TypeError('load(): expected string');
+        }
         const ctor = WebNNUtil.dataTypeToBufferType(dataType.value);
         return `_.constant({dataType: "${dataType.value}", dimensions: ${
-            Util.stringify(shape.value)}}, new ${
-            ctor.name}(await Util.loadBuffer(${Util.stringify(url.value)})))`;
+          Util.stringify(shape.value)}}, new ${
+          ctor.name}(await Util.loadBuffer(${Util.stringify(url.value)})))`;
       }
 
       return `_.${name}(${
-          args.map(
-                  (arg, index) => serializeExpr(
-                      arg, WebNNUtil.isNonOperandArg(name, index)))
-              .join(', ')})`;
+        args.map(
+            (arg, index) => serializeExpr(
+                arg, WebNNUtil.isNonOperandArg(name, index)))
+            .join(', ')})`;
     }
   }
 
@@ -569,7 +562,7 @@ class NNotepad {
         (op, index) => ({
           dataType: op.dataType(),
           shape: op.shape(),
-          buffer: maybeProxyForFloat16Array(result.outputs[`output-${index}`])
+          buffer: maybeProxyForFloat16Array(result.outputs[`output-${index}`]),
         }));
   }
 }

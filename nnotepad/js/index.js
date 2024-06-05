@@ -2,10 +2,9 @@
 
 'use strict';
 
-const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
-document.addEventListener('DOMContentLoaded', async e => {
-
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+document.addEventListener('DOMContentLoaded', async (e) => {
   try {
     const req = await fetch('res/default.txt');
     if (req.ok) {
@@ -21,13 +20,15 @@ document.addEventListener('DOMContentLoaded', async e => {
     $('#output').style.color = '';
     $('#srcText').innerText = '';
 
-    if (!code.trim())
+    if (!code.trim()) {
       return;
+    }
 
     try {
       const [builderFunc, src] = NNotepad.makeBuilderFunction(code);
       $('#srcText').innerText = src;
-      const result = await NNotepad.execBuilderFunction($('#device').value, builderFunc);
+      const result =
+          await NNotepad.execBuilderFunction($('#device').value, builderFunc);
       $('#output').innerText = explain(result);
     } catch (ex) {
       $('#output').style.color = 'red';
@@ -51,40 +52,41 @@ document.addEventListener('DOMContentLoaded', async e => {
 
   refresh();
 
-  $$('dialog > button').forEach(e => e.addEventListener('click', e => {
+  $$('dialog > button').forEach((e) => e.addEventListener('click', (e) => {
     e.target.parentElement.close();
   }));
-  $$('dialog').forEach(e => e.addEventListener('close', e => {
+  $$('dialog').forEach((e) => e.addEventListener('close', (e) => {
     $('#input').focus();
   }));
-  $('#peek').addEventListener('click', e => $('#srcDialog').showModal());
-  $('#help').addEventListener('click', e => $('#helpDialog').showModal());
+  $('#peek').addEventListener('click', (e) => $('#srcDialog').showModal());
+  $('#help').addEventListener('click', (e) => $('#helpDialog').showModal());
 });
 
 function explain(outputs) {
   return outputs
       .map(
-        output => ['dataType: ' + output.dataType,
-                   'shape: ' + Util.stringify(output.shape),
-                   'tensor: ' + dumpTensor(output.shape, output.buffer, 8)
-                  ].join('\n'))
-    .join('\n\n');
+          (output) => ['dataType: ' + output.dataType,
+            'shape: ' + Util.stringify(output.shape),
+            'tensor: ' + dumpTensor(output.shape, output.buffer, 8),
+          ].join('\n'))
+      .join('\n\n');
 
 
   function dumpTensor(shape, buffer, indent) {
     // Scalar
-    if (shape.length === 0)
+    if (shape.length === 0) {
       return String(buffer[0]);
+    }
 
-    const width =
-        [...buffer].map(n => String(n).length).reduce((a, b) => Math.max(a, b));
+    const width = [...buffer]
+        .map((n) => String(n).length)
+        .reduce((a, b) => Math.max(a, b));
 
     const out = [];
     let bufferIndex = 0;
 
     return (function convert(dim = 0) {
       out.push('[');
-      const tensor = [];
       for (let i = 0; i < shape[dim]; ++i) {
         if (dim + 1 === shape.length) {
           out.push(String(buffer[bufferIndex++]).padStart(width));
