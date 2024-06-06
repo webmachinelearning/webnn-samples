@@ -1,0 +1,41 @@
+# Scalars
+
+a = 123
+b = 456
+c = a * b
+inf = Infinity
+nan = NaN
+
+# Tensors
+
+A = [[1,7],[2,4]]
+B = [[3,3],[5,2]]
+C = matmul(A,B)
+# Expect: [[38,17],[26,14]]
+
+# T = [[1,2],3] # invalid
+
+M = [[2,8,3],[5,4,1]]
+N = [[4,1],[6,3],[2,4]]
+P = matmul(M,N)
+# Expect: [[62,38],[46,21]]
+
+# Explicit Data Types (float32 is default)
+
+scalar_int8 = -123i8
+Tensor_uint8 = [1,2,3]u8
+scalar_int32 = -123i32
+Tensor_uint32 = [1,2,3]u32
+scalar_float32 = 1.23e38f32
+
+# Dictionaries
+
+linear(10, {alpha: 2, beta: 3})
+linear(10, {})
+
+# Result of last expression is returned
+
+R = 11 + P * 2
+cast(R > 100, "float32") * R
+
+split([1,2,3,4], 2)
