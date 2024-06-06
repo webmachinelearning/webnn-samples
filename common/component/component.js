@@ -1,4 +1,4 @@
-import { isElectron, isWebNN } from "../utils.js";
+import { isWebNN } from "../utils.js";
 
 const webnnlogo = () => {
   const nnlogo = `
@@ -598,26 +598,24 @@ $(document).ready(async () => {
   $("#footer").html(footer());
   if (await isWebNN()) {
     if ($("#backendBtns")) {
-      if (!isElectron()) {
-        $('label[name="polyfill"]').addClass("disabled");
-        $('label[name="polyfill"]').addClass("btn-outline-secondary");
-        $('label[name="polyfill"]').removeClass("btn-outline-info");
-        $('label[name="polyfill"]').attr(
+      $('label[name="polyfill"]').addClass("disabled");
+      $('label[name="polyfill"]').addClass("btn-outline-secondary");
+      $('label[name="polyfill"]').removeClass("btn-outline-info");
+      $('label[name="polyfill"]').attr(
+        "title",
+        "WebNN is supported, disable WebNN Polyfill."
+      );
+      // Disable WebNN NPU backend if failed to find a capable NPU adapter.
+      try {
+        await navigator.ml.createContext({deviceType: 'npu'});
+      } catch (error) {
+        $('#webnn_npu').parent().addClass('disabled');
+        $('#webnn_npu').parent().addClass('btn-outline-secondary');
+        $('#webnn_npu').parent().removeClass('btn-outline-info');
+        $('#webnn_npu').parent().attr(
           "title",
-          "WebNN is supported, disable WebNN Polyfill."
+          "Unable to find a capable NPU adapter."
         );
-        // Disable WebNN NPU backend if failed to find a capable NPU adapter.
-        try {
-          await navigator.ml.createContext({deviceType: 'npu'});
-        } catch (error) {
-          $('#webnn_npu').parent().addClass('disabled');
-          $('#webnn_npu').parent().addClass('btn-outline-secondary');
-          $('#webnn_npu').parent().removeClass('btn-outline-info');
-          $('#webnn_npu').parent().attr(
-            "title",
-            "Unable to find a capable NPU adapter."
-          );
-        }
       }
     }
     $("#webnnstatus").html("supported").addClass("webnn-status-true");

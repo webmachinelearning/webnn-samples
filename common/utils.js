@@ -375,25 +375,8 @@ export async function setBackend(backend, device) {
     }
     await setPolyfillBackend(device);
   } else if (backend === 'webnn') {
-    // For Electron
-    if (isElectron()) {
-      if (webnnPolyfillElem) {
-        document.body.removeChild(webnnPolyfillElem);
-      }
-      if (!webnnNodeElem) {
-        // Create WebNN node script, node_setup.js is located at
-        // https://github.com/webmachinelearning/webnn-native/tree/main/node/examples/electron/webnn-samples
-        // Specific for running samples with WebNN node addon on Electron.js
-        await loadScript('../../node_setup.js', webnnNodeId);
-      }
-      addAlert(
-          `This sample is running on WebNN-native with <b>${device}</b>` +
-          ` backend.`, 'info');
-    } else {
-      // For Browser
-      if (!await isWebNN()) {
-        addAlert(`WebNN is not supported!`, 'warning');
-      }
+    if (!await isWebNN()) {
+      addAlert(`WebNN is not supported!`, 'warning');
     }
   } else {
     addAlert(`Unknow backend: ${backend}`, 'warning');
@@ -415,24 +398,12 @@ async function loadScript(url, id) {
   });
 }
 
-export function isElectron() {
-  const userAgent = navigator.userAgent.toLowerCase();
-  return userAgent.indexOf(' electron/') > -1;
-}
-
 export async function isWebNN() {
-  // This would be used in
-  // https://github.com/webmachinelearning/webnn-native/tree/main/node/examples/electron/webnn-samples,
-  // where WebNN is enabled by default.
-  if (isElectron()) {
-    return true;
+  if (typeof MLGraphBuilder !== 'undefined') {
+    const context = await navigator.ml.createContext();
+    return !context.tf;
   } else {
-    if (typeof MLGraphBuilder !== 'undefined') {
-      const context = await navigator.ml.createContext();
-      return !context.tf;
-    } else {
-      return false;
-    }
+    return false;
   }
 }
 
