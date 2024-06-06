@@ -191,14 +191,6 @@
     <div id="badge"></div>
     <div id="footer"></div>
   </footer>
-  <script>
-    // This workaround is to fix jquery loading issue in electron.
-    // Refer to https://stackoverflow.com/questions/32621988/electron-jquery-is-not-defined.
-    if (typeof module === "object") {
-      window.tempModule = module;
-      module = undefined;
-    }
-  </script>
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
     integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
     crossorigin="anonymous"></script>
@@ -208,10 +200,6 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
     integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
     crossorigin="anonymous"></script>
-  <script>
-    // To restore module after loading 3rd-party libraries.
-    if (window.tempModule) module = window.tempModule;
-  </script>
   <script type="module" src="./main.js"></script>
   <script type="module" src="../common/component/component.js"></script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-6TK7JD3KKY"></script>
