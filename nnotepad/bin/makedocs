@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+
+import markdown
+
+with open('README.md', 'r', encoding='utf-8') as input_file:
+    text = input_file.read()
+
+html = markdown.markdown(text, extensions=['extra'])
+
+with open('res/docs.html', 'w', encoding='utf-8', errors='xmlcharrefreplace') as output_file:
+    output_file.write('''<!doctype html>
+<meta charset=utf8>
+<title>NNotepad</title>
+<!--
+
+  THIS IS A GENERATED FILE.
+
+  DO NOT EDIT.
+
+  Edit README.md instead, then run: ./makedocs
+
+-->
+<style>
+body {
+  font-family: sans-serif;
+  font-size: 16px;
+  line-height: 30px;
+}
+code {
+  font-family: "Consolas", "Lucida Console", monospace;
+}
+code {
+  display: inline-block;
+  background-color: #eee;
+  border-radius: 0.25lh;
+  padding: 0 0.25lh;
+}
+pre code {
+  display: inline;
+  background-color: inherit;
+  border-radius: initial;
+  padding: initial;
+}
+pre {
+  background-color: #eee;
+  border-radius: 1lh;
+  padding: 1lh;
+}
+</style>
+
+''');
+    output_file.write(html)
+
