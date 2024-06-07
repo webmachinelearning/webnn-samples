@@ -68,19 +68,11 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
         /* oihw */[weights.shape()[2], weights.shape()[3]],
         options.strides, options.dilations, 'same-upper');
     options.bias = bias;
+    const conv2d = this.builder_.conv2d(input, weights, options);
     if (relu6) {
-      // TODO: Set clamp activation to options once it's supported in
-      // WebNN DML backend.
-      // Implement `clip` by `clamp` of  WebNN API
-      if (this.deviceType_ == 'gpu' || this.deviceType_ == 'npu') {
-        return this.builder_.clamp(
-            this.builder_.conv2d(input, weights, options),
-            {minValue: 0, maxValue: 6});
-      } else {
-        options.activation = this.builder_.clamp({minValue: 0, maxValue: 6});
-      }
+      return this.builder_.clamp(conv2d, {minValue: 0, maxValue: 6});
     }
-    return this.builder_.conv2d(input, weights, options);
+    return conv2d;
   }
 
   async load(contextOptions) {

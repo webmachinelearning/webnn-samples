@@ -51,15 +51,13 @@ export class ResNet50V2Nchw {
     const mean = buildConstantByNpy(this.builder_, meanName);
     const variance = buildConstantByNpy(this.builder_, varName);
     const options = {scale: await scale, bias: await bias};
-    if (relu) {
-      options.activation = this.builder_.relu();
-    }
-    return this.builder_.batchNormalization(
+    const batchnorm = this.builder_.batchNormalization(
         await input,
         await mean,
         await variance,
         options,
     );
+    return relu ? this.builder_.relu(batchnorm) : batchnorm;
   }
 
   async buildGemm_(input, name) {
