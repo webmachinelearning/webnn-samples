@@ -28,8 +28,8 @@ export class SqueezeNetNchw {
     const biasName = prefix + '_bias.npy';
     const bias = buildConstantByNpy(this.builder_, biasName);
     options.bias = await bias;
-    options.activation = this.builder_.relu();
-    return this.builder_.conv2d(await input, await weights, options);
+    const conv2d = this.builder_.conv2d(await input, await weights, options);
+    return this.builder_.relu(conv2d);
   }
 
   async buildFire_(input, convName, conv1x1Name, conv3x3Name) {
