@@ -29,7 +29,6 @@ export class SqueezeNetNhwc {
     options.inputLayout = 'nhwc';
     options.filterLayout = 'ohwi';
     options.bias = await bias;
-    options.activation = this.builder_.relu();
     // WebNN spec drops autoPad support, compute the explicit padding instead.
     if (options.autoPad == 'same-upper') {
       options.padding =
@@ -38,7 +37,8 @@ export class SqueezeNetNhwc {
             /* ohwi */[weights.shape()[1], weights.shape()[2]],
             options.strides, options.dilations, options.autoPad);
     }
-    return this.builder_.conv2d(await input, weights, options);
+    const conv2d = this.builder_.conv2d(await input, weights, options);
+    return this.builder_.relu(conv2d);
   }
 
   async buildFire_(input, name) {

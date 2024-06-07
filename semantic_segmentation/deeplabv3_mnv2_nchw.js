@@ -45,23 +45,14 @@ export class DeepLabV3MNV2Nchw {
     const bias = buildConstantByNpy(this.builder_, biasName);
 
     options.bias = await bias;
+    const conv2d = this.builder_.conv2d(await input, await weights, options);
     if (activation === 'relu6') {
-      // TODO: Set clamp activation to options once it's supported in
-      // WebNN DML backend.
-      // Implement `clip` by `clamp` of  WebNN API
-      if (this.deviceType_ == 'gpu') {
-        return this.builder_.clamp(
-            this.builder_.conv2d(await input, await weights, options),
-            {minValue: 0, maxValue: 6});
-      } else {
-        options.activation = this.builder_.clamp({minValue: 0, maxValue: 6});
-      }
+      return this.builder_.clamp(conv2d, {minValue: 0, maxValue: 6});
     } else if (activation === 'relu') {
-      options.activation = this.builder_.relu();
+      return this.builder_.relu(conv2d);
     } else {
-      options.activation = undefined;
+      return conv2d;
     }
-    return this.builder_.conv2d(await input, await weights, options);
   }
 
   async buildLinearBottleneck_(input, nameArray, dwiseOptions, shortcut = true) {

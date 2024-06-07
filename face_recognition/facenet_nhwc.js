@@ -43,9 +43,6 @@ export class FaceNetNhwc {
         bias: bias,
       };
     }
-    if (relu) {
-      options.activation = this.builder_.relu();
-    }
     // WebNN spec drops autoPad support, compute the explicit padding instead.
     if (options.autoPad == 'same-upper') {
       options.padding =
@@ -54,7 +51,8 @@ export class FaceNetNhwc {
             /* ohwi */[weights.shape()[1], weights.shape()[2]],
             options.strides, options.dilations, options.autoPad);
     }
-    return this.builder_.conv2d(input, weights, options);
+    const conv2d = this.builder_.conv2d(input, weights, options);
+    return relu ? this.builder_.relu(conv2d) : conv2d;
   }
 
   async buildBlock35_(input, indice) {

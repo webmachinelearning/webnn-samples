@@ -33,11 +33,9 @@ export class ResNet50V1FP16Nchw {
         'float16');
     options.bias = await buildConstantByNpy(this.builder_, prefix + '_b.npy',
         'float16');
-    if (relu) {
-      options.activation = this.builder_.relu();
-    }
 
-    return this.builder_.conv2d(await input, await weight, options);
+    const conv2d = this.builder_.conv2d(await input, await weight, options);
+    return relu ? this.builder_.relu(conv2d) : conv2d;
   }
 
   async buildGemm_(input, name) {

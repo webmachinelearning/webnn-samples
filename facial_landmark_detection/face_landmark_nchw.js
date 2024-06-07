@@ -36,9 +36,9 @@ export class FaceLandmarkNchw {
     const bias = buildConstantByNpy(this.builder_, biasName);
     const options = {
       bias: await bias,
-      activation: this.builder_.relu(),
     };
-    return this.builder_.conv2d(await input, await weights, options);
+    const conv2d = this.builder_.conv2d(await input, await weights, options);
+    return this.builder_.relu(conv2d);
   }
 
   async buildGemm_(input, namePrefix, relu = false, reshapeSize) {
