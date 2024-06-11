@@ -1,33 +1,43 @@
 import {Util} from './util.js';
 import {NNotepad, ParseError} from './nnotepad.js';
+import * as monaco from 'monaco-editor';
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
 document.addEventListener('DOMContentLoaded', async (e) => {
+  let inputValue = '';
   try {
     const req = await fetch('res/default.txt');
     if (req.ok) {
-      $('#input').value = await req.text();
+      inputValue = await req.text();
     }
   } catch (ex) {
     console.warn(ex);
   }
 
+  const editor = monaco.editor.create(document.getElementById('input'), {
+    value: inputValue,
+    language: 'javascript',
+    lineNumbers: 'on',
+  });
+
   async function refresh(e) {
-    const code = $('#input').value;
+    const code = editor.getValue();
     $('#output').innerText = '';
     $('#output').style.color = '';
     $('#srcText').innerText = '';
 
-    if (!code.trim()) {
+    if (code && !code.trim()) {
       return;
     }
 
     try {
       const [builderFunc, src] = NNotepad.makeBuilderFunction(code);
       $('#srcText').innerText = src;
-      const result =
-          await NNotepad.execBuilderFunction($('#device').value, builderFunc);
+      const result = await NNotepad.execBuilderFunction(
+          $('#device').value,
+          builderFunc,
+      );
       $('#output').innerText = explain(result);
     } catch (ex) {
       $('#output').style.color = 'red';
@@ -51,14 +61,20 @@ document.addEventListener('DOMContentLoaded', async (e) => {
 
   refresh();
 
-  $$('dialog > button').forEach((e) => e.addEventListener('click', (e) => {
-    e.target.parentElement.close();
-  }));
+  $$('dialog > button').forEach((e) =>
+    e.addEventListener('click', (e) => {
+      e.target.parentElement.close();
+    }),
+  );
   $$('dialog').forEach((dialog) => {
     dialog.addEventListener('click', (e) => {
       const rect = e.target.getBoundingClientRect();
-      if (e.clientY < rect.top || e.clientY > rect.bottom ||
-          e.clientX < rect.left || e.clientX > rect.right) {
+      if (
+        e.clientY < rect.top ||
+        e.clientY > rect.bottom ||
+        e.clientX < rect.left ||
+        e.clientX > rect.right
+      ) {
         e.target.close();
       }
     });
@@ -74,25 +90,32 @@ document.addEventListener('DOMContentLoaded', async (e) => {
     resize.setPointerCapture(e.pointerId);
     const listener = (e) => {
       document.documentElement.style.setProperty(
-          '--input-height', `${e.clientY}px`);
+          '--input-height',
+          `${e.clientY}px`,
+      );
     };
     resize.addEventListener('pointermove', listener);
-    resize.addEventListener('pointerup', () => {
-      resize.releasePointerCapture(e.pointerId);
-      resize.removeEventListener('pointermove', listener);
-    }, {once: true});
+    resize.addEventListener(
+        'pointerup',
+        () => {
+          resize.releasePointerCapture(e.pointerId);
+          resize.removeEventListener('pointermove', listener);
+        },
+        {once: true},
+    );
   });
 });
 
 function explain(outputs) {
   return outputs
-      .map(
-          (output) => ['dataType: ' + output.dataType,
-            'shape: ' + Util.stringify(output.shape),
-            'tensor: ' + dumpTensor(output.shape, output.buffer, 8),
-          ].join('\n'))
+      .map((output) =>
+        [
+          'dataType: ' + output.dataType,
+          'shape: ' + Util.stringify(output.shape),
+          'tensor: ' + dumpTensor(output.shape, output.buffer, 8),
+        ].join('\n'),
+      )
       .join('\n\n');
-
 
   function dumpTensor(shape, buffer, indent) {
     // Scalar
@@ -128,4 +151,3 @@ function explain(outputs) {
     })();
   }
 }
-

@@ -1,130 +1,68 @@
 <!doctype html>
 <meta charset=utf-8>
 <title>NNotepad</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel=icon href="res/webml.png">
 <link rel=manifest href="res/manifest.json">
-<style>
-html {
-  margin: 0; padding: 0;
-  --input-height: calc(100vh - 200px);
-  --resize-height: 2px;
-}
-body {
-  margin: 0; padding: 0;
-  width: 100vh; height: 100vw;
-  overflow: hidden;
-}
-pre {
-  white-space: pre-wrap;
-}
-#input {
-  box-sizing: border-box;
-  position: absolute;
-  margin: 0;
-  left: 0; right: 0; top: 0; height: calc(var(--input-height) - var(--resize-height)/2);
-  padding: 10px;
-  border: none;
-  outline: none;
-  resize: none;
-}
-#output {
-  box-sizing: border-box;
-  position: absolute;
-  margin: 0;
-  left: 0; right: 0; top: calc(var(--input-height) + var(--resize-height)/2); bottom: 0;
-  padding: 10px;
-  border: none;
-  background-color: #eee;
-  overflow: auto;
-}
-#resize {
-  box-sizing: border-box;
-  position: absolute;
-  background-color: #ddd;
-  margin: 0;
-  padding: 0;
-  cursor: row-resize;
-  left: 0; right: 0; height: var(--resize-height); top: calc(var(--input-height) - var(--resize-height)/2);
-}
-#watermark {
-  position: absolute;
-  right: 15px; top: 5px;
-  color: #61BAFB;
-  color: #4777C0;
-  font-family: sans-serif;
-  font-size: 32px;
-  font-style: italic;
-  font-weight: bold;
-  user-select: none;
-}
-#watermark img {
-  height: 40px;
-  vertical-align: bottom;
-}
-#toolbar {
-  position: absolute;
-  right: 15px;
-  top: 50px;
-}
-#toolbar button {
-  background-color: transparent;
-  border: none;
-  font-size: 40px;
-}
-
-#srcDialog {
-  max-width: calc(100vw - 80px);
-  max-height: calc(100vh - 80px);
-}
-#srcText {
-  position: relative;
-  box-sizing: border-box;
-  border: 20px solid #eee;
-  max-height: calc(100vh - 200px);
-  overflow: auto;
-  background-image: linear-gradient(#eee 50%, #e4e4e4 50%);
-  background-size: 100% 2lh;
-}
-dialog {
-  font-family: sans-serif;
-}
-code {
-  font-family: "Consolas", "Lucida Console", monospace;
-  background-color: #eee;
-  border-radius: 0.25lh;
-  padding: 0.25lh;
-}
-#helpDialog {
-  max-width: calc(100vw - 80px);
-  max-height: calc(100vh - 80px);
-}
-#helpText {
-  position: relative;
-  box-sizing: border-box;
-  border: none;
-  width: calc(100vw - 200px);
-  height: calc(100vh - 200px);
-}
-</style>
+<link rel="stylesheet" href="./css/index.css">
 
 <script src="js/float16arraypolyfill.js"></script>
 <script src="js/util.js" type="module"></script>
 <script src="js/nnotepad.js" type="module"></script>
 <script src="js/index.js" type="module"></script>
 
-<textarea id=input autofocus cols=80 rows=24 placeholder="Enter code here..." spellcheck="false"></textarea>
+<nav id=nav>
+  <div>
+    <img src="../common/img/webnn-reverse.svg" alt="WebNN logo" />
+    <svg viewBox="0 0 311 65" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M36 48H30.176L6.752 12.48V48H0.928V3.328H6.752L30.176 38.784V3.328H36V48ZM80.36 48H74.536L51.112 12.48V48H45.288V3.328H51.112L74.536 38.784V3.328H80.36V48ZM104.944 48.576C101.659 48.576 98.672 47.8293 95.984 46.336C93.3387 44.8427 91.248 42.7307 89.712 40C88.2187 37.2267 87.472 34.0267 87.472 30.4C87.472 26.816 88.24 23.6587 89.776 20.928C91.3547 18.1547 93.488 16.0427 96.176 14.592C98.864 13.0987 101.872 12.352 105.2 12.352C108.528 12.352 111.536 13.0987 114.224 14.592C116.912 16.0427 119.024 18.1333 120.56 20.864C122.139 23.5947 122.928 26.7733 122.928 30.4C122.928 34.0267 122.117 37.2267 120.496 40C118.917 42.7307 116.763 44.8427 114.032 46.336C111.301 47.8293 108.272 48.576 104.944 48.576ZM104.944 43.456C107.035 43.456 108.997 42.9653 110.832 41.984C112.667 41.0027 114.139 39.5307 115.248 37.568C116.4 35.6053 116.976 33.216 116.976 30.4C116.976 27.584 116.421 25.1947 115.312 23.232C114.203 21.2693 112.752 19.8187 110.96 18.88C109.168 17.8987 107.227 17.408 105.136 17.408C103.003 17.408 101.04 17.8987 99.248 18.88C97.4987 19.8187 96.0907 21.2693 95.024 23.232C93.9573 25.1947 93.424 27.584 93.424 30.4C93.424 33.2587 93.936 35.6693 94.96 37.632C96.0267 39.5947 97.4347 41.0667 99.184 42.048C100.933 42.9867 102.853 43.456 104.944 43.456ZM137.05 17.728V38.4C137.05 40.1067 137.412 41.3227 138.138 42.048C138.863 42.7307 140.122 43.072 141.914 43.072H146.202V48H140.954C137.711 48 135.279 47.2533 133.658 45.76C132.036 44.2667 131.226 41.8133 131.226 38.4V17.728H126.682V12.928H131.226V4.096H137.05V12.928H146.202V17.728H137.05ZM184.618 29.12C184.618 30.2293 184.554 31.4027 184.426 32.64H156.394C156.607 36.096 157.781 38.8053 159.914 40.768C162.09 42.688 164.714 43.648 167.786 43.648C170.303 43.648 172.394 43.072 174.058 41.92C175.765 40.7253 176.959 39.1467 177.642 37.184H183.914C182.975 40.5547 181.098 43.3067 178.282 45.44C175.466 47.5307 171.967 48.576 167.786 48.576C164.458 48.576 161.471 47.8293 158.826 46.336C156.223 44.8427 154.175 42.7307 152.682 40C151.189 37.2267 150.442 34.0267 150.442 30.4C150.442 26.7733 151.167 23.5947 152.618 20.864C154.069 18.1333 156.095 16.0427 158.698 14.592C161.343 13.0987 164.373 12.352 167.786 12.352C171.114 12.352 174.058 13.0773 176.618 14.528C179.178 15.9787 181.141 17.984 182.506 20.544C183.914 23.0613 184.618 25.92 184.618 29.12ZM178.602 27.904C178.602 25.6853 178.111 23.7867 177.13 22.208C176.149 20.5867 174.805 19.3707 173.098 18.56C171.434 17.7067 169.578 17.28 167.53 17.28C164.586 17.28 162.069 18.2187 159.978 20.096C157.93 21.9733 156.757 24.576 156.458 27.904H178.602ZM197.49 19.392C198.642 17.3867 200.348 15.7227 202.61 14.4C204.914 13.0347 207.58 12.352 210.61 12.352C213.724 12.352 216.54 13.0987 219.058 14.592C221.618 16.0853 223.623 18.1973 225.074 20.928C226.524 23.616 227.25 26.752 227.25 30.336C227.25 33.8773 226.524 37.0347 225.074 39.808C223.623 42.5813 221.618 44.736 219.058 46.272C216.54 47.808 213.724 48.576 210.61 48.576C207.623 48.576 204.978 47.9147 202.674 46.592C200.412 45.2267 198.684 43.5413 197.49 41.536V64.64H191.666V12.928H197.49V19.392ZM221.298 30.336C221.298 27.6907 220.764 25.3867 219.698 23.424C218.631 21.4613 217.18 19.968 215.346 18.944C213.554 17.92 211.57 17.408 209.394 17.408C207.26 17.408 205.276 17.9413 203.442 19.008C201.65 20.032 200.199 21.5467 199.09 23.552C198.023 25.5147 197.49 27.7973 197.49 30.4C197.49 33.0453 198.023 35.3707 199.09 37.376C200.199 39.3387 201.65 40.8533 203.442 41.92C205.276 42.944 207.26 43.456 209.394 43.456C211.57 43.456 213.554 42.944 215.346 41.92C217.18 40.8533 218.631 39.3387 219.698 37.376C220.764 35.3707 221.298 33.024 221.298 30.336ZM232.1 30.336C232.1 26.752 232.825 23.616 234.276 20.928C235.726 18.1973 237.71 16.0853 240.228 14.592C242.788 13.0987 245.625 12.352 248.74 12.352C251.812 12.352 254.478 13.0133 256.74 14.336C259.001 15.6587 260.686 17.3227 261.796 19.328V12.928H267.684V48H261.796V41.472C260.644 43.52 258.916 45.2267 256.612 46.592C254.35 47.9147 251.705 48.576 248.676 48.576C245.561 48.576 242.745 47.808 240.228 46.272C237.71 44.736 235.726 42.5813 234.276 39.808C232.825 37.0347 232.1 33.8773 232.1 30.336ZM261.796 30.4C261.796 27.7547 261.262 25.4507 260.196 23.488C259.129 21.5253 257.678 20.032 255.844 19.008C254.052 17.9413 252.068 17.408 249.892 17.408C247.716 17.408 245.732 17.92 243.94 18.944C242.148 19.968 240.718 21.4613 239.652 23.424C238.585 25.3867 238.052 27.6907 238.052 30.336C238.052 33.024 238.585 35.3707 239.652 37.376C240.718 39.3387 242.148 40.8533 243.94 41.92C245.732 42.944 247.716 43.456 249.892 43.456C252.068 43.456 254.052 42.944 255.844 41.92C257.678 40.8533 259.129 39.3387 260.196 37.376C261.262 35.3707 261.796 33.0453 261.796 30.4ZM274.709 30.336C274.709 26.752 275.435 23.616 276.885 20.928C278.336 18.1973 280.32 16.0853 282.837 14.592C285.397 13.0987 288.256 12.352 291.413 12.352C294.144 12.352 296.683 12.992 299.029 14.272C301.376 15.5093 303.168 17.152 304.405 19.2V0.639999H310.293V48H304.405V41.408C303.253 43.4987 301.547 45.2267 299.285 46.592C297.024 47.9147 294.379 48.576 291.349 48.576C288.235 48.576 285.397 47.808 282.837 46.272C280.32 44.736 278.336 42.5813 276.885 39.808C275.435 37.0347 274.709 33.8773 274.709 30.336ZM304.405 30.4C304.405 27.7547 303.872 25.4507 302.805 23.488C301.739 21.5253 300.288 20.032 298.453 19.008C296.661 17.9413 294.677 17.408 292.501 17.408C290.325 17.408 288.341 17.92 286.549 18.944C284.757 19.968 283.328 21.4613 282.261 23.424C281.195 25.3867 280.661 27.6907 280.661 30.336C280.661 33.024 281.195 35.3707 282.261 37.376C283.328 39.3387 284.757 40.8533 286.549 41.92C288.341 42.944 290.325 43.456 292.501 43.456C294.677 43.456 296.661 42.944 298.453 41.92C300.288 40.8533 301.739 39.3387 302.805 37.376C303.872 35.3707 304.405 33.0453 304.405 30.4Z"
+        fill="#4777C0" />
+    </svg>
+  </div>
+  <div>
+    <div class=navbar-nav id=navbar>
+      <div class=nav-link>
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368">
+          <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z" />
+        </svg>
+      </div>
+      <div class=dropdown-menu id=webnn-dropdown>
+        <a class=dropdown-item href="../nnotepad/index.html">NNotepad - WebNN Playground</a>
+        <a class=dropdown-item href="../image_classification/index.html">Image Classification</a>
+        <a class=dropdown-item href="../lenet/index.html">Handwritten Digits Classification</a>
+        <a class=dropdown-item href="../nsnet2/index.html">Noise Suppression (NSNet2)</a>
+        <a class=dropdown-item href="../rnnoise/index.html">Noise Suppression (RNNoise)</a>
+        <a class=dropdown-item href="../style_transfer/index.html">Fast Style Transfer</a>
+        <a class=dropdown-item href="../object_detection/index.html">Object Detection</a>
+        <a class=dropdown-item href="../semantic_segmentation/index.html">Semantic Segmentation</a>
+        <a class=dropdown-item href="../face_recognition/index.html">Face Recognition</a>
+        <a class=dropdown-item href="../facial_landmark_detection/index.html">Facial landmark Detection</a>
+        <a class=dropdown-item href="../code/index.html">WebNN Code Editor</a>
+      </div>
+    </div>
+    <button id=peek title="Show generated code">
+      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368">
+        <path
+          d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
+      </svg>
+    </button>
+    <button id=help title="Show documentation">
+      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368">
+        <path
+          d="M478-240q21 0 35.5-14.5T528-290q0-21-14.5-35.5T478-340q-21 0-35.5 14.5T428-290q0 21 14.5 35.5T478-240Zm-36-154h74q0-33 7.5-52t42.5-52q26-26 41-49.5t15-56.5q0-56-41-86t-97-30q-57 0-92.5 30T342-618l66 26q5-18 22.5-39t53.5-21q32 0 48 17.5t16 38.5q0 20-12 37.5T506-526q-44 39-54 59t-10 73Zm38 314q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+      </svg>
+    </button>
+    <select id=device title="MLContext deviceType hint">
+      <option value=cpu>CPU</option>
+      <option value=gpu>GPU</option>
+      <option value=npu>NPU</option>
+    </select>
+</nav>
+<div id=input spellcheck="false">
+</div>
 <div id=resize></div>
 <pre id=output>Results will show here</pre>
-
-<div id=watermark>
-  <img src="res/webml.png" alt="">NNotepad
-</div>
-
-<div id=toolbar>
-  <button id=peek title="Show generated code">&#x1F50E;</button><br>
-  <button id=help title="Show documentation">&#x1F6C8;</button><br>
-  <select id=device title="MLContext deviceType hint"><option value=cpu>CPU</option><option value=gpu>GPU</option><option value=npu>NPU</option></select>
-</div>
 
 <dialog id=srcDialog>
   An <code>MLGraphBuilder</code> is passed as <code>_</code>
