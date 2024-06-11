@@ -54,11 +54,34 @@ document.addEventListener('DOMContentLoaded', async (e) => {
   $$('dialog > button').forEach((e) => e.addEventListener('click', (e) => {
     e.target.parentElement.close();
   }));
-  $$('dialog').forEach((e) => e.addEventListener('close', (e) => {
-    $('#input').focus();
-  }));
+  $$('dialog').forEach((dialog) => {
+    dialog.addEventListener('click', (e) => {
+      const rect = e.target.getBoundingClientRect();
+      if (e.clientY < rect.top || e.clientY > rect.bottom ||
+          e.clientX < rect.left || e.clientX > rect.right) {
+        e.target.close();
+      }
+    });
+    dialog.addEventListener('close', (e) => {
+      $('#input').focus();
+    });
+  });
   $('#peek').addEventListener('click', (e) => $('#srcDialog').showModal());
   $('#help').addEventListener('click', (e) => $('#helpDialog').showModal());
+
+  $('#resize').addEventListener('pointerdown', (e) => {
+    const resize = e.target;
+    resize.setPointerCapture(e.pointerId);
+    const listener = (e) => {
+      document.documentElement.style.setProperty(
+          '--input-height', `${e.clientY}px`);
+    };
+    resize.addEventListener('pointermove', listener);
+    resize.addEventListener('pointerup', () => {
+      resize.releasePointerCapture(e.pointerId);
+      resize.removeEventListener('pointermove', listener);
+    }, {once: true});
+  });
 });
 
 function explain(outputs) {
