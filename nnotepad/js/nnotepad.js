@@ -368,7 +368,7 @@ export class NNotepad {
         .join('');
 
     const AsyncFunction = async function() {}.constructor;
-    return [new AsyncFunction(['_'], src), src];
+    return [new AsyncFunction(['_', 'Util'], src), src];
 
     function serializeLine(line, last) {
       const expr = serializeExpr(line.expr);
@@ -476,16 +476,33 @@ export class NNotepad {
         if (url.type !== 'string') {
           throw new TypeError('load(): expected string');
         }
-        if (shape.type !== 'tensor') {
+        if (shape.type !== 'array') {
           throw new TypeError('load(): expected array');
         }
         if (dataType.type !== 'string') {
           throw new TypeError('load(): expected string');
         }
+        const dims = shape.value.map((expr) => expr.value);
         const ctor = WebNNUtil.dataTypeToBufferType(dataType.value);
         return `_.constant({dataType: "${dataType.value}", dimensions: ${
-          Util.stringify(shape.value)}}, new ${
+          Util.stringify(dims)}}, new ${
           ctor.name}(await Util.loadBuffer(${Util.stringify(url.value)})))`;
+      }
+
+      if (name === 'zeros') {
+        const [shape, dataType] = args;
+        if (shape.type !== 'array') {
+          throw new TypeError('zeros(): expected array');
+        }
+        if (dataType.type !== 'string') {
+          throw new TypeError('zeros(): expected string');
+        }
+        const dims = shape.value.map((expr) => expr.value);
+        const ctor = WebNNUtil.dataTypeToBufferType(dataType.value);
+        const len = dims.reduce((a, b) => a * b, 1);
+        return `_.constant({dataType: "${dataType.value}", dimensions: ${
+          Util.stringify(dims)}}, new ${
+          ctor.name}(${len}))`;
       }
 
       return `_.${name}(${
@@ -509,7 +526,7 @@ export class NNotepad {
     const builder = new self.MLGraphBuilder(context);
 
     const outputOperands = [];
-    let output = await builderFunc(builder);
+    let output = await builderFunc(builder, Util);
     if (output instanceof self.MLOperand) {
       // TODO: remove try/catch once all back-ends support `identity()`.
       try {

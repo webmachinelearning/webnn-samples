@@ -49,6 +49,7 @@ The default [data type](https://webmachinelearning.github.io/webnn/#enumdef-mlop
 In addition to WebNN [`MLGraphBuilder`](https://webmachinelearning.github.io/webnn/#mlgraphbuilder) methods, you can use these helpers:
 
 * **load(_url_, _shape_, _dataType_)** - fetch a tensor resource. Must be served with appropriate [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) headers. Example: `load('https://www.random.org/cgi-bin/randbyte?nbytes=256', [16, 16], 'uint8')`
+* **zeros(_shape_, _dataType_)** - constant zero-filled tensor of the given shape. Example: `zeros([2,2,2,2], 'int8')`
 
 
 # Details & Gotchas
