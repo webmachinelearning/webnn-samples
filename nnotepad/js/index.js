@@ -102,7 +102,7 @@ function explain(outputs) {
 
     const width = [...buffer]
         .map((n) => String(n).length)
-        .reduce((a, b) => Math.max(a, b));
+        .reduce((a, b) => Math.max(a, b), 0);
 
     const out = [];
     let bufferIndex = 0;
@@ -118,10 +118,7 @@ function explain(outputs) {
         if (i !== shape[dim] - 1) {
           out.push(', ');
           if (dim + 1 !== shape.length) {
-            if (dim + 2 !== shape.length) {
-              out.push('\n');
-            }
-            out.push('\n');
+            out.push('\n'.repeat(shape.length - dim - 1));
             out.push(' '.repeat(indent + dim + 1));
           }
         }
