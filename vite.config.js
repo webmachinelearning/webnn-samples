@@ -1,5 +1,4 @@
 import {defineConfig} from 'vite';
-import monacoEditorPlugin from 'vite-plugin-monaco-editor';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 
 export default defineConfig({
@@ -8,8 +7,5 @@ export default defineConfig({
   },
   plugins: [
     basicSsl(),
-    monacoEditorPlugin({languageWorkers: [
-      'editorWorkerService',
-    ]}),
   ],
 });

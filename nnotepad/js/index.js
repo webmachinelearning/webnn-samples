@@ -1,7 +1,5 @@
 import {Util} from './util.js';
 import {NNotepad, ParseError} from './nnotepad.js';
-import * as monaco from 'monaco-editor';
-
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
 document.addEventListener('DOMContentLoaded', async (e) => {
@@ -15,10 +13,13 @@ document.addEventListener('DOMContentLoaded', async (e) => {
     console.warn(ex);
   }
 
-  const editor = monaco.editor.create(document.getElementById('input'), {
+  const editor = monaco.editor.create($('#input'), {
     value: inputValue,
-    language: 'javascript',
+    language: 'markdown',
     lineNumbers: 'on',
+    automaticLayout: true,
+    theme: 'vs',
+    disableMonospaceOptimizations: true,
   });
 
   async function refresh(e) {
@@ -85,13 +86,25 @@ document.addEventListener('DOMContentLoaded', async (e) => {
   $('#peek').addEventListener('click', (e) => $('#srcDialog').showModal());
   $('#help').addEventListener('click', (e) => $('#helpDialog').showModal());
 
+  $('#theme').addEventListener('click', (e) => {
+    let theme = $('#theme').value;
+    (theme === 'light') ? theme = 'dark' : theme = 'light';
+    $('#theme').value = theme;
+    let newTheme = 'vs-dark';
+    (theme === 'light') ? newTheme = 'vs' : newTheme = 'vs-dark';
+    monaco.editor.setTheme(newTheme);
+    (theme === 'light') ?
+      document.body.setAttribute('class', 'light') :
+      document.body.setAttribute('class', 'dark');
+  });
+
   $('#resize').addEventListener('pointerdown', (e) => {
     const resize = e.target;
     resize.setPointerCapture(e.pointerId);
     const listener = (e) => {
       document.documentElement.style.setProperty(
           '--input-height',
-          `${e.clientY}px`,
+          `${e.clientY - $('#nav').offsetHeight}px`,
       );
     };
     resize.addEventListener('pointermove', listener);
