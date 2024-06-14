@@ -4,17 +4,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel=icon href="res/webml.png">
 <link rel=manifest href="res/manifest.json">
-<link rel="stylesheet" data-name="vs/editor/editor.main" href="./js/monaco-min/vs/editor/editor.main.css" />
+<link rel="stylesheet" data-name="vs/editor/editor.main" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs/editor/editor.main.css" />
 <link rel="stylesheet" href="./css/index.css">
 <script src="js/float16arraypolyfill.js"></script>
 <script src="js/util.js" type="module"></script>
 <script src="js/nnotepad.js" type="module"></script>
 <script>
-  var require = { paths: { vs: './js/monaco-min/vs' } };
+  var require = { paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs' } };
 </script>
-<script src="./js/monaco-min/vs/loader.js"></script>
-<script src="./js/monaco-min/vs/editor/editor.main.nls.js"></script>
-<script src="./js/monaco-min/vs/editor/editor.main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs/loader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs/editor/editor.main.nls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs/editor/editor.main.js"></script>
 <script src="js/index.js" type="module"></script>
 
 <body class=light>
