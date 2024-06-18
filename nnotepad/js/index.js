@@ -1,3 +1,5 @@
+/* global monaco */
+
 import {Util} from './util.js';
 import {NNotepad, ParseError} from './nnotepad.js';
 const $ = (s) => document.querySelector(s);
