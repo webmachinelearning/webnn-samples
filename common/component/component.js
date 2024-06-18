@@ -545,6 +545,7 @@ const webnnsamplenav = () => {
             Samples
         </a>
         <div class="dropdown-menu" id="webnn-dropdown">
+            <a class="dropdown-item" href="../nnotepad/index.html">NNotepad - WebNN Playground</a>
             <a class="dropdown-item" href="../image_classification/index.html">Image Classification</a>
             <a class="dropdown-item" href="../lenet/index.html">Handwritten Digits Classification</a>
             <a class="dropdown-item" href="../nsnet2/index.html">Noise Suppression (NSNet2)</a>

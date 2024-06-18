@@ -5,5 +5,7 @@ export default defineConfig({
   build: {
     target: 'esnext',
   },
-  plugins: [basicSsl()],
+  plugins: [
+    basicSsl(),
+  ],
 });
