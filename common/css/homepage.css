@@ -129,6 +129,10 @@ a {
     background: url("../img/codeeditor.jpg") center/cover no-repeat
 }
 
+#bg_nnotepad {
+    background: url("../img/nnotepad.png") center/cover no-repeat
+}
+
 .cardwrapper:hover {
     -webkit-animation: zoomin 5s linear;
     animation: zoomin 5s linear;
