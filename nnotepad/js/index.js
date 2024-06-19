@@ -71,10 +71,7 @@ document.addEventListener('DOMContentLoaded', async (e) => {
   );
   $$('dialog').forEach((dialog) => {
     dialog.addEventListener('click', (e) => {
-      if (e.target &&
-        (e.target.id === 'srcClose' || e.target.id === 'helpClose')) {
-        return;
-      }
+      if (e.target !== dialog) return;
       const rect = e.target.getBoundingClientRect();
       if (
         e.clientY < rect.top ||
