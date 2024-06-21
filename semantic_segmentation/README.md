@@ -2,7 +2,7 @@
 
 Semantic segmentation is the task of clustering parts of an image together which belong to the same object class. It is a form of pixel-level prediction because each pixel in an image is classified according to a category.
 
-This example shows how the [DeepLab V3 MobileNet V2](http://download.tensorflow.org/models/deeplabv3_mnv2_pascal_trainval_2018_01_29.tar.gz), from TFLite models may be implemented by using the WebNN API. (Note: the DeepLab V3 MobileNet V2 model is trained on the [Pascal VOC 2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/index.html) dataset.)
+This example shows how the [DeepLab V3 MobileNet V2](http://download.tensorflow.org/models/deeplabv3_mnv2_pascal_trainval_2018_01_29.tar.gz), from TFLite models may be implemented by using the WebNN API. (Note: the DeepLab V3 MobileNet V2 model is trained on the [Pascal VOC 2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/) dataset.)
 
 ## How to Generate Deeplab V3 MobileNet V2 models?
 
