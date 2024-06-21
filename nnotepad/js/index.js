@@ -63,7 +63,6 @@ document.addEventListener('DOMContentLoaded', async (e) => {
     }
   }
 
-  $('#input').addEventListener('input', Util.debounce(refresh, 500));
   $('#device').addEventListener('change', refresh);
 
   refresh();
