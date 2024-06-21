@@ -74,6 +74,7 @@ document.addEventListener('DOMContentLoaded', async (e) => {
   );
   $$('dialog').forEach((dialog) => {
     dialog.addEventListener('click', (e) => {
+      if (e.target !== dialog) return;
       const rect = e.target.getBoundingClientRect();
       if (
         e.clientY < rect.top ||
