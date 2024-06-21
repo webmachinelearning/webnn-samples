@@ -170,6 +170,7 @@ pre {
   min-width: 280px;
   text-align: right;
   margin-right: 6px;
+  margin-top: -2px;
 }
 
 #navbar:hover {
@@ -276,6 +277,7 @@ pre {
   background-image: linear-gradient(#eee 50%, #e4e4e4 50%);
   background-size: 100% 2lh;
   font-family: "JetBrains Mono", "Consolas", "Lucida Console", monospace !important;
+  font-size: 14px;
 }
 
 .monaco-editor .view-lines,
