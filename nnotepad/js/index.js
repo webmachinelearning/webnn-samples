@@ -24,6 +24,10 @@ document.addEventListener('DOMContentLoaded', async (e) => {
     disableMonospaceOptimizations: true,
   });
 
+  editor.onDidChangeModelContent(() => {
+    refresh();
+  });
+
   async function refresh(e) {
     const code = editor.getValue();
     $('#output').innerText = '';
@@ -59,7 +63,6 @@ document.addEventListener('DOMContentLoaded', async (e) => {
     }
   }
 
-  $('#input').addEventListener('input', Util.debounce(refresh, 500));
   $('#device').addEventListener('change', refresh);
 
   refresh();
