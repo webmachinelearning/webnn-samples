@@ -24,9 +24,8 @@ document.addEventListener('DOMContentLoaded', async (e) => {
     disableMonospaceOptimizations: true,
   });
 
-  editor.onDidChangeModelContent(() => {
-    refresh();
-  });
+  const debouncedRefresh = Util.debounce(refresh, 500);
+  editor.onDidChangeModelContent(debouncedRefresh);
 
   async function refresh(e) {
     const code = editor.getValue();
