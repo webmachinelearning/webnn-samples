@@ -113,9 +113,7 @@ export class NNotepad {
 
     const kUnaryOperators = {
       '-': 'neg',
-      '!':
-          'logicalNot', // See
-      // https://github.com/webmachinelearning/webnn/issues/496#issuecomment-2123895106
+      '!': 'logicalNot',
     };
 
     const kDefaultDataType = 'float32';
@@ -582,5 +580,206 @@ export class NNotepad {
           shape: op.shape(),
           buffer: maybeProxyForFloat16Array(result.outputs[`output-${index}`]),
         }));
+  }
+
+  // ============================================================
+  // Monarch Tokens Provider
+  // ============================================================
+
+  // The language ID configured when calling `addMonacoLanguage()`, which
+  // should be passed to `monaco.editor.create()`.
+  static get monacoLanguageId() {
+    return 'nnotepad';
+  }
+
+  // Register and configure the NNotepad language with Monaco.
+
+  static addMonacoLanguage(monaco) {
+    monaco.languages.register({id: NNotepad.monacoLanguageId});
+
+    monaco.languages.setLanguageConfiguration(
+        NNotepad.monacoLanguageId, NNotepad.monacoLanguageConfiguration);
+
+    monaco.languages.setMonarchTokensProvider(
+        NNotepad.monacoLanguageId, NNotepad.monarchTokensProvider);
+
+    if ('MLGraphBuilder' in self) {
+      // Introspect MLGraphBuilder methods to populate autocompletion.
+      const proto = self.MLGraphBuilder.prototype;
+      const methods =
+          Object.getOwnPropertyNames(proto)
+              .map((name) => Object.getOwnPropertyDescriptor(proto, name))
+              .filter(
+                  (desc) => desc.enumerable && typeof desc.value === 'function')
+              .map((desc) => desc.value.name);
+
+      monaco.languages.registerCompletionItemProvider(
+          NNotepad.monacoLanguageId, {
+            provideCompletionItems: (model, position) => {
+              const suggestions = methods.map(
+                  (name) => ({
+                    label: name,
+                    kind: monaco.languages.CompletionItemKind.Keyword,
+                    insertText: name,
+                  }));
+              return {suggestions};
+            },
+          });
+    }
+  }
+
+  // Return a Monaco language configuration.
+  // https://code.visualstudio.com/api/language-extensions/language-configuration-guide
+
+  static get monacoLanguageConfiguration() {
+    return {
+      // For comment toggling.
+      comments: {
+        lineComment: '#',
+      },
+
+      // For matching/highlighting.
+      brackets: [['{', '}'], ['[', ']'], ['(', ')']],
+
+      // To auto-close as you type the open character.
+      autoClosingPairs: [
+        {'open': '{', 'close': '}'},
+        {'open': '[', 'close': ']'},
+        {'open': '(', 'close': ')'},
+        {'open': '\'', 'close': '\'', 'notIn': ['string', 'comment']},
+        {'open': '"', 'close': '"', 'notIn': ['string']},
+      ],
+    };
+  }
+
+  // Return a Monarch syntax declaration, for use with the Monaco editor.
+  // https://microsoft.github.io/monaco-editor/monarch.html
+
+  static get monarchTokensProvider() {
+    return {
+      defaultToken: 'invalid',
+
+      brackets: [
+        ['{', '}', 'delimiter.curly'],
+        ['[', ']', 'delimiter.square'],
+        ['(', ')', 'delimiter.parenthesis'],
+      ],
+
+      // Common token patterns
+      ws: /[ \t\r\n]*/,
+      string: /"(?:[^\\\n\r"]|\\.)*"|'(?:[^\\\n\r']|\\.)*'/,
+      number: /NaN|Infinity|-Infinity|-?\d+(\.\d+)?([eE]-?\d+)?/,
+      suffix: /u8|u32|u64|i8|i32|i64|f16|f32/,
+      identifier: /[A-Za-z]\w*/,
+
+      tokenizer: {
+        root: [
+          {include: '@whitespace'},
+          {include: '@comment'},
+
+          // Assignment
+          ['(@identifier)(@ws)(=)', ['variable.name', 'white', 'operator']],
+
+          {include: '@expr'},
+        ],
+
+        // Expression
+        expr: [
+          {include: '@whitespace'},
+          {include: '@comment'},
+
+          // Number
+          ['@number', 'number.float', '@suffix'],
+
+          // Array
+          [/\[/, '@brackets', '@array'],
+
+          // String
+          ['@string', 'string'],
+
+          // Boolean
+          [/true|false/, 'keyword'],
+
+          // Dictionary
+          [/{/, '@brackets', '@dict'],
+
+          // Function invocation
+          [
+            '(@identifier)(@ws)(\\()',
+            [
+              'identifier',
+              'white',
+              {token: '@brackets', next: '@func'},
+            ],
+          ],
+
+          // Identifier
+          ['@identifier', 'identifier'],
+
+          // Delimited subexpression
+          [/\(/, '@brackets', '@subexpr'],
+
+          // operators
+          [/==|<=|<|>=|>|\+|-|\*|\/|\^|!/, 'operator'],
+        ],
+
+        // Function call
+        func: [
+          {include: '@expr'},
+          [/,/, 'delimiter'],
+          [/\)/, '@brackets', '@pop'],
+        ],
+
+        // Dictionary
+        dict: [
+          {include: '@whitespace'},
+          {include: '@comment'},
+          ['@string', 'string', '@propdef'],
+          ['@identifier', 'identifier', '@propdef'],
+          [/,/, 'delimiter'],
+          [/}/, '@brackets', '@pop'],
+        ],
+
+        propdef: [
+          {include: '@whitespace'},
+          {include: '@comment'},
+          [':', {token: 'delimiter', switchTo: '@propvalue'}],
+        ],
+
+        propvalue: [
+          {include: '@expr'},
+          [/,/, 'delimiter', '@pop'],
+          [/(?=})/, '', '@pop'],
+        ],
+
+        // Array
+        array: [
+          {include: '@expr'},
+          [/,/, 'delimiter'],
+          [']', {token: '@brackets', switchTo: '@suffix'}],
+        ],
+
+        // Delimited subexpression
+        subexpr: [
+          {include: '@expr'},
+          [/\)/, '@brackets', '@pop'],
+        ],
+
+        whitespace: [
+          [/[ \t\r\n]+/, 'white'],
+        ],
+
+        comment: [
+          [/(#|\/\/).*$/, 'comment'],
+        ],
+
+        suffix: [
+          [
+            '(@ws)((?:@suffix)?)',
+            ['white', {token: 'annotation', next: '@pop'}],
+          ],
+        ],
+      },
+    };
   }
 }
