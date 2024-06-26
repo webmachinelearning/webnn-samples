@@ -15,9 +15,10 @@ document.addEventListener('DOMContentLoaded', async (e) => {
     console.warn(ex);
   }
 
+  NNotepad.addMonacoLanguage(monaco);
   const editor = monaco.editor.create($('#input'), {
     value: inputValue,
-    language: 'markdown',
+    language: NNotepad.monacoLanguageId,
     lineNumbers: 'on',
     automaticLayout: true,
     theme: 'vs',
