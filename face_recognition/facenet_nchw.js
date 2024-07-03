@@ -34,7 +34,7 @@ export class FaceNetNchw {
     const biasName = `${this.weightsUrl_}/${biasPrefix}_Conv2D_bias.npy`;
     const [weights, bias] = await Promise.all(
         [weightsName, biasName].map(
-            name => buildConstantByNpy(this.builder_, name)));
+            (name) => buildConstantByNpy(this.builder_, name)));
     if (options !== undefined) {
       options.bias = bias;
     } else {
@@ -184,8 +184,9 @@ export class FaceNetNchw {
     const mixed6a_branch1_2 = this.buildConv_(
         mixed6a_branch1_1, '1012',
         'Mixed_6a_Branch_1_Conv2d_1a_3x3', {strides});
-    const mixed6a = Promise.all([mixed6a_branch0, mixed6a_branch1_2, mixed6a_pool])
-        .then((inputs) => this.builder_.concat(inputs, 1));
+    const mixed6a = Promise.all([
+      mixed6a_branch0, mixed6a_branch1_2, mixed6a_pool,
+    ]).then((inputs) => this.builder_.concat(inputs, 1));
 
     // Block 17
     const block17_1 = this.buildBlock17_(
@@ -230,9 +231,9 @@ export class FaceNetNchw {
     const mixed7a_branch2_2 = this.buildConv_(
         mixed7a_branch2_1, '897',
         'Mixed_7a_Branch_2_Conv2d_1a_3x3', {strides});
-    const mixed7a = Promise.all([mixed7a_branch0_1, mixed7a_branch1_1,
-                                 mixed7a_branch2_2, mixed7a_pool])
-        .then((inputs) => this.builder_.concat(inputs, 1));
+    const mixed7a = Promise.all([
+      mixed7a_branch0_1, mixed7a_branch1_1, mixed7a_branch2_2, mixed7a_pool,
+    ]).then((inputs) => this.builder_.concat(inputs, 1));
 
     // Block 8
     const block8_1 = this.buildBlock8_(

@@ -30,9 +30,9 @@ export class FaceNetNhwc {
   async buildConv_(input, namePrefix, options = undefined, relu = true) {
     const weightsName = `${this.weightsUrl_}/${namePrefix}_kernel.npy`;
     const biasName = `${this.weightsUrl_}/${namePrefix}_Conv2D_bias.npy`;
-    const [weights, bias] = await Promise.all(
-      [weightsName, biasName].map(
-          name => buildConstantByNpy(this.builder_, name)));
+    const [weights, bias] = await Promise.all([
+      weightsName, biasName,
+    ].map((name) => buildConstantByNpy(this.builder_, name)));
     if (options !== undefined) {
       options.inputLayout = 'nhwc';
       options.filterLayout = 'ohwi';
@@ -150,7 +150,8 @@ export class FaceNetNhwc {
     const conv1 = this.buildConv_(conv0, 'Conv2d_2a_3x3');
     const conv2 = this.buildConv_(conv1, 'Conv2d_2b_3x3', {autoPad});
 
-    const pool0 = conv2.then((conv2) => this.builder_.maxPool2d(conv2, poolOptions));
+    const pool0 = conv2.then((conv2) =>
+      this.builder_.maxPool2d(conv2, poolOptions));
 
     const conv3 = this.buildConv_(pool0, 'Conv2d_3b_1x1');
     const conv4 = this.buildConv_(conv3, 'Conv2d_4a_3x3');
@@ -167,15 +168,16 @@ export class FaceNetNhwc {
     const mixed6a_branch0 = this.buildConv_(
         block35_5, 'Mixed_6a_Branch_0_Conv2d_1a_3x3', {strides});
     const mixed6a_pool = block35_5.then((block35_5) =>
-        this.builder_.maxPool2d(block35_5, poolOptions));
+      this.builder_.maxPool2d(block35_5, poolOptions));
     const mixed6a_branch1_0 = this.buildConv_(
         block35_5, 'Mixed_6a_Branch_1_Conv2d_0a_1x1', {autoPad});
     const mixed6a_branch1_1 = this.buildConv_(
         mixed6a_branch1_0, 'Mixed_6a_Branch_1_Conv2d_0b_3x3', {autoPad});
     const mixed6a_branch1_2 = this.buildConv_(
         mixed6a_branch1_1, 'Mixed_6a_Branch_1_Conv2d_1a_3x3', {strides});
-    const mixed6a = Promise.all([mixed6a_branch0, mixed6a_branch1_2, mixed6a_pool])
-        .then((inputs) => this.builder_.concat(inputs, 3));
+    const mixed6a = Promise.all([
+      mixed6a_branch0, mixed6a_branch1_2, mixed6a_pool,
+    ]).then((inputs) => this.builder_.concat(inputs, 3));
 
     // Block 17
     const block17_1 = this.buildBlock17_(mixed6a, 1);
@@ -191,7 +193,7 @@ export class FaceNetNhwc {
 
     // Mixed 7a branches
     const mixed7a_pool = block17_10.then((block17_10) =>
-        this.builder_.maxPool2d(block17_10, poolOptions));
+      this.builder_.maxPool2d(block17_10, poolOptions));
     const mixed7a_branch0_0 = this.buildConv_(
         block17_10, 'Mixed_7a_Branch_0_Conv2d_0a_1x1', {autoPad});
     const mixed7a_branch0_1 = this.buildConv_(
@@ -206,9 +208,10 @@ export class FaceNetNhwc {
         mixed7a_branch2_0, 'Mixed_7a_Branch_2_Conv2d_0b_3x3', {autoPad});
     const mixed7a_branch2_2 = this.buildConv_(
         mixed7a_branch2_1, 'Mixed_7a_Branch_2_Conv2d_1a_3x3', {strides});
-    const mixed7a = Promise.all([mixed7a_branch0_1, mixed7a_branch1_1,
-                                 mixed7a_branch2_2, mixed7a_pool])
-        .then((inputs) => this.builder_.concat(inputs, 3));
+    const mixed7a = Promise.all([
+      mixed7a_branch0_1, mixed7a_branch1_1, mixed7a_branch2_2,
+      mixed7a_pool,
+    ]).then((inputs) => this.builder_.concat(inputs, 3));
 
     // Block 8
     const block8_1 = this.buildBlock8_(mixed7a, 1);
@@ -219,7 +222,7 @@ export class FaceNetNhwc {
     const block8_6 = this.buildBlock8_(block8_5, 6, false);
 
     const mean = block8_6.then((block8_6) =>
-        this.builder_.averagePool2d(block8_6, {layout: 'nhwc'}));
+      this.builder_.averagePool2d(block8_6, {layout: 'nhwc'}));
     const fc = await this.buildFullyConnected_(mean);
     // L2Normalization will be handled in post-processing
     return fc;
