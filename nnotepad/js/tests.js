@@ -45,11 +45,31 @@ async function test(expr, expected) {
   }
 }
 
+async function testThrows(expr) {
+  try {
+    const [builderFunc] = NNotepad.makeBuilderFunction(expr);
+    const result = await NNotepad.execBuilderFunction('cpu', builderFunc);
+    Harness.error(`failed: ${expr} - expected to throw`);
+  } catch (ex) {
+    Harness.ok(`ok: ${expr}`);
+  }
+}
+
 // ============================================================
 // Test Cases
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', async (e) => {
+  Harness.section('Numbers');
+  await test('125', {dataType: 'float32', shape: [], buffer: [125]});
+  await test('-125', {dataType: 'float32', shape: [], buffer: [-125]});
+  await test('1.25', {dataType: 'float32', shape: [], buffer: [1.25]});
+  await test('1.25e2', {dataType: 'float32', shape: [], buffer: [125]});
+  await test('125e-2', {dataType: 'float32', shape: [], buffer: [1.25]});
+  await test('Infinity', {dataType: 'float32', shape: [], buffer: [Infinity]});
+  await test('-Infinity', {dataType: 'float32', shape: [], buffer: [-Infinity]});
+  await test('NaN', {dataType: 'float32', shape: [], buffer: [NaN]});
+
   Harness.section('Operators');
   await test('1 + 2', {dataType: 'float32', shape: [], buffer: [3]});
   await test('2 * 3', {dataType: 'float32', shape: [], buffer: [6]});
@@ -148,6 +168,16 @@ document.addEventListener('DOMContentLoaded', async (e) => {
   await test(
       `concat([[1,2],[3,4]], 0)`,
       {dataType: 'float32', shape: [4], buffer: [1, 2, 3, 4]});
+  await test(
+      `trueblue = 123  (trueblue) + 1`,
+      {dataType: 'float32', shape: [], buffer: [124]});
+  await test(
+      `InfinityGauntlet = 123  (InfinityGauntlet) + 1`,
+      {dataType: 'float32', shape: [], buffer: [124]});
+  await test(
+      `NaNBread = 123  (NaNBread) + 1`,
+      {dataType: 'float32', shape: [], buffer: [124]});
+  await testThrows(`123u88`);
   // await test(`input = [[[1,2],[3,4]],[[5,6],[7,8]]]  weight =
   // [[[1,2],[1,2],[1,2],[1,2]]]  rweight = [[[1],[1],[1],[1]]]  lstm(input,
   // weight, rweight, 2, 1)`, {});

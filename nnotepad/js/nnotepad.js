@@ -136,11 +136,12 @@ export class NNotepad {
     // Tokens
     const kCommentPattern = '(#|//).*';
     const kNumberPattern =
-        'NaN|Infinity|-Infinity|-?\\d+(\\.\\d+)?([eE]-?\\d+)?';
+        'NaN\\b|Infinity\\b|-Infinity\\b|-?\\d+(\\.\\d+)?([eE]-?\\d+)?';
     const kStringPattern =
         `"([^\\\\\\x0A\\x0D"]|\\\\.)*"|'([^\\\\\\x0A\\x0D']|\\\\.)*'`;
-    const kBooleanPattern = 'true|false';
-    const kSuffixPattern = `u8|u32|u64|i8|i32|i64|f16|f32`;
+    const kBooleanPattern = 'true\\b|false\\b';
+    const kSuffixPattern =
+        `u8\\b|u32\\b|u64\\b|i8\\b|i32\\b|i64\\b|f16\\b|f32\\b`;
     const kIdentifierPattern = '[A-Za-z]\\w*';
 
     const rescape = (s) => s.replace(/[\\^$*+?.()|[\]{}]/g, '\\$&');
@@ -668,8 +669,9 @@ export class NNotepad {
       // Common token patterns
       ws: /[ \t\r\n]*/,
       string: /"(?:[^\\\n\r"]|\\.)*"|'(?:[^\\\n\r']|\\.)*'/,
-      number: /NaN|Infinity|-Infinity|-?\d+(\.\d+)?([eE]-?\d+)?/,
-      suffix: /u8|u32|u64|i8|i32|i64|f16|f32/,
+      number: /NaN\b|Infinity\b|-Infinity\b|-?\d+(\.\d+)?([eE]-?\d+)?/,
+      boolean: /true\b|false\b/,
+      suffix: /u8\b|u32\b|u64\b|i8\b|i32\b|i64\b|f16\b|f32\b/,
       identifier: /[A-Za-z]\w*/,
 
       tokenizer: {
@@ -698,7 +700,7 @@ export class NNotepad {
           ['@string', 'string'],
 
           // Boolean
-          [/true|false/, 'keyword'],
+          ['@boolean', 'keyword'],
 
           // Dictionary
           [/{/, '@brackets', '@dict'],
