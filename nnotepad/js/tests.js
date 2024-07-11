@@ -48,7 +48,7 @@ async function test(expr, expected) {
 async function testThrows(expr) {
   try {
     const [builderFunc] = NNotepad.makeBuilderFunction(expr);
-    const result = await NNotepad.execBuilderFunction('cpu', builderFunc);
+    await NNotepad.execBuilderFunction('cpu', builderFunc);
     Harness.error(`failed: ${expr} - expected to throw`);
   } catch (ex) {
     Harness.ok(`ok: ${expr}`);
@@ -67,7 +67,8 @@ document.addEventListener('DOMContentLoaded', async (e) => {
   await test('1.25e2', {dataType: 'float32', shape: [], buffer: [125]});
   await test('125e-2', {dataType: 'float32', shape: [], buffer: [1.25]});
   await test('Infinity', {dataType: 'float32', shape: [], buffer: [Infinity]});
-  await test('-Infinity', {dataType: 'float32', shape: [], buffer: [-Infinity]});
+  await test(
+      '-Infinity', {dataType: 'float32', shape: [], buffer: [-Infinity]});
   await test('NaN', {dataType: 'float32', shape: [], buffer: [NaN]});
 
   Harness.section('Operators');
