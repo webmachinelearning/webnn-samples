@@ -157,13 +157,26 @@ document.addEventListener('DOMContentLoaded', async (e) => {
     {dataType: 'float32', shape: [2], buffer: [3, 4]},
   ]);
 
-  Harness.section('Multiple input tensors');
+  Harness.section('Non-operand arguments: array of operands');
   await test(
       `A = [1,2]  B = [3,4]  concat([A,B], 0)`,
       {dataType: 'float32', shape: [4], buffer: [1, 2, 3, 4]});
   await test(
       `concat([identity([1,2]),identity([3,4])], 0)`,
       {dataType: 'float32', shape: [4], buffer: [1, 2, 3, 4]});
+
+  Harness.section('Non-operand arguments: array of numbers');
+  await test(
+      `T = [[1,2,3],[4,5,6]]  reshape(T, [1, 3, 2, 1])`,
+      {dataType: 'float32', shape: [1, 3, 2, 1], buffer: [1, 2, 3, 4, 5, 6]});
+  await test(
+      `expand([1], [2, 2])`,
+      {dataType: 'float32', shape: [2, 2], buffer: [1, 1, 1, 1]});
+
+  Harness.section('Non-operand arguments: simple numbers');
+  await test(
+      `softmax([1], 0)`,
+      {dataType: 'float32', shape: [1], buffer: [1]});
 
   Harness.section('Regression tests');
   await test(
