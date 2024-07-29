@@ -77,7 +77,7 @@ export class RNNoise {
           initialHiddenState: vadGruInitialH,
           returnSequence: true,
           resetAfter: false,
-          activations: [this.builder_.sigmoid(), this.builder_.relu()],
+          activations: ['sigmoid', 'relu'],
         });
     const vadGruYTransposed = this.builder_.transpose(
         vadGruY, {permutation: [2, 0, 1, 3]});
@@ -104,7 +104,7 @@ export class RNNoise {
           initialHiddenState: noiseGruInitialH,
           returnSequence: true,
           resetAfter: false,
-          activations: [this.builder_.sigmoid(), this.builder_.relu()],
+          activations: ['sigmoid', 'relu'],
         });
     const noiseGruYTransposed = this.builder_.transpose(
         noiseGruY, {permutation: [2, 0, 1, 3]});
@@ -131,7 +131,7 @@ export class RNNoise {
           initialHiddenState: denoiseGruInitialH,
           returnSequence: true,
           resetAfter: false,
-          activations: [this.builder_.sigmoid(), this.builder_.relu()],
+          activations: ['sigmoid', 'relu'],
         });
     const denoiseGruYTransposed = this.builder_.transpose(
         denoiseGruY, {permutation: [2, 0, 1, 3]});
