@@ -48,26 +48,26 @@ WebNN requires a compatible browser to run, and Windows 11 v21H2 (DML 1.6.0) or 
 5. Relaunch your browser.
 
 #### Running WebNN on NPU
-Running WebNN on NPU requires capable NPU hardware e.g. Intel® AI Boost NPU of Intel® Core™ Ultra processors.
+Running WebNN on NPU requires capable NPU hardware. For Intel® AI Boost NPU of Intel® Core™ Ultra processors, download and install the [latest Intel NPU driver](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html). At present, the [image classification](https://webmachinelearning.github.io/webnn-samples/image_classification/) and [object detection](https://webmachinelearning.github.io/webnn-samples/object_detection/) samples support NPU.
 
 * Google Chrome Canary:
-1. Download and install the [latest Intel NPU driver](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html).
-2. Download the latest redistributable [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/), extract the package and copy the DirectML.dll (e.g. \bin\x64-win\DirectML.dll) to the Chrome Canary’s directory (e.g. C:\Users\"username"\AppData\Local\Google\Chrome SxS\Application\"version number").
-3. Launch your browser in Windows Command Line:
+1. Download the latest redistributable [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/), extract the package and copy the DirectML.dll (e.g. \bin\x64-win\DirectML.dll) to the Chrome Canary’s directory (e.g. C:\Users\"username"\AppData\Local\Google\Chrome SxS\Application\"version number").
+2. Launch your browser in Windows Command Line:
 ```bash
 "C:\Users\\"username"\AppData\Local\Google\Chrome SxS\Application\chrome.exe" --use-redist-dml --disable_webnn_for_npu=0
 ```
 
 * Microsoft Edge Canary:
-1. Download and install the [latest Intel NPU driver](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html).
-2. Launch your browser in Windows Command Line:
+1. Launch your browser in Windows Command Line:
 ```bash
 "C:\Users\\"username"\AppData\Local\Microsoft\Edge SxS\Application\msedge.exe" --disable_webnn_for_npu=0
 ```
-3. For the first time you enable the `Enables WebNN API` flag, please wait a moment while the latest redistributable [Microsoft.AI.DirectML] is downloaded automatically.
+2. For the first time you enable the `Enables WebNN API` flag, please wait a moment while the latest redistributable [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/) is downloaded automatically before trying the samples.
 
 * Notes:
-There is an intermittent issue of Intel NPU driver which will be fixed soon, please relaunch your browser to try again if you encounter a failure.
+1. There is an intermittent issue with the Intel NPU driver that causes failure of NPU adapter creation. The `WebNN(NPU)` backend button in the samples will be disabled with message "Unable to find a capable adapter". If you encounter this issue, please relaunch your browser and try again.
+2. The flag `disable_webnn_for_npu` is set to true by default to disable WebNN on NPU due to the aforementioned issue. To bypass this, use `--disable_webnn_for_npu=0`. This flag will be removed once the issue is resolved.
+3. Running WebNN on NPU requires a higher version of DirectML.dll than the one in the Windows system. Using the `--use-redist-dml` flag will allow Google Chrome Canary to load the downloaded DirectML.dll with a sufficiently high version.
 
 ## Support and Feedback
 If you encounter any issues or have feedback on the WebNN Samples, please open an issue on the repository. We appreciate your input and will strive to address any problems as quickly as possible.
