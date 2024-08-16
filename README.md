@@ -7,10 +7,12 @@ This repository contains a collection of samples and examples demonstrating Web 
 ## Repository Structure
 This repository hosts a wide range of samples and examples that showcase different use cases and functionalities of WebNN. Here's an overview of the directory structure:    
 
+* [Code Editor](/code): This is a Code Editor used for evaluating, reviewing and modifying WebNN sample codes interactively in web browser.
 * [Face recognition](/face_recognition): This directory contains examples of SSD MobileNet V2 Face and Face Landmark (SimpleCNN) model implementation.
 * [Facial landmark detection](/facial_landmark_detection): This directory contains examples of SSD MobileNet V2 Face and Face Landmark (SimpleCNN) model implementation.
 * [Image classification](/image_classification): This directory contains examples demonstrating image classification using pre-trained models with WebNN.
 * [LeNet](/lenet): This example showcases the LeNet-based handwritten digits classification by WebNN API.
+* [NNotepad](/nnotepad): This is a browser-based playground for experimenting with WebNN expressions without boilerplate code.
 * [NSNet2](/nsnet2): This example shows how to implement the NSNet2 baseline implementation of a deep learning-based noise suppression model.
 * [Object detection](/object_detection): Samples showcasing object detection tasks using WebNN with pre-trained models.
 * [RNNoise](/rnnoise): This example shows the RNNoise baseline implementation of a deep learning-based noise suppression model.
@@ -63,6 +65,7 @@ To learn more about Web Neural Network API (WebNN) and its capabilities, check o
 
 ### WebNN API Samples
 * [WebNN code editor](https://webmachinelearning.github.io/webnn-samples/code/)
+* [NNotepad](https://webmachinelearning.github.io/webnn-samples/nnotepad/)
 * [Handwritten digits classification](https://webmachinelearning.github.io/webnn-samples/lenet/)
 * Noise suppression:
   * [NSNet2](https://webmachinelearning.github.io/webnn-samples/nsnet2/)
