@@ -48,7 +48,11 @@ WebNN requires a compatible browser to run, and Windows 11 v21H2 (DML 1.6.0) or 
 5. Relaunch your browser.
 
 #### Running WebNN on NPU
-Running WebNN on NPU requires capable NPU hardware. For Intel® AI Boost NPU of Intel® Core™ Ultra processors, download and install the [latest Intel NPU driver](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html). At present, the [image classification](https://webmachinelearning.github.io/webnn-samples/image_classification/) and [object detection](https://webmachinelearning.github.io/webnn-samples/object_detection/) samples support NPU.
+At present, the [image classification](https://webmachinelearning.github.io/webnn-samples/image_classification/) and [object detection](https://webmachinelearning.github.io/webnn-samples/object_detection/) samples support NPU.
+
+* Install NPU driver:
+
+  For Intel® AI Boost NPU of Intel® Core™ Ultra processors, download and install the [latest Intel NPU driver](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html).
 
 * Google Chrome Canary:
 1. Download the latest redistributable [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/).
