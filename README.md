@@ -51,8 +51,9 @@ WebNN requires a compatible browser to run, and Windows 11 v21H2 (DML 1.6.0) or 
 Running WebNN on NPU requires capable NPU hardware. For Intel® AI Boost NPU of Intel® Core™ Ultra processors, download and install the [latest Intel NPU driver](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html). At present, the [image classification](https://webmachinelearning.github.io/webnn-samples/image_classification/) and [object detection](https://webmachinelearning.github.io/webnn-samples/object_detection/) samples support NPU.
 
 * Google Chrome Canary:
-1. Download the latest redistributable [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/), extract the package and copy the DirectML.dll (e.g. \bin\x64-win\DirectML.dll) to the Chrome Canary’s directory (e.g. C:\Users\"username"\AppData\Local\Google\Chrome SxS\Application\"version number").
-2. Launch your browser in Windows Command Line:
+1. Download the latest redistributable [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/).
+2. Extract the package and copy the DirectML.dll (e.g. \bin\x64-win\DirectML.dll) to the Chrome Canary’s directory (e.g. C:\Users\"username"\AppData\Local\Google\Chrome SxS\Application\"version number").
+3. Launch your browser in Windows Command Line:
 ```bash
 "C:\Users\\"username"\AppData\Local\Google\Chrome SxS\Application\chrome.exe" --use-redist-dml --disable_webnn_for_npu=0
 ```
