@@ -56,16 +56,16 @@ At present, the [image classification](https://webmachinelearning.github.io/webn
 
 * Google Chrome Canary:
 1. Download the latest redistributable [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/).
-2. Extract the package and copy the DirectML.dll (e.g. \bin\x64-win\DirectML.dll) to the Chrome Canary’s directory (e.g. C:\Users\"username"\AppData\Local\Google\Chrome SxS\Application\"version number").
+2. Extract the package and copy the DirectML.dll (e.g. \bin\x64-win\DirectML.dll) to the Chrome Canary’s directory (e.g.C:\Users\"username"\AppData\Local\Google\Chrome SxS\Application\"version number"). Note that Chrome Canary may automatically update to a new version, in which case DirectML.dll will need to be recopied to the directory.
 3. Launch your browser in Windows Command Line:
 ```bash
-"C:\Users\\"username"\AppData\Local\Google\Chrome SxS\Application\chrome.exe" --use-redist-dml --disable_webnn_for_npu=0
+"%LOCALAPPDATA%\Google\Chrome SxS\Application\chrome.exe" --use-redist-dml --disable_webnn_for_npu=0
 ```
 
 * Microsoft Edge Canary:
 1. Launch your browser in Windows Command Line:
 ```bash
-"C:\Users\\"username"\AppData\Local\Microsoft\Edge SxS\Application\msedge.exe" --disable_webnn_for_npu=0
+"%LOCALAPPDATA%\Microsoft\Edge SxS\Application\msedge.exe" --disable_webnn_for_npu=0
 ```
 2. For the first time you enable the `Enables WebNN API` flag, please wait a moment while the latest redistributable [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/) is downloaded automatically before trying the samples.
 
