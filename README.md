@@ -40,13 +40,13 @@ To get started, follow these steps:
 
 ### WebNN Installation Guides
 
-WebNN requires a compatible browser to run, and Windows 11 v21H2 (DML 1.6.0) or higher for GPU. Try the latest Google Chrome* Canary or Microsoft Edge Canary, which requires enabling WebNN functionality in the settings.
+WebNN requires a compatible browser to run, and Windows 11 v21H2 (DML 1.6.0) or higher for GPU. Try the latest Google Chrome Canary or Microsoft Edge Canary, which requires enabling WebNN functionality in the settings.
 
 1. Download the latest [Google Chrome Canary](https://www.google.com/chrome/canary/) or [Microsoft Edge Canary](https://www.microsoft.com/en-us/edge/download/insider) browser. 
-2. To enable WebNN, in your browser address bar, `enter chrome://flags`, and then press `Enter`. An Experiments page opens. 
+2. To enable WebNN, in your browser address bar, enter `chrome://flags`, and then press `Enter`. An Experiments page opens.
 3. In the Search flags box, enter `webnn`. `Enables WebNN API` appears. 
 4. In the drop-down menu, select `Enabled`. 
-5. Relaunch your browser.
+5. Relaunch your browser to run the samples on GPU or CPU. To run them on NPU, please continue following the additional steps below.
 
 #### Running WebNN on NPU
 At present, the [image classification](https://webmachinelearning.github.io/webnn-samples/image_classification/) and [object detection](https://webmachinelearning.github.io/webnn-samples/object_detection/) samples support NPU.
@@ -57,7 +57,7 @@ At present, the [image classification](https://webmachinelearning.github.io/webn
 
 * Google Chrome Canary:
 1. Download the latest redistributable [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/).
-2. Extract the package and copy the DirectML.dll (e.g. \bin\x64-win\DirectML.dll) to the Chrome Canary’s directory (e.g.C:\Users\"username"\AppData\Local\Google\Chrome SxS\Application\"version number"). Note that Chrome Canary may automatically update to a new version, in which case DirectML.dll will need to be recopied to the directory.
+2. Extract the package and copy the DirectML.dll (e.g., \bin\x64-win\DirectML.dll) to the Chrome Canary’s version directory (e.g., %LOCALAPPDATA%\Google\Chrome SxS\Application\\"version number"). Note that Chrome Canary may automatically update to a new version, in which case DirectML.dll will need to be recopied to the directory.
 3. Launch your browser in Windows Command Line:
 ```bash
 "%LOCALAPPDATA%\Google\Chrome SxS\Application\chrome.exe" --use-redist-dml --disable_webnn_for_npu=0
@@ -68,7 +68,7 @@ At present, the [image classification](https://webmachinelearning.github.io/webn
 ```bash
 "%LOCALAPPDATA%\Microsoft\Edge SxS\Application\msedge.exe" --disable_webnn_for_npu=0
 ```
-2. For the first time you enable the `Enables WebNN API` flag, please wait a moment while the latest redistributable [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/) is downloaded automatically before trying the samples.
+2. For the first time you enable the `Enables WebNN API` flag, please wait a moment until the latest DirectML.dll is automatically downloaded into the Edge's user data directory (e.g., %LOCALAPPDATA%\Microsoft\Edge SxS\User Data\EdgeOnnxRuntimeDirectML\1.18.2.0) before trying the samples.
 
 * Notes:
 1. There is an intermittent issue with the Intel NPU driver that causes failure of NPU adapter creation. The `WebNN(NPU)` backend button in the samples will be disabled with message "Unable to find a capable adapter". If you encounter this issue, please relaunch your browser and try again.
