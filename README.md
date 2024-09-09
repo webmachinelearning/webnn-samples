@@ -59,8 +59,8 @@ At present, the [image classification](https://webmachinelearning.github.io/webn
 * It's recommended to install the latest [Intel® Core™ Ultra NPU Driver on Windows](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html) for improved WebNN compatibility and performance
 * **Google Chrome Canary:**
   1. Download the latest redistributable [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/1.15.2), rename the "microsoft.ai.directml.\<version>.nupkg" to "microsoft.ai.directml.\<version>.nupkg.zip" and extract it
-  2. Copy "\bin\x64-win\DirectML.dll" to "%LOCALAPPDATA%\Google\Chrome SxS\Application\\<version>\"
-      - "%LOCALAPPDATA%" means "C:\Users\<username>\AppData\Local\"
+  2. Copy `\bin\x64-win\DirectML.dll` to `%LOCALAPPDATA%\Google\Chrome SxS\Application\<version>\`
+      - `%LOCALAPPDATA%` means `C:\Users\<username>\AppData\Local\`
       - Note that Chrome Canary frequently updates automatically. When this occurs, you'll need to recopy the DirectML.dll to the new version's directory
   3. Launch Chrome Canary in Windows Command Line:
   ```bash
@@ -70,8 +70,8 @@ At present, the [image classification](https://webmachinelearning.github.io/webn
 * **Microsoft Edge Canary:**
   1. Ensure the DirectML.dll was downloaded automatically (may take several minutes):
       - Launch Edge Canary
-      - Go to "%LOCALAPPDATA%\Microsoft\Edge SxS\User Data", check the "EdgeOnnxRuntimeDirectML\<version>\DirectML.dll" exists
-      - "%LOCALAPPDATA%" means "C:\Users\<username>\AppData\Local\"
+      - Go to `%LOCALAPPDATA%\Microsoft\Edge SxS\User Data`, check the `EdgeOnnxRuntimeDirectML\<version>\DirectML.dll` exists
+      - `%LOCALAPPDATA%` means `C:\Users\<username>\AppData\Local\`
       - Exit Edge Canary
   2. Launch Edge Canary in Windows Command Line:
   ```bash
