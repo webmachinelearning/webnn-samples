@@ -8,6 +8,8 @@ export class SqueezeNetNhwc {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
+    this.inputTensor_ = null;
+    this.outputTensor_ = null;
     this.weightsUrl_ = weightsOrigin() +
     '/test-data/models/squeezenet1.0_nhwc/weights/';
     this.inputOptions = {
@@ -17,7 +19,7 @@ export class SqueezeNetNhwc {
       labelUrl: './labels/labels1001.txt',
       inputShape: [1, 224, 224, 3],
     };
-    this.outputShape = [1, 1001];
+    this.outputShape_ = [1, 1001];
   }
 
   async buildConv_(input, name, options = {}) {
@@ -54,10 +56,19 @@ export class SqueezeNetNhwc {
     this.builder_ = new MLGraphBuilder(this.context_);
     const strides = [2, 2];
     const layout = 'nhwc';
-    const placeholder = this.builder_.input('input', {
+    const inputDesc = {
       dataType: 'float32',
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
+    };
+    const placeholder = this.builder_.input('input', inputDesc);
+    inputDesc.usage = MLTensorUsage.WRITE;
+    this.inputTensor_ = await this.context_.createTensor(inputDesc);
+    this.outputTensor_ = await this.context_.createTensor({
+      dataType: 'float32',
+      dimensions: this.outputShape_,
+      shape: this.outputShape_,
+      usage: MLTensorUsage.READ,
     });
     const conv1 = this.buildConv_(
         placeholder, 'conv1', {strides, autoPad: 'same-upper'});
@@ -94,10 +105,12 @@ export class SqueezeNetNhwc {
     }
   }
 
-  async compute(inputBuffer, outputBuffer) {
-    const inputs = {'input': inputBuffer};
-    const outputs = {'output': outputBuffer};
-    const results = await this.context_.compute(this.graph_, inputs, outputs);
-    return results;
+  async compute(inputBuffer) {
+    this.context_.writeTensor(this.inputTensor_, inputBuffer);
+    const inputs = {'input': this.inputTensor_};
+    const outputs = {'output': this.outputTensor_};
+    this.context_.dispatch(this.graph_, inputs, outputs);
+    const results = await this.context_.readTensor(this.outputTensor_);
+    return new Float32Array(results);
   }
 }

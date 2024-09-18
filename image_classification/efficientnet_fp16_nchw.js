@@ -8,6 +8,8 @@ export class EfficientNetFP16Nchw {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
+    this.inputTensor_ = null;
+    this.outputTensor_ = null;
     this.weightsUrl_ = weightsOrigin() +
     '/test-data/models/efficientnet_fp16_nchw_optimized/weights/';
     this.inputOptions = {
@@ -18,7 +20,7 @@ export class EfficientNetFP16Nchw {
       labelUrl: './labels/labels1000.txt',
       inputShape: [1, 3, 224, 224],
     };
-    this.outputShape = [1, 1000];
+    this.outputShape_ = [1, 1000];
   }
 
   async buildConv_(input, name, blockName, clip = false, options = {}) {
@@ -75,10 +77,19 @@ export class EfficientNetFP16Nchw {
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(this.context_);
-    let data = this.builder_.input('input', {
+    const inputDesc = {
       dataType: 'float32',
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
+    };
+    let data = this.builder_.input('input', inputDesc);
+    inputDesc.usage = MLTensorUsage.WRITE;
+    this.inputTensor_ = await this.context_.createTensor(inputDesc);
+    this.outputTensor_ = await this.context_.createTensor({
+      dataType: 'float32',
+      dimensions: this.outputShape_,
+      shape: this.outputShape_,
+      usage: MLTensorUsage.READ,
     });
     data = this.builder_.cast(data, 'float16');
     // Block 0
@@ -165,10 +176,12 @@ export class EfficientNetFP16Nchw {
     }
   }
 
-  async compute(inputBuffer, outputBuffer) {
-    const inputs = {'input': inputBuffer};
-    const outputs = {'output': outputBuffer};
-    const results = await this.context_.compute(this.graph_, inputs, outputs);
-    return results;
+  async compute(inputBuffer) {
+    this.context_.writeTensor(this.inputTensor_, inputBuffer);
+    const inputs = {'input': this.inputTensor_};
+    const outputs = {'output': this.outputTensor_};
+    this.context_.dispatch(this.graph_, inputs, outputs);
+    const results = await this.context_.readTensor(this.outputTensor_);
+    return new Float32Array(results);
   }
 }
