@@ -95,7 +95,8 @@ export class LeNet {
         {
           dataType: 'float32',
           dimensions: conv2FilterShape,
-          shape: conv2FilterShape},
+          shape: conv2FilterShape,
+        },
         conv2FilterData);
     byteOffset +=
         sizeOfShape(conv2FilterShape) * Float32Array.BYTES_PER_ELEMENT;
