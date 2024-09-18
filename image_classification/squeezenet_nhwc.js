@@ -15,9 +15,9 @@ export class SqueezeNetNhwc {
       std: [127.5, 127.5, 127.5],
       inputLayout: 'nhwc',
       labelUrl: './labels/labels1001.txt',
-      inputDimensions: [1, 224, 224, 3],
+      inputShape: [1, 224, 224, 3],
     };
-    this.outputDimensions = [1, 1001];
+    this.outputShape = [1, 1001];
   }
 
   async buildConv_(input, name, options = {}) {
@@ -56,7 +56,7 @@ export class SqueezeNetNhwc {
     const layout = 'nhwc';
     const placeholder = this.builder_.input('input', {
       dataType: 'float32',
-      dimensions: this.inputOptions.inputDimensions,
+      shape: this.inputOptions.inputShape,
     });
     const conv1 = this.buildConv_(
         placeholder, 'conv1', {strides, autoPad: 'same-upper'});

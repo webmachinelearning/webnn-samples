@@ -25,9 +25,9 @@ export class MobileNetV2Nchw {
       norm: true,
       inputLayout: 'nchw',
       labelUrl: './labels/labels1000.txt',
-      inputDimensions: [1, 3, 224, 224],
+      inputShape: [1, 3, 224, 224],
     };
-    this.outputDimensions = [1, 1000];
+    this.outputShape = [1, 1000];
   }
 
   async buildConv_(input, name, relu6 = true, options = {}) {
@@ -91,7 +91,7 @@ export class MobileNetV2Nchw {
     this.builder_ = new MLGraphBuilder(this.context_);
     let data = this.builder_.input('input', {
       dataType: 'float32',
-      dimensions: this.inputOptions.inputDimensions,
+      shape: this.inputOptions.inputShape,
     });
     if (this.dataType_ === 'float16') {
       data = this.builder_.cast(data, 'float16');

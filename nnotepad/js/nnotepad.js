@@ -454,20 +454,20 @@ export class NNotepad {
     }
 
     function serializeTensor(tensor, dataType) {
-      const dimensions = [];
+      const shape = [];
       const elements = [];
       (function measure(t, d) {
-        if (d >= dimensions.length) {
-          dimensions[d] = t.length;
-        } else if (dimensions[d] !== t.length) {
-          throw new Error('Invalid tensor: inconsistent dimensions');
+        if (d >= shape.length) {
+          shape[d] = t.length;
+        } else if (shape[d] !== t.length) {
+          throw new Error('Invalid tensor: inconsistent shape');
         }
         t.forEach((e) => {
           if (e.type === 'array') {
             measure(e.value, d + 1);
           } else if (e.type !== 'number') {
             throw new Error(`Invalid tensor: saw ${e.type}`);
-          } else if (d + 1 !== dimensions.length) {
+          } else if (d + 1 !== shape.length) {
             throw new Error('Invalid tensor: saw scalar');
           } else {
             elements.push(e.value);
@@ -475,8 +475,8 @@ export class NNotepad {
         });
       }(tensor, 0));
       const ctor = WebNNUtil.dataTypeToBufferType(dataType);
-      return `_.constant({dataType: "${dataType}", dimensions: ${
-        Util.stringify(dimensions)}}, new ${ctor.name}([${
+      return `_.constant({dataType: "${dataType}", shape: ${
+        Util.stringify(shape)}}, new ${ctor.name}([${
         elements.map((n) => Util.stringifyNumber(n, dataType)).join(',')}]))`;
     }
 
@@ -500,7 +500,7 @@ export class NNotepad {
         }
         const dims = shape.value.map((expr) => expr.value);
         const ctor = WebNNUtil.dataTypeToBufferType(dataType.value);
-        return `_.constant({dataType: "${dataType.value}", dimensions: ${
+        return `_.constant({dataType: "${dataType.value}", shape: ${
           Util.stringify(dims)}}, new ${
           ctor.name}(await Util.loadBuffer(${Util.stringify(url.value)})))`;
       }
@@ -516,7 +516,7 @@ export class NNotepad {
         const dims = shape.value.map((expr) => expr.value);
         const ctor = WebNNUtil.dataTypeToBufferType(dataType.value);
         const len = dims.reduce((a, b) => a * b, 1);
-        return `_.constant({dataType: "${dataType.value}", dimensions: ${
+        return `_.constant({dataType: "${dataType.value}", shape: ${
           Util.stringify(dims)}}, new ${
           ctor.name}(${len}))`;
       }

@@ -18,7 +18,7 @@ const TENSOR_SIZE = 8;
 const builder = new MLGraphBuilder(context);
 
 // Create MLOperandDescriptor object.
-const desc = {dataType: 'float32', dimensions: TENSOR_DIMS};
+const desc = {dataType: 'float32', shape: TENSOR_DIMS};
 
 // constant1 is a constant MLOperand with the value 0.5.
 const constantBuffer1 = new Float32Array(TENSOR_SIZE).fill(0.5);

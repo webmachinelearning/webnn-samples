@@ -335,7 +335,7 @@ async function main() {
       inputOptions = netInstance.inputOptions;
       labels = await fetchLabels(inputOptions.labelUrl);
       outputBuffer =
-          new Float32Array(utils.sizeOfShape(netInstance.outputDimensions));
+          new Float32Array(utils.sizeOfShape(netInstance.outputShape));
       isFirstTimeLoad = false;
       console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
       // UI shows model loading progress

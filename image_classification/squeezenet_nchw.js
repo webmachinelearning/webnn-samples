@@ -16,9 +16,9 @@ export class SqueezeNetNchw {
       norm: true,
       inputLayout: 'nchw',
       labelUrl: './labels/labels1000.txt',
-      inputDimensions: [1, 3, 224, 224],
+      inputShape: [1, 3, 224, 224],
     };
-    this.outputDimensions = [1, 1000];
+    this.outputShape = [1, 1000];
   }
 
   async buildConv_(input, name, options = {}) {
@@ -45,7 +45,7 @@ export class SqueezeNetNchw {
     this.builder_ = new MLGraphBuilder(this.context_);
     const data = this.builder_.input('input', {
       dataType: 'float32',
-      dimensions: this.inputOptions.inputDimensions,
+      shape: this.inputOptions.inputShape,
     });
     const conv0 = this.buildConv_(data, 'conv0', {strides: [2, 2]});
     const pool0 = this.builder_.maxPool2d(

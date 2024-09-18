@@ -274,7 +274,7 @@ async function main() {
       if (modelName.includes('tinyyolov2')) {
         outputs = {
           'output': new Float32Array(
-              utils.sizeOfShape(netInstance.outputDimensions)),
+              utils.sizeOfShape(netInstance.outputShape)),
         };
       } else {
         outputs = {

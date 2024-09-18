@@ -104,7 +104,7 @@ export async function buildConstantByNpy(builder, url, targetType = 'float32') {
   if (!dataTypeMap.has(npArray.dataType)) {
     throw new Error(`Data type ${npArray.dataType} is not supported.`);
   }
-  const dimensions = npArray.shape;
+  const shape = npArray.shape;
   let type = dataTypeMap.get(npArray.dataType).type;
   const TypedArrayConstructor = dataTypeMap.get(npArray.dataType).array;
   const dataView = new Uint8Array(npArray.data.buffer);
@@ -121,7 +121,7 @@ export async function buildConstantByNpy(builder, url, targetType = 'float32') {
     throw new Error(`Conversion from ${npArray.dataType} ` +
         `to ${targetType} is not supported.`);
   }
-  return builder.constant({dataType: type, dimensions}, typedArray);
+  return builder.constant({dataType: type, shape}, typedArray);
 }
 
 // Convert video frame to a canvas element
@@ -162,7 +162,7 @@ export function stopCameraStream(id, stream) {
  * input element.
  * inputOptions = {
  *     inputLayout {String}, // input layout of tensor.
- *     inputDimensions: {!Array<number>}, // dimensions of input tensor.
+ *     inputShape: {!Array<number>}, // shape of input tensor.
  *     mean: {Array<number>}, // optional, mean values for processing the input
  *       element. If not specified, it will be set to [0, 0, 0, 0].
  *     std: {Array<number>}, // optional, std values for processing the input
@@ -190,16 +190,16 @@ export function stopCameraStream(id, stream) {
  * @return {Object} tensor, an object of input tensor.
  */
 export function getInputTensor(inputElement, inputOptions) {
-  const inputDimensions = inputOptions.inputDimensions;
+  const inputShape = inputOptions.inputShape;
   const tensor = new Float32Array(
-      inputDimensions.slice(1).reduce((a, b) => a * b));
+      inputShape.slice(1).reduce((a, b) => a * b));
 
   inputElement.width = inputElement.videoWidth ||
       inputElement.naturalWidth;
   inputElement.height = inputElement.videoHeight ||
       inputElement.naturalHeight;
 
-  let [channels, height, width] = inputDimensions.slice(1);
+  let [channels, height, width] = inputShape.slice(1);
   const mean = inputOptions.mean || [0, 0, 0, 0];
   const std = inputOptions.std || [1, 1, 1, 1];
   const normlizationFlag = inputOptions.norm || false;
@@ -209,7 +209,7 @@ export function getInputTensor(inputElement, inputOptions) {
   const imageChannels = 4; // RGBA
   const drawOptions = inputOptions.drawOptions;
   if (inputLayout === 'nhwc') {
-    [height, width, channels] = inputDimensions.slice(1);
+    [height, width, channels] = inputShape.slice(1);
   }
   const canvasElement = document.createElement('canvas');
   canvasElement.width = width;
