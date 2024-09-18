@@ -38,12 +38,14 @@ export class NSNet2 {
     // Build up the network.
     const input = this.builder_.input('input', {
       dataType: 'float32',
+      dimensions: [batchSize, frames, this.frameSize],
       shape: [batchSize, frames, this.frameSize],
     });
     const relu20 = this.builder_.relu(this.builder_.add(this.builder_.matmul(input, weight172), biasFcIn0));
     const transpose31 = this.builder_.transpose(relu20, {permutation: [1, 0, 2]});
     const initialState92 = this.builder_.input('initialState92', {
       dataType: 'float32',
+      dimensions: [1, batchSize, this.hiddenSize],
       shape: [1, batchSize, this.hiddenSize],
     });
     const [gru94, gru93] = this.builder_.gru(transpose31, weight192, recurrentWeight193, frames, this.hiddenSize,
@@ -54,6 +56,7 @@ export class NSNet2 {
     const squeeze95 = this.builder_.reshape(gru93, squeeze95Shape);
     const initialState155 = this.builder_.input('initialState155', {
       dataType: 'float32',
+      dimensions: [1, batchSize, this.hiddenSize],
       shape: [1, batchSize, this.hiddenSize],
     });
     const [gru157, gru156] = this.builder_.gru(squeeze95, weight212, recurrentWeight213, frames, this.hiddenSize,

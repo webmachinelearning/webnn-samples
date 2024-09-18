@@ -56,6 +56,7 @@ export class SqueezeNetNhwc {
     const layout = 'nhwc';
     const placeholder = this.builder_.input('input', {
       dataType: 'float32',
+      dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     });
     const conv1 = this.buildConv_(

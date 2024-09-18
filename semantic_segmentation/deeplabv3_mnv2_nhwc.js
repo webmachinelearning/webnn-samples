@@ -81,6 +81,7 @@ export class DeepLabV3MNV2Nhwc {
     const strides = [2, 2];
     const input = this.builder_.input('input', {
       dataType: 'float32',
+      dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     });
     const conv0 = await this.buildConv_(

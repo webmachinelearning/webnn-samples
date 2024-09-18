@@ -63,10 +63,11 @@ export class TinyYoloV2Nchw {
     this.builder_ = new MLGraphBuilder(this.context_);
     let image = this.builder_.input('input', {
       dataType: 'float32',
+      dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     });
     let mulScale = this.builder_.constant(
-        {dataType: 'float32', shape: [1]},
+        {dataType: 'float32', dimensions: [1], shape: [1]},
         new Float32Array([0.003921568859368563]),
     );
     const poolOptions = {

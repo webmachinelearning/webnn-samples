@@ -121,7 +121,8 @@ export async function buildConstantByNpy(builder, url, targetType = 'float32') {
     throw new Error(`Conversion from ${npArray.dataType} ` +
         `to ${targetType} is not supported.`);
   }
-  return builder.constant({dataType: type, shape}, typedArray);
+  return builder.constant(
+      {dataType: type, dimensions: shape, shape}, typedArray);
 }
 
 // Convert video frame to a canvas element

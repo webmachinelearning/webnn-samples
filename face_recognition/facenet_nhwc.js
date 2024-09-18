@@ -141,6 +141,7 @@ export class FaceNetNhwc {
     this.builder_ = new MLGraphBuilder(this.context_);
     const input = this.builder_.input('input', {
       dataType: 'float32',
+      dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     });
 

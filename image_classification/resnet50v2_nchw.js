@@ -100,6 +100,7 @@ export class ResNet50V2Nchw {
     this.builder_ = new MLGraphBuilder(this.context_);
     const data = this.builder_.input('input', {
       dataType: 'float32',
+      dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     });
     const bn1 = this.buildBatchNorm_(data, '0', '', false);

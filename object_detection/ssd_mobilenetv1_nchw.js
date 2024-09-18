@@ -81,6 +81,7 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     this.builder_ = new MLGraphBuilder(this.context_);
     let input = this.builder_.input('input', {
       dataType: 'float32',
+      dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     });
     if (this.targetDataType_ === 'float16') {

@@ -475,7 +475,8 @@ export class NNotepad {
         });
       }(tensor, 0));
       const ctor = WebNNUtil.dataTypeToBufferType(dataType);
-      return `_.constant({dataType: "${dataType}", shape: ${
+      return `_.constant({dataType: "${dataType}", dimensions: ${
+        Util.stringify(shape)}}, shape: ${
         Util.stringify(shape)}}, new ${ctor.name}([${
         elements.map((n) => Util.stringifyNumber(n, dataType)).join(',')}]))`;
     }
@@ -500,7 +501,8 @@ export class NNotepad {
         }
         const dims = shape.value.map((expr) => expr.value);
         const ctor = WebNNUtil.dataTypeToBufferType(dataType.value);
-        return `_.constant({dataType: "${dataType.value}", shape: ${
+        return `_.constant({dataType: "${dataType.value}", dimensions: ${
+          Util.stringify(dims)}}, shape: ${
           Util.stringify(dims)}}, new ${
           ctor.name}(await Util.loadBuffer(${Util.stringify(url.value)})))`;
       }
@@ -516,7 +518,8 @@ export class NNotepad {
         const dims = shape.value.map((expr) => expr.value);
         const ctor = WebNNUtil.dataTypeToBufferType(dataType.value);
         const len = dims.reduce((a, b) => a * b, 1);
-        return `_.constant({dataType: "${dataType.value}", shape: ${
+        return `_.constant({dataType: "${dataType.value}", dimensions: ${
+          Util.stringify(dims)}}, shape: ${
           Util.stringify(dims)}}, new ${
           ctor.name}(${len}))`;
       }
@@ -595,6 +598,7 @@ export class NNotepad {
     return outputOperands.map(
         (op, index) => ({
           dataType: op.dataType(),
+          dimensions: op.shape(),
           shape: op.shape(),
           buffer: maybeProxyForFloat16Array(result.outputs[`output-${index}`]),
         }));

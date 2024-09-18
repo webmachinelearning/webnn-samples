@@ -45,6 +45,7 @@ export class SqueezeNetNchw {
     this.builder_ = new MLGraphBuilder(this.context_);
     const data = this.builder_.input('input', {
       dataType: 'float32',
+      dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     });
     const conv0 = this.buildConv_(data, 'conv0', {strides: [2, 2]});

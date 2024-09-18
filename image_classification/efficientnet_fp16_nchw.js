@@ -77,6 +77,7 @@ export class EfficientNetFP16Nchw {
     this.builder_ = new MLGraphBuilder(this.context_);
     let data = this.builder_.input('input', {
       dataType: 'float32',
+      dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     });
     data = this.builder_.cast(data, 'float16');

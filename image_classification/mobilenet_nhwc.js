@@ -89,6 +89,7 @@ export class MobileNetV2Nhwc {
     const filterLayout = 'ohwi';
     const input = this.builder_.input('input', {
       dataType: 'float32',
+      dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     });
     const conv0 = this.buildConv_(
