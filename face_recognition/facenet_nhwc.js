@@ -19,7 +19,7 @@ export class FaceNetNhwc {
       std: [127.5, 127.5, 127.5, 127.5],
       channelScheme: 'BGR',
       inputLayout: 'nhwc',
-      inputDimensions: [1, 160, 160, 3],
+      inputShape: [1, 160, 160, 3],
     };
     this.postOptions = {
       distanceMetric: 'euclidean',
@@ -141,7 +141,8 @@ export class FaceNetNhwc {
     this.builder_ = new MLGraphBuilder(this.context_);
     const input = this.builder_.input('input', {
       dataType: 'float32',
-      dimensions: this.inputOptions.inputDimensions,
+      dimensions: this.inputOptions.inputShape,
+      shape: this.inputOptions.inputShape,
     });
 
     const poolOptions = {windowDimensions: [3, 3], strides, layout: 'nhwc'};

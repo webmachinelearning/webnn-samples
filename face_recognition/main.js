@@ -375,9 +375,9 @@ async function main() {
       console.log('- Computing... ');
       // Do warm up
       const fdResults = await fdInstance.compute(new Float32Array(
-          utils.sizeOfShape(fdInputOptions.inputDimensions)), fdOutputs);
+          utils.sizeOfShape(fdInputOptions.inputShape)), fdOutputs);
       const frResults = await frInstance.compute(new Float32Array(
-          utils.sizeOfShape(frInputOptions.inputDimensions)), frOutputs);
+          utils.sizeOfShape(frInputOptions.inputShape)), frOutputs);
       fdOutputs = fdResults.outputs;
       frOutputs = frResults.outputs;
       for (let i = 0; i < numRuns; i++) {

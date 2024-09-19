@@ -16,9 +16,9 @@ export class ResNet50V1FP16Nchw {
       norm: true,
       inputLayout: 'nchw',
       labelUrl: './labels/labels1000.txt',
-      inputDimensions: [1, 3, 224, 224],
+      inputShape: [1, 3, 224, 224],
     };
-    this.outputDimensions = [1, 1000];
+    this.outputShape = [1, 1000];
   }
 
   async buildConv_(input, name, stageName, relu, options = undefined) {
@@ -78,7 +78,8 @@ export class ResNet50V1FP16Nchw {
     this.builder_ = new MLGraphBuilder(this.context_);
     let data = this.builder_.input('input', {
       dataType: 'float32',
-      dimensions: this.inputOptions.inputDimensions,
+      dimensions: this.inputOptions.inputShape,
+      shape: this.inputOptions.inputShape,
     });
     data = this.builder_.cast(data, 'float16');
     const conv1 = await this.buildConv_(

@@ -19,7 +19,7 @@ export class SsdMobilenetV2FaceNchw {
       boxSize: 4,
       numClasses: 2,
       numBoxes: [1083, 600, 150, 54, 24, 6],
-      inputDimensions: [1, 3, 300, 300],
+      inputShape: [1, 3, 300, 300],
     };
     this.outputsInfo = {
       'biasAdd0': [1, 12, 19, 19],
@@ -115,7 +115,8 @@ ${nameArray[1]}`;
     this.builder_ = new MLGraphBuilder(this.context_);
     const input = this.builder_.input('input', {
       dataType: 'float32',
-      dimensions: this.inputOptions.inputDimensions,
+      dimensions: this.inputOptions.inputShape,
+      shape: this.inputOptions.inputShape,
     });
 
     const bottleneck0 = this.buildLinearBottleneck_(

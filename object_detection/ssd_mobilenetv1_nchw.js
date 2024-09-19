@@ -22,7 +22,7 @@ export class SsdMobilenetV1Nchw {
       margin: [1, 1, 1, 1],
       mean: [127.5, 127.5, 127.5],
       std: [127.5, 127.5, 127.5],
-      inputDimensions: [1, 3, 300, 300],
+      inputShape: [1, 3, 300, 300],
     };
   }
 
@@ -81,7 +81,8 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     this.builder_ = new MLGraphBuilder(this.context_);
     let input = this.builder_.input('input', {
       dataType: 'float32',
-      dimensions: this.inputOptions.inputDimensions,
+      dimensions: this.inputOptions.inputShape,
+      shape: this.inputOptions.inputShape,
     });
     if (this.targetDataType_ === 'float16') {
       input = this.builder_.cast(input, 'float16');

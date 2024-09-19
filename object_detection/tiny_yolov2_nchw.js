@@ -17,9 +17,9 @@ export class TinyYoloV2Nchw {
       labelUrl: './labels/pascal_classes.txt',
       margin: [1, 1, 1, 1],
       anchors: [1.08, 1.19, 3.42, 4.41, 6.63, 11.38, 9.42, 5.11, 16.62, 10.52],
-      inputDimensions: [1, 3, 416, 416],
+      inputShape: [1, 3, 416, 416],
     };
-    this.outputDimensions = [1, 125, 13, 13];
+    this.outputShape = [1, 125, 13, 13];
   }
 
   async buildConv_(input, name) {
@@ -63,10 +63,11 @@ export class TinyYoloV2Nchw {
     this.builder_ = new MLGraphBuilder(this.context_);
     let image = this.builder_.input('input', {
       dataType: 'float32',
-      dimensions: this.inputOptions.inputDimensions,
+      dimensions: this.inputOptions.inputShape,
+      shape: this.inputOptions.inputShape,
     });
     let mulScale = this.builder_.constant(
-        {dataType: 'float32', dimensions: [1]},
+        {dataType: 'float32', dimensions: [1], shape: [1]},
         new Float32Array([0.003921568859368563]),
     );
     const poolOptions = {

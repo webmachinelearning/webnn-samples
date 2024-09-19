@@ -17,9 +17,9 @@ export class DeepLabV3MNV2Nhwc {
       scaledFlag: true,
       inputLayout: 'nhwc',
       labelUrl: './labels/labels.txt',
-      inputDimensions: [1, 513, 513, 3],
+      inputShape: [1, 513, 513, 3],
     };
-    this.outputDimensions = [1, 513, 513, 21];
+    this.outputShape = [1, 513, 513, 21];
   }
 
   async buildConv_(
@@ -81,7 +81,8 @@ export class DeepLabV3MNV2Nhwc {
     const strides = [2, 2];
     const input = this.builder_.input('input', {
       dataType: 'float32',
-      dimensions: this.inputOptions.inputDimensions,
+      dimensions: this.inputOptions.inputShape,
+      shape: this.inputOptions.inputShape,
     });
     const conv0 = await this.buildConv_(
         input, 'MobilenetV2_Conv_Conv2D', '', true, {strides});
