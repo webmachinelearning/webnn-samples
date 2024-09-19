@@ -12,7 +12,7 @@ export class FaceLandmarkNhwc {
       '/test-data/models/face_landmark_nhwc/weights';
     this.inputOptions = {
       inputLayout: 'nhwc',
-      inputDimensions: [1, 128, 128, 3],
+      inputShape: [1, 128, 128, 3],
     };
   }
 
@@ -72,7 +72,8 @@ export class FaceLandmarkNhwc {
     this.builder_ = new MLGraphBuilder(this.context_);
     const input = this.builder_.input('input', {
       dataType: 'float32',
-      dimensions: this.inputOptions.inputDimensions,
+      dimensions: this.inputOptions.inputShape,
+      shape: this.inputOptions.inputShape,
     });
 
     const poolOptions =

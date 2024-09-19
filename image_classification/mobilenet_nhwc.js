@@ -18,9 +18,9 @@ export class MobileNetV2Nhwc {
       std: [127.5, 127.5, 127.5],
       inputLayout: 'nhwc',
       labelUrl: './labels/labels1001.txt',
-      inputDimensions: [1, 224, 224, 3],
+      inputShape: [1, 224, 224, 3],
     };
-    this.outputDimensions = [1, 1001];
+    this.outputShape = [1, 1001];
   }
 
   async buildConv_(input, weightsSubName, biasSubName, relu6, options) {
@@ -89,7 +89,8 @@ export class MobileNetV2Nhwc {
     const filterLayout = 'ohwi';
     const input = this.builder_.input('input', {
       dataType: 'float32',
-      dimensions: this.inputOptions.inputDimensions,
+      dimensions: this.inputOptions.inputShape,
+      shape: this.inputOptions.inputShape,
     });
     const conv0 = this.buildConv_(
         input, '90', 'Conv_Conv2D', true, {strides, autoPad, filterLayout});

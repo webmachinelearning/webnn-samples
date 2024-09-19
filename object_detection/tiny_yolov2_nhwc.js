@@ -15,10 +15,10 @@ export class TinyYoloV2Nhwc {
       labelUrl: './labels/pascal_classes.txt',
       margin: [1, 1, 1, 1],
       anchors: [1.08, 1.19, 3.42, 4.41, 6.63, 11.38, 9.42, 5.11, 16.62, 10.52],
-      inputDimensions: [1, 416, 416, 3],
+      inputShape: [1, 416, 416, 3],
       norm: true,
     };
-    this.outputDimensions = [1, 13, 13, 125];
+    this.outputShape = [1, 13, 13, 125];
   }
 
   async buildConv_(input, name, leakyRelu = true) {
@@ -57,7 +57,8 @@ export class TinyYoloV2Nhwc {
     this.builder_ = new MLGraphBuilder(this.context_);
     const input = this.builder_.input('input', {
       dataType: 'float32',
-      dimensions: this.inputOptions.inputDimensions,
+      dimensions: this.inputOptions.inputShape,
+      shape: this.inputOptions.inputShape,
     });
 
     const poolOptions = {

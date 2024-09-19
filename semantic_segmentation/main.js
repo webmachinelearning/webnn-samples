@@ -276,7 +276,7 @@ async function drawOutput(srcElement) {
   // TODO: move 'argMax' operation to graph once it is supported in WebNN spec.
   // https://github.com/webmachinelearning/webnn/issues/184
   const [argMaxBuffer, outputShape] = tf.tidy(() => {
-    const a = tf.tensor(outputBuffer, netInstance.outputDimensions, 'float32');
+    const a = tf.tensor(outputBuffer, netInstance.outputShape, 'float32');
     let axis = 3;
     if (layout === 'nchw') {
       axis = 1;
@@ -285,7 +285,7 @@ async function drawOutput(srcElement) {
     return [b.dataSync(), b.shape];
   });
 
-  const width = inputOptions.inputDimensions[2];
+  const width = inputOptions.inputShape[2];
   const imWidth = srcElement.naturalWidth | srcElement.width;
   const imHeight = srcElement.naturalHeight | srcElement.height;
   const resizeRatio = Math.max(Math.max(imWidth, imHeight) / width, 1);
@@ -354,7 +354,7 @@ export async function main() {
       inputOptions = netInstance.inputOptions;
       labels = await fetchLabels(inputOptions.labelUrl);
       outputBuffer =
-          new Float32Array(utils.sizeOfShape(netInstance.outputDimensions));
+          new Float32Array(utils.sizeOfShape(netInstance.outputShape));
       isFirstTimeLoad = false;
       console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
       // UI shows model loading progress

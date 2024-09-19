@@ -139,7 +139,7 @@ function drawInput(srcElement, canvasId) {
 }
 
 function drawOutput(inCanvasId, outCanvasId) {
-  const outputSize = fastStyleTransferNet.outputDimensions;
+  const outputSize = fastStyleTransferNet.outputShape;
   const height = outputSize[2];
   const width = outputSize[3];
   const mean = [1, 1, 1, 1];
@@ -210,7 +210,7 @@ export async function main() {
       }
       fastStyleTransferNet = new FastStyleTransferNet();
       outputBuffer = new Float32Array(
-          utils.sizeOfShape(fastStyleTransferNet.outputDimensions));
+          utils.sizeOfShape(fastStyleTransferNet.outputShape));
       isFirstTimeLoad = false;
       isModelChanged = false;
       console.log(`- Model ID: ${modelId} -`);

@@ -16,9 +16,9 @@ export class EfficientNetFP16Nchw {
       norm: true,
       inputLayout: 'nchw',
       labelUrl: './labels/labels1000.txt',
-      inputDimensions: [1, 3, 224, 224],
+      inputShape: [1, 3, 224, 224],
     };
-    this.outputDimensions = [1, 1000];
+    this.outputShape = [1, 1000];
   }
 
   async buildConv_(input, name, blockName, clip = false, options = {}) {
@@ -77,7 +77,8 @@ export class EfficientNetFP16Nchw {
     this.builder_ = new MLGraphBuilder(this.context_);
     let data = this.builder_.input('input', {
       dataType: 'float32',
-      dimensions: this.inputOptions.inputDimensions,
+      dimensions: this.inputOptions.inputShape,
+      shape: this.inputOptions.inputShape,
     });
     data = this.builder_.cast(data, 'float16');
     // Block 0

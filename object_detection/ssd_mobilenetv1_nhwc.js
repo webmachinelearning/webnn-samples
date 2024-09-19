@@ -18,7 +18,7 @@ export class SsdMobilenetV1Nhwc {
       margin: [1, 1, 1, 1],
       mean: [127.5, 127.5, 127.5],
       std: [127.5, 127.5, 127.5],
-      inputDimensions: [1, 300, 300, 3],
+      inputShape: [1, 300, 300, 3],
     };
   }
 
@@ -87,7 +87,8 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     this.builder_ = new MLGraphBuilder(this.context_);
     const input = this.builder_.input('input', {
       dataType: 'float32',
-      dimensions: this.inputOptions.inputDimensions,
+      dimensions: this.inputOptions.inputShape,
+      shape: this.inputOptions.inputShape,
     });
     const strides = [2, 2];
     const conv0 = await this.buildConv_(

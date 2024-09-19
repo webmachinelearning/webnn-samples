@@ -28,17 +28,17 @@ const inputOptions = {
 };
 const modelConfigs = {
   'selfie_segmentation': {
-    inputDimensions: [1, 256, 256, 3],
+    inputShape: [1, 256, 256, 3],
     inputResolution: [256, 256],
     modelPath: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite',
   },
   'selfie_segmentation_landscape': {
-    inputDimensions: [1, 144, 256, 3],
+    inputShape: [1, 144, 256, 3],
     inputResolution: [256, 144],
     modelPath: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter_landscape/float16/latest/selfie_segmenter_landscape.tflite',
   },
   'deeplabv3': {
-    inputDimensions: [1, 257, 257, 3],
+    inputShape: [1, 257, 257, 3],
     inputResolution: [257, 257],
     modelPath: 'https://tfhub.dev/tensorflow/lite-model/deeplabv3/1/metadata/2?lite-format=tflite',
   },
@@ -60,7 +60,7 @@ $('input[name="model"]').on('change', async (e) => {
   } else {
     $('#ssModelsBtns .btn').removeClass('active');
   }
-  inputOptions.inputDimensions = modelConfigs[modelName].inputDimensions;
+  inputOptions.inputShape = modelConfigs[modelName].inputShape;
   inputOptions.inputResolution = modelConfigs[modelName].inputResolution;
   if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
   await main();

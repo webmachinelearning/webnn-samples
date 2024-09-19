@@ -15,10 +15,10 @@ export class FastStyleTransferNet {
     this.weightsUrl_ = weightsOrigin() +
       '/test-data/models/fast_style_transfer_nchw/weights/';
     this.inputOptions = {
-      inputDimensions: [1, 3, 540, 540],
+      inputShape: [1, 3, 540, 540],
       inputLayout: 'nchw',
     };
-    this.outputDimensions = [1, 3, 540, 540];
+    this.outputShape = [1, 3, 540, 540];
   }
 
   buildInstanceNormalization_(conv2D, variableMul, variableAdd) {
@@ -96,25 +96,26 @@ export class FastStyleTransferNet {
     const padding1 = [0, 0, 1, 1];
     const padding4 = [0, 0, 4, 4];
     this.constAdd_ = this.builder_.constant(
-        {dataType: 'float32', dimensions: [1]},
+        {dataType: 'float32', dimensions: [1], shape: [1]},
         new Float32Array([9.999999717180685e-10]),
     );
     this.constPow_ = this.builder_.constant(
-        {dataType: 'float32', dimensions: [1]},
+        {dataType: 'float32', dimensions: [1], shape: [1]},
         new Float32Array([0.5]),
     );
     const constMul0 = this.builder_.constant(
-        {dataType: 'float32', dimensions: [1]},
+        {dataType: 'float32', dimensions: [1], shape: [1]},
         new Float32Array([150]),
     );
     const constAdd0 = this.builder_.constant(
-        {dataType: 'float32', dimensions: [1]},
+        {dataType: 'float32', dimensions: [1], shape: [1]},
         new Float32Array([127.5]),
     );
     // Build up the network.
     const input = this.builder_.input('input', {
       dataType: 'float32',
-      dimensions: this.inputOptions.inputDimensions,
+      dimensions: this.inputOptions.inputShape,
+      shape: this.inputOptions.inputShape,
     });
     const conv2D0 = this.builder_.conv2d(this.builder_.pad(input, padding4, padding4, {mode: 'reflection'}), weightConv0);
 
