@@ -104,7 +104,7 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
       shape: this.scoresShape_,
       usage: MLTensorUsage.READ,
     });
-    
+
     if (this.targetDataType_ === 'float16') {
       input = this.builder_.cast(input, 'float16');
     }
@@ -299,8 +299,10 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     };
     this.context_.dispatch(this.graph_, inputs, outputs);
     const results = {
-      'boxes': new Float32Array(await this.context_.readTensor(this.boxesTensor_)),
-      'scores': new Float32Array(await this.context_.readTensor(this.scoresTensor_)),
+      boxes: new Float32Array(
+          await this.context_.readTensor(this.boxesTensor_)),
+      scores: new Float32Array(
+          await this.context_.readTensor(this.scoresTensor_)),
     };
     return results;
   }

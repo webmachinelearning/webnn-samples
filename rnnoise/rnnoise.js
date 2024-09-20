@@ -80,15 +80,17 @@ export class RNNoise {
         vadGruBData,
         [0, 3 * this.vadGruHiddenSize],
         [1, 3 * this.vadGruHiddenSize]);
-    
+
     const vadGruInitialHDesc = {
       dataType: 'float32',
       dimensions: [1, this.batchSize_, this.vadGruHiddenSize],
       shape: [1, this.batchSize_, this.vadGruHiddenSize],
     };
-    const vadGruInitialH = this.builder_.input('vadGruInitialH', vadGruInitialHDesc);
+    const vadGruInitialH = this.builder_.input(
+        'vadGruInitialH', vadGruInitialHDesc);
     vadGruInitialHDesc.usage = MLTensorUsage.WRITE;
-    this.vadGruInitialHTensor_ = await this.context_.createTensor(vadGruInitialHDesc);
+    this.vadGruInitialHTensor_ = await this.context_.createTensor(
+        vadGruInitialHDesc);
 
     const [vadGruYH, vadGruY] = this.builder_.gru(vadGruX,
         vadGruW, vadGruR, this.frames_, this.vadGruHiddenSize, {
@@ -119,9 +121,11 @@ export class RNNoise {
       dimensions: [1, this.batchSize_, this.noiseGruHiddenSize],
       shape: [1, this.batchSize_, this.noiseGruHiddenSize],
     };
-    const noiseGruInitialH = this.builder_.input('noiseGruInitialH', noiseGruInitialHDesc);
+    const noiseGruInitialH = this.builder_.input(
+        'noiseGruInitialH', noiseGruInitialHDesc);
     noiseGruInitialHDesc.usage = MLTensorUsage.WRITE;
-    this.noiseGruInitialHTensor_ = await this.context_.createTensor(noiseGruInitialHDesc);
+    this.noiseGruInitialHTensor_ = await this.context_.createTensor(
+        noiseGruInitialHDesc);
 
     const [noiseGruYH, noiseGruY] = this.builder_.gru(noiseGruX,
         noiseGruW, noiseGruR, this.frames_, this.noiseGruHiddenSize, {
@@ -146,15 +150,17 @@ export class RNNoise {
         denoiseGruBData,
         [0, 3 * this.denoiseGruHiddenSize],
         [1, 3 * this.denoiseGruHiddenSize]);
-    
+
     const denoiseGruInitialHDesc = {
       dataType: 'float32',
       dimensions: [1, this.batchSize_, this.denoiseGruHiddenSize],
       shape: [1, this.batchSize_, this.denoiseGruHiddenSize],
     };
-    const denoiseGruInitialH = this.builder_.input('denoiseGruInitialH', denoiseGruInitialHDesc);
+    const denoiseGruInitialH = this.builder_.input(
+        'denoiseGruInitialH', denoiseGruInitialHDesc);
     denoiseGruInitialHDesc.usage = MLTensorUsage.WRITE;
-    this.denoiseGruInitialHTensor_ = await this.context_.createTensor(denoiseGruInitialHDesc);
+    this.denoiseGruInitialHTensor_ = await this.context_.createTensor(
+        denoiseGruInitialHDesc);
 
     const [denoiseGruYH, denoiseGruY] = this.builder_.gru(denoiseGruX,
         denoiseGruW, denoiseGruR, this.frames_, this.denoiseGruHiddenSize, {
@@ -175,28 +181,39 @@ export class RNNoise {
         denoiseOutput0, denoiseOutputBias0);
     const denoiseOutput = this.builder_.sigmoid(biasedTensorName);
 
+    const denoiseOutputShape =
+        [this.batchSize_, this.frames_, this.gainsSize_];
     this.denoiseOutputTensor_ = await this.context_.createTensor({
       dataType: 'float32',
-      dimensions: [this.batchSize_, this.frames_, this.gainsSize_],
-      shape: [this.batchSize_, this.frames_, this.gainsSize_],
+      dimensions: denoiseOutputShape,
+      shape: denoiseOutputShape,
       usage: MLTensorUsage.READ,
     });
+    const vadGruYHOutputShape =
+        [this.vadGruNumDirections, this.batchSize_, this.vadGruHiddenSize];
     this.vadGruYHTensor_ = await this.context_.createTensor({
       dataType: 'float32',
-      dimensions: [this.vadGruNumDirections, this.batchSize_, this.vadGruHiddenSize],
-      shape: [this.vadGruNumDirections, this.batchSize_, this.vadGruHiddenSize],
+      dimensions: vadGruYHOutputShape,
+      shape: vadGruYHOutputShape,
       usage: MLTensorUsage.READ,
     });
+    const noiseGruYHOutputShape =
+        [this.noiseGruNumDirections, this.batchSize_, this.noiseGruHiddenSize];
     this.noiseGruYHTensor_ = await this.context_.createTensor({
       dataType: 'float32',
-      dimensions: [this.noiseGruNumDirections, this.batchSize_, this.noiseGruHiddenSize], 
-      shape: [this.noiseGruNumDirections, this.batchSize_, this.noiseGruHiddenSize],
+      dimensions: noiseGruYHOutputShape,
+      shape: noiseGruYHOutputShape,
       usage: MLTensorUsage.READ,
     });
+    const denoiseGruYHOutputShape = [
+      this.denoiseGruNumDirections,
+      this.batchSize_,
+      this.denoiseGruHiddenSize,
+    ];
     this.denoiseGruYHTensor_ = await this.context_.createTensor({
       dataType: 'float32',
-      dimensions: [this.denoiseGruNumDirections, this.batchSize_, this.denoiseGruHiddenSize],
-      shape: [this.denoiseGruNumDirections, this.batchSize_, this.denoiseGruHiddenSize],
+      dimensions: denoiseGruYHOutputShape,
+      shape: denoiseGruYHOutputShape,
       usage: MLTensorUsage.READ,
     });
 
@@ -209,9 +226,12 @@ export class RNNoise {
 
   async compute(inputs) {
     this.context_.writeTensor(this.inputTensor_, inputs.input);
-    this.context_.writeTensor(this.vadGruInitialHTensor_, inputs.vadGruInitialH);
-    this.context_.writeTensor(this.noiseGruInitialHTensor_, inputs.noiseGruInitialH);
-    this.context_.writeTensor(this.denoiseGruInitialHTensor_, inputs.denoiseGruInitialH);
+    this.context_.writeTensor(
+        this.vadGruInitialHTensor_, inputs.vadGruInitialH);
+    this.context_.writeTensor(
+        this.noiseGruInitialHTensor_, inputs.noiseGruInitialH);
+    this.context_.writeTensor(
+        this.denoiseGruInitialHTensor_, inputs.denoiseGruInitialH);
     const inputTensors = {
       'input': this.inputTensor_,
       'vadGruInitialH': this.vadGruInitialHTensor_,
@@ -226,10 +246,14 @@ export class RNNoise {
     };
     this.context_.dispatch(this.graph_, inputTensors, outputTensors);
     const results = {
-      'denoiseOutput': new Float32Array(await this.context_.readTensor(this.denoiseOutputTensor_)),
-      'vadGruYH': new Float32Array(await this.context_.readTensor(this.vadGruYHTensor_)),
-      'noiseGruYH': new Float32Array(await this.context_.readTensor(this.noiseGruYHTensor_)),
-      'denoiseGruYH': new Float32Array(await this.context_.readTensor(this.denoiseGruYHTensor_)),
+      'denoiseOutput': new Float32Array(
+          await this.context_.readTensor(this.denoiseOutputTensor_)),
+      'vadGruYH': new Float32Array(
+          await this.context_.readTensor(this.vadGruYHTensor_)),
+      'noiseGruYH': new Float32Array(
+          await this.context_.readTensor(this.noiseGruYHTensor_)),
+      'denoiseGruYH': new Float32Array(
+          await this.context_.readTensor(this.denoiseGruYHTensor_)),
     };
     return results;
   }

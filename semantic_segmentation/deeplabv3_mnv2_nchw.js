@@ -104,7 +104,7 @@ export class DeepLabV3MNV2Nchw {
       shape: this.outputShape,
       usage: MLTensorUsage.READ,
     });
-  
+
     const conv0 = this.buildConv_(
         input, ['MobilenetV2_Conv_Conv2D', '', '551'], 'relu6', {strides, padding: [1, 1, 1, 1]});
     const conv1 = this.buildConv_(

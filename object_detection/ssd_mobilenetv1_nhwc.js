@@ -276,8 +276,10 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     };
     this.context_.dispatch(this.graph_, inputs, outputs);
     const results = {
-      'boxes': new Float32Array(await this.context_.readTensor(this.boxesTensor_)),
-      'scores': new Float32Array(await this.context_.readTensor(this.scoresTensor_)),
+      'boxes': new Float32Array(
+          await this.context_.readTensor(this.boxesTensor_)),
+      'scores': new Float32Array(
+          await this.context_.readTensor(this.scoresTensor_)),
     };
     return results;
   }

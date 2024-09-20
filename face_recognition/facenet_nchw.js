@@ -142,9 +142,9 @@ export class FaceNetNchw {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(this.context_);
     const inputDesc = {
-        dataType: 'float32',
-        dimensions: this.inputOptions.inputShape,
-        shape: this.inputOptions.inputShape,
+      dataType: 'float32',
+      dimensions: this.inputOptions.inputShape,
+      shape: this.inputOptions.inputShape,
     };
     const input = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;

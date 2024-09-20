@@ -597,11 +597,11 @@ export class NNotepad {
       throw new DispatchError(`${ex.name} : ${ex.message}`);
     }
 
-    for (const name in outputBuffers) {
+    for (const [name, outputBuffer] of Object.entries(outputBuffers)) {
       const buffer = await context.readTensor(outputTensors[name]);
-      const instance = new outputBuffers[name].constructor(buffer);
-      outputBuffers[name].set(instance);
-    };
+      const instance = new outputBuffer.constructor(buffer);
+      outputBuffer.set(instance);
+    }
 
     function maybeProxyForFloat16Array(array) {
       return ('proxyForFloat16Array' in self) ?

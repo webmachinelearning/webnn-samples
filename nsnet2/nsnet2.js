@@ -61,7 +61,7 @@ export class NSNet2 {
     squeeze95Shape.splice(1, 1);
     const squeeze95 = this.builder_.reshape(gru93, squeeze95Shape);
     const initialState155 = this.builder_.input('initialState155', initialStateDesc);
-    
+
     initialStateDesc.usage = MLTensorUsage.WRITE;
     this.initialState92Tensor_ = await this.context_.createTensor(initialStateDesc);
     this.initialState155Tensor_ = await this.context_.createTensor(initialStateDesc);

@@ -303,7 +303,7 @@ async function main() {
       let medianComputeTime;
 
       // Do warm up
-      let results = await netInstance.compute(inputBuffer);
+      const results = await netInstance.compute(inputBuffer);
 
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();

@@ -1,6 +1,6 @@
 import {NSNet2} from './nsnet2.js';
 import * as featurelib from './featurelib.js';
-import {sizeOfShape, getUrlParams, weightsOrigin} from '../common/utils.js';
+import {getUrlParams, weightsOrigin} from '../common/utils.js';
 
 export class Denoiser {
   constructor(batchSize, frames, sampleRate) {
