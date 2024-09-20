@@ -28,8 +28,6 @@ let stream = null;
 let loadTime = 0;
 let buildTime = 0;
 let computeTime = 0;
-let fdOutputs;
-let fldOutputs;
 let deviceType = '';
 let lastdeviceType = '';
 let backend = '';
@@ -149,15 +147,14 @@ async function predict(inputElement) {
   const fdInputBuffer = utils.getInputTensor(inputElement, fdInputOptions);
   let totalComputeTime = 0;
   let start = performance.now();
-  const results = await fdInstance.compute(fdInputBuffer, fdOutputs);
+  const results = await fdInstance.compute(fdInputBuffer);
   totalComputeTime += performance.now() - start;
-  fdOutputs = results.outputs;
   const strokedRects = [];
   const keyPoints = [];
   const height = inputElement.naturalHeight || inputElement.height;
   const width = inputElement.naturalWidth || inputElement.width;
   const fdOutputArrary = [];
-  for (const output of Object.entries(fdOutputs)) {
+  for (const output of Object.entries(results)) {
     fdOutputArrary.push(output[1]);
   }
   const fdSsdOutputs = SsdDecoder.processSsdOutputTensor(
@@ -191,10 +188,9 @@ async function predict(inputElement) {
     fldInputOptions.drawOptions = drawOptions;
     const fldInputBuffer = utils.getInputTensor(inputElement, fldInputOptions);
     start = performance.now();
-    const results = await fldInstance.compute(fldInputBuffer, fldOutputs);
+    const results = await fldInstance.compute(fldInputBuffer);
     totalComputeTime += performance.now() - start;
-    fldOutputs = results.outputs;
-    keyPoints.push(fldOutputs.output.slice());
+    keyPoints.push(results.slice());
   }
   return [totalComputeTime.toFixed(2), strokedRects, keyPoints];
 }
@@ -266,12 +262,6 @@ async function main() {
       fldInstance = constructNetObject(fldInstanceType);
       fdInputOptions = fdInstance.inputOptions;
       fldInputOptions = fldInstance.inputOptions;
-      fdOutputs = {};
-      for (const outputInfo of Object.entries(fdInstance.outputsInfo)) {
-        fdOutputs[outputInfo[0]] =
-            new Float32Array(utils.sizeOfShape(outputInfo[1]));
-      }
-      fldOutputs = {'output': new Float32Array(utils.sizeOfShape([1, 136]))};
       isFirstTimeLoad = false;
       console.log(`- Model name: ${fdModelName}, Model layout: ${layout} -`);
       // UI shows model loading progress
@@ -312,11 +302,9 @@ async function main() {
       console.log('- Computing... ');
       // Do warm up
       const fdResults = await fdInstance.compute(new Float32Array(
-          utils.sizeOfShape(fdInputOptions.inputShape)), fdOutputs);
+          utils.sizeOfShape(fdInputOptions.inputShape)));
       const fldResults = await fldInstance.compute(new Float32Array(
-          utils.sizeOfShape(fldInputOptions.inputShape)), fldOutputs);
-      fdOutputs = fdResults.outputs;
-      fldOutputs = fldResults.outputs;
+          utils.sizeOfShape(fldInputOptions.inputShape)));
       for (let i = 0; i < numRuns; i++) {
         [computeTime, strokedRects, keyPoints] = await predict(imgElement);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);
@@ -327,8 +315,8 @@ async function main() {
         medianComputeTime = medianComputeTime.toFixed(2);
         console.log(`  median compute time: ${medianComputeTime} ms`);
       }
-      console.log('Face Detection model outputs: ', fdOutputs);
-      console.log('Face Landmark model outputs: ', fldOutputs);
+      console.log('Face Detection model outputs: ', fdResults);
+      console.log('Face Landmark model outputs: ', fldResults);
       await ui.showProgressComponent('done', 'done', 'done');
       $('#fps').hide();
       ui.readyShowResultComponents();

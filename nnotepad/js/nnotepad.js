@@ -20,10 +20,10 @@ export class BuildError extends Error {
   }
 }
 
-export class ComputeError extends Error {
+export class DispatchError extends Error {
   constructor(message) {
     super(message);
-    this.name = 'compute()';
+    this.name = 'dispatch()';
   }
 }
 
@@ -40,6 +40,17 @@ class WebNNUtil {
     const size = [...operand.shape()].reduce((a, b) => a * b, 1);
     const ctor = WebNNUtil.dataTypeToBufferType(operand.dataType());
     return Reflect.construct(ctor, [size]);
+  }
+
+  static async tensorForOperand(operand, context) {
+    const desc = {
+      dataType: operand.dataType(),
+      dimensions: operand.shape(),
+      shape: operand.shape(),
+      usage: MLTensorUsage.READ,
+    };
+    const tensor = await context.createTensor(desc);
+    return tensor;
   }
 
   static dataTypeToBufferType(type) {
@@ -370,7 +381,6 @@ export class NNotepad {
               serializeLine(line, index === lines.length - 1))
         .map((line) => line + ';\n')
         .join('');
-
     const AsyncFunction = async function() {}.constructor;
     return [new AsyncFunction(['_', 'Util'], src), src];
 
@@ -502,7 +512,7 @@ export class NNotepad {
         const dims = shape.value.map((expr) => expr.value);
         const ctor = WebNNUtil.dataTypeToBufferType(dataType.value);
         return `_.constant({dataType: "${dataType.value}", dimensions: ${
-          Util.stringify(dims)}}, shape: ${
+          Util.stringify(dims)}, shape: ${
           Util.stringify(dims)}}, new ${
           ctor.name}(await Util.loadBuffer(${Util.stringify(url.value)})))`;
       }
@@ -519,7 +529,7 @@ export class NNotepad {
         const ctor = WebNNUtil.dataTypeToBufferType(dataType.value);
         const len = dims.reduce((a, b) => a * b, 1);
         return `_.constant({dataType: "${dataType.value}", dimensions: ${
-          Util.stringify(dims)}}, shape: ${
+          Util.stringify(dims)}, shape: ${
           Util.stringify(dims)}}, new ${
           ctor.name}(${len}))`;
       }
@@ -538,7 +548,7 @@ export class NNotepad {
 
   // Call with the output of `makeBuilderFunc()`. Builds an MLContext and
   // MLGraphBuilder, executes the function to make an MLGraph, then runs
-  // compute() on it. The output is mapped.
+  // dispatch() on it. The output is mapped.
 
   static async execBuilderFunction(deviceType, builderFunc) {
     const context = await navigator.ml.createContext({deviceType});
@@ -563,13 +573,14 @@ export class NNotepad {
     }
 
     const namedOutputs = {};
+    const outputTensors = {};
     const outputBuffers = {};
-    outputOperands.forEach((op, index) => {
+    outputOperands.forEach(async (op, index) => {
       const name = `output-${index}`;
       namedOutputs[name] = op;
       outputBuffers[name] = WebNNUtil.bufferForOperand(op);
+      outputTensors[name] = await WebNNUtil.tensorForOperand(op, context);
     });
-
     let graph;
     try {
       graph = await builder.build(namedOutputs);
@@ -577,15 +588,20 @@ export class NNotepad {
       console.warn(ex);
       throw new BuildError(`${ex.name} : ${ex.message}`);
     }
-    const inputBuffers = {};
+    const inputTensors = {};
 
-    let result;
     try {
-      result = await context.compute(graph, inputBuffers, outputBuffers);
+      context.dispatch(graph, inputTensors, outputTensors);
     } catch (ex) {
       console.warn(ex);
-      throw new ComputeError(`${ex.name} : ${ex.message}`);
+      throw new DispatchError(`${ex.name} : ${ex.message}`);
     }
+
+    for (const name in outputBuffers) {
+      const buffer = await context.readTensor(outputTensors[name]);
+      const instance = new outputBuffers[name].constructor(buffer);
+      outputBuffers[name].set(instance);
+    };
 
     function maybeProxyForFloat16Array(array) {
       return ('proxyForFloat16Array' in self) ?
@@ -593,14 +609,12 @@ export class NNotepad {
           array;
     }
 
-    // window.result = result;
-    // console.log(result);
     return outputOperands.map(
         (op, index) => ({
           dataType: op.dataType(),
           dimensions: op.shape(),
           shape: op.shape(),
-          buffer: maybeProxyForFloat16Array(result.outputs[`output-${index}`]),
+          buffer: maybeProxyForFloat16Array(outputBuffers[`output-${index}`]),
         }));
   }
 

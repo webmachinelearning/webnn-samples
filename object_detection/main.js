@@ -27,7 +27,6 @@ let loadTime = 0;
 let buildTime = 0;
 let computeTime = 0;
 let inputOptions;
-let outputs;
 let deviceType = '';
 let lastdeviceType = '';
 let backend = '';
@@ -181,12 +180,11 @@ async function renderCamStream() {
   const inputCanvas = utils.getVideoFrame(camElement);
   console.log('- Computing... ');
   const start = performance.now();
-  const results = await netInstance.compute(inputBuffer, outputs);
-  outputs = results.outputs;
+  const results = await netInstance.compute(inputBuffer);
   computeTime = (performance.now() - start).toFixed(2);
   console.log(`  done in ${computeTime} ms.`);
   showPerfResult();
-  await drawOutput(inputCanvas, outputs, labels);
+  await drawOutput(inputCanvas, results, labels);
   $('#fps').text(`${(1000/computeTime).toFixed(0)} FPS`);
   isRendering = false;
   if (!stopRender) {
@@ -271,17 +269,7 @@ async function main() {
       netInstance = constructNetObject(instanceType);
       inputOptions = netInstance.inputOptions;
       labels = await fetchLabels(inputOptions.labelUrl);
-      if (modelName.includes('tinyyolov2')) {
-        outputs = {
-          'output': new Float32Array(
-              utils.sizeOfShape(netInstance.outputShape)),
-        };
-      } else {
-        outputs = {
-          'boxes': new Float32Array(utils.sizeOfShape([1, 1917, 1, 4])),
-          'scores': new Float32Array(utils.sizeOfShape([1, 1917, 91])),
-        };
-      }
+
       isFirstTimeLoad = false;
       console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
       // UI shows model loading progress
@@ -315,12 +303,11 @@ async function main() {
       let medianComputeTime;
 
       // Do warm up
-      let results = await netInstance.compute(inputBuffer, outputs);
+      let results = await netInstance.compute(inputBuffer);
 
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
-        results = await netInstance.compute(
-            results.inputs.input, results.outputs);
+        await netInstance.compute(inputBuffer);
         computeTime = (performance.now() - start).toFixed(2);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);
         computeTimeArray.push(Number(computeTime));
@@ -330,12 +317,11 @@ async function main() {
         medianComputeTime = medianComputeTime.toFixed(2);
         console.log(`  median compute time: ${medianComputeTime} ms`);
       }
-      outputs = results.outputs;
-      console.log('output: ', outputs);
+      console.log('output: ', results);
       await ui.showProgressComponent('done', 'done', 'done');
       $('#fps').hide();
       ui.readyShowResultComponents();
-      await drawOutput(imgElement, outputs, labels);
+      await drawOutput(imgElement, results, labels);
       showPerfResult(medianComputeTime);
     } else if (inputType === 'camera') {
       stream = await utils.getMediaStream();

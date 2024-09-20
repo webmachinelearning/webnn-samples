@@ -8,6 +8,8 @@ export class TinyYoloV2Nchw {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
+    this.inputTensor_ = null;
+    this.outputTensor_ = null;
     this.deviceType_ = null;
     this.targetDataType_ = dataType;
     this.weightsUrl_ = weightsOrigin() +
@@ -19,7 +21,7 @@ export class TinyYoloV2Nchw {
       anchors: [1.08, 1.19, 3.42, 4.41, 6.63, 11.38, 9.42, 5.11, 16.62, 10.52],
       inputShape: [1, 3, 416, 416],
     };
-    this.outputShape = [1, 125, 13, 13];
+    this.outputShape_ = [1, 13, 13, 125];
   }
 
   async buildConv_(input, name) {
@@ -61,11 +63,21 @@ export class TinyYoloV2Nchw {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.deviceType_ = contextOptions.deviceType;
     this.builder_ = new MLGraphBuilder(this.context_);
-    let image = this.builder_.input('input', {
+    const inputDesc = {
       dataType: 'float32',
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
+    };
+    let image = this.builder_.input('input', inputDesc);
+    inputDesc.usage = MLTensorUsage.WRITE;
+    this.inputTensor_ = await this.context_.createTensor(inputDesc);
+    this.outputTensor_ = await this.context_.createTensor({
+      dataType: 'float32',
+      dimensions: this.outputShape_,
+      shape: this.outputShape_,
+      usage: MLTensorUsage.READ,
     });
+
     let mulScale = this.builder_.constant(
         {dataType: 'float32', dimensions: [1], shape: [1]},
         new Float32Array([0.003921568859368563]),
@@ -115,9 +127,12 @@ export class TinyYoloV2Nchw {
     }
   }
 
-  async compute(inputBuffer, outputs) {
-    const inputs = {'input': inputBuffer};
-    const results = await this.context_.compute(this.graph_, inputs, outputs);
-    return results;
+  async compute(inputBuffer) {
+    this.context_.writeTensor(this.inputTensor_, inputBuffer);
+    const inputs = {'input': this.inputTensor_};
+    const outputs = {'output': this.outputTensor_};
+    this.context_.dispatch(this.graph_, inputs, outputs);
+    const results = await this.context_.readTensor(this.outputTensor_);
+    return {'output': new Float32Array(results)};
   }
 }

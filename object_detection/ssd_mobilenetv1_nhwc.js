@@ -10,6 +10,11 @@ export class SsdMobilenetV1Nhwc {
     this.model_ = null;
     this.builder_ = null;
     this.graph_ = null;
+    this.inputTensor_ = null;
+    this.boxesTensor_ = null;
+    this.scoresTensor_ = null;
+    this.boxesShape_ = [1, 1917, 1, 4];
+    this.scoresShape_ = [1, 1917, 91];
     this.weightsUrl_ = weightsOrigin() +
       '/test-data/models/ssd_mobilenetv1_nhwc/weights';
     this.inputOptions = {
@@ -85,11 +90,27 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.deviceType_ = contextOptions.deviceType;
     this.builder_ = new MLGraphBuilder(this.context_);
-    const input = this.builder_.input('input', {
+    const inputDesc = {
       dataType: 'float32',
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
+    };
+    const input = this.builder_.input('input', inputDesc);
+    inputDesc.usage = MLTensorUsage.WRITE;
+    this.inputTensor_ = await this.context_.createTensor(inputDesc);
+    this.boxesTensor_ = await this.context_.createTensor({
+      dataType: 'float32',
+      dimensions: this.boxesShape_,
+      shape: this.boxesShape_,
+      usage: MLTensorUsage.READ,
     });
+    this.scoresTensor_ = await this.context_.createTensor({
+      dataType: 'float32',
+      dimensions: this.scoresShape_,
+      shape: this.scoresShape_,
+      usage: MLTensorUsage.READ,
+    });
+
     const strides = [2, 2];
     const conv0 = await this.buildConv_(
         input, ['', '0', '', '165__cf__168'], true, {strides});
@@ -246,9 +267,18 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     }
   }
 
-  async compute(inputBuffer, outputs) {
-    const inputs = {'input': inputBuffer};
-    const results = await this.context_.compute(this.graph_, inputs, outputs);
+  async compute(inputBuffer) {
+    this.context_.writeTensor(this.inputTensor_, inputBuffer);
+    const inputs = {'input': this.inputTensor_};
+    const outputs = {
+      'boxes': this.boxesTensor_,
+      'scores': this.scoresTensor_,
+    };
+    this.context_.dispatch(this.graph_, inputs, outputs);
+    const results = {
+      'boxes': new Float32Array(await this.context_.readTensor(this.boxesTensor_)),
+      'scores': new Float32Array(await this.context_.readTensor(this.scoresTensor_)),
+    };
     return results;
   }
 }
