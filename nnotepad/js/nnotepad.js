@@ -476,7 +476,7 @@ export class NNotepad {
       }(tensor, 0));
       const ctor = WebNNUtil.dataTypeToBufferType(dataType);
       return `_.constant({dataType: "${dataType}", dimensions: ${
-        Util.stringify(shape)}}, shape: ${
+        Util.stringify(shape)}, shape: ${
         Util.stringify(shape)}}, new ${ctor.name}([${
         elements.map((n) => Util.stringifyNumber(n, dataType)).join(',')}]))`;
     }
