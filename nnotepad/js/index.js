@@ -130,7 +130,6 @@ function explain(outputs) {
       .map((output) =>
         [
           'dataType: ' + output.dataType,
-          'dimensions: ' + Util.stringify(output.shape),
           'shape: ' + Util.stringify(output.shape),
           'tensor: ' + dumpTensor(output.shape, output.buffer, 8),
         ].join('\n'),
