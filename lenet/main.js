@@ -1,5 +1,4 @@
 'use strict';
-
 import * as utils from '../common/utils.js';
 import {LeNet} from './lenet.js';
 import {Pen} from './pen.js';
@@ -20,6 +19,13 @@ const digitContext = digitCanvas.getContext('2d');
 const pen = new Pen(visualCanvas);
 let lenet;
 let numRuns;
+
+$(document).ready(async () => {
+  if (!await utils.isWebNN()) {
+    console.log(utils.webNNNotSupportMessage());
+    addAlert(utils.webNNNotSupportMessageHTML());
+  }
+});
 
 function clearInferenceResult() {
   inferenceTimeElement.innerHTML = '';
@@ -69,7 +75,7 @@ async function main() {
   clearInferenceResult();
   const [backend, deviceType] =
       $('input[name="backend"]:checked').attr('id').split('_');
-  await utils.setBackend(backend, deviceType);
+  console.log(`${backend} ${deviceType}`);
   drawNextDigitFromMnist();
   const weightUrl = utils.weightsOrigin() +
     '/test-data/models/lenet_nchw/weights/lenet.bin';

@@ -599,13 +599,6 @@ $(document).ready(async () => {
   $("#footer").html(footer());
   if (await isWebNN()) {
     if ($("#backendBtns")) {
-      $('label[name="polyfill"]').addClass("disabled");
-      $('label[name="polyfill"]').addClass("btn-outline-secondary");
-      $('label[name="polyfill"]').removeClass("btn-outline-info");
-      $('label[name="polyfill"]').attr(
-        "title",
-        "WebNN is supported, disable WebNN Polyfill."
-      );
       // Disable WebNN NPU backend if failed to find a capable NPU adapter.
       try {
         await navigator.ml.createContext({deviceType: 'npu'});

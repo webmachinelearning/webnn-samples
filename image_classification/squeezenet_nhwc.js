@@ -97,14 +97,6 @@ export class SqueezeNetNhwc {
     this.graph_ = await this.builder_.build({'output': outputOperand});
   }
 
-  // Release the constant tensors of a model
-  dispose() {
-    // dispose() is only available in webnn-polyfill
-    if (this.graph_ !== null && 'dispose' in this.graph_) {
-      this.graph_.dispose();
-    }
-  }
-
   async compute(inputBuffer) {
     this.context_.writeTensor(this.inputTensor_, inputBuffer);
     const inputs = {'input': this.inputTensor_};

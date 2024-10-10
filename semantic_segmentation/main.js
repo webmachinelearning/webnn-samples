@@ -38,7 +38,8 @@ $(document).ready(async () => {
   if (await utils.isWebNN()) {
     $('#webnn_cpu').click();
   } else {
-    $('#polyfill_cpu').click();
+    console.log(utils.webNNNotSupportMessage());
+    ui.addAlert(utils.webNNNotSupportMessageHTML());
   }
 });
 
@@ -338,14 +339,9 @@ export async function main() {
         lastdeviceType != deviceType || lastBackend != backend) {
       if (lastdeviceType != deviceType || lastBackend != backend) {
         // Set backend and device
-        await utils.setBackend(backend, deviceType);
         lastdeviceType = lastdeviceType != deviceType ?
                               deviceType : lastdeviceType;
         lastBackend = lastBackend != backend ? backend : lastBackend;
-      }
-      if (netInstance !== null) {
-        // Call dispose() to and avoid memory leak
-        netInstance.dispose();
       }
       instanceType = modelName + layout;
       netInstance = constructNetObject(instanceType);

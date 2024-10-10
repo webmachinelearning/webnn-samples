@@ -30,6 +30,14 @@ const disabledSelectors = [
   '.btn',
 ];
 
+$(document).ready(async () => {
+  $('.icdisplay').hide();
+  if (!await utils.isWebNN()) {
+    console.log(utils.webNNNotSupportMessage());
+    ui.addAlert(utils.webNNNotSupportMessageHTML());
+  }
+});
+
 $(document).ready(() => {
   $('.icdisplay').hide();
   $('.badge').html(modelId);
@@ -197,14 +205,9 @@ export async function main() {
       lastdeviceType != deviceType || lastBackend != backend) {
       if (lastdeviceType != deviceType || lastBackend != backend) {
         // Set backend and device
-        await utils.setBackend(backend, deviceType);
         lastdeviceType = lastdeviceType != deviceType ?
                                 deviceType : lastdeviceType;
         lastBackend = lastBackend != backend ? backend : lastBackend;
-      }
-      if (fastStyleTransferNet !== undefined) {
-        // Call dispose() to and avoid memory leak
-        fastStyleTransferNet.dispose();
       }
       fastStyleTransferNet = new FastStyleTransferNet();
       isFirstTimeLoad = false;
