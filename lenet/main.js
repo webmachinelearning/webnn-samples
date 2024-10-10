@@ -75,6 +75,7 @@ async function main() {
   clearInferenceResult();
   const [backend, deviceType] =
       $('input[name="backend"]:checked').attr('id').split('_');
+  console.log(`${backend} ${deviceType}`);
   drawNextDigitFromMnist();
   const weightUrl = utils.weightsOrigin() +
     '/test-data/models/lenet_nchw/weights/lenet.bin';

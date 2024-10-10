@@ -155,6 +155,7 @@ export async function main() {
   try {
     const [backend, deviceType] =
         $('input[name="backend"]:checked').attr('id').split('_');
+    console.log(`${backend} ${deviceType}`);
     // Handle frames parameter.
     const searchParams = new URLSearchParams(location.search);
     let frames = parseInt(searchParams.get('frames'));

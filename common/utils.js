@@ -304,21 +304,6 @@ export function getUrlParams() {
   return [numRuns, powerPreference, numThreads];
 }
 
-// Promise to load script with url and id
-async function loadScript(url, id) {
-  return new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.onload = resolve;
-    script.onerror = reject;
-    script.src = url;
-    script.id = id;
-    if (url.startsWith('http')) {
-      script.crossOrigin = 'anonymous';
-    }
-    document.body.appendChild(script);
-  });
-}
-
 export async function isWebNN() {
   if (typeof MLGraphBuilder !== 'undefined') {
     const context = await navigator.ml.createContext();
@@ -329,11 +314,11 @@ export async function isWebNN() {
 }
 
 export function webNNNotSupportMessage() {
-  return 'Your browser does not support WebNN.'
+  return 'Your browser does not support WebNN.';
 }
 
 export function webNNNotSupportMessageHTML() {
-  return 'Your browser does not support WebNN. Please refer to <a href="https://github.com/webmachinelearning/webnn-samples/#webnn-installation-guides">WebNN Installation Guides</a> for more details.'
+  return 'Your browser does not support WebNN. Please refer to <a href="https://github.com/webmachinelearning/webnn-samples/#webnn-installation-guides">WebNN Installation Guides</a> for more details.';
 }
 
 // Derive from

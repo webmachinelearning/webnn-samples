@@ -207,6 +207,7 @@ export async function main() {
   try {
     const [backend, deviceType] =
         $('input[name="backend"]:checked').attr('id').split('_');
+    console.log(`${backend} ${deviceType}`);
     modelInfo.innerHTML = '';
     await log(modelInfo, `Creating RNNoise with input shape ` +
       `[${batchSize} (batch_size) x 100 (frames) x 42].`, true);
@@ -221,7 +222,6 @@ export async function main() {
       contextOptions['numThreads'] = numThreads;
     }
     let start = performance.now();
-    console.log(contextOptions)
     const outputOperand = await rnnoise.load(contextOptions);
     const loadingTime = (performance.now() - start).toFixed(2);
     console.log(`loading elapsed time: ${loadingTime} ms`);
