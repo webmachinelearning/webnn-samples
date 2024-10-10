@@ -19,7 +19,6 @@ let stream = null;
 let loadTime = 0;
 let buildTime = 0;
 let computeTime = 0;
-let outputBuffer;
 let deviceType = '';
 let lastdeviceType = '';
 let backend = '';
@@ -113,15 +112,14 @@ async function renderCamStream() {
   const inputCanvas = utils.getVideoFrame(camElement);
   console.log('- Computing... ');
   const start = performance.now();
-  const results = await fastStyleTransferNet.compute(inputBuffer, outputBuffer);
+  const outputBuffer = await fastStyleTransferNet.compute(inputBuffer);
   computeTime = (performance.now() - start).toFixed(2);
   console.log(`  done in ${computeTime} ms.`);
-  outputBuffer = results.outputs.output;
   camElement.width = camElement.videoWidth;
   camElement.height = camElement.videoHeight;
   drawInput(inputCanvas, 'camInCanvas');
   showPerfResult();
-  drawOutput('camInCanvas', 'camOutCanvas');
+  drawOutput('camInCanvas', 'camOutCanvas', outputBuffer);
   $('#fps').text(`${(1000/computeTime).toFixed(0)} FPS`);
   rafReq = requestAnimationFrame(renderCamStream);
 }
@@ -138,7 +136,7 @@ function drawInput(srcElement, canvasId) {
   ctx.drawImage(srcElement, 0, 0, scaledWidth, scaledHeight);
 }
 
-function drawOutput(inCanvasId, outCanvasId) {
+function drawOutput(inCanvasId, outCanvasId, outputBuffer) {
   const outputSize = fastStyleTransferNet.outputShape;
   const height = outputSize[2];
   const width = outputSize[3];
@@ -209,8 +207,6 @@ export async function main() {
         fastStyleTransferNet.dispose();
       }
       fastStyleTransferNet = new FastStyleTransferNet();
-      outputBuffer = new Float32Array(
-          utils.sizeOfShape(fastStyleTransferNet.outputShape));
       isFirstTimeLoad = false;
       isModelChanged = false;
       console.log(`- Model ID: ${modelId} -`);
@@ -247,13 +243,11 @@ export async function main() {
       let medianComputeTime;
 
       // Do warm up
-      let results = await fastStyleTransferNet.compute(
-          inputBuffer, outputBuffer);
+      const outputBuffer = await fastStyleTransferNet.compute(inputBuffer);
 
       for (let i = 0; i < numRuns; i++) {
         start = performance.now();
-        results = await fastStyleTransferNet.compute(
-            results.inputs.input, results.outputs.output);
+        await fastStyleTransferNet.compute(inputBuffer);
         computeTime = (performance.now() - start).toFixed(2);
         console.log(`  compute time ${i+1}: ${computeTime} ms`);
         computeTimeArray.push(Number(computeTime));
@@ -263,11 +257,11 @@ export async function main() {
         medianComputeTime = medianComputeTime.toFixed(2);
         console.log(`  median compute time: ${medianComputeTime} ms`);
       }
-      outputBuffer = results.outputs.output;
+
       await ui.showProgressComponent('done', 'done', 'done');
       ui.readyShowResultComponents();
       drawInput(imgElement, 'inputCanvas');
-      drawOutput('inputCanvas', 'outputCanvas');
+      drawOutput('inputCanvas', 'outputCanvas', outputBuffer);
       showPerfResult(medianComputeTime);
     } else if (inputType === 'camera') {
       stream = await utils.getMediaStream();

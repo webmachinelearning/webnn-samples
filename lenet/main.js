@@ -116,15 +116,13 @@ predictButton.addEventListener('click', async function(e) {
     let inferenceTime;
     const inferenceTimeArray = [];
     const input = getInputFromCanvas();
-    let outputBuffer = new Float32Array(utils.sizeOfShape([1, 10]));
 
     // Do warm up
-    let results = await lenet.compute(input, outputBuffer);
+    const results = await lenet.compute(input);
 
     for (let i = 0; i < numRuns; i++) {
       start = performance.now();
-      results = await lenet.compute(
-          results.inputs.input, results.outputs.output);
+      await lenet.compute(input);
       inferenceTime = performance.now() - start;
       console.log(`execution elapsed time: ${inferenceTime.toFixed(2)} ms`);
       inferenceTimeArray.push(inferenceTime);
@@ -142,8 +140,7 @@ predictButton.addEventListener('click', async function(e) {
           `${medianInferenceTime.toFixed(2)}</span> ms`;
     }
 
-    outputBuffer = results.outputs.output;
-    const classes = topK(Array.from(outputBuffer));
+    const classes = topK(Array.from(results));
     classes.forEach((c, i) => {
       console.log(`\tlabel: ${c.label}, probability: ${c.prob}%`);
       const labelElement = document.getElementById(`label${i}`);

@@ -50,15 +50,26 @@ const graph = await builder.build({'output': output});
 // Setup the input buffers with value 1.
 const inputBuffer1 = new Float32Array(TENSOR_SIZE).fill(1);
 const inputBuffer2 = new Float32Array(TENSOR_SIZE).fill(1);
-const outputBuffer = new Float32Array(TENSOR_SIZE);
+
+desc.usage = MLTensorUsage.WRITE;
+const inputTensor1 = await context.createTensor(desc);
+const inputTensor2 = await context.createTensor(desc);
+context.writeTensor(inputTensor1, inputBuffer1);
+context.writeTensor(inputTensor2, inputBuffer2);
+
+const outputTensor = await context.createTensor({
+  ...desc,
+  usage: MLTensorUsage.READ,
+});
 
 // Execute the compiled graph with the specified inputs.
 const inputs = {
-  'input1': inputBuffer1,
-  'input2': inputBuffer2,
+  'input1': inputTensor1,
+  'input2': inputTensor2,
 };
-const outputs = {'output': outputBuffer};
-const results = await context.compute(graph, inputs, outputs);
+const outputs = {'output': outputTensor};
+context.dispatch(graph, inputs, outputs);
 
-console.log('Output value: ' + results.outputs.output);
+const results = await context.readTensor(outputTensor);
+console.log('Output value: ' + new Float32Array(results));
 // Output value: 2.25,2.25,2.25,2.25,2.25,2.25,2.25,2.25

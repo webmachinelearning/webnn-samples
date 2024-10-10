@@ -9,6 +9,8 @@ export class MobileNetV2Nchw {
     this.deviceType_ = null;
     this.builder_ = null;
     this.graph_ = null;
+    this.inputTensor_ = null;
+    this.outputTensor_ = null;
     this.dataType_ = dataType;
     this.weightsUrl_ = weightsOrigin();
     if (this.dataType_ === 'float32') {
@@ -27,7 +29,7 @@ export class MobileNetV2Nchw {
       labelUrl: './labels/labels1000.txt',
       inputShape: [1, 3, 224, 224],
     };
-    this.outputShape = [1, 1000];
+    this.outputShape_ = [1, 1000];
   }
 
   async buildConv_(input, name, relu6 = true, options = {}) {
@@ -89,10 +91,19 @@ export class MobileNetV2Nchw {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.deviceType_ = contextOptions.deviceType;
     this.builder_ = new MLGraphBuilder(this.context_);
-    let data = this.builder_.input('input', {
+    const inputDesc = {
       dataType: 'float32',
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
+    };
+    let data = this.builder_.input('input', inputDesc);
+    inputDesc.usage = MLTensorUsage.WRITE;
+    this.inputTensor_ = await this.context_.createTensor(inputDesc);
+    this.outputTensor_ = await this.context_.createTensor({
+      dataType: 'float32',
+      dimensions: this.outputShape_,
+      shape: this.outputShape_,
+      usage: MLTensorUsage.READ,
     });
     if (this.dataType_ === 'float16') {
       data = this.builder_.cast(data, 'float16');
@@ -163,10 +174,12 @@ export class MobileNetV2Nchw {
     }
   }
 
-  async compute(inputBuffer, outputBuffer) {
-    const inputs = {'input': inputBuffer};
-    const outputs = {'output': outputBuffer};
-    const results = await this.context_.compute(this.graph_, inputs, outputs);
-    return results;
+  async compute(inputBuffer) {
+    this.context_.writeTensor(this.inputTensor_, inputBuffer);
+    const inputs = {'input': this.inputTensor_};
+    const outputs = {'output': this.outputTensor_};
+    this.context_.dispatch(this.graph_, inputs, outputs);
+    const results = await this.context_.readTensor(this.outputTensor_);
+    return new Float32Array(results);
   }
 }
