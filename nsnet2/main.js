@@ -16,7 +16,6 @@ const chooseAudio = document.getElementById('choose-audio');
 const audioName = document.getElementById('audio-name');
 
 $(document).ready(async () => {
-  $('.icdisplay').hide();
   if (await isWebNN()) {
     $('#webnn_cpu').click();
   } else {

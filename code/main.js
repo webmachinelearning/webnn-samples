@@ -7,7 +7,6 @@ window.sizeOfShape = utils.sizeOfShape;
 export async function main() {
   // Set backend
   if (!await utils.isWebNN()) {
-    $('.icdisplay').hide();
     console.log(utils.webNNNotSupportMessage());
     addAlert(utils.webNNNotSupportMessageHTML());
   }
