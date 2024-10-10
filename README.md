@@ -95,7 +95,6 @@ We welcome contributions from the community to make webnn-samples even better! I
 ### WebNN Resources
 To learn more about Web Neural Network API (WebNN) and its capabilities, check out the following resources:
 * [Web Neural Network API Specification](https://webmachinelearning.github.io/webnn/)
-* [WebNN Polyfill](https://github.com/webmachinelearning/webnn-polyfill)
 * [WebNN Community Group](https://webmachinelearning.github.io/)
 
 ### WebNN API Samples

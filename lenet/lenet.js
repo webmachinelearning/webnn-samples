@@ -176,7 +176,9 @@ export class LeNet {
   }
 
   async build(outputOperand) {
-    this.graph_ = await this.builder_.build({'output': outputOperand});
+    if(this.builder_) {
+      this.graph_ = await this.builder_.build({'output': outputOperand});
+    }
   }
 
   async compute(inputBuffer) {

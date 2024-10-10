@@ -269,48 +269,6 @@ export function getMedianValue(array) {
       (array[array.length / 2 - 1] + array[array.length / 2]) / 2;
 }
 
-// Set tf.js backend based WebNN's 'MLDeviceType' option
-export async function setPolyfillBackend(device) {
-  // Simulate WebNN's device selection using various tf.js backends.
-  // MLDeviceType: ['default', 'gpu', 'cpu']
-  // 'default' or 'gpu': tfjs-backend-webgl, 'cpu': tfjs-backend-wasm
-  if (!device) device = 'gpu';
-  // Use 'webgl' by default for better performance.
-  // Note: 'wasm' backend may run failed on some samples since
-  // some ops aren't supported on 'wasm' backend at present
-  const backend = device === 'cpu' ? 'wasm' : 'webgl';
-  const context = await navigator.ml.createContext();
-  const tf = context.tf;
-  if (tf) {
-    if (backend == 'wasm') {
-      const wasm = context.wasm;
-      // Force to use Wasm SIMD only
-      wasm.setWasmPath(`https://unpkg.com/@tensorflow/tfjs-backend-wasm@${tf.version_core}/dist/tfjs-backend-wasm-simd.wasm`);
-    }
-    if (!(await tf.setBackend(backend))) {
-      throw new Error(`Failed to set tf.js backend ${backend}.`);
-    }
-    await tf.ready();
-    let backendInfo = backend == 'wasm' ? 'WASM' : 'WebGL';
-    if (backendInfo == 'WASM') {
-      const hasSimd = tf.env().features['WASM_HAS_SIMD_SUPPORT'];
-      const hasThreads = tf.env().features['WASM_HAS_MULTITHREAD_SUPPORT'];
-      if (hasThreads && hasSimd) {
-        backendInfo += ' (SIMD + threads)';
-      } else if (hasThreads && !hasSimd) {
-        backendInfo += ' (threads)';
-      } else if (!hasThreads && hasSimd) {
-        backendInfo += ' (SIMD)';
-      }
-    }
-    addAlert(
-        `This sample is running on ` +
-        `<a href='https://github.com/webmachinelearning/webnn-polyfill'>` +
-        `WebNN-polyfill</a> with tf.js ${tf.version_core} ` +
-        `<b>${backendInfo}</b> backend.`, 'info');
-  }
-}
-
 // Get url params
 export function getUrlParams() {
   const params = new URLSearchParams(location.search);
@@ -346,44 +304,6 @@ export function getUrlParams() {
   return [numRuns, powerPreference, numThreads];
 }
 
-// Set backend for using WebNN-polyfill or WebNN
-export async function setBackend(backend, device) {
-  const webnnPolyfillId = 'webnn_polyfill';
-  const webnnNodeId = 'webnn_node';
-  const webnnPolyfillElem = document.getElementById(webnnPolyfillId);
-  const webnnNodeElem = document.getElementById(webnnNodeId);
-
-  if (backend === 'polyfill') {
-    if (webnnNodeElem) {
-      document.body.removeChild(webnnNodeElem);
-      // Unset global objects defined in node_setup.js
-      global.navigator.ml = undefined;
-      global.MLContext = undefined;
-      global.MLGraphBuilder = undefined;
-      global.MLGraph = undefined;
-      global.MLOperand = undefined;
-    }
-    if (!webnnPolyfillElem) {
-      const webnnPolyfillUrl =
-          'https://webmachinelearning.github.io/webnn-polyfill/dist/webnn-polyfill.js';
-      if (typeof(tf) != 'undefined') {
-        // Reset tf.ENV to avoid environments from tf.min.js
-        // affect webnn-polyfill.js
-        tf.engine().reset();
-      }
-      // Create WebNN-polyfill script
-      await loadScript(webnnPolyfillUrl, webnnPolyfillId);
-    }
-    await setPolyfillBackend(device);
-  } else if (backend === 'webnn') {
-    if (!await isWebNN()) {
-      addAlert(`WebNN is not supported!`, 'warning');
-    }
-  } else {
-    addAlert(`Unknow backend: ${backend}`, 'warning');
-  }
-}
-
 // Promise to load script with url and id
 async function loadScript(url, id) {
   return new Promise((resolve, reject) => {
@@ -406,6 +326,14 @@ export async function isWebNN() {
   } else {
     return false;
   }
+}
+
+export function webNNNotSupportMessage() {
+  return 'Your browser does not support WebNN.'
+}
+
+export function webNNNotSupportMessageHTML() {
+  return 'Your browser does not support WebNN. Please refer to <a href="https://github.com/webmachinelearning/webnn-samples/#webnn-installation-guides">WebNN Installation Guides</a> for more details.'
 }
 
 // Derive from

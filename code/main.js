@@ -1,14 +1,15 @@
 import {samplesRepo} from './samples_repo.js';
 import * as utils from '../common/utils.js';
+import {addAlert} from '../common/ui.js';
 
 window.sizeOfShape = utils.sizeOfShape;
 
 export async function main() {
   // Set backend
-  if (await utils.isWebNN()) {
-    await utils.setBackend('webnn', 'cpu');
-  } else {
-    await utils.setBackend('polyfill', 'cpu');
+  if (!await utils.isWebNN()) {
+    $('.icdisplay').hide();
+    console.log(utils.webNNNotSupportMessage());
+    addAlert(utils.webNNNotSupportMessageHTML());
   }
   const selectElement = document.getElementById('example-select');
   for (const name of samplesRepo.names()) {
