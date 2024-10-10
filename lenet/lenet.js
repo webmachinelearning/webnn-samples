@@ -10,6 +10,9 @@ export class LeNet {
     this.graph_ = null;
     this.builder_ = null;
     this.layout_ = layout;
+    this.inputTensor_ = null;
+    this.outputTensor_ = null;
+    this.outputShape_ = [1, 10];
     this.nchwToNhwcPermutation_ = [0, 2, 3, 1];
     this.nhwcToNchwPermutation_ = [0, 3, 1, 2];
     this.oihwToOhwiPermutation_ = [0, 2, 3, 1];
@@ -25,12 +28,20 @@ export class LeNet {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(this.context_);
     const inputShape = /* nchw */ [1, 1, 28, 28];
-    let input = this.builder_.input('input', {
+    const inputDesc = {
       dataType: 'float32',
       dimensions: inputShape,
       shape: inputShape,
+    };
+    let input = this.builder_.input('input', inputDesc);
+    inputDesc.usage = MLTensorUsage.WRITE;
+    this.inputTensor_ = await this.context_.createTensor(inputDesc);
+    this.outputTensor_ = await this.context_.createTensor({
+      dataType: 'float32',
+      dimensions: this.outputShape_,
+      shape: this.outputShape_,
+      usage: MLTensorUsage.READ,
     });
-
     if (this.layout_ === 'nhwc') {
       input = this.builder_.transpose(
           input, {permutation: this.nchwToNhwcPermutation_});
@@ -168,10 +179,12 @@ export class LeNet {
     this.graph_ = await this.builder_.build({'output': outputOperand});
   }
 
-  async compute(inputBuffer, outputBuffer) {
-    const inputs = {'input': inputBuffer};
-    const outputs = {'output': outputBuffer};
-    const results = await this.context_.compute(this.graph_, inputs, outputs);
-    return results;
+  async compute(inputBuffer) {
+    this.context_.writeTensor(this.inputTensor_, inputBuffer);
+    const inputs = {'input': this.inputTensor_};
+    const outputs = {'output': this.outputTensor_};
+    this.context_.dispatch(this.graph_, inputs, outputs);
+    const results = await this.context_.readTensor(this.outputTensor_);
+    return new Float32Array(results);
   }
 }

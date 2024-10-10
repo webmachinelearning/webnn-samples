@@ -10,6 +10,8 @@ export class FastStyleTransferNet {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
+    this.inputTensor_ = null;
+    this.outputTensor_ = null;
     this.constPow_ = null;
     this.constAdd_ = null;
     this.weightsUrl_ = weightsOrigin() +
@@ -112,11 +114,21 @@ export class FastStyleTransferNet {
         new Float32Array([127.5]),
     );
     // Build up the network.
-    const input = this.builder_.input('input', {
+    const inputDesc = {
       dataType: 'float32',
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
+    };
+    const input = this.builder_.input('input', inputDesc);
+    inputDesc.usage = MLTensorUsage.WRITE;
+    this.inputTensor_ = await this.context_.createTensor(inputDesc);
+    this.outputTensor_ = await this.context_.createTensor({
+      dataType: 'float32',
+      dimensions: this.outputShape,
+      shape: this.outputShape,
+      usage: MLTensorUsage.READ,
     });
+
     const conv2D0 = this.builder_.conv2d(this.builder_.pad(input, padding4, padding4, {mode: 'reflection'}), weightConv0);
 
     const add0 = this.buildInstanceNormalization_(conv2D0, variableMul0, variableAdd0);
@@ -199,10 +211,12 @@ export class FastStyleTransferNet {
     }
   }
 
-  async compute(inputBuffer, outputBuffer) {
-    const inputs = {'input': inputBuffer};
-    const outputs = {'output': outputBuffer};
-    const results = await this.context_.compute(this.graph_, inputs, outputs);
-    return results;
+  async compute(inputBuffer) {
+    this.context_.writeTensor(this.inputTensor_, inputBuffer);
+    const inputs = {'input': this.inputTensor_};
+    const outputs = {'output': this.outputTensor_};
+    this.context_.dispatch(this.graph_, inputs, outputs);
+    const results = await this.context_.readTensor(this.outputTensor_);
+    return new Float32Array(results);
   }
 }

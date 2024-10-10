@@ -9,6 +9,8 @@ export class SsdMobilenetV2FaceNchw {
     this.deviceType_ = null;
     this.builder_ = null;
     this.graph_ = null;
+    this.inputTensor_ = null;
+    this.outputTensors_ = {};
     this.weightsUrl_ = weightsOrigin() +
     '/test-data/models/ssd_mobilenetv2_face_nchw/weights/';
     this.inputOptions = {
@@ -113,11 +115,22 @@ ${nameArray[1]}`;
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.deviceType_ = contextOptions.deviceType;
     this.builder_ = new MLGraphBuilder(this.context_);
-    const input = this.builder_.input('input', {
+    const inputDesc = {
       dataType: 'float32',
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
-    });
+    };
+    const input = this.builder_.input('input', inputDesc);
+    inputDesc.usage = MLTensorUsage.WRITE;
+    this.inputTensor_ = await this.context_.createTensor(inputDesc);
+    for (const [key, value] of Object.entries(this.outputsInfo)) {
+      this.outputTensors_[key] = await this.context_.createTensor({
+        dataType: 'float32',
+        dimensions: value,
+        shape: value,
+        usage: MLTensorUsage.READ,
+      });
+    }
 
     const bottleneck0 = this.buildLinearBottleneck_(
         input, '0', false, 32, 'convRelu6');
@@ -238,9 +251,14 @@ ${nameArray[1]}`;
     }
   }
 
-  async compute(inputBuffer, outputs) {
-    const inputs = {'input': inputBuffer};
-    const results = await this.context_.compute(this.graph_, inputs, outputs);
+  async compute(inputBuffer) {
+    this.context_.writeTensor(this.inputTensor_, inputBuffer);
+    const inputs = {'input': this.inputTensor_};
+    this.context_.dispatch(this.graph_, inputs, this.outputTensors_);
+    const results = {};
+    for (const [key, value] of Object.entries(this.outputTensors_)) {
+      results[key] = new Float32Array(await this.context_.readTensor(value));
+    }
     return results;
   }
 }

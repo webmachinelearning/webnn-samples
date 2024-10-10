@@ -12,6 +12,8 @@ export class FaceNetNhwc {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
+    this.inputTensor_ = null;
+    this.outputTensor_ = null;
     this.weightsUrl_ = weightsOrigin() +
       '/test-data/models/facenet_nhwc/weights';
     this.inputOptions = {
@@ -25,6 +27,7 @@ export class FaceNetNhwc {
       distanceMetric: 'euclidean',
       threshold: 1.26,
     };
+    this.outputShape_ = [1, 512];
   }
 
   async buildConv_(input, namePrefix, options = undefined, relu = true) {
@@ -139,10 +142,19 @@ export class FaceNetNhwc {
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(this.context_);
-    const input = this.builder_.input('input', {
+    const inputDesc = {
       dataType: 'float32',
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
+    };
+    const input = this.builder_.input('input', inputDesc);
+    inputDesc.usage = MLTensorUsage.WRITE;
+    this.inputTensor_ = await this.context_.createTensor(inputDesc);
+    this.outputTensor_ = await this.context_.createTensor({
+      dataType: 'float32',
+      dimensions: this.outputShape_,
+      shape: this.outputShape_,
+      usage: MLTensorUsage.READ,
     });
 
     const poolOptions = {windowDimensions: [3, 3], strides, layout: 'nhwc'};
@@ -241,9 +253,12 @@ export class FaceNetNhwc {
     }
   }
 
-  async compute(inputBuffer, outputs) {
-    const inputs = {'input': inputBuffer};
-    const results = await this.context_.compute(this.graph_, inputs, outputs);
-    return results;
+  async compute(inputBuffer) {
+    this.context_.writeTensor(this.inputTensor_, inputBuffer);
+    const inputs = {'input': this.inputTensor_};
+    const outputs = {'output': this.outputTensor_};
+    this.context_.dispatch(this.graph_, inputs, outputs);
+    const results = await this.context_.readTensor(this.outputTensor_);
+    return new Float32Array(results);
   }
 }
