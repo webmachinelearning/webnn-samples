@@ -4,7 +4,6 @@
 
 * Style to match rest of webnn-samples.
 * Improve default text.
-* Consider incorporating [WebNN Polyfill](https://github.com/webmachinelearning/webnn-polyfill).
 * Add to `../README.md` once we're happy with it.
 
 ## WebNN Support

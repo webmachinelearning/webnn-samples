@@ -1,7 +1,7 @@
 'use strict';
 
 import {Denoiser} from './denoiser.js';
-import {setBackend} from '../common/utils.js';
+import {isWebNN, webNNNotSupportMessage, webNNNotSupportMessageHTML} from '../common/utils.js';
 import {addAlert} from '../common/ui.js';
 
 const sampleRate = 16000;
@@ -14,6 +14,15 @@ let denoisedAudioData = [];
 
 const chooseAudio = document.getElementById('choose-audio');
 const audioName = document.getElementById('audio-name');
+
+$(document).ready(async () => {
+  if (await isWebNN()) {
+    $('#webnn_cpu').click();
+  } else {
+    console.log(webNNNotSupportMessage());
+    addAlert(webNNNotSupportMessageHTML());
+  }
+});
 
 $('#backendBtns .btn').on('change', async () => {
   await main();
@@ -146,7 +155,7 @@ export async function main() {
   try {
     const [backend, deviceType] =
         $('input[name="backend"]:checked').attr('id').split('_');
-    await setBackend(backend, deviceType);
+    console.log(`${backend} ${deviceType}`);
     // Handle frames parameter.
     const searchParams = new URLSearchParams(location.search);
     let frames = parseInt(searchParams.get('frames'));
