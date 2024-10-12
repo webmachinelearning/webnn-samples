@@ -102,6 +102,7 @@ $('#backendBtns .btn').on('change', async (e) => {
   if (backendId == 'webnn_gpu') {
     ui.handleBtnUI('#float16Label', false);
     ui.handleBtnUI('#float32Label', false);
+    $('#float32').click();
     utils.displayAvailableModels(modelList, modelIds, deviceType, dataType);
   } else if (backendId == 'webnn_npu') {
     ui.handleBtnUI('#float16Label', false);
