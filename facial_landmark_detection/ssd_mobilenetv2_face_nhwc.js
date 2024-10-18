@@ -134,6 +134,7 @@ ${nameArray[1]}`;
     };
     const input = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
+    inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
     for (const [key, value] of Object.entries(this.outputsInfo)) {
       this.outputTensors_[key] = await this.context_.createTensor({
@@ -141,6 +142,7 @@ ${nameArray[1]}`;
         dimensions: value,
         shape: value,
         usage: MLTensorUsage.READ,
+        readable: true,
       });
     }
 

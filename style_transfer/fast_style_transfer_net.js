@@ -121,12 +121,14 @@ export class FastStyleTransferNet {
     };
     const input = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
+    inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
     this.outputTensor_ = await this.context_.createTensor({
       dataType: 'float32',
       dimensions: this.outputShape,
       shape: this.outputShape,
       usage: MLTensorUsage.READ,
+      readable: true,
     });
 
     const conv2D0 = this.builder_.conv2d(this.builder_.pad(input, padding4, padding4, {mode: 'reflection'}), weightConv0);

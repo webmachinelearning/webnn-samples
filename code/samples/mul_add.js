@@ -13,6 +13,7 @@ const graph = await builder.build({'C': C});
 const bufferA = new Float32Array(4).fill(1.0);
 const bufferB = new Float32Array(4).fill(0.8);
 desc.usage = MLTensorUsage.WRITE;
+desc.writable = true;
 const tensorA = await context.createTensor(desc);
 const tensorB = await context.createTensor(desc);
 context.writeTensor(tensorA, bufferA);
@@ -20,6 +21,7 @@ context.writeTensor(tensorB, bufferB);
 const tensorC = await context.createTensor({
   ...desc,
   usage: MLTensorUsage.READ,
+  readable: true,
 });
 const inputs = {'A': tensorA, 'B': tensorB};
 const outputs = {'C': tensorC};
