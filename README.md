@@ -64,7 +64,7 @@ At present, the [image classification](https://webmachinelearning.github.io/webn
       - Note that Chrome Canary frequently updates automatically. When this occurs, you'll need to recopy the DirectML.dll to the new version's directory
   3. Launch Chrome Canary in Windows Command Line:
   ```bash
-  "%LOCALAPPDATA%\Google\Chrome SxS\Application\chrome.exe" --use-redist-dml --disable_webnn_for_npu=0
+  "%LOCALAPPDATA%\Google\Chrome SxS\Application\chrome.exe" --use-redist-dml
   ```
 
 * **Microsoft Edge Canary:**
@@ -75,13 +75,12 @@ At present, the [image classification](https://webmachinelearning.github.io/webn
       - Exit Edge Canary
   2. Launch Edge Canary in Windows Command Line:
   ```bash
-  "%LOCALAPPDATA%\Microsoft\Edge SxS\Application\msedge.exe" --disable_webnn_for_npu=0
+  "%LOCALAPPDATA%\Microsoft\Edge SxS\Application\msedge.exe"
   ```
 
-* Notes:
-1. There is an intermittent issue with the Intel NPU driver that causes failure of NPU adapter creation. The `WebNN(NPU)` backend button in the samples will be disabled with message "Unable to find a capable adapter". If you encounter this issue, please relaunch your browser and try again.
-2. The flag `disable_webnn_for_npu` is set to true by default to disable WebNN on NPU due to the aforementioned issue. To bypass this, use `--disable_webnn_for_npu=0`. This flag will be removed once the issue is resolved.
-3. Running WebNN on NPU requires a higher version of DirectML.dll than the one in the Windows system. Using the `--use-redist-dml` flag will allow Google Chrome Canary to load the downloaded DirectML.dll with a sufficiently high version.
+* **Notes**:
+
+  Running WebNN on NPU requires a higher version of DirectML.dll than the one in the Windows system. Using the `--use-redist-dml` flag will allow Google Chrome Canary to load the downloaded DirectML.dll with a sufficiently high version.
 
 ## Support and Feedback
 If you encounter any issues or have feedback on the WebNN Samples, please open an issue on the repository. We appreciate your input and will strive to address any problems as quickly as possible.
