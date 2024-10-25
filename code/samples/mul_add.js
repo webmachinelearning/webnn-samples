@@ -22,6 +22,7 @@ const tensorC = await context.createTensor({
   ...desc,
   usage: MLTensorUsage.READ,
   readable: true,
+  writable: false,
 });
 const inputs = {'A': tensorA, 'B': tensorB};
 const outputs = {'C': tensorC};
