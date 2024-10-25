@@ -62,6 +62,7 @@ const outputTensor = await context.createTensor({
   ...desc,
   usage: MLTensorUsage.READ,
   readable: true,
+  writable: false,
 });
 
 // Execute the compiled graph with the specified inputs.
