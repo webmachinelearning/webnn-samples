@@ -38,6 +38,10 @@ To get started, follow these steps:
 5. Keep in mind that WebNN currently supports the CPU backend only on Chrome or Edge browsers, and it requires enabling the experimental web platform features flag (see below). Ensure you have this flag enabled in your browser to fully experience WebNN functionality.
 6. Experiment with the code and explore how WebNN can enhance machine learning tasks in the browser, navigating to http://localhost:8080.
 
+### Deploy To Your Github Pages
+
+WebNN Samples is currently hosted on GitHub Pages, with model files stored on Amazon S3 and distributed via CloudFront. If you host WebNN Samples on your own GitHub Pages, you may encounter a 'failed to fetch' error due to CORS policy restrictions. To resolve this issue, please update the [weightsOrigin() configuration](https://github.com/webmachinelearning/webnn-samples/blob/master/common/utils.js#L6) as described in the [issue 285](https://github.com/webmachinelearning/webnn-samples/issues/285#issuecomment-2408988830).
+
 ### WebNN Installation Guides
 
 To get started with WebNN on Intel AI PCs you will need:
