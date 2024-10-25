@@ -52,12 +52,14 @@ export class SqueezeNetNchw {
     };
     const data = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
+    inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
     this.outputTensor_ = await this.context_.createTensor({
       dataType: 'float32',
       dimensions: this.outputShape_,
       shape: this.outputShape_,
       usage: MLTensorUsage.READ,
+      readable: true,
     });
     const conv0 = this.buildConv_(data, 'conv0', {strides: [2, 2]});
     const pool0 = this.builder_.maxPool2d(

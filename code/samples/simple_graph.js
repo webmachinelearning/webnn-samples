@@ -52,6 +52,7 @@ const inputBuffer1 = new Float32Array(TENSOR_SIZE).fill(1);
 const inputBuffer2 = new Float32Array(TENSOR_SIZE).fill(1);
 
 desc.usage = MLTensorUsage.WRITE;
+desc.writable = true;
 const inputTensor1 = await context.createTensor(desc);
 const inputTensor2 = await context.createTensor(desc);
 context.writeTensor(inputTensor1, inputBuffer1);
@@ -60,6 +61,7 @@ context.writeTensor(inputTensor2, inputBuffer2);
 const outputTensor = await context.createTensor({
   ...desc,
   usage: MLTensorUsage.READ,
+  readable: true,
 });
 
 // Execute the compiled graph with the specified inputs.

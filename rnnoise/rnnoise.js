@@ -67,6 +67,7 @@ export class RNNoise {
     };
     const input = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
+    inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
 
     const inputDense0 = this.builder_.matmul(input, inputDenseKernel0);
@@ -89,6 +90,7 @@ export class RNNoise {
     const vadGruInitialH = this.builder_.input(
         'vadGruInitialH', vadGruInitialHDesc);
     vadGruInitialHDesc.usage = MLTensorUsage.WRITE;
+    vadGruInitialHDesc.writable = true;
     this.vadGruInitialHTensor_ = await this.context_.createTensor(
         vadGruInitialHDesc);
 
@@ -124,6 +126,7 @@ export class RNNoise {
     const noiseGruInitialH = this.builder_.input(
         'noiseGruInitialH', noiseGruInitialHDesc);
     noiseGruInitialHDesc.usage = MLTensorUsage.WRITE;
+    noiseGruInitialHDesc.writable = true;
     this.noiseGruInitialHTensor_ = await this.context_.createTensor(
         noiseGruInitialHDesc);
 
@@ -159,6 +162,7 @@ export class RNNoise {
     const denoiseGruInitialH = this.builder_.input(
         'denoiseGruInitialH', denoiseGruInitialHDesc);
     denoiseGruInitialHDesc.usage = MLTensorUsage.WRITE;
+    denoiseGruInitialHDesc.writable = true;
     this.denoiseGruInitialHTensor_ = await this.context_.createTensor(
         denoiseGruInitialHDesc);
 
@@ -188,6 +192,7 @@ export class RNNoise {
       dimensions: denoiseOutputShape,
       shape: denoiseOutputShape,
       usage: MLTensorUsage.READ,
+      readable: true,
     });
     const vadGruYHOutputShape =
         [this.vadGruNumDirections, this.batchSize_, this.vadGruHiddenSize];
@@ -196,6 +201,7 @@ export class RNNoise {
       dimensions: vadGruYHOutputShape,
       shape: vadGruYHOutputShape,
       usage: MLTensorUsage.READ,
+      readable: true,
     });
     const noiseGruYHOutputShape =
         [this.noiseGruNumDirections, this.batchSize_, this.noiseGruHiddenSize];
@@ -204,6 +210,7 @@ export class RNNoise {
       dimensions: noiseGruYHOutputShape,
       shape: noiseGruYHOutputShape,
       usage: MLTensorUsage.READ,
+      readable: true,
     });
     const denoiseGruYHOutputShape = [
       this.denoiseGruNumDirections,
@@ -215,6 +222,7 @@ export class RNNoise {
       dimensions: denoiseGruYHOutputShape,
       shape: denoiseGruYHOutputShape,
       usage: MLTensorUsage.READ,
+      readable: true,
     });
 
     return {denoiseOutput, vadGruYH, noiseGruYH, denoiseGruYH};

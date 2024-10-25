@@ -97,12 +97,14 @@ export class DeepLabV3MNV2Nchw {
     };
     const input = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
+    inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
     this.outputTensor_ = await this.context_.createTensor({
       dataType: 'float32',
       dimensions: this.outputShape,
       shape: this.outputShape,
       usage: MLTensorUsage.READ,
+      readable: true,
     });
 
     const conv0 = this.buildConv_(

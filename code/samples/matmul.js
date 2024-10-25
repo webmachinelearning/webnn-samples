@@ -13,7 +13,9 @@ const graph = await builder.build({c});
 const bufferA = new Float32Array(3*4).fill(1.0);
 const bufferB = new Float32Array(4*3).fill(0.8);
 descA.usage = MLTensorUsage.WRITE;
+descA.writable = true;
 descB.usage = MLTensorUsage.WRITE;
+descB.writable = true;
 const tensorA = await context.createTensor(descA);
 const tensorB = await context.createTensor(descB);
 context.writeTensor(tensorA, bufferA);
@@ -23,6 +25,7 @@ const tensorC = await context.createTensor({
   dimensions: [3, 3],
   shape: [3, 3],
   usage: MLTensorUsage.READ,
+  readable: true,
 });
 context.dispatch(graph, {a: tensorA, b: tensorB}, {c: tensorC});
 const results = await context.readTensor(tensorC);

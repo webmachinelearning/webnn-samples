@@ -47,6 +47,7 @@ export class NSNet2 {
     const input = this.builder_.input('input', inputDesc);
 
     inputDesc.usage = MLTensorUsage.WRITE;
+    inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
 
     const relu20 = this.builder_.relu(this.builder_.add(this.builder_.matmul(input, weight172), biasFcIn0));
@@ -63,6 +64,7 @@ export class NSNet2 {
     const initialState155 = this.builder_.input('initialState155', initialStateDesc);
 
     initialStateDesc.usage = MLTensorUsage.WRITE;
+    initialStateDesc.writable = true;
     this.initialState92Tensor_ = await this.context_.createTensor(initialStateDesc);
     this.initialState155Tensor_ = await this.context_.createTensor(initialStateDesc);
 
@@ -71,6 +73,7 @@ export class NSNet2 {
       dimensions: inputShape,
       shape: inputShape, // Same as inputShape.
       usage: MLTensorUsage.READ,
+      readable: true,
     });
     const gruOutputShape = [1, batchSize, this.hiddenSize];
     const gruOutputDesc = {
@@ -78,6 +81,7 @@ export class NSNet2 {
       dimensions: gruOutputShape,
       shape: gruOutputShape,
       usage: MLTensorUsage.READ,
+      readable: true,
     };
     this.gru94Tensor_ = await this.context_.createTensor(gruOutputDesc);
     this.gru157Tensor_ = await this.context_.createTensor(gruOutputDesc);
