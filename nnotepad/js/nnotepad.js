@@ -48,6 +48,7 @@ class WebNNUtil {
       dimensions: operand.shape(),
       shape: operand.shape(),
       usage: MLTensorUsage.READ,
+      readable: true,
     };
     const tensor = await context.createTensor(desc);
     return tensor;

@@ -97,18 +97,21 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     };
     const input = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
+    inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
     this.boxesTensor_ = await this.context_.createTensor({
       dataType: 'float32',
       dimensions: this.boxesShape_,
       shape: this.boxesShape_,
       usage: MLTensorUsage.READ,
+      readable: true,
     });
     this.scoresTensor_ = await this.context_.createTensor({
       dataType: 'float32',
       dimensions: this.scoresShape_,
       shape: this.scoresShape_,
       usage: MLTensorUsage.READ,
+      readable: true,
     });
 
     const strides = [2, 2];
