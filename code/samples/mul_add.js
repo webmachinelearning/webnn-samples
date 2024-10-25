@@ -3,7 +3,7 @@ const context = await navigator.ml.createContext();
 const builder = new MLGraphBuilder(context);
 // 1. Create a computational graph 'C = 0.2 * A + B'.
 const constant = builder.constant(
-    {dataType: 'float32'}, new Float32Array([0.2]));
+    {dataType: 'float32', shape: []}, new Float32Array([0.2]));
 const A = builder.input('A', desc);
 const B = builder.input('B', desc);
 const C = builder.add(builder.mul(A, constant), B);

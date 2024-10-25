@@ -447,8 +447,9 @@ export class NNotepad {
 
     function serializeScalar(number, dataType) {
       const ctor = WebNNUtil.dataTypeToBufferType(dataType);
-      return `_.constant({dataType:"${dataType}"}, new ${ctor.name}([${
-        Util.stringifyNumber(number, dataType)}]))`;
+      // building a 0-D scalar input with empty shape
+      return `_.constant({dataType:"${dataType}", dimensions: [], shape: []},
+      new ${ctor.name}([${Util.stringifyNumber(number, dataType)}]))`;
     }
     function suffixToDataType(suffix) {
       return {
