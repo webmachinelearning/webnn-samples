@@ -49,13 +49,15 @@ export class FaceNetNhwc {
     }
 
     input = await input;
-
+    const isShapeMethod = typeof input.shape === 'function';
+    const inputShape = isShapeMethod ? input.shape() : input.shape;
+    const weightsShape = isShapeMethod ? weights.shape() : weights.shape;
     // WebNN spec drops autoPad support, compute the explicit padding instead.
     if (options.autoPad == 'same-upper') {
       options.padding =
         computePadding2DForAutoPad(
-            /* nwhc */[input.shape[1], input.shape[2]],
-            /* ohwi */[weights.shape[1], weights.shape[2]],
+            /* nwhc */[inputShape[1], inputShape[2]],
+            /* ohwi */[weightsShape[1], weightsShape[2]],
             options.strides, options.dilations, options.autoPad);
     }
     const conv2d = this.builder_.conv2d(input, weights, options);

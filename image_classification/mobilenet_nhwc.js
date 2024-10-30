@@ -34,10 +34,13 @@ export class MobileNetV2Nhwc {
     options.bias = await bias;
     // WebNN spec drops autoPad support, compute the explicit padding instead.
     if (options.autoPad == 'same-upper') {
+      const isShapeMethod = typeof weights.shape === 'function';
+      const inputShape = isShapeMethod ? (await input).shape() : (await input).shape;
+      const weightsShape = isShapeMethod ? weights.shape() : weights.shape;
       options.padding =
         computePadding2DForAutoPad(
-            /* nwhc */[await input.shape[1], await input.shape[2]],
-            /* ohwi or ihwo */[weights.shape[1], weights.shape[2]],
+            /* nwhc */[inputShape[1], inputShape[2]],
+            /* ohwi or ihwo */[weightsShape[1], weightsShape[2]],
             options.strides, options.dilations, options.autoPad);
     }
     const conv2d = this.builder_.conv2d(await input, weights, options);

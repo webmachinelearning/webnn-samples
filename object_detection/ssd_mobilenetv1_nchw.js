@@ -68,9 +68,12 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     const biasName = this.biasUrl_ + prefix + biasSuffix;
     const bias = await buildConstantByNpy(
         this.builder_, biasName, this.targetDataType_);
+    const isShapeMethod = typeof input.shape === 'function';
+    const inputShape = isShapeMethod ? input.shape() : input.shape;
+    const weightsShape = isShapeMethod ? weights.shape() : weights.shape;
     options.padding = computePadding2DForAutoPad(
-        /* nchw */[input.shape[2], input.shape[3]],
-        /* oihw */[weights.shape[2], weights.shape[3]],
+        /* nchw */[inputShape[2], inputShape[3]],
+        /* oihw */[weightsShape[2], weightsShape[3]],
         options.strides, options.dilations, 'same-upper');
     options.bias = bias;
     const conv2d = this.builder_.conv2d(input, weights, options);
