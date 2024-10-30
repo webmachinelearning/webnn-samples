@@ -37,16 +37,21 @@ const kArgTypeOperand = 3;
 
 class WebNNUtil {
   static bufferForOperand(operand) {
-    const size = [...operand.shape()].reduce((a, b) => a * b, 1);
-    const ctor = WebNNUtil.dataTypeToBufferType(operand.dataType());
+    const isShapeMethod = typeof operand.shape === 'function';
+    const operandShape = isShapeMethod ? operand.shape() : operand.shape;
+    const operandDataType = isShapeMethod ? operand.dataType() :
+        operand.dataType;
+    const size = [...operandShape].reduce((a, b) => a * b, 1);
+    const ctor = WebNNUtil.dataTypeToBufferType(operandDataType);
     return Reflect.construct(ctor, [size]);
   }
 
   static async tensorForOperand(operand, context) {
+    const isShapeMethod = typeof operand.shape === 'function';
     const desc = {
-      dataType: operand.dataType(),
-      dimensions: operand.shape(),
-      shape: operand.shape(),
+      dataType: isShapeMethod ? operand.dataType() : operand.dataType,
+      dimensions: isShapeMethod ? operand.shape() : operand.shape,
+      shape: isShapeMethod ? operand.shape() : operand.shape,
       usage: MLTensorUsage.READ,
       readable: true,
     };
@@ -613,9 +618,10 @@ export class NNotepad {
 
     return outputOperands.map(
         (op, index) => ({
-          dataType: op.dataType(),
-          dimensions: op.shape(),
-          shape: op.shape(),
+          dataType: typeof op.shape === 'function' ? op.dataType() :
+              op.dataType,
+          dimensions: typeof op.shape === 'function' ? op.shape() : op.shape,
+          shape: typeof op.shape === 'function' ? op.shape() : op.shape,
           buffer: maybeProxyForFloat16Array(outputBuffers[`output-${index}`]),
         }));
   }

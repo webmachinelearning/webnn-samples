@@ -47,13 +47,15 @@ export class FaceNetNchw {
     }
 
     input = await input;
-
+    const isShapeMethod = typeof input.shape === 'function';
+    const inputShape = isShapeMethod ? input.shape() : input.shape;
+    const weightsShape = isShapeMethod ? weights.shape() : weights.shape;
     // WebNN spec drops autoPad support, compute the explicit padding instead.
     if (options.autoPad == 'same-upper') {
       options.padding =
         computePadding2DForAutoPad(
-            /* nchw */[input.shape()[2], input.shape()[3]],
-            /* oihw */[weights.shape()[2], weights.shape()[3]],
+            /* nchw */[inputShape[2], inputShape[3]],
+            /* oihw */[weightsShape[2], weightsShape[3]],
             options.strides, options.dilations, options.autoPad);
     }
     const conv2d = this.builder_.conv2d(input, weights, options);
@@ -266,7 +268,8 @@ export class FaceNetNchw {
 
     const averagePool = this.builder_.averagePool2d(await block8_6);
     // Use reshape to implement squeeze(averagePool, {axes: [2, 3]});
-    const squeezed_shape = averagePool.shape();
+    const squeezed_shape = typeof averagePool.shape === 'function' ?
+        averagePool.shape() : averagePool.shape;
     squeezed_shape.splice(2, 2);
     const squeeze = this.builder_.reshape(averagePool, squeezed_shape);
     const gemm = await this.buildGemm_(squeeze);
