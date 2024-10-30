@@ -69,8 +69,8 @@ ${nameArray[1]}`;
     const weights = buildConstantByNpy(this.builder_, weightsName);
     const biasName = prefix + biasSuffix;
     const bias = buildConstantByNpy(this.builder_, biasName);
-    const inputShape = (await input).shape();
-    const weightsShape = (await weights).shape();
+    const inputShape = (await input).shape;
+    const weightsShape = (await weights).shape;
     options.padding = computePadding2DForAutoPad(
         /* nchw */[inputShape[2], inputShape[3]],
         /* oihw */[weightsShape[2], weightsShape[3]],

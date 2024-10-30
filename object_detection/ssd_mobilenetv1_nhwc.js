@@ -76,8 +76,8 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     }
     options.bias = bias;
     options.padding = computePadding2DForAutoPad(
-        /* nhwc */[input.shape()[1], input.shape()[2]],
-        /* ohwi or ihwo */[weights.shape()[1], weights.shape()[2]],
+        /* nhwc */[input.shape[1], input.shape[2]],
+        /* ohwi or ihwo */[weights.shape[1], weights.shape[2]],
         options.strides, options.dilations, 'same-upper');
     const conv2d = this.builder_.conv2d(input, weights, options);
     if (relu6) {

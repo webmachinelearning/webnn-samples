@@ -38,8 +38,8 @@ export class TinyYoloV2Nchw {
         this.builder_, weightName, this.targetDataType_);
     const options = {autoPad: 'same-upper'};
     options.padding = computePadding2DForAutoPad(
-        /* nchw */[input.shape()[2], input.shape()[3]],
-        /* oihw */[weight.shape()[2], weight.shape()[3]],
+        /* nchw */[input.shape[2], input.shape[3]],
+        /* oihw */[weight.shape[2], weight.shape[3]],
         options.strides, options.dilations, 'same-upper');
     options.bias = await buildConstantByNpy(
         this.builder_, biasName, this.targetDataType_);
@@ -53,7 +53,7 @@ export class TinyYoloV2Nchw {
 
   buildMaxPool2d_(input, options) {
     options.padding = computePadding2DForAutoPad(
-        /* nchw */[input.shape()[2], input.shape()[3]],
+        /* nchw */[input.shape[2], input.shape[3]],
         options.windowDimensions,
         options.strides, options.dilations, 'same-upper');
     return this.builder_.maxPool2d(input, options);

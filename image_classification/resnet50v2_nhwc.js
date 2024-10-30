@@ -54,8 +54,8 @@ export class ResNet50V2Nhwc {
     if (options.autoPad == 'same-upper') {
       options.padding =
         computePadding2DForAutoPad(
-            /* nwhc */[await input.shape()[1], await input.shape()[2]],
-            /* ohwi */[weights.shape()[1], weights.shape()[2]],
+            /* nwhc */[await input.shape[1], await input.shape[2]],
+            /* ohwi */[weights.shape[1], weights.shape[2]],
             options.strides, options.dilations, options.autoPad);
     }
     const conv2d = this.builder_.conv2d(await input, weights, options);
@@ -144,7 +144,7 @@ export class ResNet50V2Nhwc {
     const pool = this.builder_.maxPool2d(
         conv1, {windowDimensions, strides, layout,
           padding: computePadding2DForAutoPad(
-              /* nhwc */ [conv1.shape()[1], conv1.shape()[2]],
+              /* nhwc */ [conv1.shape[1], conv1.shape[2]],
               windowDimensions, strides, /* dilations */ undefined,
               'same-upper')});
     // Block 1

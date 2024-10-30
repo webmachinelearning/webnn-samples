@@ -35,8 +35,8 @@ export class SqueezeNetNhwc {
     if (options.autoPad == 'same-upper') {
       options.padding =
         computePadding2DForAutoPad(
-            /* nwhc */[await input.shape()[1], await input.shape()[2]],
-            /* ohwi */[weights.shape()[1], weights.shape()[2]],
+            /* nwhc */[await input.shape[1], await input.shape[2]],
+            /* ohwi */[weights.shape[1], weights.shape[2]],
             options.strides, options.dilations, options.autoPad);
     }
     const conv2d = this.builder_.conv2d(await input, weights, options);

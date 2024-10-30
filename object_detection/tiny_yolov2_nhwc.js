@@ -35,8 +35,8 @@ export class TinyYoloV2Nhwc {
     };
     options.bias = bias;
     options.padding = computePadding2DForAutoPad(
-        /* nhwc */[input.shape()[1], input.shape()[2]],
-        /* ohwi */[weights.shape()[1], weights.shape()[2]],
+        /* nhwc */[input.shape[1], input.shape[2]],
+        /* ohwi */[weights.shape[1], weights.shape[2]],
         options.strides, options.dilations, 'same-upper');
     let conv = this.builder_.conv2d(input, weights, options);
     if (leakyRelu) {
@@ -48,7 +48,7 @@ export class TinyYoloV2Nhwc {
 
   buildMaxPool2d_(input, options) {
     options.padding = computePadding2DForAutoPad(
-        /* nhwc */[input.shape()[1], input.shape()[2]],
+        /* nhwc */[input.shape[1], input.shape[2]],
         options.windowDimensions,
         options.strides, options.dilations, 'same-upper');
     return this.builder_.maxPool2d(input, options);
