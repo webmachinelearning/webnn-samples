@@ -52,10 +52,14 @@ export class ResNet50V2Nhwc {
     options.bias = await bias;
     // WebNN spec drops autoPad support, compute the explicit padding instead.
     if (options.autoPad == 'same-upper') {
+      const isShapeMethod = typeof weights.shape === 'function';
+      const inputShape = isShapeMethod ? (await input).shape() :
+          (await input).shape;
+      const weightsShape = isShapeMethod ? weights.shape() : weights.shape;
       options.padding =
         computePadding2DForAutoPad(
-            /* nwhc */[await input.shape()[1], await input.shape()[2]],
-            /* ohwi */[weights.shape()[1], weights.shape()[2]],
+            /* nwhc */[inputShape[1], inputShape[2]],
+            /* ohwi */[weightsShape[1], weightsShape[2]],
             options.strides, options.dilations, options.autoPad);
     }
     const conv2d = this.builder_.conv2d(await input, weights, options);
@@ -141,10 +145,12 @@ export class ResNet50V2Nhwc {
     const conv1 = await this.buildConv_(
         input, ['', '', '1'], {strides, padding: [3, 3, 3, 3]}, false);
     const windowDimensions = [3, 3];
+    const conv1Shape = typeof conv1.shape === 'function' ?
+        conv1.shape() : conv1.shape;
     const pool = this.builder_.maxPool2d(
         conv1, {windowDimensions, strides, layout,
           padding: computePadding2DForAutoPad(
-              /* nhwc */ [conv1.shape()[1], conv1.shape()[2]],
+              /* nhwc */ [conv1Shape[1], conv1Shape[2]],
               windowDimensions, strides, /* dilations */ undefined,
               'same-upper')});
     // Block 1

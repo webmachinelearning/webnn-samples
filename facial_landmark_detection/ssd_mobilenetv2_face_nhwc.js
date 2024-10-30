@@ -82,8 +82,11 @@ ${nameArray[1]}`;
       options.filterLayout = 'ihwo';
     }
     options.bias = await bias;
-    const inputShape = (await input).shape();
-    const weightsShape = (await weights).shape();
+    const isShapeMethod = typeof (await input).shape === 'function';
+    const inputShape = isShapeMethod ? (await input).shape() :
+        (await input).shape;
+    const weightsShape = isShapeMethod ? (await weights).shape() :
+        (await weights).shape;
     options.padding = computePadding2DForAutoPad(
         /* nhwc */[inputShape[1], inputShape[2]],
         /* ohwi or ihwo */[weightsShape[1], weightsShape[2]],

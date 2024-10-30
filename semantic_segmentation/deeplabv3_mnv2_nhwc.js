@@ -44,9 +44,12 @@ export class DeepLabV3MNV2Nhwc {
     } else {
       options.filterLayout = 'ohwi';
     }
+    const isShapeMethod = typeof input.shape === 'function';
+    const inputShape = isShapeMethod ? input.shape() : input.shape;
+    const weightsShape = isShapeMethod ? weights.shape() : weights.shape;
     options.padding = computePadding2DForAutoPad(
-        /* nhwc */[input.shape()[1], input.shape()[2]],
-        /* ohwi or ihwo */[weights.shape()[1], weights.shape()[2]],
+        /* nhwc */[inputShape[1], inputShape[2]],
+        /* ohwi or ihwo */[weightsShape[1], weightsShape[2]],
         options.strides, options.dilations, 'same-upper');
     options.bias = bias;
     const conv2d = this.builder_.conv2d(input, weights, options);
