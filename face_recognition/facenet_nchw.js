@@ -269,7 +269,7 @@ export class FaceNetNchw {
     const averagePool = this.builder_.averagePool2d(await block8_6);
     // Use reshape to implement squeeze(averagePool, {axes: [2, 3]});
     const squeezed_shape = typeof averagePool.shape === 'function' ?
-        averagePool.shape() : averagePool.shape;
+        averagePool.shape() : [...averagePool.shape];
     squeezed_shape.splice(2, 2);
     const squeeze = this.builder_.reshape(averagePool, squeezed_shape);
     const gemm = await this.buildGemm_(squeeze);
