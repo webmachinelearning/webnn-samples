@@ -306,8 +306,11 @@ export function getUrlParams() {
 
 export async function isWebNN() {
   if (typeof MLGraphBuilder !== 'undefined') {
-    const context = await navigator.ml.createContext();
-    return !context.tf;
+    // Polyfill MLTensorUsage to make it compatible with old version of Chrome.
+    if (typeof MLTensorUsage == 'undefined') {
+      window.MLTensorUsage = {WEBGPU_INTEROP: 1, READ: 2, WRITE: 4};
+    }
+    return true;
   } else {
     return false;
   }

@@ -52,7 +52,8 @@ class WebNNUtil {
       dataType: isShapeMethod ? operand.dataType() : operand.dataType,
       dimensions: isShapeMethod ? operand.shape() : operand.shape,
       shape: isShapeMethod ? operand.shape() : operand.shape,
-      usage: MLTensorUsage.READ,
+      usage: typeof MLTensorUsage == 'undefined' ?
+          undefined : MLTensorUsage.READ,
       readable: true,
     };
     const tensor = await context.createTensor(desc);
