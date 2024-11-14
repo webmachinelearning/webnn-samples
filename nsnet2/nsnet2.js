@@ -59,7 +59,7 @@ export class NSNet2 {
         {bias: bias194, recurrentBias: recurrentBias194, initialHiddenState: initialState92, returnSequence: true});
     // Use reshape to implement squeeze(gru93, {axes: [1]});
     const isShapeMethod = typeof gru93.shape === 'function';
-    const squeeze95Shape = isShapeMethod ? gru93.shape() : gru93.shape;
+    const squeeze95Shape = isShapeMethod ? gru93.shape() : [...gru93.shape];
     squeeze95Shape.splice(1, 1);
     const squeeze95 = this.builder_.reshape(gru93, squeeze95Shape);
     const initialState155 = this.builder_.input('initialState155', initialStateDesc);
@@ -90,7 +90,7 @@ export class NSNet2 {
     const [gru157, gru156] = this.builder_.gru(squeeze95, weight212, recurrentWeight213, frames, this.hiddenSize,
         {bias: bias214, recurrentBias: recurrentBias214, initialHiddenState: initialState155, returnSequence: true});
     // Use reshape to implement squeeze(gru156, {axes: [1]});
-    const squeeze158Shape = isShapeMethod ? gru156.shape() : gru156.shape;
+    const squeeze158Shape = isShapeMethod ? gru156.shape() : [...gru156.shape];
     squeeze158Shape.splice(1, 1);
     const squeeze158 = this.builder_.reshape(gru156, squeeze158Shape);
     const transpose159 = this.builder_.transpose(squeeze158, {permutation: [1, 0, 2]});
