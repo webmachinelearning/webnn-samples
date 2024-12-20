@@ -58,7 +58,7 @@ To get started with WebNN on Intel AI PCs you will need:
 
 * **Notes**:
 
-  1. Running WebNN on Qualcomm GPUs is disabled by default. You can use the `--disable_webnn_for_gpu=0` flag to bypass. However, the functionality is not guaranteed.
+  1. Running WebNN on Qualcomm GPUs is disabled by default. You can use the `--disable_webnn_for_gpu=0` flag to bypass.
   2. If you run WebNN on Intel GPUs with old driver versions between 31.0.101.5518 and 32.0.101.6083, the performance may not be good enough, because the DirectML execution of metacommands on these drivers is disabled by default due to some stability bugs. You can use `--disable_dml_meta_commands_for_gpu=0` to bypass. However, the functionality is not guaranteed.
 
 #### Running WebNN on NPU
