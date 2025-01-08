@@ -30,7 +30,7 @@ $('#backendBtns .btn').on('change', async () => {
 
 const sampleAudios = [
   {
-    name: 'babbel',
+    name: 'babble',
     url: './samples/babble_15dB.opus',
   },
   {
