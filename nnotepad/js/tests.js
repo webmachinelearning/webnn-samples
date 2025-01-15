@@ -178,6 +178,14 @@ document.addEventListener('DOMContentLoaded', async (e) => {
       `softmax([1], 0)`,
       {dataType: 'float32', shape: [1], buffer: [1]});
 
+  Harness.section('Optional operand arguments');
+  await test(
+      'A = [[1,2], [3,4]]  B = [[5,6], [7,8]]  gemm(A, B, {c: 123})',
+      {dataType: 'float32', shape: [2, 2], buffer: [142, 145, 166, 173]});
+  await test(
+      'instanceNormalization([[[[1]]]], {scale: [123], bias: [456]})',
+      {dataType: 'float32', shape: [1, 1, 1, 1], buffer: [456]});
+
   Harness.section('Regression tests');
   await test(
       `concat([[1,2],[3,4]], 0)`,
