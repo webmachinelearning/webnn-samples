@@ -36,10 +36,10 @@ Functions and operators are turned into [`MLGraphBuilder`](https://webmachinelea
 
 Array literals (`[...]`) and number literals (`12.34`) are interpreted contextually:
 
-* In assignments, they are intepreted as tensor/scalar constant [`MLOperand`](https://webmachinelearning.github.io/webnn/#mloperand)s, e.g. `alpha = 12.34` or `T = [1,2,3,4]`.
-* In most function calls, they are interpreted as tensor/scalar constant [`MLOperand`](https://webmachinelearning.github.io/webnn/#mloperand)s, e.g. `neg(123)` or `neg([1,2,3])`.
-* In some function calls, they are interpreted as arrays/numbers for some positional parameters, e.g. `concat([A,B,C],0)`. This includes: [`concat()`](https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-concat), [`expand()`](https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-expand), [`pad()`](https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-pad), [`reshape()`](https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-reshape), [`slice()`](https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-slice), [`split()`](https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-split).
-* In dictionaries, they are interpreted as arrays/numbers, e.g. `linear(123, {alpha: 456, beta: 789})` or `transpose(T, {permutation: [0,2,1]})`. To pass a tensor/scalar constant in a dictionary, use a variable or wrap it in [`identity()`](https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-identity) e.g. `gemm(A, B, {c:identity([4])})` or `gemm(A, B, {c:identity(4)})`.
+* In assignments, they are intepreted as tensor/scalar constants [`MLOperand`](https://webmachinelearning.github.io/webnn/#mloperand)s, e.g. `alpha = 12.34` (scalar) or `T = [1,2,3,4]` (tensor).
+* As arguments in function calls, they are interpreted depending on the argument definition, e.g. `neg(123)` (scalar), `neg([1,2,3])` (tensor), `concat([A,B,C],0)` (number).
+* In options dictionaries inside function calls, they are interpreted depending on the dictionary definition. e.g. `linear(123, {alpha: 456, beta: 789})` (numbers), `transpose(T, {permutation: [0,2,1]})` (array of numbers), `gemm(A, B, {c: 123})` (scalar), `gemm(A, B, {c: [123]})` (tensor).
+* In dictionaries outside of function calls, they are interpreted as arrays/numbers, e.g. `options = {alpha: 456, beta: 789})`. To pass a tensor/scalar constant in a dictionary, use a variable or wrap it in [`identity()`](https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-identity) e.g. `options = {c:identity(4)}  gemm(A, B, options)`.
 
 The default [data type](https://webmachinelearning.github.io/webnn/#enumdef-mloperanddatatype) for scalars and tensors is [`float32`](https://webmachinelearning.github.io/webnn/#dom-mloperanddatatype-float32). To specify a different data type, suffix with one of `i8`, `u8`, `i32`, `u32`, `i64`, `u64`, `f16`, `f32`, e.g. `123i8` or `[1,2,3]u32`.
 

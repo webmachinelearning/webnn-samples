@@ -82,22 +82,114 @@ class WebNNUtil {
     throw new Error(`Unsupported dataType ${type}`);
   }
 
-  static argumentType(name, index) {
-    return ({
-      concat: {0: kArgTypeOperandList, 1: kArgTypeNonOperand},
-      expand: {1: kArgTypeNonOperand},
-      gru: {3: kArgTypeNonOperand, 4: kArgTypeNonOperand},
-      gruCell: {4: kArgTypeNonOperand},
-      lstm: {3: kArgTypeNonOperand, 4: kArgTypeNonOperand},
-      lstmCell: {5: kArgTypeNonOperand},
-      pad: {1: kArgTypeNonOperand, 2: kArgTypeNonOperand},
-      reshape: {1: kArgTypeNonOperand},
-      slice: {1: kArgTypeNonOperand, 2: kArgTypeNonOperand},
-      softmax: {1: kArgTypeNonOperand},
-      split: {1: kArgTypeNonOperand},
-    })[name]
-        ?.[index] ||
-        kArgTypeOperand;
+  // Called to determine the type of an argument. `name` is the name of the
+  // `MLGraphBuilder` method. `index` is the argument index. If `key` is
+  // provided, this is serializing a member of an options dictionary. Returns
+  // one of the `kArgTypeXYZ` values.
+  static argumentType(name, index, key) {
+    const kDefaultDictMemberType = kArgTypeNonOperand;
+    const kDefaultArgType = kArgTypeOperand;
+
+    // TODO: Auto-generate this from the WebIDL API definition.
+    const argType = ({
+      batchNormalization: {
+        3: {
+          scale: kArgTypeOperand,
+          bias: kArgTypeOperand,
+        },
+      },
+      concat: {
+        0: kArgTypeOperandList,
+        1: kArgTypeNonOperand},
+      conv2d: {
+        2: {
+          bias: kArgTypeOperand,
+        },
+      },
+      convTranspose2d: {
+        2: {
+          bias: kArgTypeOperand,
+        },
+      },
+      expand: {
+        1: kArgTypeNonOperand,
+      },
+      gemm: {
+        2: {
+          c: kArgTypeOperand,
+        },
+      },
+      gru: {
+        3: kArgTypeNonOperand,
+        4: kArgTypeNonOperand,
+        5: {
+          bias: kArgTypeOperand,
+          recurrentBias: kArgTypeOperand,
+          initialHiddenState: kArgTypeOperand,
+        },
+      },
+      gruCell: {
+        4: kArgTypeNonOperand,
+        5: {
+          bias: kArgTypeOperand,
+          recurrentBias: kArgTypeOperand,
+        },
+      },
+      instanceNormalization: {
+        1: {
+          scale: kArgTypeOperand,
+          bias: kArgTypeOperand,
+        },
+      },
+      layerNormalization: {
+        1: {
+          scale: kArgTypeOperand,
+          bias: kArgTypeOperand,
+        },
+      },
+      lstm: {
+        3: kArgTypeNonOperand,
+        4: kArgTypeNonOperand,
+        5: {
+          bias: kArgTypeOperand,
+          recurrentBias: kArgTypeOperand,
+          peepholeWeight: kArgTypeOperand,
+          initialHiddenState: kArgTypeOperand,
+          initialCellState: kArgTypeOperand,
+        },
+      },
+      lstmCell: {
+        5: kArgTypeNonOperand,
+        6: {
+          bias: kArgTypeOperand,
+          recurrentBias: kArgTypeOperand,
+          peepholeWeight: kArgTypeOperand,
+        },
+      },
+      pad: {
+        1: kArgTypeNonOperand,
+        2: kArgTypeNonOperand,
+      },
+      reshape: {
+        1: kArgTypeNonOperand,
+      },
+      slice: {
+        1: kArgTypeNonOperand,
+        2: kArgTypeNonOperand,
+      },
+      softmax: {
+        1: kArgTypeNonOperand,
+      },
+      split: {
+        1: kArgTypeNonOperand,
+      },
+    })[name]?.[index];
+
+    if (key) {
+      return argType?.[key] ?? kDefaultDictMemberType;
+    }
+
+    return argType ?? kDefaultArgType;
   }
 }
 
@@ -401,7 +493,18 @@ export class NNotepad {
       }
       throw new Error(`unexpected line type: ${line.type}`);
     }
-    function serializeExpr(expr, argumentType = kArgTypeOperand) {
+
+    // Serialize an expression. If `callContext` is provided, it can either be
+    // an object with `name` and `index` properties which identify a method call
+    // and argument position, used to determine the argument type, or an
+    // `kArgTypeXYZ` value to explicitly specify the type. This is needed for
+    // numbers, arrays, and dictionary members, which are serialized
+    // contextually.
+    function serializeExpr(expr, callContext) {
+      const argumentType = typeof callContext === 'object' ?
+          WebNNUtil.argumentType(callContext.name, callContext.index) :
+          typeof callContext === 'number' ? callContext :
+                                            kArgTypeOperand;
       if (expr.op) {
         if (expr.lhs) {
           return `_.${kBinaryOperators[expr.op]}(${serializeExpr(expr.lhs)}, ${
@@ -432,7 +535,7 @@ export class NNotepad {
               return serializeTensor(expr.value, expr.dataType);
           }
         case 'dict':
-          return serializeDict(expr.dict);
+          return serializeDict(expr.dict, callContext);
         case 'identifier':
           return expr.value;
         case 'call':
@@ -440,13 +543,17 @@ export class NNotepad {
       }
       throw new Error(`unexpected expr type: ${expr.type}`);
     }
-    function serializeDict(dict) {
+    function serializeDict(dict, callContext) {
       return '{' +
           Object.keys(dict)
               .map((k) => {
                 const v = dict[k];
-                k = Util.stringify(k);
-                return `${k}: ${serializeExpr(v, kArgTypeNonOperand)}`;
+                const argumentType = typeof callContext === 'object' ?
+                    WebNNUtil.argumentType(
+                        callContext.name, callContext.index, k) :
+                    kArgTypeNonOperand;
+                return `${Util.stringify(k)}: ${
+                  serializeExpr(v, argumentType)}`;
               })
               .join(', ') +
           '}';
@@ -545,7 +652,7 @@ export class NNotepad {
       return `_.${name}(${
         args.map(
             (arg, index) =>
-              serializeExpr(arg, WebNNUtil.argumentType(name, index)))
+              serializeExpr(arg, {name, index}))
             .join(', ')})`;
     }
   }
