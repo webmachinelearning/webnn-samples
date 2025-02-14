@@ -563,7 +563,7 @@ export class NNotepad {
       const ctor = WebNNUtil.dataTypeToBufferType(dataType);
       // building a 0-D scalar input with empty shape
       return `_.constant({dataType:"${dataType}", dimensions: [], shape: []},
-      new ${ctor.name}([${Util.stringifyNumber(number, dataType)}]))`;
+      new ${ctor.name}([${Util.stringifyNumber(number, dataType)}]).buffer)`;
     }
     function suffixToDataType(suffix) {
       return {
@@ -603,7 +603,8 @@ export class NNotepad {
       return `_.constant({dataType: "${dataType}", dimensions: ${
         Util.stringify(shape)}, shape: ${
         Util.stringify(shape)}}, new ${ctor.name}([${
-        elements.map((n) => Util.stringifyNumber(n, dataType)).join(',')}]))`;
+        elements.map((n) => Util.stringifyNumber(n, dataType)).join(',')
+      }]).buffer)`;
     }
 
     function serializeArray(array, argumentType) {
@@ -629,7 +630,8 @@ export class NNotepad {
         return `_.constant({dataType: "${dataType.value}", dimensions: ${
           Util.stringify(dims)}, shape: ${
           Util.stringify(dims)}}, new ${
-          ctor.name}(await Util.loadBuffer(${Util.stringify(url.value)})))`;
+          ctor.name}(await Util.loadBuffer(${
+          Util.stringify(url.value)})).buffer)`;
       }
 
       if (name === 'zeros') {
@@ -646,7 +648,7 @@ export class NNotepad {
         return `_.constant({dataType: "${dataType.value}", dimensions: ${
           Util.stringify(dims)}, shape: ${
           Util.stringify(dims)}}, new ${
-          ctor.name}(${len}))`;
+          ctor.name}(${len}).buffer)`;
       }
 
       return `_.${name}(${
