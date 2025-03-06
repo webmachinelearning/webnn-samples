@@ -3,7 +3,8 @@
 import {numpy} from './libs/numpy.js';
 import {addAlert} from './ui.js';
 
-export const isFloat16ArrayAvailable = typeof Float16Array !== 'undefined' && Float16Array.from;
+export const isFloat16ArrayAvailable =
+  typeof Float16Array !== 'undefined' && Float16Array.from;
 
 export function weightsOrigin() {
   if (location.hostname.toLowerCase().indexOf('github.io') > -1) {
@@ -88,7 +89,8 @@ export const toHalf = (function() {
 // 'float32' to 'float16' conversion currently.
 export async function buildConstantByNpy(builder, url, targetType = 'float32') {
   const dataTypeMap = new Map([
-    ['f2', {type: 'float16', array: isFloat16ArrayAvailable ? Float16Array : Uint16Array}],
+    ['f2', {type: 'float16',
+      array: isFloat16ArrayAvailable ? Float16Array : Uint16Array}],
     ['f4', {type: 'float32', array: Float32Array}],
     ['f8', {type: 'float64', array: Float64Array}],
     ['i1', {type: 'int8', array: Int8Array}],
@@ -112,9 +114,9 @@ export async function buildConstantByNpy(builder, url, targetType = 'float32') {
   let typedArray = new TypedArrayConstructor(npArray.data.buffer);
   if (type === 'float32' && targetType === 'float16') {
     // Use Float16Array if it is available, othwerwise use Uint16Array instead.
-    typedArray = isFloat16ArrayAvailable
-      ? Float16Array.from(typedArray, (v) => v)
-      : Uint16Array.from(typedArray, (v) => toHalf(v));
+    typedArray = isFloat16ArrayAvailable ?
+      Float16Array.from(typedArray, (v) => v) :
+      Uint16Array.from(typedArray, (v) => toHalf(v));
     type = targetType;
   } else if (type !== targetType) {
     throw new Error(`Conversion from ${npArray.dataType} ` +
