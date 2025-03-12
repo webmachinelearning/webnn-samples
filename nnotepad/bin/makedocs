@@ -17,17 +17,48 @@ with open('res/docs.html', 'w', encoding='utf-8', errors='xmlcharrefreplace') as
 
   DO NOT EDIT.
 
-  Edit README.md instead, then run: ./makedocs
+  Edit README.md instead, then run: bin/makedocs
 
 -->
 <style>
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 200;
+  src: url("../../common/css/fonts/poppins/poppins-v15-latin-200.woff2")
+      format("woff2");
+}
+
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../../common/css/fonts/poppins/poppins-v15-latin-regular.woff2")
+      format("woff2");
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 200;
+  src: url('../../common/css/fonts/jetbrains-mono/jetbrains-mono-v18-latin-200.woff2') format('woff2');
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../../common/css/fonts/jetbrains-mono/jetbrains-mono-v18-latin-regular.woff2') format('woff2');
+}
 body {
-  font-family: sans-serif;
   font-size: 16px;
   line-height: 30px;
+  font-family: "Poppins", "Consolas", "Lucida Console", monospace;
 }
 code {
-  font-family: "Consolas", "Lucida Console", monospace;
+  font-family: "JetBrains Mono", "Consolas", "Lucida Console", monospace;
 }
 code {
   display: inline-block;
@@ -43,8 +74,9 @@ pre code {
 }
 pre {
   background-color: #eee;
-  border-radius: 1lh;
+  border-radius: 10px;
   padding: 1lh;
+  font-family: "JetBrains Mono", "Consolas", "Lucida Console", monospace;
 }
 </style>
 

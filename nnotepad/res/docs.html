@@ -7,7 +7,7 @@
 
   DO NOT EDIT.
 
-  Edit README.md instead, then run: ./makedocs
+  Edit README.md instead, then run: bin/makedocs
 
 -->
 <style>
@@ -99,10 +99,10 @@ matmul(A,B)
 <p>Functions and operators are turned into <a href="https://webmachinelearning.github.io/webnn/#mlgraphbuilder"><code>MLGraphBuilder</code></a> method calls.</p>
 <p>Array literals (<code>[...]</code>) and number literals (<code>12.34</code>) are interpreted contextually:</p>
 <ul>
-<li>In assignments, they are intepreted as tensor/scalar constant <a href="https://webmachinelearning.github.io/webnn/#mloperand"><code>MLOperand</code></a>s, e.g. <code>alpha = 12.34</code> or <code>T = [1,2,3,4]</code>.</li>
-<li>In most function calls, they are interpreted as tensor/scalar constant <a href="https://webmachinelearning.github.io/webnn/#mloperand"><code>MLOperand</code></a>s, e.g. <code>neg(123)</code> or <code>neg([1,2,3])</code>.</li>
-<li>In some function calls, they are interpreted as arrays/numbers for some positional parameters, e.g. <code>concat([A,B,C],0)</code>. This includes: <a href="https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-concat"><code>concat()</code></a>, <a href="https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-expand"><code>expand()</code></a>, <a href="https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-pad"><code>pad()</code></a>, <a href="https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-reshape"><code>reshape()</code></a>, <a href="https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-slice"><code>slice()</code></a>, <a href="https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-split"><code>split()</code></a>.</li>
-<li>In dictionaries, they are interpreted as arrays/numbers, e.g. <code>linear(123, {alpha: 456, beta: 789})</code> or <code>transpose(T, {permutation: [0,2,1]})</code>. To pass a tensor/scalar constant in a dictionary, use a variable or wrap it in <a href="https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-identity"><code>identity()</code></a> e.g. <code>gemm(A, B, {c:identity([4])})</code> or <code>gemm(A, B, {c:identity(4)})</code>.</li>
+<li>In assignments, they are intepreted as tensor/scalar constants <a href="https://webmachinelearning.github.io/webnn/#mloperand"><code>MLOperand</code></a>s, e.g. <code>alpha = 12.34</code> (scalar) or <code>T = [1,2,3,4]</code> (tensor).</li>
+<li>As arguments in function calls, they are interpreted depending on the argument definition, e.g. <code>neg(123)</code> (scalar), <code>neg([1,2,3])</code> (tensor), <code>concat([A,B,C],0)</code> (number).</li>
+<li>In options dictionaries inside function calls, they are interpreted depending on the dictionary definition. e.g. <code>linear(123, {alpha: 456, beta: 789})</code> (numbers), <code>transpose(T, {permutation: [0,2,1]})</code> (array of numbers), <code>gemm(A, B, {c: 123})</code> (scalar), <code>gemm(A, B, {c: [123]})</code> (tensor).</li>
+<li>In dictionaries outside of function calls, they are interpreted as arrays/numbers, e.g. <code>options = {alpha: 456, beta: 789})</code>. To pass a tensor/scalar constant in a dictionary, use a variable or wrap it in <a href="https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-identity"><code>identity()</code></a> e.g. <code>options = {c:identity(4)}  gemm(A, B, options)</code>.</li>
 </ul>
 <p>The default <a href="https://webmachinelearning.github.io/webnn/#enumdef-mloperanddatatype">data type</a> for scalars and tensors is <a href="https://webmachinelearning.github.io/webnn/#dom-mloperanddatatype-float32"><code>float32</code></a>. To specify a different data type, suffix with one of <code>i8</code>, <code>u8</code>, <code>i32</code>, <code>u32</code>, <code>i64</code>, <code>u64</code>, <code>f16</code>, <code>f32</code>, e.g. <code>123i8</code> or <code>[1,2,3]u32</code>.</p>
 <h1>Helpers</h1>
