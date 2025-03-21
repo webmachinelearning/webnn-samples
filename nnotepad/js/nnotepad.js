@@ -1,6 +1,7 @@
 /* global BigInt64Array, BigUint64Array, Float16Array */
 
 import {Util} from './util.js';
+import * as idl from 'webidl2';
 
 // ============================================================
 // General Utilities
@@ -36,6 +37,29 @@ const kArgTypeNonOperand = 2;
 const kArgTypeOperand = 3;
 
 class WebNNUtil {
+  static async asyncInit() {
+    // Parse the WebIDL definition to inform argument handling.
+    WebNNUtil._idl_ast = idl.parse(await (await fetch('res/webnn.idl')).text());
+
+    // Since `MLGraphBuilder` ops are split across multiple partial interfaces,
+    // combine them for convenience.
+    WebNNUtil._idl_builder_members =
+        WebNNUtil._idl_ast
+            .filter(
+                (n) => n.type === 'interface' && n.name === 'MLGraphBuilder')
+            .map((n) => n.members)
+            .flat();
+  }
+
+  static idlOperation(name) {
+    return WebNNUtil._idl_builder_members.find(
+        (n) => n.type === 'operation' && n.name === name);
+  }
+  static idlDictionary(name) {
+    return WebNNUtil._idl_ast.find(
+        (n) => n.type === 'dictionary' && n.name === name);
+  }
+
   static bufferForOperand(operand) {
     const isShapeMethod = typeof operand.shape === 'function';
     const operandShape = isShapeMethod ? operand.shape() : operand.shape;
@@ -90,110 +114,44 @@ class WebNNUtil {
     const kDefaultDictMemberType = kArgTypeNonOperand;
     const kDefaultArgType = kArgTypeOperand;
 
-    // TODO: Auto-generate this from the WebIDL API definition.
-    const argType = ({
-      batchNormalization: {
-        3: {
-          scale: kArgTypeOperand,
-          bias: kArgTypeOperand,
-        },
-      },
-      concat: {
-        0: kArgTypeOperandList,
-        1: kArgTypeNonOperand},
-      conv2d: {
-        2: {
-          bias: kArgTypeOperand,
-        },
-      },
-      convTranspose2d: {
-        2: {
-          bias: kArgTypeOperand,
-        },
-      },
-      expand: {
-        1: kArgTypeNonOperand,
-      },
-      gemm: {
-        2: {
-          c: kArgTypeOperand,
-        },
-      },
-      gru: {
-        3: kArgTypeNonOperand,
-        4: kArgTypeNonOperand,
-        5: {
-          bias: kArgTypeOperand,
-          recurrentBias: kArgTypeOperand,
-          initialHiddenState: kArgTypeOperand,
-        },
-      },
-      gruCell: {
-        4: kArgTypeNonOperand,
-        5: {
-          bias: kArgTypeOperand,
-          recurrentBias: kArgTypeOperand,
-        },
-      },
-      instanceNormalization: {
-        1: {
-          scale: kArgTypeOperand,
-          bias: kArgTypeOperand,
-        },
-      },
-      layerNormalization: {
-        1: {
-          scale: kArgTypeOperand,
-          bias: kArgTypeOperand,
-        },
-      },
-      lstm: {
-        3: kArgTypeNonOperand,
-        4: kArgTypeNonOperand,
-        5: {
-          bias: kArgTypeOperand,
-          recurrentBias: kArgTypeOperand,
-          peepholeWeight: kArgTypeOperand,
-          initialHiddenState: kArgTypeOperand,
-          initialCellState: kArgTypeOperand,
-        },
-      },
-      lstmCell: {
-        5: kArgTypeNonOperand,
-        6: {
-          bias: kArgTypeOperand,
-          recurrentBias: kArgTypeOperand,
-          peepholeWeight: kArgTypeOperand,
-        },
-      },
-      pad: {
-        1: kArgTypeNonOperand,
-        2: kArgTypeNonOperand,
-      },
-      reshape: {
-        1: kArgTypeNonOperand,
-      },
-      slice: {
-        1: kArgTypeNonOperand,
-        2: kArgTypeNonOperand,
-      },
-      softmax: {
-        1: kArgTypeNonOperand,
-      },
-      split: {
-        1: kArgTypeNonOperand,
-      },
-    })[name]?.[index];
+    // AST structure is documented at https://github.com/w3c/webidl2.js
 
-    if (key) {
-      return argType?.[key] ?? kDefaultDictMemberType;
+    // Find the expected argument type for operation.
+    let type = WebNNUtil.idlOperation(name)?.arguments[index]?.idlType;
+    if (!type) {
+      // Fallback behavior, in case the operation or argument isn't found.
+      return key ? kDefaultDictMemberType : kDefaultArgType;
     }
 
-    return argType ?? kDefaultArgType;
+    // If `key` was passed, we're serializing a dictionary. If the IDL
+    // defines the argument type as a dictionary we can get the member type.
+    if (key) {
+      const dict = WebNNUtil.idlDictionary(type.idlType);
+      const member = dict?.members.find((m) => m.name === key);
+      if (!member) {
+        // Fallback behavior, in case the dictionary and/or member isn't found.
+        return kDefaultDictMemberType;
+      }
+      type = member.idlType;
+    }
+
+    // Translate the type to the `kArgTypeXYZ` value the parser needs.
+    if (type.idlType === 'MLOperand') {
+      return kArgTypeOperand;
+    }
+    if (type.generic === 'sequence' &&
+        type.idlType[0].idlType === 'MLOperand') {
+      return kArgTypeOperandList;
+    }
+    return kArgTypeNonOperand;
   }
 }
 
 export class NNotepad {
+  static async asyncInit() {
+    await WebNNUtil.asyncInit();
+  }
+
   // ============================================================
   // Script Converter
   // ============================================================
@@ -692,7 +650,7 @@ export class NNotepad {
     const namedOutputs = {};
     const outputTensors = {};
     const outputBuffers = {};
-    outputOperands.forEach(async (op, index) => {
+    await outputOperands.map(async (op, index) => {
       const name = `output-${index}`;
       namedOutputs[name] = op;
       outputBuffers[name] = WebNNUtil.bufferForOperand(op);

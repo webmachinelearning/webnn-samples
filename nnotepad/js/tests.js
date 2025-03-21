@@ -60,6 +60,8 @@ async function testThrows(expr) {
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', async (e) => {
+  NNotepad.asyncInit();
+
   Harness.section('Numbers');
   await test('125', {dataType: 'float32', shape: [], buffer: [125]});
   await test('-125', {dataType: 'float32', shape: [], buffer: [-125]});
