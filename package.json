@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "babel-eslint": "^8.0.3",
-    "monaco-editor": "^0.49.0"
+    "monaco-editor": "^0.49.0",
+    "webidl2": "^24.4.1"
   }
 }

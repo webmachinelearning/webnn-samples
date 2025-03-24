@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', async (e) => {
     console.warn(ex);
   }
 
+  await NNotepad.asyncInit();
+
   NNotepad.addMonacoLanguage(monaco);
   const editor = monaco.editor.create($('#input'), {
     value: inputValue,
