@@ -432,22 +432,31 @@ export class NNotepad {
     // Generates WebNN code as the body of a function. `_` is passed as the
     // `MLGraphBuilder`. The output of the last expression is returned.
 
+    const kUtilArgName = '_util_';
+    const kOutputsArgName = '_outputs_';
+
     const src = lines
-        .map(
-            (line, index) =>
-              serializeLine(line, index === lines.length - 1))
+        .map((line, index) =>
+          serializeLine(line, index === lines.length - 1))
         .map((line) => line + ';\n')
         .join('');
     const AsyncFunction = async function() {}.constructor;
-    return [new AsyncFunction(['_', 'Util'], src), src];
+    return [new AsyncFunction(['_', kUtilArgName, kOutputsArgName], src), src];
 
     function serializeLine(line, last) {
       const expr = serializeExpr(line.expr);
+
+      // If the last thing is an `output()` call, don't wrap it.
+      const isOutputCall = line.type === 'expression' &&
+            line.expr.type === 'call' && line.expr.identifier === 'output';
+      const wrapAsOutput = last && !isOutputCall;
+
       switch (line.type) {
         case 'assignment':
-          return last ? `return ${expr}` : `const ${line.identifier} = ${expr}`;
+          return wrapAsOutput ? `${kOutputsArgName}.push(${expr})` :
+                                `const ${line.identifier} = ${expr}`;
         case 'expression':
-          return last ? `return ${expr}` : expr;
+          return wrapAsOutput ? `${kOutputsArgName}.push(${expr})` : expr;
       }
       throw new Error(`unexpected line type: ${line.type}`);
     }
@@ -588,7 +597,7 @@ export class NNotepad {
         return `_.constant({dataType: "${dataType.value}", dimensions: ${
           Util.stringify(dims)}, shape: ${
           Util.stringify(dims)}}, new ${
-          ctor.name}(await Util.loadBuffer(${
+          ctor.name}(await ${kUtilArgName}.${Util.loadBuffer.name}(${
           Util.stringify(url.value)})).buffer)`;
       }
 
@@ -607,6 +616,15 @@ export class NNotepad {
           Util.stringify(dims)}, shape: ${
           Util.stringify(dims)}}, new ${
           ctor.name}(${len}).buffer)`;
+      }
+
+      if (name === 'output') {
+        return args.map((arg) => {
+          if (arg.type !== 'identifier') {
+            throw new TypeError('output(): expected identifier');
+          }
+          return `${kOutputsArgName}.push(${arg.value})`;
+        }).join(';\n');
       }
 
       return `_.${name}(${
@@ -630,21 +648,21 @@ export class NNotepad {
     const builder = new self.MLGraphBuilder(context);
 
     const outputOperands = [];
-    let output = await builderFunc(builder, Util);
-    if (output instanceof self.MLOperand) {
-      // TODO: remove try/catch once all back-ends support `identity()`.
-      try {
-        // In case `output` is a constant.
-        output = builder.identity(output);
-      } catch (ex) {
-        // Just live with it for now.
+    const outputs = [];
+    await builderFunc(builder, Util, outputs);
+    for (const output of outputs.flat()) {
+      if (output instanceof self.MLOperand) {
+        // TODO: remove try/catch once all back-ends support `identity()`.
+        try {
+          // In case `output` is a constant.
+          outputOperands.push(builder.identity(output));
+        } catch (ex) {
+          // Just live with it for now.
+          outputOperands.push(output);
+        }
+      } else {
+        throw new ParseError(`Non-MLOperand output: ${output}`);
       }
-      outputOperands.push(output);
-    } else if (Array.isArray(output)) {
-      outputOperands.push(...output);
-      // no-op
-    } else {
-      throw new ParseError(`Non-MLOperand output: ${output}`);
     }
 
     const namedOutputs = {};
