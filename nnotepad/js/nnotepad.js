@@ -1,7 +1,7 @@
 /* global BigInt64Array, BigUint64Array, Float16Array */
 
 import {Util} from './util.js';
-import * as idl from 'webidl2';
+import * as idl from '../../node_modules/webidl2/index.js';
 
 // ============================================================
 // General Utilities
