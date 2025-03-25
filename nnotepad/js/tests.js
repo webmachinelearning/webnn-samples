@@ -1,5 +1,5 @@
-import {Harness} from './testharness.js';
 import {NNotepad} from './nnotepad.js';
+import {Harness} from './testharness.js';
 
 // ============================================================
 // Helper for NNotepad-specific tests
@@ -60,7 +60,7 @@ async function testThrows(expr) {
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', async (e) => {
-  NNotepad.asyncInit();
+  await NNotepad.asyncInit();
 
   Harness.section('Numbers');
   await test('125', {dataType: 'float32', shape: [], buffer: [125]});
@@ -158,6 +158,29 @@ document.addEventListener('DOMContentLoaded', async (e) => {
     {dataType: 'float32', shape: [2], buffer: [1, 2]},
     {dataType: 'float32', shape: [2], buffer: [3, 4]},
   ]);
+  await test(`A = [1,2]  output(A)  B = [3,4]`, [
+    {dataType: 'float32', shape: [2], buffer: [1, 2]},
+    {dataType: 'float32', shape: [2], buffer: [3, 4]},
+  ]);
+  await test(`A = [1,2]  output(A)  B = [3,4]  output(B)`, [
+    {dataType: 'float32', shape: [2], buffer: [1, 2]},
+    {dataType: 'float32', shape: [2], buffer: [3, 4]},
+  ]);
+  await test(`A = [1,2]  output(A)  split([1,2,3,4], 2)`, [
+    {dataType: 'float32', shape: [2], buffer: [1, 2]},
+    {dataType: 'float32', shape: [2], buffer: [1, 2]},
+    {dataType: 'float32', shape: [2], buffer: [3, 4]},
+  ]);
+  await test(`array = split([1,2,3,4], 2)  output(array)`, [
+    {dataType: 'float32', shape: [2], buffer: [1, 2]},
+    {dataType: 'float32', shape: [2], buffer: [3, 4]},
+  ]);
+  await test(
+      `A = [[1,7],[2,4]]  B = [[3,3],[5,2]]  output(A, B)  matmul(A,B)`, [
+        {dataType: 'float32', shape: [2, 2], buffer: [1, 7, 2, 4]},
+        {dataType: 'float32', shape: [2, 2], buffer: [3, 3, 5, 2]},
+        {dataType: 'float32', shape: [2, 2], buffer: [38, 17, 26, 14]},
+      ]);
 
   Harness.section('Non-operand arguments: array of operands');
   await test(

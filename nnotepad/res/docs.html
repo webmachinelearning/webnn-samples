@@ -110,6 +110,7 @@ matmul(A,B)
 <ul>
 <li><strong>load(<em>url</em>, <em>shape</em>, <em>dataType</em>)</strong> - fetch a tensor resource. Must be served with appropriate <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">CORS</a> headers. Example: <code>load('https://www.random.org/cgi-bin/randbyte?nbytes=256', [16, 16], 'uint8')</code></li>
 <li><strong>zeros(<em>shape</em>, <em>dataType</em>)</strong> - constant zero-filled tensor of the given shape. Example: <code>zeros([2,2,2,2], 'int8')</code></li>
+<li><strong>output(<em>identifier</em>, ...)</strong> - show the named variable(s) as an additional output, in addition to the last expression result. Example: <code>T = [1,2]  output(T)  mul(T,3)</code></li>
 </ul>
 <h1>Details &amp; Gotchas</h1>
 <ul>
