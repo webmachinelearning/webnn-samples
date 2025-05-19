@@ -4,6 +4,7 @@ import {ResNet50V1FP16Nchw} from './resnet50v1_fp16_nchw.js';
 import {EfficientNetFP16Nchw} from './efficientnet_fp16_nchw.js';
 import {MobileNetV2Nchw} from './mobilenet_nchw.js';
 import {MobileNetV2Nhwc} from './mobilenet_nhwc.js';
+import {MobileNetV2Uint8Nhwc} from './mobilenet_uint8_nhwc.js';
 import {SqueezeNetNchw} from './squeezenet_nchw.js';
 import {SqueezeNetNhwc} from './squeezenet_nhwc.js';
 import {ResNet50V2Nchw} from './resnet50v2_nchw.js';
@@ -51,6 +52,9 @@ const modelList = {
       'mobilenet',
       'squeezenet',
       'resnet50v2',
+    ],
+    'uint8': [
+      'mobilenet',
     ],
   },
   'gpu': {
@@ -112,6 +116,7 @@ $('#backendBtns .btn').on('change', async (e) => {
   } else {
     ui.handleBtnUI('#float16Label', true);
     ui.handleBtnUI('#float32Label', false);
+    ui.handleBtnUI('#uint8Label', false);
     $('#float32').click();
     utils.displayAvailableModels(modelList, modelIds, deviceType, 'float32');
   }
@@ -130,6 +135,8 @@ $('#modelBtns .btn').on('change', async (e) => {
   modelName = modelId;
   if (dataType == 'float16') {
     modelName += 'fp16';
+  } else if (dataType == 'uint8') {
+    modelName += 'uint8';
   }
 
   await main();
@@ -298,6 +305,7 @@ function constructNetObject(type) {
     'efficientnetfp16nchw': new EfficientNetFP16Nchw(),
     'mobilenetnchw': new MobileNetV2Nchw(),
     'mobilenetnhwc': new MobileNetV2Nhwc(),
+    'mobilenetuint8nhwc': new MobileNetV2Uint8Nhwc(),
     'squeezenetnchw': new SqueezeNetNchw(),
     'squeezenetnhwc': new SqueezeNetNhwc(),
     'resnet50v2nchw': new ResNet50V2Nchw(),
