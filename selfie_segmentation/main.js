@@ -3,72 +3,69 @@
 import * as utils from '../common/utils.js';
 import {buildWebGL2Pipeline} from './lib/webgl2/webgl2Pipeline.js';
 import * as ui from '../common/ui.js';
-const worker = new Worker('./builtin_delegate_worker.js');
+import {SelfieSegmentationGeneral} from './selfie_segmentation_general.js';
+import {SelfieSegmentationLandscape} from './selfie_segmentation_landscape.js';
 
 const imgElement = document.getElementById('feedElement');
 imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
 const outputCanvas = document.getElementById('outputCanvas');
-let modelName = '';
 let rafReq;
 let isFirstTimeLoad = true;
 let inputType = 'image';
 let stream = null;
+let netInstance;
 let loadTime = 0;
+let buildTime = 0;
 let computeTime = 0;
 let outputBuffer;
 let modelChanged = false;
 let backgroundImageSource = document.getElementById('00-img');
-let backgroundType = 'img'; // 'none', 'blur', 'image'
+let backgroundType = 'image'; // 'none', 'blur', 'image'
+let deviceType = 'cpu';
+let resolutionType = '';
+let dataType = 'float16';
 const inputOptions = {
   mean: [127.5, 127.5, 127.5],
   std: [127.5, 127.5, 127.5],
   scaledFlag: false,
-  inputLayout: 'nhwc',
+  inputResolution: [256, 144],
 };
-const modelConfigs = {
-  'selfie_segmentation': {
-    inputShape: [1, 256, 256, 3],
-    inputResolution: [256, 256],
-    modelPath: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite',
-  },
-  'selfie_segmentation_landscape': {
-    inputShape: [1, 144, 256, 3],
-    inputResolution: [256, 144],
-    modelPath: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter_landscape/float16/latest/selfie_segmenter_landscape.tflite',
-  },
-  'deeplabv3': {
-    inputShape: [1, 257, 257, 3],
-    inputResolution: [257, 257],
-    modelPath: 'https://tfhub.dev/tensorflow/lite-model/deeplabv3/1/metadata/2?lite-format=tflite',
-  },
-};
-let enableWebnnDelegate = false;
+
 const disabledSelectors = ['#tabs > li', '.btn'];
 
 $(document).ready(async () => {
-  await tf.setBackend('wasm');
-  await tf.ready();
   $('.icdisplay').hide();
+  if (await utils.isWebNN()) {
+    $('#cpu').click();
+  } else {
+    console.log(utils.webNNNotSupportMessage());
+    ui.addAlert(utils.webNNNotSupportMessageHTML());
+  }
 });
 
-$('input[name="model"]').on('change', async (e) => {
+$('#backendBtns .btn').on('change', async (e) => {
   modelChanged = true;
-  modelName = $(e.target).attr('id');
-  if (modelName.startsWith('selfie')) {
-    $('#deeplabModelBtns .btn').removeClass('active');
-  } else {
-    $('#ssModelsBtns .btn').removeClass('active');
-  }
-  inputOptions.inputShape = modelConfigs[modelName].inputShape;
-  inputOptions.inputResolution = modelConfigs[modelName].inputResolution;
   if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
+  deviceType = $(e.target).attr('id');
   await main();
 });
 
-$('#webnnDelegate').on('change', async (e) => {
+$('#dataTypeBtns .btn').on('change', async (e) => {
   modelChanged = true;
-  enableWebnnDelegate = $(e.target)[0].checked;
+  if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
+  dataType = $(e.target).attr('id');
+  await main();
+});
+
+$('#resolutionType').on('change', async (e) => {
+  modelChanged = true;
+  resolutionType = $(e.target).attr('id');
+  if (resolutionType === 'general') {
+    inputOptions.inputResolution = [256, 256];
+  } else {
+    inputOptions.inputResolution = [256, 144];
+  }
   if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
   await main();
 });
@@ -104,6 +101,7 @@ $('#cam').click(async () => {
 });
 
 $('#gallery .gallery-item').click(async (e) => {
+  if ($(e.target).attr('id') == backgroundType) return;
   $('#gallery .gallery-item').removeClass('hl');
   $(e.target).parent().addClass('hl');
   const backgroundTypeId = $(e.target).attr('id');
@@ -131,30 +129,26 @@ async function renderCamStream() {
     return;
   }
   const inputCanvas = utils.getVideoFrame(camElement);
-  const inputBuffer = utils.getInputTensor(camElement, inputOptions);
-  console.log('- Computing... ');
+  let inputBuffer = utils.getInputTensor(camElement, inputOptions);
+  if (dataType == 'float16') {
+    inputBuffer = Float16Array.from(inputBuffer);
+  }
+
   const start = performance.now();
-  const result =
-      await postAndListenMessage({action: 'compute', buffer: inputBuffer});
-  computeTime = (performance.now() - start).toFixed(2);
-  outputBuffer = result.outputBuffer;
-  console.log(`  done in ${computeTime} ms.`);
+  outputBuffer = await netInstance.compute(inputBuffer);
+  if (dataType == 'float16') {
+    outputBuffer = Float32Array.from(outputBuffer);
+  }
+  computeTime = performance.now() - start;
+  console.log(`  done in ${computeTime.toFixed(2)} ms.`);
+
   showPerfResult();
   await drawOutput(outputBuffer, inputCanvas);
-  $('#fps').text(`${(1000/computeTime).toFixed(0)} FPS`);
+  $('#fps').text(`${(1000 / computeTime).toFixed(0)} FPS`);
   rafReq = requestAnimationFrame(renderCamStream);
 }
 
 async function drawOutput(outputBuffer, srcElement) {
-  if (modelName.startsWith('deeplab')) {
-    // Do additional `argMax` for DeepLabV3 model
-    outputBuffer = tf.tidy(() => {
-      const a = tf.tensor(outputBuffer, [1, 257, 257, 21], 'float32');
-      const b = tf.argMax(a, 3);
-      const c = tf.tensor(b.dataSync(), b.shape, 'float32');
-      return c.dataSync();
-    });
-  }
   outputCanvas.width = srcElement.width;
   outputCanvas.height = srcElement.height;
   const pipeline = buildWebGL2Pipeline(
@@ -177,96 +171,91 @@ async function drawOutput(outputBuffer, srcElement) {
 }
 
 function showPerfResult(medianComputeTime = undefined) {
-  $('#loadTime').html(`${loadTime} ms`);
+  $('#loadTime').html(`${loadTime.toFixed(2)} ms`);
+  $('#buildTime').html(`${buildTime.toFixed(2)} ms`);
   if (medianComputeTime !== undefined) {
     $('#computeLabel').html('Median inference time:');
-    $('#computeTime').html(`${medianComputeTime} ms`);
+    $('#computeTime').html(`${medianComputeTime.toFixed(2)} ms`);
   } else {
     $('#computeLabel').html('Inference time:');
-    $('#computeTime').html(`${computeTime} ms`);
+    $('#computeTime').html(`${computeTime.toFixed(2)} ms`);
   }
-}
-
-async function postAndListenMessage(postedMessage) {
-  if (postedMessage.action == 'compute') {
-    // Transfer buffer rather than copy
-    worker.postMessage(postedMessage, [postedMessage.buffer.buffer]);
-  } else {
-    worker.postMessage(postedMessage);
-  }
-
-  const result = await new Promise((resolve) => {
-    worker.onmessage = (event) => {
-      resolve(event.data);
-    };
-  });
-  return result;
 }
 
 export async function main() {
   try {
-    if (modelName === '') return;
+    if (resolutionType === '') return;
     ui.handleClick(disabledSelectors, true);
     if (isFirstTimeLoad) $('#hint').hide();
     const numRuns = utils.getUrlParams()[0];
-    const numThreads = utils.getUrlParams()[2];
-    // Only do load() when model first time loads and
-    // there's new model or delegate choosed
+    // Only do load() and build() when model first time loads,
+    // there's new model choosed or device changed
     if (isFirstTimeLoad || modelChanged) {
       modelChanged = false;
       isFirstTimeLoad = false;
-      console.log(`- Model: ${modelName}-`);
       // UI shows model loading progress
       await ui.showProgressComponent('current', 'pending', 'pending');
-      console.log('- Loading model... ');
-      const options = {
-        action: 'load',
-        modelPath: modelConfigs[modelName].modelPath,
-        enableWebNNDelegate: enableWebnnDelegate,
-        webNNDevicePreference: 0,
-        webNNNumThreads: numThreads,
-      };
-      loadTime = await postAndListenMessage(options);
-      console.log(`  done in ${loadTime} ms.`);
+      let start = performance.now();
+      netInstance =
+        resolutionType == 'landscape' ?
+          new SelfieSegmentationLandscape(deviceType, dataType) :
+          new SelfieSegmentationGeneral(deviceType, dataType);
+      const graph = await netInstance.load({deviceType});
+      inputOptions.inputLayout = netInstance.layout;
+      inputOptions.inputShape = netInstance.inputShape;
+      console.log(`- Loading WebNN model: [${resolutionType}]
+ deviceType: [${deviceType}] dataType: [${dataType}]
+ preferredLayout: [${netInstance.layout}]`);
+      loadTime = performance.now() - start;
+      console.log(`  done in ${loadTime.toFixed(2)} ms.`);
       // UI shows model building progress
       await ui.showProgressComponent('done', 'current', 'pending');
+      console.log('- Building... ');
+      start = performance.now();
+      await netInstance.build(graph);
+      buildTime = performance.now() - start;
+      console.log(`  done in ${buildTime.toFixed(2)} ms.`);
     }
+
     // UI shows inferencing progress
     await ui.showProgressComponent('done', 'done', 'current');
     if (inputType === 'image') {
-      const inputBuffer = utils.getInputTensor(imgElement, inputOptions);
+      let inputBuffer = utils.getInputTensor(imgElement, inputOptions);
+      if (dataType == 'float16') {
+        inputBuffer = Float16Array.from(inputBuffer);
+      }
       console.log('- Computing... ');
       const computeTimeArray = [];
       let medianComputeTime;
 
-      console.log('- Warmup... ');
-      const result =
-          await postAndListenMessage({action: 'compute', buffer: inputBuffer});
-      console.log('- Warmup done... ');
-
+      // Do warm up
+      outputBuffer = await netInstance.compute(inputBuffer);
+      if (dataType == 'float16') {
+        outputBuffer = Float32Array.from(outputBuffer);
+      }
       for (let i = 0; i < numRuns; i++) {
-        const inputBuffer = utils.getInputTensor(imgElement, inputOptions);
         const start = performance.now();
-        await postAndListenMessage({action: 'compute', buffer: inputBuffer});
-        const time = performance.now() - start;
-        console.log(`  compute time ${i+1}: ${time.toFixed(2)} ms`);
-        computeTimeArray.push(time);
+        await netInstance.compute(inputBuffer);
+        computeTime = performance.now() - start;
+        console.log(`  compute time ${i + 1}: ${computeTime.toFixed(2)} ms`);
+        computeTimeArray.push(Number(computeTime));
       }
-      computeTime = utils.getMedianValue(computeTimeArray);
-      computeTime = computeTime.toFixed(2);
       if (numRuns > 1) {
-        medianComputeTime = computeTime;
+        medianComputeTime = utils.getMedianValue(computeTimeArray);
+        console.log(
+            `  median compute time: ${medianComputeTime.toFixed(2)} ms`);
       }
-      outputBuffer = result.outputBuffer;
-      console.log('outputBuffer: ', outputBuffer);
-
+      console.log('output: ', outputBuffer);
       await ui.showProgressComponent('done', 'done', 'done');
       $('#fps').hide();
       ui.readyShowResultComponents();
       await drawOutput(outputBuffer, imgElement);
       showPerfResult(medianComputeTime);
     } else if (inputType === 'camera') {
-      stream = await utils.getMediaStream();
+      stream = await utils.getMediaStream({
+        width: inputOptions.inputResolution[0],
+        height: inputOptions.inputResolution[1],
+      });
       camElement.srcObject = stream;
       camElement.onloadedmediadata = await renderCamStream();
       await ui.showProgressComponent('done', 'done', 'done');
