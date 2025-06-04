@@ -273,8 +273,13 @@ export function getMedianValue(array) {
 // Get url params
 export function getUrlParams() {
   const params = new URLSearchParams(location.search);
+  const lowerCaseParams = {};
+  for (const [key, value] of params.entries()) {
+    lowerCaseParams[key.toLowerCase()] = value;
+  }
+
   // Get 'numRuns' param to run inference multiple times
-  let numRuns = params.get('numRuns');
+  let numRuns = lowerCaseParams['numruns'];
   numRuns = numRuns === null ? 1 : parseInt(numRuns);
   if (numRuns < 1) {
     addAlert(`Ignore the url param: 'numRuns', its value must be >= 1.`);
@@ -282,7 +287,7 @@ export function getUrlParams() {
   }
 
   // Get 'powerPreference' param to set WebNN's 'MLPowerPreference' option
-  let powerPreference = params.get('powerPreference');
+  let powerPreference = lowerCaseParams['powerpreference'];
   const powerPreferences = ['default', 'high-performance', 'low-power'];
 
   if (powerPreference && !powerPreferences.includes(powerPreference)) {
@@ -292,7 +297,7 @@ export function getUrlParams() {
   }
 
   // Get 'numThreads' param to set WebNN's 'numThreads' option
-  let numThreads = params.get('numThreads');
+  let numThreads = lowerCaseParams['numthreads'];
   if (numThreads != null) {
     numThreads = parseInt(numThreads);
     if (!Number.isInteger(numThreads) || numThreads < 0) {
