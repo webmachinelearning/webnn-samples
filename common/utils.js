@@ -274,9 +274,9 @@ export function getMedianValue(array) {
 export function getUrlParams() {
   const params = new URLSearchParams(location.search);
   const lowerCaseParams = {};
-  for (const [key, value] of params.entries()) {
+  params.forEach((value, key) => {
     lowerCaseParams[key.toLowerCase()] = value;
-  }
+  });
 
   // Get 'numRuns' param to run inference multiple times
   let numRuns = lowerCaseParams['numruns'];
