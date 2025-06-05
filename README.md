@@ -16,7 +16,7 @@ This repository hosts a wide range of samples and examples that showcase differe
 * [NSNet2](/nsnet2): This example shows how to implement the NSNet2 baseline implementation of a deep learning-based noise suppression model.
 * [Object detection](/object_detection): Samples showcasing object detection tasks using WebNN with pre-trained models.
 * [RNNoise](/rnnoise): This example shows the RNNoise baseline implementation of a deep learning-based noise suppression model.
-* [Selfie segmentation](/selfie_segmentation): This example demonstrates the MediaPipe Selfie Segmentation using the TFLite Web XNNPACK delegate and WebNN delegate, built by tflite-support.
+* [Selfie segmentation](/selfie_segmentation): This example demonstrates the MediaPipe Selfie Segmentation models.
 * [Semantic segmentation](/semantic_segmentation): This directory contains examples of implementing the DeepLab V3 MobileNet V2, from TFLite models.
 * [Style transfer](/style_transfer): Explore examples highlighting the artistic possibilities of WebNN by applying style-transfer techniques to images.
 

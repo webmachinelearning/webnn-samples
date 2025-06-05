@@ -52,31 +52,27 @@ function buildBlurPass(
 
     out vec4 outColor;
 
-    const float offset[5] = float[](0.0, 1.0, 2.0, 3.0, 4.0);
-    const float weight[5] = float[](0.2270270270, 0.1945945946, 0.1216216216,
-      0.0540540541, 0.0162162162);
+    const int radius = 50;
 
     void main() {
-      vec4 centerColor = texture(u_inputFrame, v_texCoord);
-      float personMask = texture(u_personMask, v_texCoord).a;
+      vec4 frameColor = vec4(0.0);
+      float totalWeight = 0.0;
 
-      vec4 frameColor = centerColor * weight[0] * (1.0 - personMask);
+      for (int i = -radius; i <= radius; i++) {
+        float weight = exp(-float(i * i) / float(radius * radius));
+        vec2 offset = vec2(float(i)) * u_texelSize;
 
-      for (int i = 1; i < 5; i++) {
-        vec2 offset = vec2(offset[i]) * u_texelSize;
+        vec4 sampleColor = texture(u_inputFrame, v_texCoord + offset);
+        float sampleMask = texture(u_personMask, v_texCoord + offset).a;
 
-        vec2 texCoord = v_texCoord + offset;
-        frameColor += texture(u_inputFrame, texCoord) * weight[i] *
-          (1.0 - texture(u_personMask, texCoord).a);
-
-        texCoord = v_texCoord - offset;
-        frameColor += texture(u_inputFrame, texCoord) * weight[i] *
-          (1.0 - texture(u_personMask, texCoord).a);
+        frameColor += sampleColor * weight * (1.0 - sampleMask);
+        totalWeight += weight * (1.0 - sampleMask);
       }
-      outColor = vec4(frameColor.rgb + (1.0 - frameColor.a) * centerColor.rgb, 1.0);
+
+      frameColor /= totalWeight;
+      outColor = mix(texture(u_inputFrame, v_texCoord), frameColor, 1.0 - texture(u_personMask, v_texCoord).a);
     }
   `;
-
   const scale = 0.5;
   const outputWidth = canvas.width * scale;
   const outputHeight = canvas.height * scale;

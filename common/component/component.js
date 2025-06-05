@@ -552,6 +552,7 @@ const webnnsamplenav = () => {
             <a class="dropdown-item" href="../rnnoise/">Noise Suppression (RNNoise)</a>
             <a class="dropdown-item" href="../style_transfer/">Fast Style Transfer</a>
             <a class="dropdown-item" href="../object_detection/">Object Detection</a>
+            <a class="dropdown-item" href="../selfie_segmentation/">Selfie Segmentation</a>
             <a class="dropdown-item" href="../semantic_segmentation/">Semantic Segmentation</a>
             <a class="dropdown-item" href="../face_recognition/">Face Recognition</a>
             <a class="dropdown-item" href="../facial_landmark_detection/">Facial landmark Detection</a>

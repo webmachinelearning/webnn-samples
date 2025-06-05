@@ -20,45 +20,55 @@
       <div class="logosvg" id="logosvg"></div>
     </a>
     <span class="navbar-brand">Selfie Segmentation</span>
-    <!-- <ul class="navbar-nav"></ul> -->
+    <ul class="navbar-nav"></ul>
   </nav>
   <div class='container' id='container'>
     <div class="card mt-2 mb-2">
       <div class="card-body">
         <div class="row mb-2 align-items-center justify-content-md-left">
-          <div class="col-1 col-md-4">
-            <span>TFLite Wasm Runtime</span>
+          <div class="col-1 col-md-2">
+            <span>Backend</span>
           </div>
           <div class="col-md-auto">
-            <div class="custom-control custom-switch">
-              <input type="checkbox" class="custom-control-input" id="webnnDelegate">
-              <label class="custom-control-label" for="webnnDelegate">Enable WebNN Delegate</label>
+            <div class="btn-group-toggle" data-toggle="buttons" id="backendBtns">
+              <label class="btn btn-outline-info custom" name="webnn">
+                <input type="radio" name="backend" id="cpu" autocomplete="off">WebNN (CPU)
+              </label>
+              <label class="btn btn-outline-info custom" name="webnn">
+                <input type="radio" name="backend" id="gpu" autocomplete="off">WebNN (GPU)
+              </label>
+              <label class="btn btn-outline-info custom" name="webnn">
+                <input type="radio" name="backend" id="npu" autocomplete="off">WebNN (NPU)
+              </label>
             </div>
           </div>
         </div>
         <div class="row mb-2 align-items-center">
-          <div class="col-1 col-md-4">
-            <span><a href="https://google.github.io/mediapipe/solutions/selfie_segmentation#models">MediaPipe Selfie Segmentation Model</a></span>
+          <div class="col-1 col-md-2">
+            <span class="nowrap">Data Type</span>
           </div>
           <div class="col-md-auto">
-            <div class="btn-group-toggle" data-toggle="buttons" id="ssModelsBtns">
-              <label class="btn btn-outline-info">
-                <input type="radio" name="model" id="selfie_segmentation" autocomplete="off">General
+            <div class="btn-group-toggle" data-toggle="buttons" id="dataTypeBtns">
+              <label class="btn btn-outline-info" id="float32Label" active>
+                <input type="radio" name="layout" id="float32" autocomplete="off">Float32
               </label>
-              <label class="btn btn-outline-info">
-                <input type="radio" name="model" id="selfie_segmentation_landscape" autocomplete="off">Landscape
+              <label class="btn btn-outline-info" id="float16Label">
+                <input type="radio" name="layout" id="float16" autocomplete="off" checked>Float16
               </label>
             </div>
           </div>
         </div>
-        <div class="row align-items-center">
-          <div class="col-1 col-md-4">
-            <span><a href="https://tfhub.dev/tensorflow/lite-model/deeplabv3/1/default/1">TFLite DeepLabV3 Model</a></span>
+        <div class="row mb-2 align-items-center">
+          <div class="col-1 col-md-2">
+            <span>Resolution Type</span>
           </div>
           <div class="col-md-auto">
-            <div class="btn-group-toggle" data-toggle="buttons" id="deeplabModelBtns">
-              <label class="btn btn-outline-info">
-                <input type="radio" name="model" id="deeplabv3" autocomplete="off">DeepLabV3 (257 x 257)
+            <div class="btn-group-toggle" data-toggle="buttons" id="resolutionType">
+              <label class="btn btn-outline-info custom">
+                <input type="radio" name="backend" id="general" autocomplete="off">General (256 x 256)
+              </label>
+              <label class="btn btn-outline-info custom">
+                <input type="radio" name="backend" id="landscape" autocomplete="off">Landscape (256 x 144)
               </label>
             </div>
           </div>
@@ -121,6 +131,9 @@
               Load time: <span class='ir' id='loadTime'></span>
             </li>
             <li class="list-inline-item">
+              Build time: <span class='ir' id='buildTime'></span>
+            </li>
+            <li class="list-inline-item">
               <span id='computeLabel'></span>
               <span class='ir' id='computeTime'></span>
             </li>
@@ -176,12 +189,6 @@
     crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
     integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.13.0/dist/tf.min.js"
-    integrity="sha256-thVOvsS0U8X0/2twH3+6dCK3ZPTvgWgFSivgfpj5vQQ="
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@4.13.0/dist/tf-backend-wasm.min.js"
-    integrity="sha256-L69bjMGAl0eP3GTV6t/NcwblWqvaW2OcOp/ITT7ZOjY="
     crossorigin="anonymous"></script>
   <script type="module" src="./main.js"></script>
   <script type="module" src="../common/component/component.js"></script>

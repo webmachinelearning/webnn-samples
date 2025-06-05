@@ -163,8 +163,12 @@ a {
     background: url("../img/od.png") center/cover no-repeat
 }
 
-#bg_ss {
-    background: url("../img/ss.png") center/cover no-repeat
+#bg_ss0 {
+    background: url("../img/ss0.png") center/cover no-repeat
+}
+
+#bg_ss1 {
+    background: url("../img/ss1.png") center/cover no-repeat
 }
 
 #bg_fld {
