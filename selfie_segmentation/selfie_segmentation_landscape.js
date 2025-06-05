@@ -1,5 +1,7 @@
 'use strict';
 
+import {weightsOrigin} from '../common/utils.js';
+
 /* eslint max-len: ["error", {"code": 120}] */
 
 // Selfie-Segmenter WebNN model
@@ -14,6 +16,7 @@ export class SelfieSegmentationLandscape {
     this.inputTensor_ = null;
     this.outputTensor_ = null;
     this.outputShape_ = [1, 144, 256, 1];
+    this.weightsUrl_ = `${weightsOrigin()}/test-data/models/selfie_segmentation/landscape`;
   }
 
   async buildConv_(
@@ -114,19 +117,19 @@ export class SelfieSegmentationLandscape {
 
     // Load the weights, bias and info files.
     const weightsResponse = await fetch(
-        `./weights/landscape/weights_${this.layout}.bin`,
+        `${this.weightsUrl_}/weights_${this.layout}.bin`,
     );
     this.weightsBuffer_ = await weightsResponse.arrayBuffer();
 
     const weightInfoResponse = await fetch(
-        `./weights/landscape/weights_${this.layout}.json`,
+        `${this.weightsUrl_}/weights_${this.layout}.json`,
     );
     this.weightsInfo_ = await weightInfoResponse.json();
 
     // Different layouts have the same bias
-    const biasResponse = await fetch(`./weights/landscape/biases.bin`);
+    const biasResponse = await fetch(`${this.weightsUrl_}/biases.bin`);
     this.biasesBuffer_ = await biasResponse.arrayBuffer();
-    this.biasInfoResponse_ = await fetch(`./weights/landscape/biases.json`);
+    this.biasInfoResponse_ = await fetch(`${this.weightsUrl_}/biases.json`);
     this.biasesInfo_ = await this.biasInfoResponse_.json();
 
     this.builder_ = new MLGraphBuilder(this.context_);

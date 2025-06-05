@@ -238,7 +238,7 @@ export async function main() {
         await netInstance.compute(inputBuffer);
         computeTime = performance.now() - start;
         console.log(`  compute time ${i + 1}: ${computeTime.toFixed(2)} ms`);
-        computeTimeArray.push(Number(computeTime));
+        computeTimeArray.push(computeTime);
       }
       if (numRuns > 1) {
         medianComputeTime = utils.getMedianValue(computeTimeArray);
