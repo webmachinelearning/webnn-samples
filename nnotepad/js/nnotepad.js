@@ -668,12 +668,13 @@ export class NNotepad {
     const namedOutputs = {};
     const outputTensors = {};
     const outputBuffers = {};
-    await outputOperands.map(async (op, index) => {
+    await Promise.all(outputOperands.map(async (op, index) => {
       const name = `output-${index}`;
       namedOutputs[name] = op;
       outputBuffers[name] = WebNNUtil.bufferForOperand(op);
       outputTensors[name] = await WebNNUtil.tensorForOperand(op, context);
-    });
+    }));
+
     let graph;
     try {
       graph = await builder.build(namedOutputs);
