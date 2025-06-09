@@ -280,7 +280,7 @@ export function getUrlParams() {
 
   // Get 'numRuns' param to run inference multiple times
   let numRuns = lowerCaseParams['numruns'];
-  numRuns = numRuns === null ? 1 : parseInt(numRuns);
+  numRuns = numRuns ? parseInt(numRuns) : 1;
   if (numRuns < 1) {
     addAlert(`Ignore the url param: 'numRuns', its value must be >= 1.`);
     numRuns = 1;
@@ -298,7 +298,7 @@ export function getUrlParams() {
 
   // Get 'numThreads' param to set WebNN's 'numThreads' option
   let numThreads = lowerCaseParams['numthreads'];
-  if (numThreads != null) {
+  if (numThreads) {
     numThreads = parseInt(numThreads);
     if (!Number.isInteger(numThreads) || numThreads < 0) {
       addAlert(`Ignore the url param: 'numThreads', its value must be ` +
