@@ -1,0 +1,607 @@
+{
+  "conv0": {
+    "dataOffset": 0,
+    "byteLength": 1728,
+    "dataType": "float32",
+    "shape": [
+      16,
+      3,
+      3,
+      3
+    ]
+  },
+  "conv1": {
+    "dataOffset": 1728,
+    "byteLength": 1024,
+    "dataType": "float32",
+    "shape": [
+      16,
+      1,
+      1,
+      16
+    ]
+  },
+  "conv2": {
+    "dataOffset": 2752,
+    "byteLength": 576,
+    "dataType": "float32",
+    "shape": [
+      1,
+      3,
+      3,
+      16
+    ]
+  },
+  "conv3": {
+    "dataOffset": 3328,
+    "byteLength": 512,
+    "dataType": "float32",
+    "shape": [
+      8,
+      1,
+      1,
+      16
+    ]
+  },
+  "conv4": {
+    "dataOffset": 3840,
+    "byteLength": 512,
+    "dataType": "float32",
+    "shape": [
+      16,
+      1,
+      1,
+      8
+    ]
+  },
+  "conv5": {
+    "dataOffset": 4352,
+    "byteLength": 1024,
+    "dataType": "float32",
+    "shape": [
+      16,
+      1,
+      1,
+      16
+    ]
+  },
+  "conv6": {
+    "dataOffset": 5376,
+    "byteLength": 4608,
+    "dataType": "float32",
+    "shape": [
+      72,
+      1,
+      1,
+      16
+    ]
+  },
+  "conv7": {
+    "dataOffset": 9984,
+    "byteLength": 2592,
+    "dataType": "float32",
+    "shape": [
+      1,
+      3,
+      3,
+      72
+    ]
+  },
+  "conv8": {
+    "dataOffset": 12576,
+    "byteLength": 6912,
+    "dataType": "float32",
+    "shape": [
+      24,
+      1,
+      1,
+      72
+    ]
+  },
+  "conv9": {
+    "dataOffset": 19488,
+    "byteLength": 8448,
+    "dataType": "float32",
+    "shape": [
+      88,
+      1,
+      1,
+      24
+    ]
+  },
+  "conv10": {
+    "dataOffset": 27936,
+    "byteLength": 3168,
+    "dataType": "float32",
+    "shape": [
+      1,
+      3,
+      3,
+      88
+    ]
+  },
+  "conv11": {
+    "dataOffset": 31104,
+    "byteLength": 8448,
+    "dataType": "float32",
+    "shape": [
+      24,
+      1,
+      1,
+      88
+    ]
+  },
+  "conv12": {
+    "dataOffset": 39552,
+    "byteLength": 9216,
+    "dataType": "float32",
+    "shape": [
+      96,
+      1,
+      1,
+      24
+    ]
+  },
+  "conv13": {
+    "dataOffset": 48768,
+    "byteLength": 9600,
+    "dataType": "float32",
+    "shape": [
+      1,
+      5,
+      5,
+      96
+    ]
+  },
+  "conv14": {
+    "dataOffset": 58368,
+    "byteLength": 9216,
+    "dataType": "float32",
+    "shape": [
+      24,
+      1,
+      1,
+      96
+    ]
+  },
+  "conv15": {
+    "dataOffset": 67584,
+    "byteLength": 9216,
+    "dataType": "float32",
+    "shape": [
+      96,
+      1,
+      1,
+      24
+    ]
+  },
+  "conv16": {
+    "dataOffset": 76800,
+    "byteLength": 12288,
+    "dataType": "float32",
+    "shape": [
+      32,
+      1,
+      1,
+      96
+    ]
+  },
+  "conv17": {
+    "dataOffset": 89088,
+    "byteLength": 16384,
+    "dataType": "float32",
+    "shape": [
+      128,
+      1,
+      1,
+      32
+    ]
+  },
+  "conv18": {
+    "dataOffset": 105472,
+    "byteLength": 12800,
+    "dataType": "float32",
+    "shape": [
+      1,
+      5,
+      5,
+      128
+    ]
+  },
+  "conv19": {
+    "dataOffset": 118272,
+    "byteLength": 16384,
+    "dataType": "float32",
+    "shape": [
+      32,
+      1,
+      1,
+      128
+    ]
+  },
+  "conv20": {
+    "dataOffset": 134656,
+    "byteLength": 16384,
+    "dataType": "float32",
+    "shape": [
+      128,
+      1,
+      1,
+      32
+    ]
+  },
+  "conv21": {
+    "dataOffset": 151040,
+    "byteLength": 16384,
+    "dataType": "float32",
+    "shape": [
+      32,
+      1,
+      1,
+      128
+    ]
+  },
+  "conv22": {
+    "dataOffset": 167424,
+    "byteLength": 16384,
+    "dataType": "float32",
+    "shape": [
+      128,
+      1,
+      1,
+      32
+    ]
+  },
+  "conv23": {
+    "dataOffset": 183808,
+    "byteLength": 12800,
+    "dataType": "float32",
+    "shape": [
+      1,
+      5,
+      5,
+      128
+    ]
+  },
+  "conv24": {
+    "dataOffset": 196608,
+    "byteLength": 16384,
+    "dataType": "float32",
+    "shape": [
+      32,
+      1,
+      1,
+      128
+    ]
+  },
+  "conv25": {
+    "dataOffset": 212992,
+    "byteLength": 16384,
+    "dataType": "float32",
+    "shape": [
+      128,
+      1,
+      1,
+      32
+    ]
+  },
+  "conv26": {
+    "dataOffset": 229376,
+    "byteLength": 16384,
+    "dataType": "float32",
+    "shape": [
+      32,
+      1,
+      1,
+      128
+    ]
+  },
+  "conv27": {
+    "dataOffset": 245760,
+    "byteLength": 12288,
+    "dataType": "float32",
+    "shape": [
+      96,
+      1,
+      1,
+      32
+    ]
+  },
+  "conv28": {
+    "dataOffset": 258048,
+    "byteLength": 9600,
+    "dataType": "float32",
+    "shape": [
+      1,
+      5,
+      5,
+      96
+    ]
+  },
+  "conv29": {
+    "dataOffset": 267648,
+    "byteLength": 9216,
+    "dataType": "float32",
+    "shape": [
+      24,
+      1,
+      1,
+      96
+    ]
+  },
+  "conv30": {
+    "dataOffset": 276864,
+    "byteLength": 9216,
+    "dataType": "float32",
+    "shape": [
+      96,
+      1,
+      1,
+      24
+    ]
+  },
+  "conv31": {
+    "dataOffset": 286080,
+    "byteLength": 12288,
+    "dataType": "float32",
+    "shape": [
+      32,
+      1,
+      1,
+      96
+    ]
+  },
+  "conv32": {
+    "dataOffset": 298368,
+    "byteLength": 12288,
+    "dataType": "float32",
+    "shape": [
+      96,
+      1,
+      1,
+      32
+    ]
+  },
+  "conv33": {
+    "dataOffset": 310656,
+    "byteLength": 9600,
+    "dataType": "float32",
+    "shape": [
+      1,
+      5,
+      5,
+      96
+    ]
+  },
+  "conv34": {
+    "dataOffset": 320256,
+    "byteLength": 9216,
+    "dataType": "float32",
+    "shape": [
+      24,
+      1,
+      1,
+      96
+    ]
+  },
+  "conv35": {
+    "dataOffset": 329472,
+    "byteLength": 9216,
+    "dataType": "float32",
+    "shape": [
+      96,
+      1,
+      1,
+      24
+    ]
+  },
+  "conv36": {
+    "dataOffset": 338688,
+    "byteLength": 12288,
+    "dataType": "float32",
+    "shape": [
+      32,
+      1,
+      1,
+      96
+    ]
+  },
+  "conv37": {
+    "dataOffset": 350976,
+    "byteLength": 16384,
+    "dataType": "float32",
+    "shape": [
+      128,
+      1,
+      1,
+      32
+    ]
+  },
+  "conv38": {
+    "dataOffset": 367360,
+    "byteLength": 16384,
+    "dataType": "float32",
+    "shape": [
+      128,
+      1,
+      1,
+      32
+    ]
+  },
+  "conv39": {
+    "dataOffset": 383744,
+    "byteLength": 12288,
+    "dataType": "float32",
+    "shape": [
+      24,
+      1,
+      1,
+      128
+    ]
+  },
+  "conv40": {
+    "dataOffset": 396032,
+    "byteLength": 2304,
+    "dataType": "float32",
+    "shape": [
+      24,
+      1,
+      1,
+      24
+    ]
+  },
+  "conv41": {
+    "dataOffset": 398336,
+    "byteLength": 2304,
+    "dataType": "float32",
+    "shape": [
+      24,
+      1,
+      1,
+      24
+    ]
+  },
+  "conv42": {
+    "dataOffset": 400640,
+    "byteLength": 2304,
+    "dataType": "float32",
+    "shape": [
+      24,
+      1,
+      1,
+      24
+    ]
+  },
+  "conv43": {
+    "dataOffset": 402944,
+    "byteLength": 864,
+    "dataType": "float32",
+    "shape": [
+      1,
+      3,
+      3,
+      24
+    ]
+  },
+  "conv44": {
+    "dataOffset": 403808,
+    "byteLength": 1536,
+    "dataType": "float32",
+    "shape": [
+      16,
+      1,
+      1,
+      24
+    ]
+  },
+  "conv45": {
+    "dataOffset": 405344,
+    "byteLength": 1024,
+    "dataType": "float32",
+    "shape": [
+      16,
+      1,
+      1,
+      16
+    ]
+  },
+  "conv46": {
+    "dataOffset": 406368,
+    "byteLength": 1024,
+    "dataType": "float32",
+    "shape": [
+      16,
+      1,
+      1,
+      16
+    ]
+  },
+  "conv47": {
+    "dataOffset": 407392,
+    "byteLength": 1024,
+    "dataType": "float32",
+    "shape": [
+      16,
+      1,
+      1,
+      16
+    ]
+  },
+  "conv48": {
+    "dataOffset": 408416,
+    "byteLength": 576,
+    "dataType": "float32",
+    "shape": [
+      1,
+      3,
+      3,
+      16
+    ]
+  },
+  "conv49": {
+    "dataOffset": 408992,
+    "byteLength": 1024,
+    "dataType": "float32",
+    "shape": [
+      16,
+      1,
+      1,
+      16
+    ]
+  },
+  "conv50": {
+    "dataOffset": 410016,
+    "byteLength": 1024,
+    "dataType": "float32",
+    "shape": [
+      16,
+      1,
+      1,
+      16
+    ]
+  },
+  "conv51": {
+    "dataOffset": 411040,
+    "byteLength": 1024,
+    "dataType": "float32",
+    "shape": [
+      16,
+      1,
+      1,
+      16
+    ]
+  },
+  "conv52": {
+    "dataOffset": 412064,
+    "byteLength": 1024,
+    "dataType": "float32",
+    "shape": [
+      16,
+      1,
+      1,
+      16
+    ]
+  },
+  "conv53": {
+    "dataOffset": 413088,
+    "byteLength": 576,
+    "dataType": "float32",
+    "shape": [
+      1,
+      3,
+      3,
+      16
+    ]
+  },
+  "convTranspose0": {
+    "dataOffset": 413664,
+    "byteLength": 256,
+    "dataType": "float32",
+    "shape": [
+      1,
+      2,
+      2,
+      16
+    ]
+  }
+}

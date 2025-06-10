@@ -1,0 +1,3 @@
+
+This folder contains weights files generated from two kinds of [MediaPipe Selfie Segmentation](https://ai.google.dev/edge/mediapipe/solutions/vision/image_segmenter#selfie-model) models: [general](https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite) and 
+[landscape](https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter_landscape/float16/latest/selfie_segmenter_landscape.tflite), which is licensed under Apache 2.0 License.
