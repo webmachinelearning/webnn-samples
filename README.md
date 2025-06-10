@@ -66,30 +66,30 @@ At present, the [image classification](https://webmachinelearning.github.io/webn
 
 * Window 11, version 24H2 or newer
 * It's recommended to install the latest [Intel® Core™ Ultra NPU Driver on Windows](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html) for improved WebNN compatibility and performance
-* **Google Chrome Canary:**
-  1. Download the latest redistributable [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/1.15.2), rename the "microsoft.ai.directml.\<version>.nupkg" to "microsoft.ai.directml.\<version>.nupkg.zip" and extract it
-  2. Copy `\bin\x64-win\DirectML.dll` to `%LOCALAPPDATA%\Google\Chrome SxS\Application\<version>\`
-      - `%LOCALAPPDATA%` means `C:\Users\<username>\AppData\Local\`
-      - Note that Chrome Canary frequently updates automatically. When this occurs, you'll need to recopy the DirectML.dll to the new version's directory
-  3. Launch Chrome Canary in Windows Command Line:
-  ```bash
-  "%LOCALAPPDATA%\Google\Chrome SxS\Application\chrome.exe" --use-redist-dml
-  ```
 
-* **Microsoft Edge Canary:**
-  1. Ensure the DirectML.dll was downloaded automatically (may take several minutes):
-      - Launch Edge Canary
-      - Go to `%LOCALAPPDATA%\Microsoft\Edge SxS\User Data`, check the `EdgeOnnxRuntimeDirectML\<version>\DirectML.dll` exists
+  1. Download the latest redistributable [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/1.15.2), rename the "microsoft.ai.directml.\<version>.nupkg" to "microsoft.ai.directml.\<version>.nupkg.zip" and extract it
+  2. Copy `\bin\x64-win\DirectML.dll` to Canary's version directory:
+
+     Chrome: `%LOCALAPPDATA%\Google\Chrome SxS\Application\<version>\`
+
+     Edge: `%LOCALAPPDATA%\Microsoft\Edge SxS\Application\<version>\`
+
       - `%LOCALAPPDATA%` means `C:\Users\<username>\AppData\Local\`
-      - Exit Edge Canary
-  2. Launch Edge Canary in Windows Command Line:
-  ```bash
-  "%LOCALAPPDATA%\Microsoft\Edge SxS\Application\msedge.exe"
-  ```
+      - Note that Canary frequently updates automatically. When this occurs, you'll need to recopy the DirectML.dll to the new version's directory
+  3. Launch Canary in Windows Command Line:
+
+     Chrome:
+     ```bash
+     "%LOCALAPPDATA%\Google\Chrome SxS\Application\chrome.exe" --use-redist-dml
+     ```
+     Edge:
+     ```bash
+     "%LOCALAPPDATA%\Microsoft\Edge SxS\Application\msedge.exe" --use-redist-dml
+     ```
 
 * **Notes**:
 
-  1. Running WebNN on NPU requires a higher version of DirectML.dll than the one in the Windows system. Using the `--use-redist-dml` flag will allow Google Chrome Canary to load the downloaded DirectML.dll with a sufficiently high version.
+  1. Running WebNN on NPU requires a higher version of DirectML.dll than the one in the Windows system. Using the `--use-redist-dml` flag will allow Canary to load the downloaded DirectML.dll with a sufficiently high version.
   2. Since the NPU drivers may be blocked by default if they are not the latest [Intel® Core™ Ultra NPU Driver on Windows](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html), you can use the `--disable_webnn_for_npu=0` flag to bypass. However, the functionality is not guaranteed.
 
 ## Support and Feedback
