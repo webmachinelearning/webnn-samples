@@ -138,9 +138,12 @@ export function getVideoFrame(videoElement) {
 }
 
 // Get media stream from camera
-export async function getMediaStream() {
+export async function getMediaStream(resolution = {}) {
+  const height = undefined || resolution.height;
+  const width = undefined || resolution.width;
   // Support 'user' facing mode at present
-  const constraints = {audio: false, video: {facingMode: 'user'}};
+  const constraints =
+      {audio: false, video: {facingMode: 'user', height, width}};
   const stream = await navigator.mediaDevices.getUserMedia(constraints);
   return stream;
 }
