@@ -217,10 +217,6 @@ export async function main() {
     if (powerPreference) {
       contextOptions['powerPreference'] = powerPreference;
     }
-    const numThreads = utils.getUrlParams()[2];
-    if (numThreads) {
-      contextOptions['numThreads'] = numThreads;
-    }
     let start = performance.now();
     const outputOperand = await rnnoise.load(contextOptions);
     const loadingTime = (performance.now() - start).toFixed(2);
