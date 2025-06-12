@@ -197,7 +197,7 @@ export async function main() {
     ui.handleClick(disabledSelectors, true);
     if (isFirstTimeLoad) $('#hint').hide();
     let start;
-    const [numRuns, powerPreference, numThreads] = utils.getUrlParams();
+    const [numRuns, powerPreference] = utils.getUrlParams();
 
     // Only do load() and build() when model first time loads,
     // there's new model choosed, backend changed or device changed
@@ -219,9 +219,6 @@ export async function main() {
       const contextOptions = {deviceType};
       if (powerPreference) {
         contextOptions['powerPreference'] = powerPreference;
-      }
-      if (numThreads) {
-        contextOptions['numThreads'] = numThreads;
       }
       start = performance.now();
       const outputOperand =

@@ -36,10 +36,6 @@ export class Denoiser {
       if (powerPreference) {
         contextOptions['powerPreference'] = powerPreference;
       }
-      const numThreads = getUrlParams()[2];
-      if (numThreads) {
-        contextOptions['numThreads'] = numThreads;
-      }
       this.nsnet.load(contextOptions, weightsUrl,
           this.batchSize, this.frames).then((outputOperand) => {
         const modelLoadTime = performance.now() - start;

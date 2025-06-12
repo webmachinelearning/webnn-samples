@@ -81,15 +81,12 @@ async function main() {
     '/test-data/models/lenet_nchw/weights/lenet.bin';
   const layout = deviceType === 'cpu' ? 'nhwc' : 'nchw';
   lenet = new LeNet(weightUrl, layout);
-  const [localNumRuns, powerPreference, numThreads] = utils.getUrlParams();
+  const [localNumRuns, powerPreference] = utils.getUrlParams();
   numRuns = localNumRuns;
   try {
     const contextOptions = {deviceType};
     if (powerPreference) {
       contextOptions['powerPreference'] = powerPreference;
-    }
-    if (numThreads) {
-      contextOptions['numThreads'] = numThreads;
     }
     let start = performance.now();
     const outputOperand = await lenet.load(contextOptions);
