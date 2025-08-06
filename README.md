@@ -44,53 +44,7 @@ WebNN Samples is currently hosted on GitHub Pages, with model files stored on Am
 
 ### WebNN Installation Guides
 
-To get started with WebNN on Intel AI PCs you will need:
-* Window 11, version 21H2 or newer
-* It's recommended to install the latest [Intel® Arc™ & Iris® Xe Graphics on Windows](https://www.intel.com/content/www/us/en/download/785597/intel-arc-iris-xe-graphics-windows.html) for improved WebNN compatibility and performance
-
-1. Download and install the latest [Chrome Canary](https://www.google.com/chrome/canary/) or [Edge Canary](https://www.microsoft.com/en-us/edge/download/insider?form=MA13FJ)
-2. Navigate to `about://flags` in browser address bar
-3. Search for `Enables WebNN API` and change it to "Enabled"
-4. Exit browser
-
-#### Running WebNN on CPU or GPU
-1. Launch Chrome Canary or Edge Canary
-
-* **Notes**:
-
-  1. Running WebNN on Qualcomm GPUs is disabled by default. You can use the `--disable_webnn_for_gpu=0` flag to bypass.
-  2. If you run WebNN on Intel GPUs with old driver versions between 31.0.101.5518 and 32.0.101.6083, the performance may not be good enough, because the DirectML execution of metacommands on these drivers is disabled by default due to some stability bugs. You can use `--disable_dml_meta_commands_for_gpu=0` to bypass. However, the functionality is not guaranteed.
-
-#### Running WebNN on NPU
-At present, the [image classification](https://webmachinelearning.github.io/webnn-samples/image_classification/) and [object detection](https://webmachinelearning.github.io/webnn-samples/object_detection/) samples support NPU.
-
-* Window 11, version 24H2 or newer
-* It's recommended to install the latest [Intel® Core™ Ultra NPU Driver on Windows](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html) for improved WebNN compatibility and performance
-
-  1. Download the latest redistributable [Microsoft.AI.DirectML](https://www.nuget.org/packages/Microsoft.AI.DirectML/1.15.2), rename the "microsoft.ai.directml.\<version>.nupkg" to "microsoft.ai.directml.\<version>.nupkg.zip" and extract it
-  2. Copy `\bin\x64-win\DirectML.dll` to Canary's version directory:
-
-     Chrome: `%LOCALAPPDATA%\Google\Chrome SxS\Application\<version>\`
-
-     Edge: `%LOCALAPPDATA%\Microsoft\Edge SxS\Application\<version>\`
-
-      - `%LOCALAPPDATA%` means `C:\Users\<username>\AppData\Local\`
-      - Note that Canary frequently updates automatically. When this occurs, you'll need to recopy the DirectML.dll to the new version's directory
-  3. Launch Canary in Windows Command Line:
-
-     Chrome:
-     ```bash
-     "%LOCALAPPDATA%\Google\Chrome SxS\Application\chrome.exe" --use-redist-dml
-     ```
-     Edge:
-     ```bash
-     "%LOCALAPPDATA%\Microsoft\Edge SxS\Application\msedge.exe" --use-redist-dml
-     ```
-
-* **Notes**:
-
-  1. Running WebNN on NPU requires a higher version of DirectML.dll than the one in the Windows system. Using the `--use-redist-dml` flag will allow Canary to load the downloaded DirectML.dll with a sufficiently high version.
-  2. Since the NPU drivers may be blocked by default if they are not the latest [Intel® Core™ Ultra NPU Driver on Windows](https://www.intel.com/content/www/us/en/download/794734/intel-npu-driver-windows.html), you can use the `--disable_webnn_for_npu=0` flag to bypass. However, the functionality is not guaranteed.
+Please visit [WebNN Installation Guides](https://webnn.io/en/learn/get-started/installation) ([source](https://github.com/webmachinelearning/webnn-docs/blob/main/content/en/learn/get-started/installation.mdx)) to get started with WebNN on Intel AI PCs.
 
 ## Support and Feedback
 If you encounter any issues or have feedback on the WebNN Samples, please open an issue on the repository. We appreciate your input and will strive to address any problems as quickly as possible.
