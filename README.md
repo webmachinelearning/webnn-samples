@@ -44,7 +44,7 @@ WebNN Samples is currently hosted on GitHub Pages, with model files stored on Am
 
 ### WebNN Installation Guides
 
-Please visit [WebNN Installation Guides](https://webnn.io/en/learn/get-started/installation) ([source](https://github.com/webmachinelearning/webnn-docs/blob/main/content/en/learn/get-started/installation.mdx)) to get started with WebNN on Intel AI PCs.
+Please visit [WebNN Installation Guides](https://webnn.io/en/learn/get-started/installation) to get started with WebNN on Intel AI PCs.
 
 ## Support and Feedback
 If you encounter any issues or have feedback on the WebNN Samples, please open an issue on the repository. We appreciate your input and will strive to address any problems as quickly as possible.
