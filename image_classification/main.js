@@ -98,18 +98,17 @@ $('#backendBtns .btn').on('change', async (e) => {
   if (inputType === 'camera') {
     await stopCamRender();
   }
-  const backendId = $(e.target).attr('id');
-  layout = utils.getDefaultLayout(backendId);
-  [backend, deviceType] = backendId.split('_');
+  [backend, deviceType] = $(e.target).attr('id').split('_');
+  layout = await utils.getDefaultLayout(deviceType);
   // Only show the supported models for each deviceType. Now fp16 nchw models
   // are only supported on gpu/npu.
-  if (backendId == 'webnn_gpu') {
+  if (deviceType == 'gpu') {
     ui.handleBtnUI('#float16Label', false);
     ui.handleBtnUI('#float32Label', false);
     ui.handleBtnUI('#uint8Label', true);
     $('#float32').click();
     utils.displayAvailableModels(modelList, modelIds, deviceType, dataType);
-  } else if (backendId == 'webnn_npu') {
+  } else if (deviceType == 'npu') {
     ui.handleBtnUI('#float16Label', false);
     ui.handleBtnUI('#float32Label', true);
     ui.handleBtnUI('#uint8Label', true);
