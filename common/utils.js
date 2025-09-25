@@ -432,13 +432,10 @@ export function permuteData(array, dims, axes) {
   return [permutedData, shape];
 }
 
-export function getDefaultLayout(deviceType) {
-  if (deviceType.indexOf('cpu') != -1) {
-    return 'nhwc';
-  } else if (deviceType.indexOf('gpu') != -1 ||
-             deviceType.indexOf('npu') != -1) {
-    return 'nchw';
-  }
+export async function getDefaultLayout(deviceType) {
+  const context = await navigator.ml.createContext({deviceType});
+  const limits = context.opSupportLimits();
+  return limits.preferredInputLayout ?? 'nchw';
 }
 
 /**
