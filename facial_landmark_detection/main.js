@@ -50,7 +50,8 @@ $('#backendBtns .btn').on('change', async (e) => {
   if (inputType === 'camera') {
     await stopCamRender();
   }
-  layout = utils.getDefaultLayout($(e.target).attr('id'));
+  [backend, deviceType] = $(e.target).attr('id').split('_');
+  layout = await utils.getDefaultLayout(deviceType);
   await main();
 });
 
@@ -232,8 +233,6 @@ function constructNetObject(type) {
 async function main() {
   try {
     if (fdModelName === '') return;
-    [backend, deviceType] =
-        $('input[name="backend"]:checked').attr('id').split('_');
     ui.handleClick(disabledSelectors, true);
     if (isFirstTimeLoad) $('#hint').hide();
     const [numRuns, powerPreference] = utils.getUrlParams();
