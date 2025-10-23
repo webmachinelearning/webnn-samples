@@ -96,7 +96,7 @@ export class SqueezeNetNhwc {
     const averagePool2d = this.builder_.averagePool2d(
         await conv10, {windowDimensions: [13, 13], layout});
     const reshape = this.builder_.reshape(averagePool2d, [1, 1001]);
-    return this.builder_.softmax(reshape);
+    return this.builder_.softmax(reshape, 1);
   }
 
   async build(outputOperand) {

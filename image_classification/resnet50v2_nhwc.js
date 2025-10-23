@@ -201,7 +201,7 @@ export class ResNet50V2Nhwc {
     const conv2 = this.buildConv_(
         mean, ['', '', 'logits'], {autoPad}, false);
     const reshape = this.builder_.reshape(await conv2, [1, 1001]);
-    return this.builder_.softmax(reshape);
+    return this.builder_.softmax(reshape, 1);
   }
 
   async build(outputOperand) {

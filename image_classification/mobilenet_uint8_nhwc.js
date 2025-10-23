@@ -465,7 +465,7 @@ export class MobileNetV2Uint8Nhwc {
         {scale: [0.06046031787991524], zero_point: [60], shape: []},
         false, {autoPad, filterLayout});
     const reshape = this.builder_.reshape(conv4, [1, 1001]);
-    const softmax = this.builder_.softmax(reshape);
+    const softmax = this.builder_.softmax(reshape, 1);
 
     return softmax;
   }

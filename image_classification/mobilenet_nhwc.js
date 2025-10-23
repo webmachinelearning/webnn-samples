@@ -153,7 +153,7 @@ export class MobileNetV2Nhwc {
     const conv4 = this.buildConv_(
         averagePool2d, '222', 'Logits_Conv2d_1c_1x1_Conv2D', false, {autoPad, filterLayout});
     const reshape = this.builder_.reshape(await conv4, [1, 1001]);
-    return await this.builder_.softmax(reshape);
+    return await this.builder_.softmax(reshape, 1);
   }
 
   async build(outputOperand) {
