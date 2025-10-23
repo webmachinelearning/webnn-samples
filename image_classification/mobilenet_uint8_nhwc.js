@@ -25,6 +25,12 @@ export class MobileNetV2Uint8Nhwc {
   }
 
   dequantizeLinear_(input, quantizateParams, dataType) {
+    // WebNN dequantizeLinear op requires the rank of scale and zeroPoint should be same as input.
+    const missingDims = input.shape.length - quantizateParams.shape.length;
+    if (missingDims > 0) {
+      quantizateParams.shape.push(...Array(missingDims).fill(1));
+    }
+
     const scale = this.builder_.constant( {dataType: 'float32', shape: quantizateParams.shape}, 
         new Float32Array(quantizateParams.scale));
     let zeroPoint;
@@ -41,6 +47,12 @@ export class MobileNetV2Uint8Nhwc {
   }
 
   quantizeLinear_(input, quantizateParams) {
+    // WebNN quantizeLinear op requires the rank of scale and zeroPoint should be same as input.
+    const missingDims = input.shape.length - quantizateParams.shape.length;
+    if (missingDims > 0) {
+      quantizateParams.shape.push(...Array(missingDims).fill(1));
+    }
+
     const scale = this.builder_.constant( {dataType: 'float32', shape: quantizateParams.shape}, 
         new Float32Array(quantizateParams.scale));
     const zeroPoint = this.builder_.constant( {dataType: 'uint8', shape: quantizateParams.shape},
