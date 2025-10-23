@@ -161,7 +161,7 @@ export class EfficientNetFP16Nchw {
     const pool1 = this.builder_.averagePool2d(await conv22);
     const reshape = this.builder_.reshape(pool1, [1, 1280]);
     const gemm = this.buildGemm_(reshape, '0');
-    const softmax = this.builder_.softmax(await gemm);
+    const softmax = this.builder_.softmax(await gemm, 1);
 
     return this.builder_.cast(softmax, 'float32');
   }

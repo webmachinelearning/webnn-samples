@@ -130,7 +130,7 @@ export class ResNet50V1FP16Nchw {
     const pool2 = this.builder_.averagePool2d(await bottleneck16);
     const reshape = this.builder_.reshape(pool2, [1, 2048]);
     const gemm = this.buildGemm_(reshape, '0');
-    const softmax = this.builder_.softmax(await gemm);
+    const softmax = this.builder_.softmax(await gemm, 1);
     return this.builder_.cast(softmax, 'float32');
   }
 

@@ -153,13 +153,13 @@ export class MobileNetV2Nchw {
       const pool = this.builder_.averagePool2d(await conv3);
       const reshape = this.builder_.reshape(pool, [1, 1280]);
       const gemm = this.buildGemm_(reshape, '104');
-      return this.builder_.softmax(await gemm);
+      return this.builder_.softmax(await gemm, 1);
     } else {
       const conv4 = this.buildConv_(await conv3, '97', false,
           {groups: 1280, strides: [7, 7]});
       const conv5 = this.buildConv_(await conv4, '104', false);
       const reshape = this.builder_.reshape(await conv5, [1, 1000]);
-      const softmax = this.builder_.softmax(reshape);
+      const softmax = this.builder_.softmax(reshape, 1);
       return this.builder_.cast(softmax, 'float32');
     }
   }

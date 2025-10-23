@@ -174,7 +174,7 @@ export class LeNet {
         new Float32Array(arrayBuffer, byteOffset, sizeOfShape(add4BiasShape)));
     const add4 = this.builder_.add(matmul2, add4Bias);
 
-    return this.builder_.softmax(add4);
+    return this.builder_.softmax(add4, 1);
   }
 
   async build(outputOperand) {

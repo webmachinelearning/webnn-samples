@@ -167,7 +167,7 @@ export class ResNet50V2Nchw {
     const pool2 = this.builder_.averagePool2d(await bn3);
     const reshape = this.builder_.reshape(await pool2, [1, 2048]);
     const gemm = this.buildGemm_(await reshape, '0');
-    return this.builder_.softmax(await gemm);
+    return this.builder_.softmax(await gemm, 1);
   }
 
   async build(outputOperand) {
