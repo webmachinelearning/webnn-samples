@@ -10,7 +10,6 @@ export class TinyYoloV2Nchw {
     this.graph_ = null;
     this.inputTensor_ = null;
     this.outputTensor_ = null;
-    this.deviceType_ = null;
     this.targetDataType_ = dataType;
     this.weightsUrl_ = weightsOrigin() +
       '/test-data/models/tiny_yolov2_nchw/weights/';
@@ -66,7 +65,6 @@ export class TinyYoloV2Nchw {
 
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
-    this.deviceType_ = contextOptions.deviceType;
     this.builder_ = new MLGraphBuilder(this.context_);
     const inputDesc = {
       dataType: 'float32',

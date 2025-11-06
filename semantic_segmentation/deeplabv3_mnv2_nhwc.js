@@ -6,7 +6,6 @@ import {buildConstantByNpy, computePadding2DForAutoPad, weightsOrigin} from '../
 export class DeepLabV3MNV2Nhwc {
   constructor() {
     this.context_ = null;
-    this.deviceType_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.inputTensor_ = null;
@@ -81,7 +80,6 @@ export class DeepLabV3MNV2Nhwc {
 
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
-    this.deviceType_ = contextOptions.deviceType;
     this.builder_ = new MLGraphBuilder(this.context_);
     const strides = [2, 2];
 

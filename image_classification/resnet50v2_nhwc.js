@@ -8,12 +8,13 @@ const layout = 'nhwc';
 
 // ResNet 50 V2 model with 'nhwc' layout
 export class ResNet50V2Nhwc {
-  constructor() {
+  constructor(dataType = 'float32') {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.inputTensor_ = null;
     this.outputTensor_ = null;
+    this.targetDataType_ = dataType;
     this.weightsUrl_ = weightsOrigin() +
       '/test-data/models/resnet50v2_nhwc/weights/';
     this.inputOptions = {
@@ -44,9 +45,11 @@ export class ResNet50V2Nhwc {
       prefix += 'conv' + nameIndices[2];
     }
     const weightsName = prefix + '_weights.npy';
-    const weights = await buildConstantByNpy(this.builder_, weightsName);
+    const weights = await buildConstantByNpy(
+        this.builder_, weightsName, this.targetDataType_);
     const biasName = prefix + '_Conv2D_bias.npy';
-    const bias = buildConstantByNpy(this.builder_, biasName);
+    const bias = buildConstantByNpy(
+        this.builder_, biasName, this.targetDataType_);
     options.inputLayout = layout;
     options.filterLayout = 'ohwi';
     options.bias = await bias;
@@ -75,9 +78,11 @@ export class ResNet50V2Nhwc {
           `block${nameIndices[0]}_unit_${nameIndices[1]}_bottleneck_v2_preact`;
     }
     const mulParamName = prefix + '_FusedBatchNorm_mul_0_param.npy';
-    const mulParam = buildConstantByNpy(this.builder_, mulParamName);
+    const mulParam = buildConstantByNpy(
+        this.builder_, mulParamName, this.targetDataType_);
     const addParamName = prefix + '_FusedBatchNorm_add_param.npy';
-    const addParam = buildConstantByNpy(this.builder_, addParamName);
+    const addParam = buildConstantByNpy(
+        this.builder_, addParamName, this.targetDataType_);
     return this.builder_.relu(
         this.builder_.add(
             this.builder_.mul(await input, await mulParam),
@@ -131,7 +136,7 @@ export class ResNet50V2Nhwc {
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     };
-    const input = this.builder_.input('input', inputDesc);
+    let input = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
     inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
@@ -142,6 +147,10 @@ export class ResNet50V2Nhwc {
       usage: MLTensorUsage.READ,
       readable: true,
     });
+
+    if (this.targetDataType_ === 'float16') {
+      input = this.builder_.cast(input, 'float16');
+    }
     const conv1 = await this.buildConv_(
         input, ['', '', '1'], {strides, padding: [3, 3, 3, 3]}, false);
     const windowDimensions = [3, 3];
@@ -201,7 +210,12 @@ export class ResNet50V2Nhwc {
     const conv2 = this.buildConv_(
         mean, ['', '', 'logits'], {autoPad}, false);
     const reshape = this.builder_.reshape(await conv2, [1, 1001]);
-    return this.builder_.softmax(reshape, 1);
+    const softmax = this.builder_.softmax(reshape, 1);
+
+    if (this.targetDataType_ === 'float16') {
+      return this.builder_.cast(softmax, 'float32');
+    }
+    return softmax;
   }
 
   async build(outputOperand) {

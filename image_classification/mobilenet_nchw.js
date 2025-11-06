@@ -6,7 +6,6 @@ import {buildConstantByNpy, weightsOrigin} from '../common/utils.js';
 export class MobileNetV2Nchw {
   constructor(dataType = 'float32') {
     this.context_ = null;
-    this.deviceType_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.inputTensor_ = null;
@@ -89,7 +88,6 @@ export class MobileNetV2Nchw {
 
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
-    this.deviceType_ = contextOptions.deviceType;
     this.builder_ = new MLGraphBuilder(this.context_);
     const inputDesc = {
       dataType: 'float32',
@@ -107,6 +105,7 @@ export class MobileNetV2Nchw {
       usage: MLTensorUsage.READ,
       readable: true,
     });
+
     if (this.dataType_ === 'float16') {
       data = this.builder_.cast(data, 'float16');
     }

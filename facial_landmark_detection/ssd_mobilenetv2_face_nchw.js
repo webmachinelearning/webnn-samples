@@ -6,7 +6,6 @@ import {buildConstantByNpy, computePadding2DForAutoPad, weightsOrigin} from '../
 export class SsdMobilenetV2FaceNchw {
   constructor() {
     this.context_ = null;
-    this.deviceType_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.inputTensor_ = null;
@@ -117,7 +116,6 @@ ${nameArray[1]}`;
 
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
-    this.deviceType_ = contextOptions.deviceType;
     this.builder_ = new MLGraphBuilder(this.context_);
     const inputDesc = {
       dataType: 'float32',

@@ -435,24 +435,27 @@ export function permuteData(array, dims, axes) {
 export async function getDefaultLayout(deviceType) {
   const context = await navigator.ml.createContext({deviceType});
   const limits = context.opSupportLimits();
-  return limits.preferredInputLayout ?? 'nchw';
+
+  const preferredLayout = limits.preferredInputLayout ?? 'nchw';
+  context.destroy();
+  return preferredLayout;
 }
 
 /**
  * Display available models based on device type and data type.
  * @param {Object} modelList list of available models.
  * @param {Array} modelIds list of model ids.
- * @param {String} deviceType 'cpu', 'gpu' or 'npu'.
+ * @param {String} layout 'nchw' or 'nhwc'.
  * @param {String} dataType 'float32', 'float16', or ''.
  */
-export function displayAvailableModels(
-    modelList, modelIds, deviceType, dataType) {
+export function displayAvailableModels(modelList, modelIds, layout, dataType) {
   let models = [];
   if (dataType == '') {
-    models = models.concat(modelList[deviceType]['float32']);
-    models = models.concat(modelList[deviceType]['float16']);
+    models = models.concat(modelList[layout]['float32'] ?? []);
+    models = models.concat(modelList[layout]['float16'] ?? []);
+    models = models.concat(modelList[layout]['uint8'] ?? []);
   } else {
-    models = models.concat(modelList[deviceType][dataType]);
+    models = models.concat(modelList[layout][dataType] ?? []);
   }
   // Remove duplicate ids.
   models = [...new Set(models)];
