@@ -8,7 +8,6 @@ import {buildConstantByNpy, weightsOrigin} from '../common/utils.js';
 export class DeepLabV3MNV2Nchw {
   constructor() {
     this.context_ = null;
-    this.deviceType_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.inputTensor_ = null;
@@ -86,7 +85,6 @@ export class DeepLabV3MNV2Nchw {
 
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
-    this.deviceType_ = contextOptions.deviceType;
     this.builder_ = new MLGraphBuilder(this.context_);
     const strides = [2, 2];
 

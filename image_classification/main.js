@@ -18,12 +18,10 @@ const imgElement = document.getElementById('feedElement');
 imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
 let modelName = '';
-let modelId = '';
-let layout = 'nhwc';
+let layout = '';
 let dataType = 'float32';
-let instanceType = modelName + layout;
+let instanceType = '';
 let rafReq;
-let isFirstTimeLoad = true;
 let inputType = 'image';
 let netInstance = null;
 let labels = null;
@@ -33,22 +31,24 @@ let buildTime = 0;
 let computeTime = 0;
 let inputOptions;
 let deviceType = '';
-let lastdeviceType = '';
-let backend = '';
-let lastBackend = '';
 let stopRender = true;
 let isRendering = false;
 const disabledSelectors = ['#tabs > li', '.btn'];
 const modelIds = [
-  'mobilenet',
-  'squeezenet',
-  'resnet50v2',
-  'resnet50v1',
   'efficientnet',
+  'mobilenet',
+  'resnet50v1',
+  'resnet50v2',
+  'squeezenet',
 ];
 const modelList = {
-  'cpu': {
+  'nhwc': {
     'float32': [
+      'mobilenet',
+      'squeezenet',
+      'resnet50v2',
+    ],
+    'float16': [
       'mobilenet',
       'squeezenet',
       'resnet50v2',
@@ -57,24 +57,13 @@ const modelList = {
       'mobilenet',
     ],
   },
-  'gpu': {
+  'nchw': {
     'float32': [
       'mobilenet',
       'squeezenet',
       'resnet50v2',
     ],
-    'float16': [
-      'efficientnet',
-      'mobilenet',
-      'resnet50v1',
-    ],
-  },
-  'npu': {
-    'float16': [
-      'efficientnet',
-      'mobilenet',
-      'resnet50v1',
-    ],
+    'float16': modelIds,
   },
 };
 
@@ -87,44 +76,36 @@ async function fetchLabels(url) {
 $(document).ready(async () => {
   $('.icdisplay').hide();
   if (await utils.isWebNN()) {
-    $('#webnn_cpu').click();
+    $('#cpu').click();
   } else {
     console.log(utils.webNNNotSupportMessage());
     ui.addAlert(utils.webNNNotSupportMessageHTML());
   }
+  layout = await utils.getDefaultLayout('cpu');
 });
 
-$('#backendBtns .btn').on('change', async (e) => {
+$('#deviceTypeBtns .btn').on('change', async (e) => {
   if (inputType === 'camera') {
     await stopCamRender();
   }
-  [backend, deviceType] = $(e.target).attr('id').split('_');
+  deviceType = $(e.target).attr('id');
   layout = await utils.getDefaultLayout(deviceType);
-  // Only show the supported models for each deviceType. Now fp16 nchw models
-  // are only supported on gpu/npu.
-  if (deviceType == 'gpu') {
-    ui.handleBtnUI('#float16Label', false);
-    ui.handleBtnUI('#float32Label', false);
-    ui.handleBtnUI('#uint8Label', true);
-    $('#float32').click();
-    utils.displayAvailableModels(modelList, modelIds, deviceType, dataType);
-  } else if (deviceType == 'npu') {
-    ui.handleBtnUI('#float16Label', false);
+  const showUint8 = layout === 'nhwc' ? true : false;
+  ui.handleBtnUI('#uint8Label', !showUint8);
+  ui.handleBtnUI('#float16Label', false);
+  // Only show the supported models for each deviceType.
+  if (deviceType == 'npu') {
     ui.handleBtnUI('#float32Label', true);
-    ui.handleBtnUI('#uint8Label', true);
     $('#float16').click();
-    utils.displayAvailableModels(modelList, modelIds, deviceType, 'float16');
   } else {
-    ui.handleBtnUI('#float16Label', true);
     ui.handleBtnUI('#float32Label', false);
-    ui.handleBtnUI('#uint8Label', false);
     $('#float32').click();
-    utils.displayAvailableModels(modelList, modelIds, deviceType, 'float32');
   }
 
+  utils.displayAvailableModels(modelList, modelIds, layout, dataType);
   // Uncheck selected model
-  if (modelId != '') {
-    $(`#${modelId}`).parent().removeClass('active');
+  if (modelName != '') {
+    $(`#${modelName}`).parent().removeClass('active');
   }
 });
 
@@ -132,13 +113,7 @@ $('#modelBtns .btn').on('change', async (e) => {
   if (inputType === 'camera') {
     await stopCamRender();
   }
-  modelId = $(e.target).attr('id');
-  modelName = modelId;
-  if (dataType == 'float16') {
-    modelName += 'fp16';
-  } else if (dataType == 'uint8') {
-    modelName += 'uint8';
-  }
+  modelName = $(e.target).attr('id');
 
   await main();
 });
@@ -152,11 +127,15 @@ $('#modelBtns .btn').on('change', async (e) => {
 // });
 
 $('#dataTypeBtns .btn').on('change', async (e) => {
+  if (inputType === 'camera') {
+    await stopCamRender();
+  }
+
   dataType = $(e.target).attr('id');
-  utils.displayAvailableModels(modelList, modelIds, deviceType, dataType);
+  utils.displayAvailableModels(modelList, modelIds, layout, dataType);
   // Uncheck selected model
-  if (modelId != '') {
-    $(`#${modelId}`).parent().removeClass('active');
+  if (modelName != '') {
+    $(`#${modelName}`).parent().removeClass('active');
   }
 });
 
@@ -299,50 +278,64 @@ function showPerfResult(medianComputeTime = undefined) {
   }
 }
 
-function constructNetObject(type) {
-  const netObject = {
-    'mobilenetfp16nchw': new MobileNetV2Nchw('float16'),
-    'resnet50v1fp16nchw': new ResNet50V1FP16Nchw(),
-    'efficientnetfp16nchw': new EfficientNetFP16Nchw(),
-    'mobilenetnchw': new MobileNetV2Nchw(),
-    'mobilenetnhwc': new MobileNetV2Nhwc(),
-    'mobilenetuint8nhwc': new MobileNetV2Uint8Nhwc(),
-    'squeezenetnchw': new SqueezeNetNchw(),
-    'squeezenetnhwc': new SqueezeNetNhwc(),
-    'resnet50v2nchw': new ResNet50V2Nchw(),
-    'resnet50v2nhwc': new ResNet50V2Nhwc(),
-  };
+function constructNetObject(modelName, layout, dataType) {
+  switch (modelName) {
+    case 'efficientnet':
+      if (layout == 'nchw' && dataType == 'float16') {
+        return new EfficientNetFP16Nchw();
+      }
+      break;
+    case 'mobilenet':
+      if (layout == 'nhwc' && dataType == 'uint8') {
+        return new MobileNetV2Uint8Nhwc();
+      } else if (dataType != 'uint8') {
+        return layout == 'nhwc' ?
+            new MobileNetV2Nhwc(dataType) : new MobileNetV2Nchw(dataType);
+      }
+      break;
+    case 'resnet50v1':
+      if (layout == 'nchw' && dataType == 'float16') {
+        return new ResNet50V1FP16Nchw();
+      }
+      break;
+    case 'resnet50v2':
+      if (dataType != 'uint8') {
+        return layout == 'nhwc' ?
+            new ResNet50V2Nhwc(dataType) : new ResNet50V2Nchw(dataType);
+      }
+      break;
+    case 'squeezenet':
+      if (dataType != 'uint8') {
+        return layout == 'nhwc' ?
+            new SqueezeNetNhwc() : new SqueezeNetNchw();
+      }
+      break;
+  }
 
-  return netObject[type];
+  throw new Error(`Unknown model, name: ${modelName}, layout: ${layout}, ` +
+     `dataType: ${dataType}`);
 }
 
 async function main() {
   try {
     if (modelName === '') return;
     ui.handleClick(disabledSelectors, true);
-    if (isFirstTimeLoad) $('#hint').hide();
+    if (instanceType == '') $('#hint').hide();
     let start;
     const [numRuns, powerPreference] = utils.getUrlParams();
 
     // Only do load() and build() when model first time loads,
-    // there's new model choosed, backend changed or device changed
-    if (isFirstTimeLoad || instanceType !== modelName + layout ||
-        lastdeviceType != deviceType || lastBackend != backend) {
-      if (lastdeviceType != deviceType || lastBackend != backend) {
-        // Set backend and device
-        lastdeviceType = lastdeviceType != deviceType ?
-            deviceType : lastdeviceType;
-        lastBackend = lastBackend != backend ? backend : lastBackend;
-      }
-      instanceType = modelName + layout;
-      netInstance = constructNetObject(instanceType);
+    // there's new model choosed
+    if (instanceType !== modelName + dataType + layout + deviceType) {
+      instanceType = modelName + dataType + layout + deviceType;
+      netInstance = constructNetObject(modelName, layout, dataType);
       inputOptions = netInstance.inputOptions;
       labels = await fetchLabels(inputOptions.labelUrl);
-      isFirstTimeLoad = false;
-      console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
+      console.log(
+          `- Model: ${modelName} - ${layout} - ${dataType} - ${deviceType}`);
       // UI shows model loading progress
       await ui.showProgressComponent('current', 'pending', 'pending');
-      console.log('- Loading weights... ');
+      console.log('- Loading weights...');
       const contextOptions = {deviceType};
       if (powerPreference) {
         contextOptions['powerPreference'] = powerPreference;

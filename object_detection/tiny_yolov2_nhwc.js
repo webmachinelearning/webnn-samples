@@ -4,8 +4,9 @@ import {buildConstantByNpy, computePadding2DForAutoPad, weightsOrigin} from '../
 
 // Tiny Yolo V2 model with 'nhwc' layout, trained on the Pascal VOC dataset.
 export class TinyYoloV2Nhwc {
-  constructor() {
+  constructor(dataType = 'float32') {
     this.context_ = null;
+    this.targetDataType_ = dataType;
     this.builder_ = null;
     this.graph_ = null;
     this.inputTensor_ = null;
@@ -26,9 +27,11 @@ export class TinyYoloV2Nhwc {
   async buildConv_(input, name, leakyRelu = true) {
     const prefix = this.weightsUrl_ + 'conv2d_' + name;
     const weightsName = prefix + '_kernel.npy';
-    const weights = await buildConstantByNpy(this.builder_, weightsName);
+    const weights = await buildConstantByNpy(
+        this.builder_, weightsName, this.targetDataType_);
     const biasName = prefix + '_Conv2D_bias.npy';
-    const bias = await buildConstantByNpy(this.builder_, biasName);
+    const bias = await buildConstantByNpy(
+        this.builder_, biasName, this.targetDataType_);
     const options = {
       inputLayout: 'nhwc',
       filterLayout: 'ohwi',
@@ -67,7 +70,7 @@ export class TinyYoloV2Nhwc {
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     };
-    const input = this.builder_.input('input', inputDesc);
+    let input = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
     inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
@@ -79,6 +82,9 @@ export class TinyYoloV2Nhwc {
       readable: true,
     });
 
+    if (this.targetDataType_ == 'float16') {
+      input = this.builder_.cast(input, 'float16');
+    }
     const poolOptions = {
       windowDimensions: [2, 2],
       strides: [2, 2],
@@ -99,7 +105,11 @@ export class TinyYoloV2Nhwc {
         {windowDimensions: [2, 2], layout: 'nhwc'});
     const conv7 = await this.buildConv_(pool6, '7');
     const conv8 = await this.buildConv_(conv7, '8');
-    return await this.buildConv_(conv8, '9', false);
+    const conv9 = await this.buildConv_(conv8, '9', false);
+    if (this.targetDataType_ == 'float16') {
+      return this.builder_.cast(conv9, 'float32');
+    }
+    return conv9;
   }
 
   async build(outputOperand) {

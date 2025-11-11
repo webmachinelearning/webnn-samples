@@ -4,12 +4,13 @@ import {buildConstantByNpy, computePadding2DForAutoPad, weightsOrigin} from '../
 
 // SqueezeNet 1.0 model with 'nhwc' layout
 export class SqueezeNetNhwc {
-  constructor() {
+  constructor(dataType = 'float32') {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.inputTensor_ = null;
     this.outputTensor_ = null;
+    this.targetDataType_ = dataType;
     this.weightsUrl_ = weightsOrigin() +
     '/test-data/models/squeezenet1.0_nhwc/weights/';
     this.inputOptions = {
@@ -25,9 +26,11 @@ export class SqueezeNetNhwc {
   async buildConv_(input, name, options = {}) {
     const prefix = this.weightsUrl_ + name;
     const weightsName = prefix + '_kernel.npy';
-    const weights = await buildConstantByNpy(this.builder_, weightsName);
+    const weights = await buildConstantByNpy(
+        this.builder_, weightsName, this.targetDataType_);
     const biasName = prefix + '_Conv2D_bias.npy';
-    const bias = buildConstantByNpy(this.builder_, biasName);
+    const bias = buildConstantByNpy(
+        this.builder_, biasName, this.targetDataType_);
     options.inputLayout = 'nhwc';
     options.filterLayout = 'ohwi';
     options.bias = await bias;
@@ -65,7 +68,7 @@ export class SqueezeNetNhwc {
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     };
-    const placeholder = this.builder_.input('input', inputDesc);
+    let placeholder = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
     inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
@@ -76,6 +79,10 @@ export class SqueezeNetNhwc {
       usage: MLTensorUsage.READ,
       readable: true,
     });
+
+    if (this.targetDataType_ === 'float16') {
+      placeholder = this.builder_.cast(placeholder, 'float16');
+    }
     const conv1 = this.buildConv_(
         placeholder, 'conv1', {strides, autoPad: 'same-upper'});
     const maxpool1 = this.builder_.maxPool2d(
@@ -96,7 +103,12 @@ export class SqueezeNetNhwc {
     const averagePool2d = this.builder_.averagePool2d(
         await conv10, {windowDimensions: [13, 13], layout});
     const reshape = this.builder_.reshape(averagePool2d, [1, 1001]);
-    return this.builder_.softmax(reshape, 1);
+    const softmax = this.builder_.softmax(reshape, 1);
+
+    if (this.targetDataType_ === 'float16') {
+      return this.builder_.cast(softmax, 'float32');
+    }
+    return softmax;
   }
 
   async build(outputOperand) {
