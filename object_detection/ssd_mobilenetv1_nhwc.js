@@ -4,9 +4,9 @@ import {buildConstantByNpy, computePadding2DForAutoPad, weightsOrigin} from '../
 
 // SSD MobileNet V1 model with 'nhwc' layout, trained on the COCO dataset.
 export class SsdMobilenetV1Nhwc {
-  constructor() {
+  constructor(dataType = 'float32') {
     this.context_ = null;
-    this.deviceType_ = null;
+    this.targetDataType_ = dataType;
     this.model_ = null;
     this.builder_ = null;
     this.graph_ = null;
@@ -59,9 +59,11 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     }
 
     const weightsName = prefix + weightSuffix;
-    const weights = await buildConstantByNpy(this.builder_, weightsName);
+    const weights = await buildConstantByNpy(
+        this.builder_, weightsName, this.targetDataType_);
     const biasName = prefix + biasSuffix;
-    const bias = await buildConstantByNpy(this.builder_, biasName);
+    const bias = await buildConstantByNpy(
+        this.builder_, biasName, this.targetDataType_);
     if (options !== undefined) {
       options.inputLayout = 'nhwc';
       options.filterLayout = 'ohwi';
@@ -91,14 +93,13 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
 
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
-    this.deviceType_ = contextOptions.deviceType;
     this.builder_ = new MLGraphBuilder(this.context_);
     const inputDesc = {
       dataType: 'float32',
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     };
-    const input = this.builder_.input('input', inputDesc);
+    let input = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
     inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
@@ -117,6 +118,9 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
       readable: true,
     });
 
+    if (this.targetDataType_ == 'float16') {
+      input = this.builder_.cast(input, 'float16');
+    }
     const strides = [2, 2];
     const conv0 = await this.buildConv_(
         input, ['', '0', '', '165__cf__168'], true, {strides});
@@ -227,10 +231,10 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     const conv27 = await this.buildConv_(
         conv21, ['BoxEncoding', '5', '', '167__cf__170'], false);
     const reshape5 = this.builder_.reshape(conv27, [1, 6, 1, 4]);
-    // XNNPACK doesn't support concat inputs size > 4.
+    // LiteRT doesn't support concat inputs size > 4.
     const concatReshape0123 = this.builder_.concat(
         [reshape0, reshape1, reshape2, reshape3], 1);
-    const concat0 = this.builder_.concat(
+    let concat0 = this.builder_.concat(
         [concatReshape0123, reshape4, reshape5], 1);
 
     // Second concatenation
@@ -252,11 +256,16 @@ ${nameArray[1]}_BatchNorm_batchnorm`;
     const conv33 = await this.buildConv_(
         conv21, ['Class', '5', '', '41__cf__44'], false);
     const reshape11 = this.builder_.reshape(conv33, [1, 6, 91]);
-    // XNNPACK doesn't support concat inputs size > 4.
+    // LiteRT doesn't support concat inputs size > 4.
     const concatReshape6789 = this.builder_.concat(
         [reshape6, reshape7, reshape8, reshape9], 1);
-    const concat1 = this.builder_.concat(
+    let concat1 = this.builder_.concat(
         [concatReshape6789, reshape10, reshape11], 1);
+
+    if (this.targetDataType_ == 'float16') {
+      concat0 = this.builder_.cast(concat0, 'float32');
+      concat1 = this.builder_.cast(concat1, 'float32');
+    }
 
     return {'boxes': concat0, 'scores': concat1};
   }

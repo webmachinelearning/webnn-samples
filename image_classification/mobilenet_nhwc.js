@@ -6,13 +6,13 @@ import {buildConstantByNpy, computePadding2DForAutoPad, weightsOrigin} from '../
 
 // MobileNet V2 model with 'nhwc' input layout
 export class MobileNetV2Nhwc {
-  constructor() {
+  constructor(dataType = 'float32') {
     this.context_ = null;
-    this.deviceType_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.inputTensor_ = null;
     this.outputTensor_ = null;
+    this.targetDataType_ = dataType;
     this.weightsUrl_ = weightsOrigin() +
       '/test-data/models/mobilenetv2_nhwc/weights/';
     this.inputOptions = {
@@ -27,9 +27,10 @@ export class MobileNetV2Nhwc {
 
   async buildConv_(input, weightsSubName, biasSubName, relu6, options) {
     const weightsName = this.weightsUrl_ + 'Const_' + weightsSubName + '.npy';
-    const weights = await buildConstantByNpy(this.builder_, weightsName);
+    const weights = await buildConstantByNpy(
+        this.builder_, weightsName, this.targetDataType_);
     const biasName = this.weightsUrl_ + 'MobilenetV2_' + biasSubName + '_bias.npy';
-    const bias = buildConstantByNpy(this.builder_, biasName);
+    const bias = buildConstantByNpy(this.builder_, biasName, this.targetDataType_);
     options.inputLayout = 'nhwc';
     options.bias = await bias;
     // WebNN spec drops autoPad support, compute the explicit padding instead.
@@ -87,7 +88,6 @@ export class MobileNetV2Nhwc {
 
   async load(contextOptions) {
     this.context_ = await navigator.ml.createContext(contextOptions);
-    this.deviceType_ = contextOptions.deviceType;
     this.builder_ = new MLGraphBuilder(this.context_);
     const strides = [2, 2];
     const autoPad = 'same-upper';
@@ -97,7 +97,7 @@ export class MobileNetV2Nhwc {
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     };
-    const input = this.builder_.input('input', inputDesc);
+    let input = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
     inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
@@ -108,6 +108,10 @@ export class MobileNetV2Nhwc {
       usage: MLTensorUsage.READ,
       readable: true,
     });
+
+    if (this.targetDataType_ === 'float16') {
+      input = this.builder_.cast(input, 'float16');
+    }
     const conv0 = this.buildConv_(
         input, '90', 'Conv_Conv2D', true, {strides, autoPad, filterLayout});
     const conv1 = this.buildConv_(
@@ -153,7 +157,12 @@ export class MobileNetV2Nhwc {
     const conv4 = this.buildConv_(
         averagePool2d, '222', 'Logits_Conv2d_1c_1x1_Conv2D', false, {autoPad, filterLayout});
     const reshape = this.builder_.reshape(await conv4, [1, 1001]);
-    return await this.builder_.softmax(reshape, 1);
+    const softmax = await this.builder_.softmax(reshape, 1);
+
+    if (this.targetDataType_ === 'float16') {
+      return this.builder_.cast(softmax, 'float32');
+    }
+    return softmax;
   }
 
   async build(outputOperand) {

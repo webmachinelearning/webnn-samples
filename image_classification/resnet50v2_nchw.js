@@ -4,12 +4,13 @@ import {buildConstantByNpy, weightsOrigin} from '../common/utils.js';
 
 // ResNet50 V2 model with 'nchw' input layout
 export class ResNet50V2Nchw {
-  constructor() {
+  constructor(dataType = 'float32') {
     this.context_ = null;
     this.builder_ = null;
     this.graph_ = null;
     this.inputTensor_ = null;
     this.outputTensor_ = null;
+    this.targetDataType_ = dataType;
     this.weightsUrl_ = weightsOrigin() +
       '/test-data/models/resnet50v2_nchw/weights/';
     this.inputOptions = {
@@ -32,7 +33,8 @@ export class ResNet50V2Nchw {
       prefix = this.weightsUrl_ + 'resnetv24_conv' + name;
     }
     const weightName = prefix + '_weight.npy';
-    const weight = buildConstantByNpy(this.builder_, weightName);
+    const weight = buildConstantByNpy(
+        this.builder_, weightName, this.targetDataType_);
     return this.builder_.conv2d(await input, await weight, options);
   }
 
@@ -48,10 +50,14 @@ export class ResNet50V2Nchw {
     const biasName = prefix + '_beta.npy';
     const meanName = prefix + '_running_mean.npy';
     const varName = prefix + '_running_var.npy';
-    const scale = buildConstantByNpy(this.builder_, scaleName);
-    const bias = buildConstantByNpy(this.builder_, biasName);
-    const mean = buildConstantByNpy(this.builder_, meanName);
-    const variance = buildConstantByNpy(this.builder_, varName);
+    const scale = buildConstantByNpy(
+        this.builder_, scaleName, this.targetDataType_);
+    const bias = buildConstantByNpy(
+        this.builder_, biasName, this.targetDataType_);
+    const mean = buildConstantByNpy(
+        this.builder_, meanName, this.targetDataType_);
+    const variance = buildConstantByNpy(
+        this.builder_, varName, this.targetDataType_);
     const options = {scale: await scale, bias: await bias};
     const batchnorm = this.builder_.batchNormalization(
         await input,
@@ -65,9 +71,11 @@ export class ResNet50V2Nchw {
   async buildGemm_(input, name) {
     const prefix = this.weightsUrl_ + 'resnetv24_dense' + name;
     const weightName = prefix + '_weight.npy';
-    const weight = buildConstantByNpy(this.builder_, weightName);
+    const weight = buildConstantByNpy(
+        this.builder_, weightName, this.targetDataType_);
     const biasName = prefix + '_bias.npy';
-    const bias = buildConstantByNpy(this.builder_, biasName);
+    const bias = buildConstantByNpy(
+        this.builder_, biasName, this.targetDataType_);
     const options =
         {c: this.builder_.reshape(await bias, [1, 1000]), bTranspose: true};
     return this.builder_.gemm(await input, await weight, options);
@@ -105,7 +113,7 @@ export class ResNet50V2Nchw {
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     };
-    const data = this.builder_.input('input', inputDesc);
+    let data = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
     inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
@@ -116,6 +124,10 @@ export class ResNet50V2Nchw {
       usage: MLTensorUsage.READ,
       readable: true,
     });
+
+    if (this.targetDataType_ === 'float16') {
+      data = this.builder_.cast(data, 'float16');
+    }
     const bn1 = this.buildBatchNorm_(data, '0', '', false);
     const conv0 = this.buildConv_(
         bn1, '0', '', {padding: [3, 3, 3, 3], strides: [2, 2]});
@@ -167,7 +179,12 @@ export class ResNet50V2Nchw {
     const pool2 = this.builder_.averagePool2d(await bn3);
     const reshape = this.builder_.reshape(await pool2, [1, 2048]);
     const gemm = this.buildGemm_(await reshape, '0');
-    return this.builder_.softmax(await gemm, 1);
+    const softmax = this.builder_.softmax(await gemm, 1);
+
+    if (this.targetDataType_ === 'float16') {
+      return this.builder_.cast(softmax, 'float32');
+    }
+    return softmax;
   }
 
   async build(outputOperand) {

@@ -13,12 +13,10 @@ const imgElement = document.getElementById('feedElement');
 imgElement.src = './images/test.jpg';
 const camElement = document.getElementById('feedMediaElement');
 let modelName = '';
-let modelId = '';
-let layout = 'nhwc';
+let layout = '';
 let dataType = 'float32';
-let instanceType = modelName + layout;
+let instanceType = '';
 let rafReq;
-let isFirstTimeLoad = true;
 let inputType = 'image';
 let netInstance = null;
 let labels = null;
@@ -28,25 +26,9 @@ let buildTime = 0;
 let computeTime = 0;
 let inputOptions;
 let deviceType = '';
-let lastdeviceType = '';
-let backend = '';
-let lastBackend = '';
 let stopRender = true;
 let isRendering = false;
 const disabledSelectors = ['#tabs > li', '.btn'];
-const modelIds = ['ssdmobilenetv1', 'tinyyolov2'];
-const modelList = {
-  'cpu': {
-    'float32': modelIds,
-  },
-  'gpu': {
-    'float32': modelIds,
-    'float16': modelIds,
-  },
-  'npu': {
-    'float16': ['ssdmobilenetv1'],
-  },
-};
 
 async function fetchLabels(url) {
   const response = await fetch(url);
@@ -57,40 +39,33 @@ async function fetchLabels(url) {
 $(document).ready(async () => {
   $('.icdisplay').hide();
   if (await utils.isWebNN()) {
-    $('#webnn_cpu').click();
+    $('#cpu').click();
   } else {
     console.log(utils.webNNNotSupportMessage());
     ui.addAlert(utils.webNNNotSupportMessageHTML());
   }
+  layout = await utils.getDefaultLayout('cpu');
 });
 
-$('#backendBtns .btn').on('change', async (e) => {
+$('#deviceTypeBtns .btn').on('change', async (e) => {
   if (inputType === 'camera') {
     await stopCamRender();
   }
-  [backend, deviceType] = $(e.target).attr('id').split('_');
+  deviceType = $(e.target).attr('id');
   layout = await utils.getDefaultLayout(deviceType);
-  // Only show the supported models for each deviceType. Now fp16 nchw models
-  // are only supported on gpu/npu.
-  if (deviceType == 'gpu') {
-    ui.handleBtnUI('#float16Label', false);
-    ui.handleBtnUI('#float32Label', false);
-    utils.displayAvailableModels(modelList, modelIds, deviceType, dataType);
-  } else if (deviceType == 'npu') {
-    ui.handleBtnUI('#float16Label', false);
+  // Only show the supported models for each deviceType.
+  ui.handleBtnUI('#float16Label', false);
+  if (deviceType == 'npu') {
     ui.handleBtnUI('#float32Label', true);
     $('#float16').click();
-    utils.displayAvailableModels(modelList, modelIds, deviceType, 'float16');
   } else {
-    ui.handleBtnUI('#float16Label', true);
     ui.handleBtnUI('#float32Label', false);
     $('#float32').click();
-    utils.displayAvailableModels(modelList, modelIds, deviceType, 'float32');
   }
 
   // Uncheck selected model
-  if (modelId != '') {
-    $(`#${modelId}`).parent().removeClass('active');
+  if (modelName != '') {
+    $(`#${modelName}`).parent().removeClass('active');
   }
 });
 
@@ -99,21 +74,19 @@ $('#modelBtns .btn').on('change', async (e) => {
     await stopCamRender();
   }
 
-  modelId = $(e.target).attr('id');
-  modelName = modelId;
-  if (dataType == 'float16') {
-    modelName += 'fp16';
-  }
-
+  modelName = $(e.target).attr('id');
   await main();
 });
 
 $('#dataTypeBtns .btn').on('change', async (e) => {
+  if (inputType === 'camera') {
+    await stopCamRender();
+  }
+
   dataType = $(e.target).attr('id');
-  utils.displayAvailableModels(modelList, modelIds, deviceType, dataType);
   // Uncheck selected model
-  if (modelId != '') {
-    $(`#${modelId}`).parent().removeClass('active');
+  if (modelName != '') {
+    $(`#${modelName}`).parent().removeClass('active');
   }
 });
 
@@ -229,47 +202,40 @@ function showPerfResult(medianComputeTime = undefined) {
   }
 }
 
-function constructNetObject(type) {
-  const netObject = {
-    'tinyyolov2nchw': new TinyYoloV2Nchw(),
-    'tinyyolov2fp16nchw': new TinyYoloV2Nchw('float16'),
-    'tinyyolov2nhwc': new TinyYoloV2Nhwc(),
-    'ssdmobilenetv1nchw': new SsdMobilenetV1Nchw(),
-    'ssdmobilenetv1fp16nchw': new SsdMobilenetV1Nchw('float16'),
-    'ssdmobilenetv1nhwc': new SsdMobilenetV1Nhwc(),
-  };
+function constructNetObject(modelName, layout, dataType) {
+  if (modelName == 'tinyyolov2') {
+    return layout == 'nchw' ?
+        new TinyYoloV2Nchw(dataType) : new TinyYoloV2Nhwc(dataType);
+  } else if (modelName == 'ssdmobilenetv1') {
+    return layout == 'nchw' ?
+        new SsdMobilenetV1Nchw(dataType) : new SsdMobilenetV1Nhwc(dataType);
+  }
 
-  return netObject[type];
+  throw new Error(`Unknown model, name: ${modelName}, layout: ${layout}, ` +
+     `dataType: ${dataType}`);
 }
 
 async function main() {
   try {
     if (modelName === '') return;
     ui.handleClick(disabledSelectors, true);
-    if (isFirstTimeLoad) $('#hint').hide();
+    if (instanceType == '') $('#hint').hide();
     let start;
     const [numRuns, powerPreference] = utils.getUrlParams();
 
     // Only do load() and build() when model first time loads,
-    // there's new model choosed, backend changed or device changed
-    if (isFirstTimeLoad || instanceType !== modelName + layout ||
-        lastdeviceType != deviceType || lastBackend != backend) {
-      if (lastdeviceType != deviceType || lastBackend != backend) {
-        // Set backend and device
-        lastdeviceType = lastdeviceType != deviceType ?
-                               deviceType : lastdeviceType;
-        lastBackend = lastBackend != backend ? backend : lastBackend;
-      }
-      instanceType = modelName + layout;
-      netInstance = constructNetObject(instanceType);
+    // there's new model choosed
+    if (instanceType !== modelName + dataType + layout + deviceType) {
+      instanceType = modelName + dataType + layout + deviceType;
+      netInstance = constructNetObject(modelName, layout, dataType);
       inputOptions = netInstance.inputOptions;
       labels = await fetchLabels(inputOptions.labelUrl);
 
-      isFirstTimeLoad = false;
-      console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
+      console.log(
+          `- Model: ${modelName} - ${layout} - ${dataType} - ${deviceType}`);
       // UI shows model loading progress
       await ui.showProgressComponent('current', 'pending', 'pending');
-      console.log('- Loading weights... ');
+      console.log('- Loading weights...');
       const contextOptions = {deviceType};
       if (powerPreference) {
         contextOptions['powerPreference'] = powerPreference;

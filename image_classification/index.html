@@ -30,15 +30,15 @@
             <span>Backend</span>
           </div>
           <div class="col-md-auto">
-            <div class="btn-group-toggle" data-toggle="buttons" id="backendBtns">
+            <div class="btn-group-toggle" data-toggle="buttons" id="deviceTypeBtns">
               <label class="btn btn-outline-info custom" name="webnn">
-                <input type="radio" name="backend" id="webnn_cpu" autocomplete="off">WebNN (CPU)
+                <input type="radio" name="deviceType" id="cpu" autocomplete="off">WebNN (CPU)
               </label>
               <label class="btn btn-outline-info custom" name="webnn">
-                <input type="radio" name="backend" id="webnn_gpu" autocomplete="off">WebNN (GPU)
+                <input type="radio" name="deviceType" id="gpu" autocomplete="off">WebNN (GPU)
               </label>
               <label class="btn btn-outline-info custom" name="webnn">
-                <input type="radio" name="backend" id="webnn_npu" autocomplete="off">WebNN (NPU)
+                <input type="radio" name="deviceType" id="npu" autocomplete="off">WebNN (NPU)
               </label>
             </div>
           </div>
@@ -65,13 +65,13 @@
           <div class="col-md-auto">
             <div class="btn-group-toggle" data-toggle="buttons" id="dataTypeBtns">
               <label class="btn btn-outline-info" id="float32Label" active>
-                <input type="radio" name="layout" id="float32" autocomplete="off" checked>Float32
+                <input type="radio" name="dataType" id="float32" autocomplete="off" checked>Float32
               </label>
               <label class="btn btn-outline-info" id="float16Label">
-                <input type="radio" name="layout" id="float16" autocomplete="off">Float16
+                <input type="radio" name="dataType" id="float16" autocomplete="off">Float16
               </label>
               <label class="btn btn-outline-info" id="uint8Label">
-                <input type="radio" name="layout" id="uint8" autocomplete="off">Uint8
+                <input type="radio" name="dataType" id="uint8" autocomplete="off">Uint8
               </label>
             </div>
           </div>
