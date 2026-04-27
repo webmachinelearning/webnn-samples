@@ -442,20 +442,23 @@ export async function getDefaultLayout(deviceType) {
 }
 
 /**
- * Display available models based on device type and data type.
- * @param {Object} modelList list of available models.
+ * Display available models based on device type, layout and data type.
+ * @param {Object} modelList list of available models (optionally keyed by deviceType first).
  * @param {Array} modelIds list of model ids.
  * @param {String} layout 'nchw' or 'nhwc'.
  * @param {String} dataType 'float32', 'float16', or ''.
+ * @param {String} deviceType optional 'cpu', 'gpu', or 'npu'; when set, modelList[deviceType] is used.
  */
-export function displayAvailableModels(modelList, modelIds, layout, dataType) {
+export function displayAvailableModels(
+    modelList, modelIds, layout, dataType, deviceType = '') {
+  const byDevice = deviceType && modelList[deviceType] ? modelList[deviceType] : modelList;
   let models = [];
   if (dataType == '') {
-    models = models.concat(modelList[layout]['float32'] ?? []);
-    models = models.concat(modelList[layout]['float16'] ?? []);
-    models = models.concat(modelList[layout]['uint8'] ?? []);
+    models = models.concat(byDevice[layout]['float32'] ?? []);
+    models = models.concat(byDevice[layout]['float16'] ?? []);
+    models = models.concat(byDevice[layout]['uint8'] ?? []);
   } else {
-    models = models.concat(modelList[layout][dataType] ?? []);
+    models = models.concat(byDevice[layout][dataType] ?? []);
   }
   // Remove duplicate ids.
   models = [...new Set(models)];

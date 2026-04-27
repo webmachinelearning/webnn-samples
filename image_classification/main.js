@@ -1,6 +1,7 @@
 'use strict';
 
 import {ResNet50V1FP16Nchw} from './resnet50v1_fp16_nchw.js';
+import {ResNet50V1Fp32Nchw} from './resnet50v1_fp32_nchw.js';
 import {EfficientNetFP16Nchw} from './efficientnet_fp16_nchw.js';
 import {MobileNetV2Nchw} from './mobilenet_nchw.js';
 import {MobileNetV2Nhwc} from './mobilenet_nhwc.js';
@@ -41,29 +42,40 @@ const modelIds = [
   'resnet50v2',
   'squeezenet',
 ];
+// Model lists per device.
 const modelList = {
-  'nhwc': {
-    'float32': [
-      'mobilenet',
-      'squeezenet',
-      'resnet50v2',
-    ],
-    'float16': [
-      'mobilenet',
-      'squeezenet',
-      'resnet50v2',
-    ],
-    'uint8': [
-      'mobilenet',
-    ],
+  'cpu': {
+    'nhwc': {
+      'float32': ['mobilenet', 'squeezenet', 'resnet50v2'],
+      'float16': ['mobilenet', 'squeezenet', 'resnet50v2'],
+      'uint8': ['mobilenet'],
+    },
+    'nchw': {
+      'float32': ['mobilenet', 'squeezenet', 'resnet50v2'],
+      'float16': ['efficientnet', 'mobilenet', 'resnet50v1', 'resnet50v2', 'squeezenet'],
+    },
   },
-  'nchw': {
-    'float32': [
-      'mobilenet',
-      'squeezenet',
-      'resnet50v2',
-    ],
-    'float16': modelIds,
+  'gpu': {
+    'nhwc': {
+      'float32': ['mobilenet', 'squeezenet', 'resnet50v2'],
+      'float16': ['mobilenet', 'squeezenet', 'resnet50v2'],
+      'uint8': ['mobilenet'],
+    },
+    'nchw': {
+      'float32': ['mobilenet', 'squeezenet', 'resnet50v2'],
+      'float16': ['efficientnet', 'mobilenet', 'resnet50v1', 'resnet50v2', 'squeezenet'],
+    },
+  },
+  'npu': {
+    'nhwc': {
+      'float32': ['mobilenet', 'squeezenet', 'resnet50v2'],
+      'float16': ['mobilenet', 'squeezenet', 'resnet50v2'],
+      'uint8': ['mobilenet'],
+    },
+    'nchw': {
+      'float32': ['resnet50v1', 'mobilenet', 'squeezenet'],
+      'float16': ['efficientnet', 'mobilenet', 'resnet50v1', 'resnet50v2', 'squeezenet'],
+    },
   },
 };
 
@@ -93,16 +105,11 @@ $('#deviceTypeBtns .btn').on('change', async (e) => {
   const showUint8 = layout === 'nhwc' ? true : false;
   ui.handleBtnUI('#uint8Label', !showUint8);
   ui.handleBtnUI('#float16Label', false);
-  // Only show the supported models for each deviceType.
-  if (deviceType == 'npu') {
-    ui.handleBtnUI('#float32Label', true);
-    $('#float16').click();
-  } else {
-    ui.handleBtnUI('#float32Label', false);
-    $('#float32').click();
-  }
+  // Allow both float32 and float16 for all backends.
+  ui.handleBtnUI('#float32Label', false);
+  $('#float32').click();
 
-  utils.displayAvailableModels(modelList, modelIds, layout, dataType);
+  utils.displayAvailableModels(modelList, modelIds, layout, dataType, deviceType);
   // Uncheck selected model
   if (modelName != '') {
     $(`#${modelName}`).parent().removeClass('active');
@@ -132,13 +139,12 @@ $('#dataTypeBtns .btn').on('change', async (e) => {
   }
 
   dataType = $(e.target).attr('id');
-  utils.displayAvailableModels(modelList, modelIds, layout, dataType);
+  utils.displayAvailableModels(modelList, modelIds, layout, dataType, deviceType);
   // Uncheck selected model
   if (modelName != '') {
     $(`#${modelName}`).parent().removeClass('active');
   }
 });
-
 
 // Click trigger to do inference with <img> element
 $('#img').click(async () => {
@@ -296,6 +302,9 @@ function constructNetObject(modelName, layout, dataType) {
     case 'resnet50v1':
       if (layout == 'nchw' && dataType == 'float16') {
         return new ResNet50V1FP16Nchw();
+      }
+      if (layout == 'nchw' && dataType == 'float32') {
+        return new ResNet50V1Fp32Nchw();
       }
       break;
     case 'resnet50v2':
