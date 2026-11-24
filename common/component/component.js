@@ -599,19 +599,21 @@ $(document).ready(async () => {
   $("#badge").html(webnnbadge());
   $("#footer").html(footer());
   if (await isWebNN()) {
-    if ($("#backendBtns")) {
+    if ($('#npu').length) {
       // Disable WebNN NPU backend if failed to find a capable NPU adapter.
+      let npuContext;
       try {
-        await navigator.ml.createContext({deviceType: 'npu'});
+        npuContext = await navigator.ml.createContext({deviceType: 'npu'});
       } catch (error) {
-        $('#webnn_npu').parent().addClass('disabled');
-        $('#webnn_npu').parent().addClass('btn-outline-secondary');
-        $('#webnn_npu').parent().removeClass('btn-outline-info');
-        $('#webnn_npu').parent().attr(
+        $('#npu').parent().addClass('disabled');
+        $('#npu').parent().addClass('btn-outline-secondary');
+        $('#npu').parent().removeClass('btn-outline-info');
+        $('#npu').parent().attr(
           "title",
           "Unable to find a capable NPU adapter."
         );
       }
+      npuContext?.destroy?.();
     }
     $("#webnnstatus").html("supported").addClass("webnn-status-true");
   } else {

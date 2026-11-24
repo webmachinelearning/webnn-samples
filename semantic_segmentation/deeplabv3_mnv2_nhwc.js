@@ -4,8 +4,9 @@ import {buildConstantByNpy, computePadding2DForAutoPad, weightsOrigin} from '../
 
 // DeepLab V3 MobileNet V2 model with 'nhwc' input layout
 export class DeepLabV3MNV2Nhwc {
-  constructor() {
+  constructor(dataType = 'float32') {
     this.context_ = null;
+    this.targetDataType_ = dataType;
     this.builder_ = null;
     this.graph_ = null;
     this.inputTensor_ = null;
@@ -35,8 +36,10 @@ export class DeepLabV3MNV2Nhwc {
       weightsName = prefix + '_Conv2D.npy';
       biasName = prefix + '_biases.npy';
     }
-    const weights = await buildConstantByNpy(this.builder_, weightsName);
-    const bias = await buildConstantByNpy(this.builder_, biasName);
+    const weights = await buildConstantByNpy(
+        this.builder_, weightsName, this.targetDataType_);
+    const bias = await buildConstantByNpy(
+        this.builder_, biasName, this.targetDataType_);
     options.inputLayout = 'nhwc';
     if (namePrefix.includes('depthwise')) {
       options.filterLayout = 'ihwo';
@@ -88,7 +91,7 @@ export class DeepLabV3MNV2Nhwc {
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     };
-    const input = this.builder_.input('input', inputDesc);
+    let input = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
     inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
@@ -99,6 +102,9 @@ export class DeepLabV3MNV2Nhwc {
       usage: MLTensorUsage.READ,
       readable: true,
     });
+    if (this.targetDataType_ === 'float16') {
+      input = this.builder_.cast(input, 'float16');
+    }
 
     const conv0 = await this.buildConv_(
         input, 'MobilenetV2_Conv_Conv2D', '', true, {strides});
@@ -152,8 +158,12 @@ export class DeepLabV3MNV2Nhwc {
     const conv6 = await this.buildConv_(conv5, 'logits_semantic', '', false);
     const resample1 = this.builder_.resample2d(
         conv6, {sizes: [65, 65], mode: 'linear', axes: [1, 2]});
-    return this.builder_.resample2d(
+    const resample2 = this.builder_.resample2d(
         resample1, {sizes: [513, 513], mode: 'linear', axes: [1, 2]});
+    if (this.targetDataType_ === 'float16') {
+      return this.builder_.cast(resample2, 'float32');
+    }
+    return resample2;
   }
 
   async build(outputOperand) {

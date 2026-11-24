@@ -8,8 +8,9 @@ const autoPad = 'same-upper';
 
 // FaceNet model with 'nhwc' layout.
 export class FaceNetNhwc {
-  constructor() {
+  constructor(dataType = 'float32') {
     this.context_ = null;
+    this.targetDataType_ = dataType;
     this.builder_ = null;
     this.graph_ = null;
     this.inputTensor_ = null;
@@ -35,7 +36,8 @@ export class FaceNetNhwc {
     const biasName = `${this.weightsUrl_}/${namePrefix}_Conv2D_bias.npy`;
     const [weights, bias] = await Promise.all([
       weightsName, biasName,
-    ].map((name) => buildConstantByNpy(this.builder_, name)));
+    ].map((name) => buildConstantByNpy(
+        this.builder_, name, this.targetDataType_)));
     if (options !== undefined) {
       options.inputLayout = 'nhwc';
       options.filterLayout = 'ohwi';
@@ -129,9 +131,11 @@ export class FaceNetNhwc {
 
   async buildFullyConnected_(input) {
     const weights = buildConstantByNpy(this.builder_,
-        `${this.weightsUrl_}/Bottleneck_kernel_transpose.npy`);
+        `${this.weightsUrl_}/Bottleneck_kernel_transpose.npy`,
+        this.targetDataType_);
     const bias = buildConstantByNpy(this.builder_,
-        `${this.weightsUrl_}/Bottleneck_MatMul_bias.npy`);
+        `${this.weightsUrl_}/Bottleneck_MatMul_bias.npy`,
+        this.targetDataType_);
     input = this.builder_.reshape(await input, [1, 1792]);
     const options = {
       aTranspose: false,
@@ -149,7 +153,7 @@ export class FaceNetNhwc {
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     };
-    const input = this.builder_.input('input', inputDesc);
+    let input = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
     inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
@@ -160,6 +164,9 @@ export class FaceNetNhwc {
       usage: MLTensorUsage.READ,
       readable: true,
     });
+    if (this.targetDataType_ === 'float16') {
+      input = this.builder_.cast(input, 'float16');
+    }
 
     const poolOptions = {windowDimensions: [3, 3], strides, layout: 'nhwc'};
 
@@ -242,6 +249,9 @@ export class FaceNetNhwc {
       this.builder_.averagePool2d(block8_6, {layout: 'nhwc'}));
     const fc = await this.buildFullyConnected_(mean);
     // L2Normalization will be handled in post-processing
+    if (this.targetDataType_ === 'float16') {
+      return this.builder_.cast(fc, 'float32');
+    }
     return fc;
   }
 

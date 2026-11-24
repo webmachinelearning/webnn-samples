@@ -53,15 +53,10 @@ $('#deviceTypeBtns .btn').on('change', async (e) => {
   }
   deviceType = $(e.target).attr('id');
   layout = await utils.getDefaultLayout(deviceType);
-  // Only show the supported models for each deviceType.
-  ui.handleBtnUI('#float16Label', false);
-  if (deviceType == 'npu') {
-    ui.handleBtnUI('#float32Label', true);
-    $('#float16').click();
-  } else {
-    ui.handleBtnUI('#float32Label', false);
-    $('#float32').click();
-  }
+  // Select the device's preferred data type and disable unsupported ones.
+  const supportedDataType = await utils.selectDataTypeForDevice(deviceType);
+  if (!supportedDataType) return;
+  dataType = supportedDataType;
 
   // Uncheck selected model
   if (modelName != '') {

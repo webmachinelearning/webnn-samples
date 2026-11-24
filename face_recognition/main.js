@@ -34,8 +34,8 @@ let buildTime = 0;
 let computeTime = 0;
 let deviceType = '';
 let lastdeviceType = '';
-let backend = '';
-let lastBackend = '';
+let dataType = 'float32';
+let lastDataType = '';
 let stopRender = true;
 let isRendering = false;
 const disabledSelectors = ['#tabs > li', '.btn'];
@@ -43,7 +43,7 @@ const disabledSelectors = ['#tabs > li', '.btn'];
 $(document).ready(async () => {
   $('.icdisplay').hide();
   if (await utils.isWebNN()) {
-    $('#webnn_cpu').click();
+    $('#cpu').click();
   } else {
     console.log(utils.webNNNotSupportMessage());
     ui.addAlert(utils.webNNNotSupportMessageHTML());
@@ -54,8 +54,20 @@ $('#backendBtns .btn').on('change', async (e) => {
   if (inputType === 'camera') {
     await stopCamRender();
   }
-  [backend, deviceType] = $(e.target).attr('id').split('_');
+  deviceType = $(e.target).attr('id');
   layout = await utils.getDefaultLayout(deviceType);
+  // Select the device's preferred data type and disable unsupported ones.
+  const supportedDataType = await utils.selectDataTypeForDevice(deviceType);
+  if (!supportedDataType) return;
+  dataType = supportedDataType;
+  await main();
+});
+
+$('#dataTypeBtns .btn').on('change', async (e) => {
+  if (inputType === 'camera') {
+    await stopCamRender();
+  }
+  dataType = $(e.target).attr('id');
   await main();
 });
 
@@ -285,13 +297,13 @@ function showPerfResult(medianComputeTime = undefined) {
 
 function constructNetObject(type) {
   const netObject = {
-    'ssdmobilenetv2facenchw': new SsdMobilenetV2FaceNchw(),
-    'ssdmobilenetv2facenhwc': new SsdMobilenetV2FaceNhwc(),
-    'facenetnchw': new FaceNetNchw(),
-    'facenetnhwc': new FaceNetNhwc(),
+    'ssdmobilenetv2facenchw': SsdMobilenetV2FaceNchw,
+    'ssdmobilenetv2facenhwc': SsdMobilenetV2FaceNhwc,
+    'facenetnchw': FaceNetNchw,
+    'facenetnhwc': FaceNetNhwc,
   };
 
-  return netObject[type];
+  return new netObject[type](dataType);
 }
 
 async function main() {
@@ -302,15 +314,11 @@ async function main() {
     const [numRuns, powerPreference] = utils.getUrlParams();
     let start;
     // Only do load() and build() when model first time loads,
-    // there's new model choosed, backend changed or device changed
+    // there's new model choosed, device changed or data type changed
     if (isFirstTimeLoad || fdInstanceType !== fdModelName + layout ||
-        lastdeviceType != deviceType || lastBackend != backend) {
-      if (lastdeviceType != deviceType || lastBackend != backend) {
-        // Set backend and device
-        lastdeviceType = lastdeviceType != deviceType ?
-                               deviceType : lastdeviceType;
-        lastBackend = lastBackend != backend ? backend : lastBackend;
-      }
+        lastdeviceType != deviceType || lastDataType != dataType) {
+      lastdeviceType = deviceType;
+      lastDataType = dataType;
       fdInstanceType = fdModelName + layout;
       frInstanceType = frModelName + layout;
       fdInstance = constructNetObject(fdInstanceType);
@@ -318,7 +326,8 @@ async function main() {
       fdInputOptions = fdInstance.inputOptions;
       frInputOptions = frInstance.inputOptions;
       isFirstTimeLoad = false;
-      console.log(`- Model name: ${fdModelName}, Model layout: ${layout} -`);
+      console.log(`- Model name: ${fdModelName}, Model layout: ${layout}, ` +
+          `Data type: ${dataType} -`);
       // UI shows model loading progress
       await ui.showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');

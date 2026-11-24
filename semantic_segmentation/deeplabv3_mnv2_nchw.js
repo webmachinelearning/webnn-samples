@@ -6,8 +6,9 @@ import {buildConstantByNpy, weightsOrigin} from '../common/utils.js';
 
 // DeepLab V3 MobileNet V2 model with 'nchw' input layout
 export class DeepLabV3MNV2Nchw {
-  constructor() {
+  constructor(dataType = 'float32') {
     this.context_ = null;
+    this.targetDataType_ = dataType;
     this.builder_ = null;
     this.graph_ = null;
     this.inputTensor_ = null;
@@ -42,8 +43,8 @@ export class DeepLabV3MNV2Nchw {
       biasName = biasPrefix + '_biases.npy';
     }
 
-    const weights = buildConstantByNpy(this.builder_, weightsName);
-    const bias = buildConstantByNpy(this.builder_, biasName);
+    const weights = buildConstantByNpy(this.builder_, weightsName, this.targetDataType_);
+    const bias = buildConstantByNpy(this.builder_, biasName, this.targetDataType_);
 
     options.bias = await bias;
     const conv2d = this.builder_.conv2d(await input, await weights, options);
@@ -93,7 +94,7 @@ export class DeepLabV3MNV2Nchw {
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     };
-    const input = this.builder_.input('input', inputDesc);
+    let input = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
     inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
@@ -104,6 +105,9 @@ export class DeepLabV3MNV2Nchw {
       usage: MLTensorUsage.READ,
       readable: true,
     });
+    if (this.targetDataType_ === 'float16') {
+      input = this.builder_.cast(input, 'float16');
+    }
 
     const conv0 = this.buildConv_(
         input, ['MobilenetV2_Conv_Conv2D', '', '551'], 'relu6', {strides, padding: [1, 1, 1, 1]});
@@ -157,8 +161,12 @@ export class DeepLabV3MNV2Nchw {
     const conv6 = this.buildConv_(conv5, ['logits_semantic', '', '541'], 'none');
     const resample1 = this.builder_.resample2d(
         await conv6, {sizes: [65, 65], mode: 'linear'});
-    return this.builder_.resample2d(
+    const resample2 = this.builder_.resample2d(
         resample1, {sizes: [513, 513], mode: 'linear'});
+    if (this.targetDataType_ === 'float16') {
+      return this.builder_.cast(resample2, 'float32');
+    }
+    return resample2;
   }
 
   async build(outputOperand) {

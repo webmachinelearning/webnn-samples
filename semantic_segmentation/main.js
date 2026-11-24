@@ -27,8 +27,8 @@ let renderer;
 let hoverPos = null;
 let deviceType = '';
 let lastdeviceType = '';
-let backend = '';
-let lastBackend = '';
+let dataType = 'float32';
+let lastDataType = '';
 let stopRender = true;
 let isRendering = false;
 const disabledSelectors = ['#tabs > li', '.btn'];
@@ -36,7 +36,7 @@ const disabledSelectors = ['#tabs > li', '.btn'];
 $(document).ready(async () => {
   $('.icdisplay').hide();
   if (await utils.isWebNN()) {
-    $('#webnn_cpu').click();
+    $('#cpu').click();
   } else {
     console.log(utils.webNNNotSupportMessage());
     ui.addAlert(utils.webNNNotSupportMessageHTML());
@@ -53,8 +53,20 @@ $('#backendBtns .btn').on('change', async (e) => {
   if (inputType === 'camera') {
     await stopCamRender();
   }
-  [backend, deviceType] = $(e.target).attr('id').split('_');
+  deviceType = $(e.target).attr('id');
   layout = await utils.getDefaultLayout(deviceType);
+  // Select the device's preferred data type and disable unsupported ones.
+  const supportedDataType = await utils.selectDataTypeForDevice(deviceType);
+  if (!supportedDataType) return;
+  dataType = supportedDataType;
+  await main();
+});
+
+$('#dataTypeBtns .btn').on('change', async (e) => {
+  if (inputType === 'camera') {
+    await stopCamRender();
+  }
+  dataType = $(e.target).attr('id');
   await main();
 });
 
@@ -317,11 +329,11 @@ function showPerfResult(medianComputeTime = undefined) {
 
 function constructNetObject(type) {
   const netObject = {
-    'deeplabv3mnv2nchw': new DeepLabV3MNV2Nchw(),
-    'deeplabv3mnv2nhwc': new DeepLabV3MNV2Nhwc(),
+    'deeplabv3mnv2nchw': DeepLabV3MNV2Nchw,
+    'deeplabv3mnv2nhwc': DeepLabV3MNV2Nhwc,
   };
 
-  return netObject[type];
+  return new netObject[type](dataType);
 }
 
 export async function main() {
@@ -333,21 +345,18 @@ export async function main() {
     const [numRuns, powerPreference] = utils.getUrlParams();
 
     // Only do load() and build() when model first time loads,
-    // there's new model choosed, backend changed or device changed
+    // there's new model choosed, device changed or data type changed
     if (isFirstTimeLoad || instanceType !== modelName + layout ||
-        lastdeviceType != deviceType || lastBackend != backend) {
-      if (lastdeviceType != deviceType || lastBackend != backend) {
-        // Set backend and device
-        lastdeviceType = lastdeviceType != deviceType ?
-                              deviceType : lastdeviceType;
-        lastBackend = lastBackend != backend ? backend : lastBackend;
-      }
+        lastdeviceType != deviceType || lastDataType != dataType) {
+      lastdeviceType = deviceType;
+      lastDataType = dataType;
       instanceType = modelName + layout;
       netInstance = constructNetObject(instanceType);
       inputOptions = netInstance.inputOptions;
       labels = await fetchLabels(inputOptions.labelUrl);
       isFirstTimeLoad = false;
-      console.log(`- Model name: ${modelName}, Model layout: ${layout} -`);
+      console.log(`- Model name: ${modelName}, Model layout: ${layout}, ` +
+          `Data type: ${dataType} -`);
       // UI shows model loading progress
       await ui.showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');

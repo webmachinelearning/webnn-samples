@@ -115,6 +115,18 @@ export function handleBtnUI(selector, disabled = true) {
 }
 
 /**
+ * Select a radio button in a button group without triggering its change
+ * event.
+ * @param {String} id, the id of the radio input.
+ */
+export function checkBtn(id) {
+  const input = $(`#${id}`);
+  input.prop('checked', true);
+  input.parent().siblings().removeClass('active');
+  input.parent().addClass('active');
+}
+
+/**
  * Show flexible alert messages
  * @param {String} msg, alert message.
  * @param {String} type, one of ["info", "warning"], type of message,

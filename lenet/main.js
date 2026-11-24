@@ -19,6 +19,7 @@ const digitContext = digitCanvas.getContext('2d');
 const pen = new Pen(visualCanvas);
 let lenet;
 let numRuns;
+let dataType = 'float32';
 
 $(document).ready(async () => {
   if (!await utils.isWebNN()) {
@@ -38,6 +39,20 @@ function clearInferenceResult() {
 }
 
 $('#backendBtns .btn').on('change', async () => {
+  // Don't let Predict run the previous device's graph meanwhile.
+  predictButton.setAttribute('disabled', true);
+  const deviceType = $('input[name="backend"]:checked').attr('id');
+  // Select the device's preferred data type and disable unsupported ones.
+  const supportedDataType = await utils.selectDataTypeForDevice(deviceType);
+  if (!supportedDataType) return;
+  dataType = supportedDataType;
+  await main();
+});
+
+$('#dataTypeBtns .btn').on('change', async (e) => {
+  dataType = $(e.target).attr('id');
+  // Wait until a backend is selected.
+  if ($('input[name="backend"]:checked').length === 0) return;
   await main();
 });
 
@@ -73,14 +88,13 @@ async function main() {
   buildTimeElement.innerHTML = '';
   predictButton.setAttribute('disabled', true);
   clearInferenceResult();
-  const [backend, deviceType] =
-      $('input[name="backend"]:checked').attr('id').split('_');
-  console.log(`${backend} ${deviceType}`);
+  const deviceType = $('input[name="backend"]:checked').attr('id');
+  console.log(`deviceType: ${deviceType}, dataType: ${dataType}`);
   drawNextDigitFromMnist();
   const weightUrl = utils.weightsOrigin() +
     '/test-data/models/lenet_nchw/weights/lenet.bin';
   const layout = deviceType === 'cpu' ? 'nhwc' : 'nchw';
-  lenet = new LeNet(weightUrl, layout);
+  lenet = new LeNet(weightUrl, layout, dataType);
   const [localNumRuns, powerPreference] = utils.getUrlParams();
   numRuns = localNumRuns;
   try {
