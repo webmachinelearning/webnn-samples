@@ -37,12 +37,66 @@ const disabledSelectors = ['#tabs > li', '.btn'];
 $(document).ready(async () => {
   $('.icdisplay').hide();
   if (await utils.isWebNN()) {
-    $('#cpu').click();
+    if (!(await startFromUrlParams())) $('#cpu').click();
   } else {
     console.log(utils.webNNNotSupportMessage());
     ui.addAlert(utils.webNNNotSupportMessageHTML());
   }
 });
+
+/**
+ * Lets automated tests pick the configuration and start inference without
+ * clicking, e.g. ?deviceType=gpu&resolution=landscape&input=camera.
+ * Param names are case-insensitive, like those read by utils.getUrlParams().
+ * @return {!Promise<boolean>} false if the params don't select a device and
+ *     a resolution.
+ */
+async function startFromUrlParams() {
+  const params = {};
+  new URLSearchParams(location.search).forEach((value, key) => {
+    params[key.toLowerCase()] = value;
+  });
+  const getParam = (name, allowed) => {
+    const value = params[name.toLowerCase()];
+    if (value === undefined) return null;
+    if (allowed.includes(value)) return value;
+    ui.addAlert(`Ignore the url param: '${name}', its value must be one ` +
+        `of {${allowed.map((v) => `'${v}'`).join(', ')}}.`);
+    return null;
+  };
+  const device = getParam('deviceType', ['cpu', 'gpu', 'npu']);
+  const resolution = getParam('resolution', ['general', 'landscape']);
+  const type = getParam('dataType', ['float16', 'float32']);
+  const input = getParam('input', ['image', 'camera']);
+  if (!device || !resolution) return false;
+
+  // Wait for the window load event, which comes after the <img> load event.
+  // The <img> load handler calls main(), which returns early while
+  // resolutionType is unset, and Bootstrap syncs the button states on window
+  // load, which would undo the changes below.
+  if (document.readyState !== 'complete') {
+    await new Promise((resolve) =>
+      window.addEventListener('load', resolve, {once: true}));
+  }
+  deviceType = device;
+  resolutionType = resolution;
+  inputOptions.inputResolution =
+      resolution === 'general' ? [256, 256] : [256, 144];
+  if (type) dataType = type;
+  for (const id of [deviceType, resolutionType, dataType]) {
+    $(`#${id}`).prop('checked', true).parent().addClass('active')
+        .siblings().removeClass('active');
+  }
+  // Rebuild the model in case a click during the wait above built another one.
+  modelChanged = true;
+  if (input === 'camera') {
+    inputType = 'camera';
+    $('#cam a').tab('show');
+    $('#pickimage').hide();
+  }
+  await main();
+  return true;
+}
 
 $('#backendBtns .btn').on('change', async (e) => {
   modelChanged = true;
