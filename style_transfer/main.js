@@ -21,8 +21,8 @@ let buildTime = 0;
 let computeTime = 0;
 let deviceType = '';
 let lastdeviceType = '';
-let backend = '';
-let lastBackend = '';
+let dataType = 'float32';
+let lastDataType = '';
 const disabledSelectors = [
   '#tabs > li',
   '#gallery',
@@ -44,8 +44,17 @@ $(document).ready(() => {
 });
 
 $('#backendBtns .btn').on('change', async (e) => {
-  [backend, deviceType] =
-      $('input[name="backend"]:checked').attr('id').split('_');
+  deviceType = $('input[name="backend"]:checked').attr('id');
+  if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
+  // Select the device's preferred data type and disable unsupported ones.
+  const supportedDataType = await utils.selectDataTypeForDevice(deviceType);
+  if (!supportedDataType) return;
+  dataType = supportedDataType;
+  await main();
+});
+
+$('#dataTypeBtns .btn').on('change', async (e) => {
+  dataType = $(e.target).attr('id');
   if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
   await main();
 });
@@ -193,26 +202,22 @@ function showPerfResult(medianComputeTime = undefined) {
 
 export async function main() {
   try {
-    if (backend === '') return;
+    if (deviceType === '') return;
     ui.handleClick(disabledSelectors, true);
     if (isFirstTimeLoad) $('#hint').hide();
     let start;
     const [numRuns, powerPreference] = utils.getUrlParams();
 
     // Only do load() and build() when model first time loads,
-    // there's new model choosed, backend changed or device changed
+    // there's new model choosed, device changed or data type changed
     if (isFirstTimeLoad || isModelChanged ||
-      lastdeviceType != deviceType || lastBackend != backend) {
-      if (lastdeviceType != deviceType || lastBackend != backend) {
-        // Set backend and device
-        lastdeviceType = lastdeviceType != deviceType ?
-                                deviceType : lastdeviceType;
-        lastBackend = lastBackend != backend ? backend : lastBackend;
-      }
-      fastStyleTransferNet = new FastStyleTransferNet();
+      lastdeviceType != deviceType || lastDataType != dataType) {
+      lastdeviceType = deviceType;
+      lastDataType = dataType;
+      fastStyleTransferNet = new FastStyleTransferNet(dataType);
       isFirstTimeLoad = false;
       isModelChanged = false;
-      console.log(`- Model ID: ${modelId} -`);
+      console.log(`- Model ID: ${modelId}, Data type: ${dataType} -`);
       // UI shows model loading progress
       await ui.showProgressComponent('current', 'pending', 'pending');
       console.log('- Loading weights... ');

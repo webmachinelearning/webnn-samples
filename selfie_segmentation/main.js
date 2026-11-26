@@ -48,6 +48,13 @@ $('#backendBtns .btn').on('change', async (e) => {
   modelChanged = true;
   if (inputType === 'camera') utils.stopCameraStream(rafReq, stream);
   deviceType = $(e.target).attr('id');
+  // Select the device's preferred data type and disable unsupported ones.
+  // The float16 models use float16 graph inputs/outputs directly, and this
+  // sample defaults to float16 on every device.
+  const supportedDataType = await utils.selectDataTypeForDevice(
+      deviceType, {nativeFloat16IO: true, preferredDataType: 'float16'});
+  if (!supportedDataType) return;
+  dataType = supportedDataType;
   await main();
 });
 

@@ -4,8 +4,9 @@ import {buildConstantByNpy, computePadding2DForAutoPad, weightsOrigin} from '../
 
 // SSD MobileNet V2 Face model with 'nchw' layout.
 export class SsdMobilenetV2FaceNchw {
-  constructor() {
+  constructor(dataType = 'float32') {
     this.context_ = null;
+    this.targetDataType_ = dataType;
     this.builder_ = null;
     this.graph_ = null;
     this.inputTensor_ = null;
@@ -65,9 +66,11 @@ ${nameArray[1]}`;
     }
 
     const weightsName = prefix + weightSuffix;
-    const weights = buildConstantByNpy(this.builder_, weightsName);
+    const weights = buildConstantByNpy(
+        this.builder_, weightsName, this.targetDataType_);
     const biasName = prefix + biasSuffix;
-    const bias = buildConstantByNpy(this.builder_, biasName);
+    const bias = buildConstantByNpy(
+        this.builder_, biasName, this.targetDataType_);
 
     const isShapeMethod = typeof (await input).shape === 'function';
     const inputShape = isShapeMethod ? (await input).shape() :
@@ -122,7 +125,7 @@ ${nameArray[1]}`;
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     };
-    const input = this.builder_.input('input', inputDesc);
+    let input = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
     inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
@@ -134,6 +137,9 @@ ${nameArray[1]}`;
         usage: MLTensorUsage.READ,
         readable: true,
       });
+    }
+    if (this.targetDataType_ === 'float16') {
+      input = this.builder_.cast(input, 'float16');
     }
 
     const bottleneck0 = this.buildLinearBottleneck_(
@@ -227,7 +233,7 @@ ${nameArray[1]}`;
     const biasAdd33 = this.buildConv_(
         conv25Relu6, ['Class', '5'], false);
 
-    return {
+    const outputs = {
       biasAdd0: await biasAdd0,
       biasAdd3: await biasAdd3,
       biasAdd6: await biasAdd6,
@@ -241,6 +247,12 @@ ${nameArray[1]}`;
       biasAdd30: await biasAdd30,
       biasAdd33: await biasAdd33,
     };
+    if (this.targetDataType_ === 'float16') {
+      for (const [key, value] of Object.entries(outputs)) {
+        outputs[key] = this.builder_.cast(value, 'float32');
+      }
+    }
+    return outputs;
   }
 
   async build(outputOperand) {

@@ -33,10 +33,22 @@
               <div class="btn-group-toggle" data-toggle="buttons" id="backendBtns">
                 <span class='mr-3'>Backend</span>
                 <label class="btn btn-outline-info" name="webnn">
-                  <input type="radio" name="backend" id="webnn_cpu" autocomplete="off">WebNN (CPU)
+                  <input type="radio" name="backend" id="cpu" autocomplete="off">WebNN (CPU)
                 </label>
                 <label class="btn btn-outline-info" name="webnn">
-                  <input type="radio" name="backend" id="webnn_gpu" autocomplete="off">WebNN (GPU)
+                  <input type="radio" name="backend" id="gpu" autocomplete="off">WebNN (GPU)
+                </label>
+                <label class="btn btn-outline-info" name="webnn">
+                  <input type="radio" name="backend" id="npu" autocomplete="off">WebNN (NPU)
+                </label>
+              </div>
+              <div class="btn-group-toggle mt-2" data-toggle="buttons" id="dataTypeBtns">
+                <span class='mr-3'>Data Type</span>
+                <label class="btn btn-outline-info active" id="float32Label">
+                  <input type="radio" name="dataType" id="float32" autocomplete="off" checked>Float32
+                </label>
+                <label class="btn btn-outline-info" id="float16Label">
+                  <input type="radio" name="dataType" id="float16" autocomplete="off">Float16
                 </label>
               </div>
             </div>

@@ -4,8 +4,9 @@ import {buildConstantByNpy, weightsOrigin} from '../common/utils.js';
 
 // SimpleCNN model with 'nchw' layout.
 export class FaceLandmarkNchw {
-  constructor() {
+  constructor(dataType = 'float32') {
     this.context_ = null;
+    this.targetDataType_ = dataType;
     this.builder_ = null;
     this.graph_ = null;
     this.inputTensor_ = null;
@@ -34,9 +35,11 @@ export class FaceLandmarkNchw {
     }
 
     const weightsName = prefix + weightSuffix;
-    const weights = buildConstantByNpy(this.builder_, weightsName);
+    const weights = buildConstantByNpy(
+        this.builder_, weightsName, this.targetDataType_);
     const biasName = prefix + biasSuffix;
-    const bias = buildConstantByNpy(this.builder_, biasName);
+    const bias = buildConstantByNpy(
+        this.builder_, biasName, this.targetDataType_);
     const options = {
       bias: await bias,
     };
@@ -46,9 +49,11 @@ export class FaceLandmarkNchw {
 
   async buildGemm_(input, namePrefix, relu = false, reshapeSize) {
     const weights = buildConstantByNpy(this.builder_,
-        `${this.weightsUrl_}/${namePrefix}_kernel_transpose.npy`);
+        `${this.weightsUrl_}/${namePrefix}_kernel_transpose.npy`,
+        this.targetDataType_);
     const bias = buildConstantByNpy(this.builder_,
-        `${this.weightsUrl_}/${namePrefix}_MatMul_bias.npy`);
+        `${this.weightsUrl_}/${namePrefix}_MatMul_bias.npy`,
+        this.targetDataType_);
     const options = {
       aTranspose: false,
       bTranspose: true,
@@ -77,7 +82,7 @@ export class FaceLandmarkNchw {
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     };
-    const input = this.builder_.input('input', inputDesc);
+    let input = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
     inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
@@ -88,6 +93,9 @@ export class FaceLandmarkNchw {
       usage: MLTensorUsage.READ,
       readable: true,
     });
+    if (this.targetDataType_ === 'float16') {
+      input = this.builder_.cast(input, 'float16');
+    }
 
     const poolOptions =
         {windowDimensions: [2, 2], strides: [2, 2]};
@@ -111,6 +119,9 @@ export class FaceLandmarkNchw {
     const gemm0 = this.buildGemm_(conv7, 'dense', true, 6400);
     const gemm1 = this.buildGemm_(gemm0, 'logits');
 
+    if (this.targetDataType_ === 'float16') {
+      return this.builder_.cast(await gemm1, 'float32');
+    }
     return await gemm1;
   }
 

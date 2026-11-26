@@ -4,8 +4,9 @@ import {buildConstantByNpy, weightsOrigin} from '../common/utils.js';
 
 // SimpleCNN model with 'nhwc' layout.
 export class FaceLandmarkNhwc {
-  constructor() {
+  constructor(dataType = 'float32') {
     this.context_ = null;
+    this.targetDataType_ = dataType;
     this.builder_ = null;
     this.graph_ = null;
     this.inputTensor_ = null;
@@ -34,9 +35,11 @@ export class FaceLandmarkNhwc {
     }
 
     const weightsName = prefix + weightSuffix;
-    const weights = buildConstantByNpy(this.builder_, weightsName);
+    const weights = buildConstantByNpy(
+        this.builder_, weightsName, this.targetDataType_);
     const biasName = prefix + biasSuffix;
-    const bias = buildConstantByNpy(this.builder_, biasName);
+    const bias = buildConstantByNpy(
+        this.builder_, biasName, this.targetDataType_);
     const options = {
       inputLayout: 'nhwc',
       filterLayout: 'ohwi',
@@ -48,9 +51,11 @@ export class FaceLandmarkNhwc {
 
   async buildFullyConnected_(input, namePrefix, relu = false, reshapeSize) {
     const weights = buildConstantByNpy(this.builder_,
-        `${this.weightsUrl_}/${namePrefix}_kernel_transpose.npy`);
+        `${this.weightsUrl_}/${namePrefix}_kernel_transpose.npy`,
+        this.targetDataType_);
     const bias = buildConstantByNpy(this.builder_,
-        `${this.weightsUrl_}/${namePrefix}_MatMul_bias.npy`);
+        `${this.weightsUrl_}/${namePrefix}_MatMul_bias.npy`,
+        this.targetDataType_);
     const options = {
       aTranspose: false,
       bTranspose: true,
@@ -78,7 +83,7 @@ export class FaceLandmarkNhwc {
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     };
-    const input = this.builder_.input('input', inputDesc);
+    let input = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
     inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
@@ -89,6 +94,9 @@ export class FaceLandmarkNhwc {
       usage: MLTensorUsage.READ,
       readable: true,
     });
+    if (this.targetDataType_ === 'float16') {
+      input = this.builder_.cast(input, 'float16');
+    }
 
     const poolOptions =
         {windowDimensions: [2, 2], strides: [2, 2], layout: 'nhwc'};
@@ -114,6 +122,9 @@ export class FaceLandmarkNhwc {
         conv7, 'dense', true, 6400);
     const fc1 = this.buildFullyConnected_(fc0, 'logits');
 
+    if (this.targetDataType_ === 'float16') {
+      return this.builder_.cast(await fc1, 'float32');
+    }
     return await fc1;
   }
 

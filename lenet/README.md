@@ -79,7 +79,9 @@ The following table lists the corresponding WebNN ops and parameters for each la
 
 ### Usage
 
-Click the `Device` switch button to choose device preference for inference.
+Click the `Backend` switch button to choose the device for inference.
+
+Click the `Data Type` switch button to choose `Float32` or `Float16`. Only the data types the selected device reports support for are enabled; switching devices selects the device's preferred data type (`Float16` on NPU, otherwise `Float32`).
 
 Click the `Predict` button to predict the digit shown in the canvas.
 

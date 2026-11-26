@@ -1,13 +1,14 @@
 'use strict';
 
-import {buildConstantByNpy, weightsOrigin} from '../common/utils.js';
+import {buildConstantByNpy, buildFloatConstant, weightsOrigin} from '../common/utils.js';
 
 /* eslint max-len: ["error", {"code": 130}] */
 
 // Fast Style Transfer Baseline Model
 export class FastStyleTransferNet {
-  constructor() {
+  constructor(dataType = 'float32') {
     this.context_ = null;
+    this.targetDataType_ = dataType;
     this.builder_ = null;
     this.graph_ = null;
     this.inputTensor_ = null;
@@ -24,6 +25,14 @@ export class FastStyleTransferNet {
   }
 
   buildInstanceNormalization_(conv2D, variableMul, variableAdd) {
+    // In float16 graphs, normalize in float32: the variance of these large
+    // activations overflows float16 on backends that accumulate in float16
+    // (e.g. all-zero output on some GPUs). Scale/bias are float32 constants.
+    const isFloat16 = this.targetDataType_ === 'float16';
+    if (isFloat16) {
+      conv2D = this.builder_.cast(conv2D, 'float32');
+    }
+    let output;
     if ('instanceNormalization' in this.builder_) {
       const isShapeMethod = typeof variableMul.shape === 'function';
       const variableMulShape = isShapeMethod ? variableMul.shape() : variableMul.shape;
@@ -33,96 +42,91 @@ export class FastStyleTransferNet {
       const addShape = variableAddShape.filter((dim) => dim !==1);
       const mulSqueeze = this.builder_.reshape(variableMul, mulShape);
       const addSqueeze = this.builder_.reshape(variableAdd, addShape);
-      return this.builder_.instanceNormalization(conv2D, {scale: mulSqueeze, bias: addSqueeze});
+      output = this.builder_.instanceNormalization(conv2D, {scale: mulSqueeze, bias: addSqueeze});
     } else {
       const sub = this.builder_.sub(conv2D, this.builder_.reduceMean(conv2D, {axes: [2, 3], keepDimensions: true}));
       const reduceMean = this.builder_.reduceMean(this.builder_.mul(sub, sub), {axes: [2, 3], keepDimensions: true});
       const pow = this.builder_.pow(this.builder_.add(reduceMean, this.constAdd_), this.constPow_);
       const mul = this.builder_.mul(variableMul, this.builder_.div(sub, pow));
-      return this.builder_.add(mul, variableAdd);
+      output = this.builder_.add(mul, variableAdd);
     }
+    return isFloat16 ? this.builder_.cast(output, 'float16') : output;
   }
 
   async load(contextOptions, modelId) {
     this.context_ = await navigator.ml.createContext(contextOptions);
     this.builder_ = new MLGraphBuilder(this.context_);
     const baseUrl = this.weightsUrl_ + modelId + '/';
+    const loadConstant = (fileName) =>
+      buildConstantByNpy(this.builder_, baseUrl + fileName, this.targetDataType_);
+    // Instance normalization scale/bias stay float32, see above.
+    const loadFloat32Constant = (fileName) =>
+      buildConstantByNpy(this.builder_, baseUrl + fileName, 'float32');
 
     // Create constants by loading pre-trained data from .npy files.
-    const weightConv0 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_read__0__cf__0_0.npy');
-    const variableAdd0 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_1_read__1__cf__1_0.npy');
-    const variableMul0 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_2_read__12__cf__12_0.npy');
-    const weightConv1 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_3_read__23__cf__23_0.npy');
-    const variableAdd1 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_4_read__34__cf__34_0.npy');
-    const variableMul1 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_5_read__43__cf__43_0.npy');
-    const weightConv2 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_6_read__44__cf__44_0.npy');
-    const variableAdd2 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_7_read__45__cf__45_0.npy');
-    const variableMul2 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_8_read__46__cf__46_0.npy');
-    const weightConv3 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_9_read__47__cf__47_0.npy');
-    const variableAdd3 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_10_read__2__cf__2_0.npy');
-    const variableMul3 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_11_read__3__cf__3_0.npy');
-    const weightConv4 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_12_read__4__cf__4_0.npy');
-    const variableAdd4 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_13_read__5__cf__5_0.npy');
-    const variableMul4 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_14_read__6__cf__6_0.npy');
-    const weightConv5 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_15_read__7__cf__7_0.npy');
-    const variableAdd5 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_16_read__8__cf__8_0.npy');
-    const variableMul5 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_17_read__9__cf__9_0.npy');
-    const weightConv6 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_18_read__10__cf__10_0.npy');
-    const variableAdd6 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_19_read__11__cf__11_0.npy');
-    const variableMul6 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_20_read__13__cf__13_0.npy');
-    const weightConv7 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_21_read__14__cf__14_0.npy');
-    const variableAdd7 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_22_read__15__cf__15_0.npy');
-    const variableMul7 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_23_read__16__cf__16_0.npy');
-    const weightConv8 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_24_read__17__cf__17_0.npy');
-    const variableAdd8 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_25_read__18__cf__18_0.npy');
-    const variableMul8 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_26_read__19__cf__19_0.npy');
-    const weightConv9 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_27_read__20__cf__20_0.npy');
-    const variableAdd9 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_28_read__21__cf__21_0.npy');
-    const variableMul9 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_29_read__22__cf__22_0.npy');
-    const weightConv10 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_30_read__24__cf__24_0.npy');
-    const variableAdd10 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_31_read__25__cf__25_0.npy');
-    const variableMul10 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_32_read__26__cf__26_0.npy');
-    const weightConv11 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_33_read__27__cf__27_0.npy');
-    const variableAdd11 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_34_read__28__cf__28_0.npy');
-    const variableMul11 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_35_read__29__cf__29_0.npy');
-    const weightConv12 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_36_read__30__cf__30_0.npy');
-    const variableAdd12 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_37_read__31__cf__31_0.npy');
-    const variableMul12 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_38_read__32__cf__32_0.npy');
-    const weightConvTranspose0 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_39_read__33__cf__33_0.npy');
-    const variableAdd13 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_40_read__35__cf__35_0.npy');
-    const variableMul13 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_41_read__36__cf__36_0.npy');
-    const weightConvTranspose1 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_42_read__37__cf__37_0.npy');
-    const variableAdd14 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_43_read__38__cf__38_0.npy');
-    const variableMul14 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_44_read__39__cf__39_0.npy');
-    const weightConv13 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_45_read__40__cf__40_0.npy');
-    const variableAdd15 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_46_read__41__cf__41_0.npy');
-    const variableMul15 = await buildConstantByNpy(this.builder_, baseUrl + 'Variable_47_read__42__cf__42_0.npy');
+    const weightConv0 = await loadConstant('Variable_read__0__cf__0_0.npy');
+    const variableAdd0 = await loadFloat32Constant('Variable_1_read__1__cf__1_0.npy');
+    const variableMul0 = await loadFloat32Constant('Variable_2_read__12__cf__12_0.npy');
+    const weightConv1 = await loadConstant('Variable_3_read__23__cf__23_0.npy');
+    const variableAdd1 = await loadFloat32Constant('Variable_4_read__34__cf__34_0.npy');
+    const variableMul1 = await loadFloat32Constant('Variable_5_read__43__cf__43_0.npy');
+    const weightConv2 = await loadConstant('Variable_6_read__44__cf__44_0.npy');
+    const variableAdd2 = await loadFloat32Constant('Variable_7_read__45__cf__45_0.npy');
+    const variableMul2 = await loadFloat32Constant('Variable_8_read__46__cf__46_0.npy');
+    const weightConv3 = await loadConstant('Variable_9_read__47__cf__47_0.npy');
+    const variableAdd3 = await loadFloat32Constant('Variable_10_read__2__cf__2_0.npy');
+    const variableMul3 = await loadFloat32Constant('Variable_11_read__3__cf__3_0.npy');
+    const weightConv4 = await loadConstant('Variable_12_read__4__cf__4_0.npy');
+    const variableAdd4 = await loadFloat32Constant('Variable_13_read__5__cf__5_0.npy');
+    const variableMul4 = await loadFloat32Constant('Variable_14_read__6__cf__6_0.npy');
+    const weightConv5 = await loadConstant('Variable_15_read__7__cf__7_0.npy');
+    const variableAdd5 = await loadFloat32Constant('Variable_16_read__8__cf__8_0.npy');
+    const variableMul5 = await loadFloat32Constant('Variable_17_read__9__cf__9_0.npy');
+    const weightConv6 = await loadConstant('Variable_18_read__10__cf__10_0.npy');
+    const variableAdd6 = await loadFloat32Constant('Variable_19_read__11__cf__11_0.npy');
+    const variableMul6 = await loadFloat32Constant('Variable_20_read__13__cf__13_0.npy');
+    const weightConv7 = await loadConstant('Variable_21_read__14__cf__14_0.npy');
+    const variableAdd7 = await loadFloat32Constant('Variable_22_read__15__cf__15_0.npy');
+    const variableMul7 = await loadFloat32Constant('Variable_23_read__16__cf__16_0.npy');
+    const weightConv8 = await loadConstant('Variable_24_read__17__cf__17_0.npy');
+    const variableAdd8 = await loadFloat32Constant('Variable_25_read__18__cf__18_0.npy');
+    const variableMul8 = await loadFloat32Constant('Variable_26_read__19__cf__19_0.npy');
+    const weightConv9 = await loadConstant('Variable_27_read__20__cf__20_0.npy');
+    const variableAdd9 = await loadFloat32Constant('Variable_28_read__21__cf__21_0.npy');
+    const variableMul9 = await loadFloat32Constant('Variable_29_read__22__cf__22_0.npy');
+    const weightConv10 = await loadConstant('Variable_30_read__24__cf__24_0.npy');
+    const variableAdd10 = await loadFloat32Constant('Variable_31_read__25__cf__25_0.npy');
+    const variableMul10 = await loadFloat32Constant('Variable_32_read__26__cf__26_0.npy');
+    const weightConv11 = await loadConstant('Variable_33_read__27__cf__27_0.npy');
+    const variableAdd11 = await loadFloat32Constant('Variable_34_read__28__cf__28_0.npy');
+    const variableMul11 = await loadFloat32Constant('Variable_35_read__29__cf__29_0.npy');
+    const weightConv12 = await loadConstant('Variable_36_read__30__cf__30_0.npy');
+    const variableAdd12 = await loadFloat32Constant('Variable_37_read__31__cf__31_0.npy');
+    const variableMul12 = await loadFloat32Constant('Variable_38_read__32__cf__32_0.npy');
+    const weightConvTranspose0 = await loadConstant('Variable_39_read__33__cf__33_0.npy');
+    const variableAdd13 = await loadFloat32Constant('Variable_40_read__35__cf__35_0.npy');
+    const variableMul13 = await loadFloat32Constant('Variable_41_read__36__cf__36_0.npy');
+    const weightConvTranspose1 = await loadConstant('Variable_42_read__37__cf__37_0.npy');
+    const variableAdd14 = await loadFloat32Constant('Variable_43_read__38__cf__38_0.npy');
+    const variableMul14 = await loadFloat32Constant('Variable_44_read__39__cf__39_0.npy');
+    const weightConv13 = await loadConstant('Variable_45_read__40__cf__40_0.npy');
+    const variableAdd15 = await loadFloat32Constant('Variable_46_read__41__cf__41_0.npy');
+    const variableMul15 = await loadFloat32Constant('Variable_47_read__42__cf__42_0.npy');
 
     const padding1 = [0, 0, 1, 1];
     const padding4 = [0, 0, 4, 4];
-    this.constAdd_ = this.builder_.constant(
-        {dataType: 'float32', dimensions: [1], shape: [1]},
-        new Float32Array([9.999999717180685e-10]),
-    );
-    this.constPow_ = this.builder_.constant(
-        {dataType: 'float32', dimensions: [1], shape: [1]},
-        new Float32Array([0.5]),
-    );
-    const constMul0 = this.builder_.constant(
-        {dataType: 'float32', dimensions: [1], shape: [1]},
-        new Float32Array([150]),
-    );
-    const constAdd0 = this.builder_.constant(
-        {dataType: 'float32', dimensions: [1], shape: [1]},
-        new Float32Array([127.5]),
-    );
+    // Used by the fallback instance normalization, which runs in float32.
+    this.constAdd_ = buildFloatConstant(this.builder_, [1], [9.999999717180685e-10], 'float32');
+    this.constPow_ = buildFloatConstant(this.builder_, [1], [0.5], 'float32');
+    const constMul0 = buildFloatConstant(this.builder_, [1], [150], this.targetDataType_);
+    const constAdd0 = buildFloatConstant(this.builder_, [1], [127.5], this.targetDataType_);
     // Build up the network.
     const inputDesc = {
       dataType: 'float32',
       dimensions: this.inputOptions.inputShape,
       shape: this.inputOptions.inputShape,
     };
-    const input = this.builder_.input('input', inputDesc);
+    let input = this.builder_.input('input', inputDesc);
     inputDesc.usage = MLTensorUsage.WRITE;
     inputDesc.writable = true;
     this.inputTensor_ = await this.context_.createTensor(inputDesc);
@@ -133,6 +137,16 @@ export class FastStyleTransferNet {
       usage: MLTensorUsage.READ,
       readable: true,
     });
+    // The first conv's outputs can exceed float16's max (65504) for raw 0-255
+    // pixels (about 68500 for Starry Night), which corrupts float16 graphs and
+    // devices that compute float32 graphs in float16 (e.g. NPUs). That conv has
+    // no bias and feeds instance normalization, which is scale invariant (apart
+    // from its epsilon), so scaling the input by 2^-4 (exact in float16) keeps
+    // it in range without visibly changing the result.
+    input = this.builder_.mul(input, buildFloatConstant(this.builder_, [1], [1 / 16], 'float32'));
+    if (this.targetDataType_ === 'float16') {
+      input = this.builder_.cast(input, 'float16');
+    }
 
     const conv2D0 = this.builder_.conv2d(this.builder_.pad(input, padding4, padding4, {mode: 'reflection'}), weightConv0);
 
@@ -201,7 +215,11 @@ export class FastStyleTransferNet {
     const conv2D13 = this.builder_.conv2d(this.builder_.pad(relu9, padding4, padding4, {mode: 'reflection'}), weightConv13);
 
     const add20 = this.buildInstanceNormalization_(conv2D13, variableMul15, variableAdd15);
-    return this.builder_.add(this.builder_.mul(this.builder_.tanh(add20), constMul0), constAdd0);
+    const output = this.builder_.add(this.builder_.mul(this.builder_.tanh(add20), constMul0), constAdd0);
+    if (this.targetDataType_ === 'float16') {
+      return this.builder_.cast(output, 'float32');
+    }
+    return output;
   }
 
   async build(outputOperand) {

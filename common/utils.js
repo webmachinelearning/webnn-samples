@@ -1,7 +1,7 @@
 'use strict';
 
 import {numpy} from './libs/numpy.js';
-import {addAlert} from './ui.js';
+import {addAlert, checkBtn, handleBtnUI} from './ui.js';
 
 export const isFloat16ArrayAvailable =
   typeof Float16Array !== 'undefined' && Float16Array.from;
@@ -85,6 +85,28 @@ export const toHalf = (function() {
   };
 })();
 
+// Convert a float32 typed array to float16 data. Use Float16Array if it is
+// available, otherwise use Uint16Array holding the float16 bit patterns.
+export function toFloat16Array(float32Array) {
+  return isFloat16ArrayAvailable ?
+    Float16Array.from(float32Array, (v) => v) :
+    Uint16Array.from(float32Array, (v) => toHalf(v));
+}
+
+// Build a float32 constant, or a float16 constant if `targetType` is
+// 'float16'. `data` is a Float32Array (or array of numbers).
+export function buildFloatConstant(builder, shape, data, targetType) {
+  const float32Data =
+    data instanceof Float32Array ? data : new Float32Array(data);
+  if (targetType === 'float16') {
+    return builder.constant(
+        {dataType: 'float16', dimensions: shape, shape},
+        toFloat16Array(float32Data));
+  }
+  return builder.constant(
+      {dataType: 'float32', dimensions: shape, shape}, float32Data);
+}
+
 // Convert npy data in original data type to `targetType`, only support
 // 'float32' to 'float16' conversion currently.
 export async function buildConstantByNpy(builder, url, targetType = 'float32') {
@@ -113,10 +135,7 @@ export async function buildConstantByNpy(builder, url, targetType = 'float32') {
   const TypedArrayConstructor = dataTypeMap.get(npArray.dataType).array;
   let typedArray = new TypedArrayConstructor(npArray.data.buffer);
   if (type === 'float32' && targetType === 'float16') {
-    // Use Float16Array if it is available, othwerwise use Uint16Array instead.
-    typedArray = isFloat16ArrayAvailable ?
-      Float16Array.from(typedArray, (v) => v) :
-      Uint16Array.from(typedArray, (v) => toHalf(v));
+    typedArray = toFloat16Array(typedArray);
     type = targetType;
   } else if (type !== targetType) {
     throw new Error(`Conversion from ${npArray.dataType} ` +
@@ -432,13 +451,112 @@ export function permuteData(array, dims, axes) {
   return [permutedData, shape];
 }
 
-export async function getDefaultLayout(deviceType) {
-  const context = await navigator.ml.createContext({deviceType});
-  const limits = context.opSupportLimits();
+const deviceLimitsCache = new Map();
 
-  const preferredLayout = limits.preferredInputLayout ?? 'nchw';
-  context.destroy();
-  return preferredLayout;
+async function queryDeviceLimits(deviceType) {
+  const context = await navigator.ml.createContext({deviceType});
+  try {
+    return context.opSupportLimits();
+  } finally {
+    context.destroy?.();
+  }
+}
+
+/**
+ * Get opSupportLimits() for a device. Creates at most one throwaway context
+ * per device for the lifetime of the page.
+ * @param {String} deviceType 'cpu', 'gpu' or 'npu'.
+ * @return {Object|null} the limits, or null if they can't be queried. The
+ *     underlying error resurfaces when the sample creates its own context.
+ */
+async function getDeviceLimits(deviceType) {
+  if (!deviceLimitsCache.has(deviceType)) {
+    deviceLimitsCache.set(deviceType, queryDeviceLimits(deviceType));
+  }
+  try {
+    return await deviceLimitsCache.get(deviceType);
+  } catch (error) {
+    deviceLimitsCache.delete(deviceType);
+    console.warn(`Unable to query WebNN ${deviceType} limits: ${error}`);
+    return null;
+  }
+}
+
+export async function getDefaultLayout(deviceType) {
+  const limits = await getDeviceLimits(deviceType);
+  return limits?.preferredInputLayout ?? 'nchw';
+}
+
+/**
+ * Get the floating point data types ('float32' and/or 'float16') the device
+ * can likely run the sample models with, based on its opSupportLimits().
+ * This is a heuristic: it checks graph inputs/outputs, constants, cast and
+ * conv2d, not every op a model uses, so building a graph can still fail.
+ *
+ * By default float16 models are assumed to take float32 graph inputs/outputs
+ * and cast to/from float16 inside the graph. Pass `nativeFloat16IO` for
+ * models whose graph inputs/outputs are float16 (e.g. selfie_segmentation).
+ *
+ * @param {String} deviceType 'cpu', 'gpu' or 'npu'.
+ * @param {Object} options
+ *     nativeFloat16IO: Boolean, see above.
+ *     preferredDataType: String, listed first if supported. Defaults to
+ *         'float16' for NPU (which generally runs float16 natively) and
+ *         'float32' otherwise.
+ * @return {Array} supported data types, preferred first. Both are returned
+ *     if the device's limits can't be queried.
+ */
+export async function getSupportedDataTypes(deviceType, {
+  nativeFloat16IO = false,
+  preferredDataType = deviceType === 'npu' ? 'float16' : 'float32',
+} = {}) {
+  const limits = await getDeviceLimits(deviceType);
+  let supportedDataTypes = ['float32', 'float16'];
+  if (limits) {
+    // Assume support if an implementation doesn't report a limit.
+    const supports = (limit, dataType) =>
+      limit?.dataTypes?.includes(dataType) ?? true;
+    const float32IO = supports(limits.input, 'float32') &&
+      supports(limits.output, 'float32');
+    const float32 = float32IO && supports(limits.constant, 'float32') &&
+      supports(limits.conv2d?.input, 'float32');
+    const float16IO = nativeFloat16IO ?
+      supports(limits.input, 'float16') &&
+        supports(limits.output, 'float16') :
+      float32IO && supports(limits.cast?.input, 'float32') &&
+        supports(limits.cast?.input, 'float16');
+    const float16 = float16IO && supports(limits.constant, 'float16') &&
+      supports(limits.conv2d?.input, 'float16');
+    supportedDataTypes = supportedDataTypes.filter(
+        (type) => type === 'float32' ? float32 : float16);
+  }
+  return supportedDataTypes.sort(
+      (a, b) => (b === preferredDataType) - (a === preferredDataType));
+}
+
+/**
+ * On a device change, enable only the Float32/Float16 buttons
+ * (#float32Label/#float16Label) the device supports and select its
+ * preferred data type, without triggering the buttons' change handlers.
+ * @param {String} deviceType 'cpu', 'gpu' or 'npu'.
+ * @param {Object} options passed to getSupportedDataTypes().
+ * @return {String|null} the selected data type, or null (after showing an
+ *     alert) if the device supports neither.
+ */
+export async function selectDataTypeForDevice(deviceType, options = {}) {
+  const supportedDataTypes =
+    await getSupportedDataTypes(deviceType, options);
+  // eslint-disable-next-line no-unused-vars
+  for (const type of ['float32', 'float16']) {
+    handleBtnUI(`#${type}Label`, !supportedDataTypes.includes(type));
+  }
+  if (supportedDataTypes.length === 0) {
+    addAlert(`WebNN (${deviceType.toUpperCase()}) supports neither ` +
+      'float32 nor float16 for this sample.');
+    return null;
+  }
+  checkBtn(supportedDataTypes[0]);
+  return supportedDataTypes[0];
 }
 
 /**
