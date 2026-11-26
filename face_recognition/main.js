@@ -50,14 +50,14 @@ $(document).ready(async () => {
   }
 });
 
-$('#backendBtns .btn').on('change', async (e) => {
+$('#backendBtns .btn').on('change', ui.disableWhilePending(async (e) => {
   if (inputType === 'camera') {
     await stopCamRender();
   }
   [backend, deviceType] = $(e.target).attr('id').split('_');
   layout = await utils.getDefaultLayout(deviceType);
   await main();
-});
+}, disabledSelectors));
 
 $('#fdModelBtns .btn').on('change', async (e) => {
   if (inputType === 'camera') {

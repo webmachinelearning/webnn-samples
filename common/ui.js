@@ -98,6 +98,26 @@ export function handleClick(cssSelectors, disabled = true) {
 }
 
 /**
+ * Wrap an async handler to disable the buttons until all its pending calls
+ * are done, so that clicks can't interleave with a slow handler.
+ * @param {Function} handler, async event handler.
+ * @param {Array} cssSelectors, css selectors of the buttons to disable.
+ * @return {Function} the wrapped handler.
+ */
+export function disableWhilePending(handler, cssSelectors) {
+  let pending = 0;
+  return async (...args) => {
+    pending++;
+    handleClick(cssSelectors, true);
+    try {
+      return await handler(...args);
+    } finally {
+      if (--pending === 0) handleClick(cssSelectors, false);
+    }
+  };
+}
+
+/**
  * Handle button UI, disable or enable the button.
  * @param {String} selector, css selector.
  * @param {Boolean} disabled, disable or enable the button.

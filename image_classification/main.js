@@ -81,10 +81,9 @@ $(document).ready(async () => {
     console.log(utils.webNNNotSupportMessage());
     ui.addAlert(utils.webNNNotSupportMessageHTML());
   }
-  layout = await utils.getDefaultLayout('cpu');
 });
 
-$('#deviceTypeBtns .btn').on('change', async (e) => {
+$('#deviceTypeBtns .btn').on('change', ui.disableWhilePending(async (e) => {
   if (inputType === 'camera') {
     await stopCamRender();
   }
@@ -107,7 +106,7 @@ $('#deviceTypeBtns .btn').on('change', async (e) => {
   if (modelName != '') {
     $(`#${modelName}`).parent().removeClass('active');
   }
-});
+}, disabledSelectors));
 
 $('#modelBtns .btn').on('change', async (e) => {
   if (inputType === 'camera') {
